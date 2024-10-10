@@ -1,0 +1,273 @@
+%-------------------------
+% Resume in Latex
+% Author : Jake Gutierrez
+% Based off of: https://github.com/sb2nov/resume
+% License : MIT
+%------------------------
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\input{glyphtounicode}
+
+
+%----------FONT OPTIONS----------
+% sans-serif
+% \usepackage[sfdefault]{FiraSans}
+% \usepackage[sfdefault]{roboto}
+% \usepackage[sfdefault]{noto-sans}
+% \usepackage[default]{sourcesanspro}
+
+% serif
+% \usepackage{CormorantGaramond}
+% \usepackage{charter}
+
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\classesList}[4]{
+    \item\small{
+        {#1 #2 #3 #4 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & \textbf{\small #2} \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{1.001\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+%----------HEADING----------
+% \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+%   \textbf{\href{http://sourabhbajaj.com/}{\Large Sourabh Bajaj}} & Email : \href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\
+%   \href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\
+% \end{tabular*}
+
+\begin{center}
+    {\Huge \scshape Eli D. Case} \\ \vspace{1pt}
+    Houston, TX \\ \vspace{1pt}
+    \small \raisebox{-0.1\height}\faPhone\ 865-809-3561 ~ \href{mailto:elicase4@gmail.com}{\raisebox{-0.2\height}\faEnvelope\  \underline{elicase4@gmail.com}} ~ 
+    \href{https://linkedin.com/in/elicase4}{\raisebox{-0.2\height}\faLinkedin\ \underline{linkedin.com/in/elicase4}}  ~
+    \href{https://github.com/elicase4}{\raisebox{-0.2\height}\faGithub\ \underline{github.com/elicase4}}
+    \vspace{-8pt}
+\end{center}
+
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    
+    \resumeSubheading
+      {Rice University}{May 2024 -- August 2025}
+      {M.S. Mechanical Engineering}{Houston, TX}
+      \resumeItem{GPA: 4.00/4.00}
+    \resumeSubheading
+      {Rice University}{August 2020 -- May 2024}
+      {B.S. Mechanical Engineering, Minor Computational and Applied Mathematics}{Houston, TX}
+      \resumeItem{GPA: 3.98/4.00, summa cum laude}
+  \resumeSubHeadingListEnd
+
+%
+%-----------AWARDS-----------
+\section{Awards}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Alan J. Chapman Award}{2024}
+      {Mechanical Engineering Department}{Rice University}
+      \resumeItemListStart
+        \resumeItem{An award presented annually to an outstanding graduating senior in Mechanical Engineering.}
+      \resumeItemListEnd
+    
+    \resumeSubheading
+      {Thomas Michael Panos Family Superior Engineering Student Award}{2024}
+      {Mechanical Engineering Department}{Rice University}
+      \resumeItemListStart
+        \resumeItem{An award presented to a graduating mechanical engineering senior who has demonstrated excellence in their studies each year in the School of Engineering.}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Herschel M. Rich Invention Award}{2024}
+      {George R. Brown School of Engineering}{Rice University}
+      \resumeItemListStart
+        \resumeItem{An award presented to Rice faculty or students who have developed or invented an original invention.}
+    \resumeItem{Associated with the \textit{Aeroforge3D -- Cold Spray Additive Manufacturing Device} project.}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Willy Revolution Award for Outstanding Innovation -- First Place}{2024}
+      {Oshman Engineering Design Kitchen}{Rice University}
+      \resumeItemListStart
+      \resumeItem{Associated with the \textit{Aeroforge3D -- Cold Spray Additive Manufacturing Device} project.}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Excellence in Capstone Engineering Award}{2024}
+      {Oshman Engineering Design Kitchen}{Rice University}
+      \resumeItemListStart
+  \resumeItem{Associated with the poster presentation completed for the \textit{Aeroforge3D -- Cold Spray Additive Manufacturing Device} project.}
+      \resumeItemListEnd
+
+  \resumeItemListEnd
+\vspace{-14pt}
+
+%-----------EXPERIENCE-----------
+\section{Research Experience}
+  \resumeSubHeadingListStart
+
+    \resumeSubheading
+      {Team for Advanced Flow Simulation and Modeling}{January 2022 -- Present}
+      {Research Assistant (Tayfun Tezduyar PhD, Kenji Takizawa PhD)}{Houston, TX}
+      \resumeItemListStart
+        \resumeItem{Perform high-fidelity simulations of complex engineering problems in fluid-structure interaction.}
+        \resumeItem{Designing and implementing modeling techniques for multiphase flows using phase field modeling.}
+        \resumeItem{Developed software in Python and C++ for T-Spline mesh generation and refinement within Isogeometric Analysis (IGA) frameworks.}
+        \resumeItem{Assist in completing regularly scheduled software and hardware maintenance of the lab server network.}
+      \resumeItemListEnd
+    
+  \resumeSubHeadingListEnd
+\vspace{-16pt}
+
+\section{General Experience}
+  \resumeSubHeadingListStart
+    
+    \resumeSubheading
+      {Aeroforge3D -- Cold Spray Additive Manufacturing Device}{August 2023 -- Present}
+      {Project Engineer}{Houston, TX}
+      \resumeItemListStart
+         \resumeItem{Designed and delivered a functional low-cost prototype device at a cost of \$5,000 capable of fabricating freestanding metallic parts through a cold-spray process.}
+         \resumeItem{Lead the design process for a supersonic nozzle capable of accelerating metallic particles to a target velocity via a carrier gas using MATLAB and Ansys Fluent.}
+         \resumeItem{Optimized a resistive heater design in COMSOL used to bring the carrier gas to a desired temperature and pressure condition.}
+         \resumeItem{Developed software in C++ for ESP-32 Boards used to operate the cold spray device control system.}
+         \resumeItem{Completed a poster presentation of the device to a panel of judges at the 2024 Oshman Engineering Design Kitchen Showcase at the Rice ION.}
+     \resumeItemListEnd
+    
+    \resumeSubheading
+      {UI Expert -- Expert Witness Group Co.}{May 2021 -- September 2021}
+      {Intern}{Seattle, WA}
+      \resumeItemListStart
+        \resumeItem{Assisted in writing an expert witness report for a class-action lawsuit with a finalized settlement of \$20,000,000.}
+        \resumeItem{Developed persuasive and evidence-based writing skills to draft an expert witness report.}
+        \resumeItem{Learned to examine academic research to support an expert witness testimony.}
+        \resumeItem{Analyzed classified documents to construct a detailed timeline of events and assign responsibility accordingly.}
+        \resumeItem{Conducted controlled testing of product features to demonstrate the validity of advertisement claims.}
+      \resumeItemListEnd
+  
+  \resumeSubHeadingListEnd
+\vspace{-16pt}
+
+    \resumeSubHeadingListStart
+        \resumeSubheading{Rice Eclipse}{August 2020 -- May 2022}{Fluid Flow Analysis Team Lead}{Rice University}
+            \resumeItemListStart
+                \resumeItem{Former design lead for Rice University's largest student-run engineering organization focused on designing competition rockets.}
+                \resumeItem{Produced rocket propulsion system components through experimentation, engineering analysis tools (systems modeling, CFD, FEA), and machining (lathing, milling, welding).}
+                \resumeItem{Pioneered new methods for the propulsion team by integrating computer simulation and validation into existing development processes.}
+                \resumeItem{Mentored new members within a design team of five people and communicated periodically with the propulsion team for design integration.}
+            \resumeItemListEnd
+        
+        \resumeSubheading{Teaching Assistant}{January 2022 -- May 2022}{CAAM 336 -- Differential Equations in Science and Engineering}{Rice University}
+            \resumeItemListStart
+               \resumeItem{Leveraged expertise with class material to grade assignments for over 90 enrolled students on a weekly basis.}
+               \resumeItem{Explained material from a variety of course topics (Differential Equations, Linear Algebra, Finite Difference Methods, Finite Element Methods, and MATLAB) to provide additional assisstance to students during course help sessions.}
+            \resumeItemListEnd
+
+        \resumeSubheading{Will Rice College}{August 2021 -- May 2024}{Academic Fellow}{Rice University}
+            \resumeItemListStart
+                \resumeItem{Provided weekly tutoring services for undergraduate students in a variety of introductory engineering and mathematics courses.}
+                \resumeItem{Utilized approachable teaching methods to explain technical concepts to students outside of STEM disciplines.}
+            \resumeItemListEnd
+        
+    \resumeSubHeadingListEnd
+
+%
+%-----------SKILLS-----------
+\section{Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Programming Tools}{: Python (Numpy, Scipy, Matplotlib, NetworkX), C++ (OMPL, Boost, OpenMP, OpenMPI, Arduino), C, Julia, MATLAB, Cuda, Bash, Git} \\
+     \textbf{Engineering Design Tools}{: Microsoft Excel, Solidworks, Fusion 360, Ansys, COMSOL, Simulink, Pointwise} \\
+     \textbf{Manufacturing}{: Lathing, Milling, Welding} \\
+     \textbf{Languages}{: English (Native), German (Beginner)} \\
+    }}
+ \end{itemize}
+ \vspace{-16pt}
+
+\end{document}

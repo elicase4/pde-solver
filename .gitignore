@@ -1,0 +1,7 @@
+# Compiles files
+*.pdf
+
+# Aux files
+*.out
+*.aux
+*.log
