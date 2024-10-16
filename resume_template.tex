@@ -1,6 +1,4 @@
-%-------------------------
 % Resume template
-%------------------------
 
 \documentclass[letterpaper,11pt]{article}
 
@@ -20,7 +18,6 @@
 \setlength{\multicolsep}{-3.0pt}
 \setlength{\columnsep}{-1pt}
 \input{glyphtounicode}
-
 
 %----------FONT OPTIONS----------
 % sans-serif
@@ -61,8 +58,6 @@
 % Ensure that generate pdf is machine readable/ATS parsable
 \pdfgentounicode=1
 
-%-------------------------
-% Custom commands
 \newcommand{\resumeItem}[1]{
   \item \small{
     {#1 \vspace{-2pt}}
@@ -113,35 +108,26 @@
 \newcommand{\resumeItemListStart}{\begin{itemize}}
 \newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
 
-%-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 \begin{document}
-
-%----------HEADING----------
-% \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-%   \textbf{\href{http://sourabhbajaj.com/}{\Large Sourabh Bajaj}} & Email : \href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\
-%   \href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\
-% \end{tabular*}
 
 \begin{center}
     {\large \scshape Eli D. Case} \\ \vspace{1pt}
     \small \raisebox{-0.1\height}\faPhone\ 865-809-3561 ~ \href{mailto:elicase4@gmail.com}{\raisebox{-0.2\height}\faEnvelope\  \underline{elicase4@gmail.com}} ~ 
     \href{https://linkedin.com/in/elicase4}{\raisebox{-0.2\height}\faLinkedin\ \underline{linkedin.com/in/elicase4}}  ~
     \href{https://github.com/elicase4}{\raisebox{-0.2\height}\faGithub\ \underline{github.com/elicase4}}
-    \vspace{-8pt}
+    \vspace{-6pt}
 \end{center}
 
 
 %-----------SEEKING-STATEMENT-----------
-\vspace{1pt}
 \begin{center}
   \textit{\textbf{Seeking an entry-level position in Mechanical Engineering or Software Engineering.}}
+    \vspace{-8pt}
 \end{center}
 
 %-----------EDUCATION-----------
 \section{Education}
+
   \resumeSubHeadingListStart
     
     \resumeSubheading
@@ -152,13 +138,29 @@
       {Rice University}{August 2020 -- May 2024}
       {B.S. Mechanical Engineering, Minor Computational and Applied Mathematics}{Houston, TX}
       \resumeItem{GPA 3.98/4.00, summa cum laude}
+
   \resumeSubHeadingListEnd
 
 
 %-----------SELECTED CAREER HIGHLIGHTS-----------
 \section{Selected Career Highlights}
  \begin{itemize}[leftmargin=0.15in, label={}]
-    \highlightItem{Example}
+    \highlightItem{As a first-year undergraduate, implemented Computational Fluid Dynamics (CFD) and Finite Element Analysis (FEA) procedures for a student rocketry team's hybrid rocket propulsion system, leading to the adoption of high-fidelity simulations across multiple design teams within the organization.
+}
+    \highlightItem{Designed and implemented a nozzle, resistive heater, and control system software for a cold spray additive manufacturing device prototype on a \$5,000 budget over 8 months. The project won three awards for invention, innovation, and presentation at an annual design showcase.
+}
+    \highlightItem{Conducted background research, performed product testing, and gathered evidence to draft of an expert witness report (report was not substantially changed) for a class-action lawsuit that resulted in a \$20,000,000 settlement.
+} 
+\end{itemize}
+ \vspace{-16pt}
+
+%-----------AWARDS-----------
+\section{Awards}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Academic}{: 2024 Alan J. Chapman Award, 2024 Thomas Michael Panos Family Superior Engineering Student Award} \\
+     \textbf{Project Awards}{: Cold Spray Additive Manufacturing Device (Herschel M. Rich Invention Award, Willy Revolution Outstanding Innovation Award -- First Place, Excellence in Capstone Engineering Award)} \\
+    }}
  \end{itemize}
  \vspace{-16pt}
 
@@ -169,30 +171,58 @@
     \resumeSubheading
       {Team for Advanced Flow Simulation and Modeling}{January 2022 -- Present}
       {Research Assistant (Tayfun Tezduyar PhD, Kenji Takizawa PhD)}{Houston, TX}
-    
+      \resumeItemListStart
+        \resumeItem{Perform high-fidelity simulations of complex engineering problems in fluid-structure interaction.}
+        \resumeItem{Designing and implementing modeling techniques for multiphase flows using phase field modeling.}
+        \resumeItem{Developed software in Python and C++ for T-Spline mesh generation and refinement within Isogeometric Analysis (IGA) frameworks.}
+        \resumeItem{Assist in completing regularly scheduled software and hardware maintenance of the lab server network.}
+      \resumeItemListEnd      
+
     \resumeSubheading
       {UI Expert -- Expert Witness Group Co.}{May 2021 -- September 2021}
       {Intern}{Seattle, WA}
-    
+      \resumeItemListStart
+        \resumeItem{Assisted in writing an expert witness report for a class-action lawsuit with a finalized settlement of \$20,000,000.}
+        \resumeItem{Developed persuasive and evidence-based writing skills to draft an expert witness report.}
+        \resumeItem{Learned to examine academic research to support an expert witness testimony.}
+        \resumeItem{Analyzed classified documents to construct a detailed timeline of events and assign responsibility accordingly.}
+        \resumeItem{Conducted controlled testing of product features to demonstrate the validity of advertisement claims.}
+      \resumeItemListEnd   
+ 
     \resumeSubHeadingListEnd
 
+%---------PROJECTS---------
 \section{Projects}
+
     \resumeSubHeadingListStart
-    \resumeSubheading
-      {Aeroforge3D -- Cold Spray Additive Manufacturing Device}{August 2023 -- Present}
-      {Project Engineer}{Houston, TX}
+      \resumeSubheading
+        {Aeroforge3D -- Cold Spray Additive Manufacturing Device}{August 2023 -- Present}
+        {Project Engineer}{Houston, TX}
+        \resumeItemListStart
+           \resumeItem{Designed and delivered a functional low-cost prototype device at a cost of \$5,000 capable of fabricating freestanding metallic parts through a cold-spray process.}
+           \resumeItem{Lead the design process for a supersonic nozzle capable of accelerating metallic particles to a target velocity via a carrier gas using MATLAB and Ansys Fluent.}
+           \resumeItem{Optimized a resistive-heater design in COMSOL used to bring the carrier gas to a desired temperature and pressure condition.}
+           \resumeItem{Developed software in C++ for ESP-32 Boards used to operate the cold spray device control system.}
+       \resumeItemListEnd
 
   \resumeSubHeadingListEnd
 \vspace{-12pt}
 
-%-----------INVOLVEMENT---------------
+%-----------EXTRACURRICULARS---------------
 \section{Extracurriculars}
+    
     \resumeSubHeadingListStart
+        
         \resumeSubheading{Rice Eclipse}{August 2020 -- May 2022}{Fluid Flow Analysis Team Lead}{Rice University}
+            \resumeItemListStart
+                \resumeItem{Former design lead for Rice University's largest student-run engineering organization focused on designing competition rockets.}
+                \resumeItem{Produced rocket propulsion system components through experimentation, engineering analysis tools (systems modeling, CFD, FEA), and machining (lathing, milling, welding).}
+                \resumeItem{Pioneered new methods for the propulsion team by integrating computer simulation and validation into existing development processes.}
+                \resumeItem{Mentored new members within a design team of five people and communicated periodically with the propulsion team for design integration.}
+            \resumeItemListEnd
         
     \resumeSubHeadingListEnd
 
-%
 %-----------SKILLS-----------
 \section{Skills}
  \begin{itemize}[leftmargin=0.15in, label={}]
@@ -203,15 +233,9 @@
  \end{itemize}
  \vspace{-16pt}
 
-%
-%-----------AWARDS-----------
-\section{Awards}
- \begin{itemize}[leftmargin=0.15in, label={}]
-    \small{\item{
-     \textbf{Academic}{: 2024 Alan J. Chapman Award, 2024 Thomas Michael Panos Family Superior Engineering Student Award} \\
-     \textbf{Project Awards}{: Cold Spray Additive Manufacturing Device (Herschel M. Rich Invention Award, Willy Revolution Outstanding Innovation Award -- First Place, Excellence in Capstone Engineering Award)} \\
-    }}
- \end{itemize}
- \vspace{-16pt}
+
+%-----------KEYWORDS-----------
+\section{Keywords}
+   \footnotesize{computational fluid mechanics finite element analysis aerospace rocket propulsion cold spray additive manufacturing nozzle design method of characteristics injector plate science fluid structure interaction multiphase flow expert witness report mesh generation mesh refinement embedded software programming applied mathematics heat transfer compressible flow}
 
 \end{document}
