@@ -16,7 +16,7 @@ namespace pde{
 					return stencil_rad;
 				}
 			private:
-				mesh::Mesh<DIM> mesh;
+				const mesh::Mesh<DIM>& mesh;
 		};
 
 	}

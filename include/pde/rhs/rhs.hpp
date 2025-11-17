@@ -13,9 +13,9 @@ namespace pde{
 				
 				void eval(double* f) const;
 			
-				pde::mesh::Mesh<DIM> mesh;
+				const pde::mesh::Mesh<DIM>& mesh;
 				std::function<double(const std::array<double, DIM>&)> func;
-				double* buffer_base;
+				double* buffer_base = nullptr;
 		};
 
 	}

@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <vector>
 #include <cmath>
+
 #include "pde/mesh/mesh.hpp"
 #include "pde/rhs/rhs.hpp"
 #include "pde/diffop/laplacian.hpp"
@@ -19,6 +20,7 @@ void check2DCase(int N){
     const std::size_t n = mesh.size();
     std::vector<double> u(n);
     std::vector<double> f(n);
+    std::vector<double> f_comp(n);
     std::vector<double> Lu(n);
 	
 	// test functional
@@ -32,11 +34,12 @@ void check2DCase(int N){
 			auto c = mesh.idx2coord(i,j);
 			double x = c[0], y = c[1];
 			u[mesh.idx2flat(i,j)] = (-1 / (2 * M_PI * M_PI)) * std::sin(M_PI*x)*std::sin(M_PI*y);
+			f_comp[mesh.idx2flat(i,j)] = std::sin(M_PI*x)*std::sin(M_PI*y);
 		}
     }
 
     pde::diffop::Laplacian<1,2> lap(mesh);
-    pde::rhs::RHS<2> f_rhs(mesh, rhs_f, f.data());
+    pde::rhs::RHS<2> f_rhs(mesh, rhs_f, &f[0]);
     for (int i=1; i<mesh.N[0]-1; i++){
 		for (int j=1; j<mesh.N[1]-1; j++){
 			lap.apply(&u[mesh.idx2flat(i,j)], &Lu[mesh.idx2flat(i,j)]);
@@ -49,6 +52,7 @@ void check2DCase(int N){
               << std::setw(8) << "j"
               << std::setw(20) << "Numerical Laplacian"
               << std::setw(20) << "Exact Laplacian"
+              << std::setw(20) << "RHS"
               << "\n";
     for (int i=0; i<mesh.N[0]-1; i+=10) {
 		for (int j=0; j<mesh.N[0]-1; j+=10) {
@@ -58,6 +62,7 @@ void check2DCase(int N){
 			std::cout << std::setw(8) << i
 					  << std::setw(8) << j
 					  << std::setw(20) << std::fixed << std::setprecision(6) << Lu[id]
+					  << std::setw(20) << std::fixed << std::setprecision(6) << f_comp[id]
 					  << std::setw(20) << std::fixed << std::setprecision(6) << f[id]
 					  << "\n";
 		}
