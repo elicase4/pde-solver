@@ -53,21 +53,22 @@ void check2DCase(int N){
 			auto c = mesh.idx2coord(i,j);
 			double x = c[0], y = c[1];
 			
+			f_comp[mesh.idx2flat(i,j)] = std::sin(M_PI*x)*std::sin(M_PI*y);
+			f_rhs.eval(&f[mesh.idx2flat(i,j)]);
+			
 			auto face = mesh.get_boundary_face(i,j);
 			if(face != pde::mesh::BoundaryFace::None){
 				dbc.eval(&u[mesh.idx2flat(i,j)], &f[mesh.idx2flat(i,j)]);
 			} else {
-				u[mesh.idx2flat(i,j)] = (-1 / (2 * M_PI * M_PI)) * std::sin(M_PI*x)*std::sin(M_PI*y) + 10.0;
+				u[mesh.idx2flat(i,j)] = (-1.0 / (2.0 * M_PI * M_PI)) * std::sin(M_PI*x)*std::sin(M_PI*y) + 10.0;
 			}
 			
-			f_comp[mesh.idx2flat(i,j)] = std::sin(M_PI*x)*std::sin(M_PI*y);
 		}
     }
 
     for (int i=1; i<mesh.N[0]-1; i++){
 		for (int j=1; j<mesh.N[1]-1; j++){
 			lap.apply(&u[mesh.idx2flat(i,j)], &Lu[mesh.idx2flat(i,j)]);
-			f_rhs.eval(&f[mesh.idx2flat(i,j)]);
 		}
     }
 
@@ -75,12 +76,12 @@ void check2DCase(int N){
     std::cout << std::setw(8) << "i"
               << std::setw(8) << "j"
               << std::setw(20) << "Numerical Laplacian"
-              << std::setw(20) << "Exact Laplacian"
+              << std::setw(20) << "F"
               << std::setw(20) << "RHS"
               << std::setw(20) << "Solution Vector"
               << "\n";
-    for (int i=0; i<mesh.N[0]-1; i+=10) {
-		for (int j=0; j<mesh.N[0]-1; j+=10) {
+    for (int i=0; i<mesh.N[0]; i+=1) {
+		for (int j=0; j<mesh.N[0]; j+=1) {
 			std::size_t id = mesh.idx2flat(i,j);
 
 			// Print values aligned

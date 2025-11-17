@@ -39,7 +39,7 @@ namespace pde {
 					int axis = ((int) face) / 2;
 					int offset = ((int) face % 2 == 0) ? 1 : -1;
 					
-					std::array<int,DIM> rhs_idx = sol_idx;
+					std::array<int,DIM> rhs_idx = {0};
 					rhs_idx[axis] += offset;
 					std::size_t rhs_flat = mesh.idx2flat(rhs_idx[0], rhs_idx[1], rhs_idx[2]);
 					
