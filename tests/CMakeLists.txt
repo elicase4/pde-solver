@@ -2,9 +2,9 @@ add_executable(test_serial.exe serial.cpp)
 target_link_libraries(test_serial.exe PRIVATE solvers)
 add_test(NAME serial COMMAND test_serial)
 
-add_executable(test_laplacian.exe laplacian.cpp)
-target_link_libraries(test_laplacian.exe PRIVATE solvers)
-add_test(NAME laplacian COMMAND test_laplacian)
+add_executable(test_poisson_eq.exe poisson_eq.cpp)
+target_link_libraries(test_poisson_eq.exe PRIVATE solvers)
+add_test(NAME poisson_eq COMMAND test_poisson_eq)
 
 if (ENABLE_OMP)
 	add_executable(test_openmp.mexe openmp.cpp)

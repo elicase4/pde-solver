@@ -37,14 +37,13 @@ namespace pde {
 					}
 				}
 
-				// cartesian to flat indexing
-				std::size_t idx(int i, int j, int k=0) const; 
-
-				// check bounds
-				bool in_bounds(int i, int j, int k=0) const;
+				std::size_t idx2flat(int i, int j, int k=0) const; 
 				
-				// indexing to coordinate
-				std::array<double,DIM> coord(int i, int j, int k=0) const;
+				std::array<int,DIM> flat2idx(std::size_t flat_idx) const;
+
+				std::array<double,DIM> idx2coord(int i, int j, int k=0) const;
+				
+				bool in_bounds(int i, int j, int k=0) const;
 
 				// domain size 
 				std::size_t size() const;
