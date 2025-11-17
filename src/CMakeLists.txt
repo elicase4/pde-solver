@@ -1,8 +1,6 @@
 add_library(core
     pde/mesh/mesh.cpp
     pde/diffop/laplacian.cpp
-    pde/boundary/boundary.cpp
-    pde/rhs/rhs.cpp
 )
 
 target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR}/include)

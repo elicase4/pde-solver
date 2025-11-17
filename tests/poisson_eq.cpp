@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "pde/mesh/mesh.hpp"
+#include "pde/solution/solution.hpp"
 #include "pde/rhs/rhs.hpp"
 #include "pde/diffop/laplacian.hpp"
 #include "pde/boundary/dirichlet.hpp"
@@ -31,13 +32,14 @@ void check2DCase(int N){
 
 	// test dirichlet bc
 	auto const_dbc_f = [](const std::array<double,2>& x){
-		return 0.0;
+		return 10.0;
 	};
 	
 	// construct pde objects
 	pde::diffop::Laplacian<1,2> lap(mesh);
     pde::rhs::RHS<2> f_rhs(mesh, rhs_f, &f[0]);
-    pde::boundary::Dirichlet<2> dbc(mesh, &u[0]);
+    pde::solution::Solution<2> u_sol(mesh, &u[0]);
+	pde::boundary::Dirichlet<2> dbc(mesh, u_sol, f_rhs);
 	
 	// set bcs
 	dbc.set(pde::mesh::BoundaryFace::XMin, const_dbc_f);
@@ -53,9 +55,9 @@ void check2DCase(int N){
 			
 			auto face = mesh.get_boundary_face(i,j);
 			if(face != pde::mesh::BoundaryFace::None){
-				dbc.eval(&u[mesh.idx2flat(i,j)]);
+				dbc.eval(&u[mesh.idx2flat(i,j)], &f[mesh.idx2flat(i,j)]);
 			} else {
-				u[mesh.idx2flat(i,j)] = (-1 / (2 * M_PI * M_PI)) * std::sin(M_PI*x)*std::sin(M_PI*y);
+				u[mesh.idx2flat(i,j)] = (-1 / (2 * M_PI * M_PI)) * std::sin(M_PI*x)*std::sin(M_PI*y) + 10.0;
 			}
 			
 			f_comp[mesh.idx2flat(i,j)] = std::sin(M_PI*x)*std::sin(M_PI*y);
