@@ -101,8 +101,6 @@ namespace pdesolver {
 			return npe;
 		}
 
-		static void localNodePosition(const std::vector<Index>& basisOrder, Index localNode, Real* xi);
-		
 	}
 
 }
