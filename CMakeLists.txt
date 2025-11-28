@@ -101,12 +101,12 @@ include_directories(
 # subdirectories
 add_subdirectory(src/core)
 add_subdirectory(src/mesh)
-add_subdirectory(src/fem)
-add_subdirectory(src/equations)
-add_subdirectory(src/bc)
-add_subdirectory(src/linalg)
-add_subdirectory(src/utils)
-add_subdirectory(src/apps)
+#add_subdirectory(src/fem)
+#add_subdirectory(src/equations)
+#add_subdirectory(src/bc)
+#add_subdirectory(src/linalg)
+#add_subdirectory(src/utils)
+#add_subdirectory(src/apps)
 
 # build commands
 if(BUILD_TESTS)
@@ -118,12 +118,13 @@ if(BUILD_BENCHMARKS)
 endif()
 
 if(BUILD_EXAMPLES)
-	add_subdirectory(examples)
+	#add_subdirectory(examples)
 endif()
 
 # Installation
 install(TARGETS
-	pde_core pde_mesh pde_fem pde_equations pde_bc pde_linalg pde_utils
+	#pde_core pde_mesh pde_fem pde_equations pde_bc pde_linalg pde_utils
+	pde_core pde_mesh
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin

@@ -1,6 +1,6 @@
-add_library(pde_core
-	field.cpp
-)
+#add_library(pde_core
+#	#field.cpp
+#)
 
 target_include_directories(pde_core
 	PUBLIC

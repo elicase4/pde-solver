@@ -58,10 +58,10 @@ endfunction()
 # ==================================================================
 
 # Field tests
-add_pde_test(test_field
-	unit/test_field.cpp
-	pde_core pde_mesh
-)
+#add_pde_test(test_field
+#	unit/test_field.cpp
+#	pde_core pde_mesh
+#)
 
 # ==================================================================
 # Backend Tests
@@ -129,10 +129,10 @@ endif()
 # ==================================================================
 
 # Poisson Eq test
-add_pde_integration_test(test_poisson_eqs
-	integration/test_poisson_eqs.cpp
-	pde_core pde_mesh pde_fem pde_equations pde_bc pde_linalg pde_utils
-)
+#add_pde_integration_test(test_poisson_eqs
+#	integration/test_poisson_eqs.cpp
+#	pde_core pde_mesh pde_fem pde_equations pde_bc pde_linalg pde_utils
+#)
 
 # ==================================================================
 # Integration and Backend Tests

@@ -1,6 +1,5 @@
 add_library(pde_mesh
-	StructuredMesh2D.cpp
-	MeshIO.cpp
+	BlockMesh2D.cpp
 )
 
 target_include_directories(pde_mesh
@@ -10,7 +9,7 @@ target_include_directories(pde_mesh
 		$<INSTALL_INTERFACE:include/pdesolver/mesh>
 )
 
-target_compile_features(pde_mesh 
+target_link_libraries(pde_mesh 
 	PUBLIC 
 		pde_core
 )

@@ -1,5 +1,5 @@
 add_library(pde_equations
-	PoissonEquation.cpp
+	#PoissonEquation.cpp
 )
 
 target_include_directories(pde_equations
@@ -9,7 +9,7 @@ target_include_directories(pde_equations
 		$<INSTALL_INTERFACE:include/pdesolver/equations>
 )
 
-target_compile_features(pde_equations 
+target_link_libraries(pde_equations 
 	PUBLIC
 		pde_core
 		pde_mesh

@@ -1,5 +1,5 @@
 add_executable(poisson_solver
-	poisson_solver.cpp
+	#poisson_solver.cpp
 )
 
 target_include_directories(poisson_solver
@@ -8,7 +8,7 @@ target_include_directories(poisson_solver
 		${CMAKE_SOURCE_DIR}/src/apps
 )
 
-target_compile_features(poisson_solver
+target_link_libraries(poisson_solver
 	PRIVATE
 		pde_core
 		pde_mesh

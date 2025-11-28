@@ -1,8 +1,7 @@
 set(LINALG_SOURCES
-	Vector.cpp
-	SparseMatrix.cpp
-	solver/CG.cpp
-	solver/GMRES.cpp
+	#Vector.cpp
+	#SparseMatrix.cpp
+	#solver/CG.cpp
 )
 
 set(BACKEND_SOURCES "")
@@ -31,7 +30,7 @@ target_include_directories(pde_linalg
 		$<INSTALL_INTERFACE:include/pdesolver/linalg>
 )
 
-target_compile_features(pde_linalg
+target_link_libraries(pde_linalg
 	PUBLIC
 		pde_core
 )

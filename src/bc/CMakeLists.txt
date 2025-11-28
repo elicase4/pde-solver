@@ -1,5 +1,5 @@
 add_library(pde_bc
-	DirichletBC.cpp
+	#DirichletBC.cpp
 )
 
 target_include_directories(pde_bc
@@ -9,7 +9,7 @@ target_include_directories(pde_bc
 		$<INSTALL_INTERFACE:include/pdesolver/bc>
 )
 
-target_compile_features(pde_bc 
+target_link_libraries(pde_bc 
 	PUBLIC
 		pde_core
 		pde_mesh

@@ -1,5 +1,5 @@
 add_library(pde_fem
-	QuadElement.cpp
+	#QuadElement.cpp
 )
 
 target_include_directories(pde_fem
@@ -9,7 +9,7 @@ target_include_directories(pde_fem
 		$<INSTALL_INTERFACE:include/pdesolver/fem>
 )
 
-target_compile_features(pde_fem 
+target_link_libraries(pde_fem 
 	PUBLIC
 		pde_core
 		pde_mesh

@@ -1,5 +1,5 @@
 add_library(pde_utils
-	logger.cpp
+	#logger.cpp
 )
 
 target_include_directories(pde_utils
@@ -9,7 +9,7 @@ target_include_directories(pde_utils
 		$<INSTALL_INTERFACE:include/pdesolver/utils>
 )
 
-target_compile_features(pde_utils 
+target_link_libraries(pde_utils 
 	PUBLIC
 		pde_core
 		pde_mesh
