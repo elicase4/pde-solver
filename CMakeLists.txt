@@ -36,14 +36,14 @@ include(compiler_flags OPTIONAL)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(
 		-Wall -Wextra -Wpedantic
-		$<$<CONFIG:Debug>:-g -O0>
-		$<$<CONFIG:Release>:-O3 -march=native -DNDEBUG>
+		#$<$<CONFIG:Debug>:-g>
+		#$<$<CONFIG:Release>:-O3 -march=native -DNDEBUG>
 	)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	add_compile_options(
 		/W4
-		$<$<CONFIG:Debug>:/Od /Zi>
-		$<$<CONFIG:Release>:/O2 /DNDEBUG>
+		#$<$<CONFIG:Debug>:/Od /Zi>
+		#$<$<CONFIG:Release>:/O2 /DNDEBUG>
 	)
 endif()
 
@@ -99,13 +99,13 @@ include_directories(
 )
 
 # subdirectories
-add_subdirectory(src/core)
+#add_subdirectory(src/core)
 add_subdirectory(src/mesh)
+add_subdirectory(src/io)
 #add_subdirectory(src/fem)
 #add_subdirectory(src/equations)
 #add_subdirectory(src/bc)
 #add_subdirectory(src/linalg)
-#add_subdirectory(src/utils)
 #add_subdirectory(src/apps)
 
 # build commands
@@ -124,7 +124,7 @@ endif()
 # Installation
 install(TARGETS
 	#pde_core pde_mesh pde_fem pde_equations pde_bc pde_linalg pde_utils
-	pde_core pde_mesh
+	pde_mesh pde_io
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin

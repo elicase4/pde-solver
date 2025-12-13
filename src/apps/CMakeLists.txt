@@ -1,4 +1,5 @@
 add_executable(poisson_solver
+	#blockmesh2d.cpp
 	#poisson_solver.cpp
 )
 
@@ -10,7 +11,7 @@ target_include_directories(poisson_solver
 
 target_link_libraries(poisson_solver
 	PRIVATE
-		pde_core
+#		pde_core
 		pde_mesh
 		pde_fem
 		pde_equations

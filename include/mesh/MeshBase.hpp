@@ -28,7 +28,7 @@ namespace pdesolver {
 			const Real* getExtractionOperator(Index elemID) const;
 			
 			void clear() {
-				data.parametricDim = 0; data.spatialDim = 0; data.numNodes = 0; data.numElements = 0; data.nodesPerElement = 0; data.nodesPerBoundaryEntity = 0;
+				data.parametricDim = 0; data.spatialDim = 0; data.numNodes = 0; data.numElements = 0; data.nodesPerElement = 0; data.facesPerElement = 0;
 				data.xyz.clear(); data.ien.clear(); data.rng.clear(); data.C.clear(); data.basisOrder.clear();
 			}
 
@@ -40,7 +40,7 @@ namespace pdesolver {
 				if (data.ien.size() != data.numElements * data.nodesPerElement) {
 					return false;
 				}
-				if (data.rng.size() != data.numElement * data.facesPerElement) {
+				if (data.rng.size() != data.numElements * data.facesPerElement) {
 					return false;
 				}
 				if (data.parametricDim == 0 || data.spatialDim == 0) {
@@ -61,14 +61,15 @@ namespace pdesolver {
 			
 			bool isIGA() const { return !data.C.empty(); }
 		
-		protected:
 			MeshData data;
+		
+		protected:
 
 			MeshBase() = default;
 
-			static Index computeNodesPerElement() {
+			static Index computeNodesPerElement(std::vector<Index> basisOrder) {
 				Index npe = 1;
-				for (Index p : data.basisOrder){
+				for (Index p : basisOrder){
 					npe *= (p + 1);
 				}
 				return npe;

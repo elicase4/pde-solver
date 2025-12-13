@@ -63,6 +63,11 @@ endfunction()
 #	pde_core pde_mesh
 #)
 
+add_pde_test(test_blockmesh2d
+	unit/blockmesh2d.cpp
+	pde_mesh pde_io
+)
+
 # ==================================================================
 # Backend Tests
 # ==================================================================
@@ -166,25 +171,25 @@ endif()
 # ==================================================================
 
 # Unit tests
-add_custom_target(test_unit
-	COMMAND ${CMAKE_CTEST_COMMAND} -L unit --output-on-failure
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	COMMENT "Running unit tests..."
-)
+#add_custom_target(test_unit
+#	COMMAND ${CMAKE_CTEST_COMMAND} -L unit --output-on-failure
+#	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#	COMMENT "Running unit tests..."
+#)
 
 # Integration tests
-add_custom_target(test_integration
-	COMMAND ${CMAKE_CTEST_COMMAND} -L integration --output-on-failure
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	COMMENT "Running integration tests..."
-)
+#add_custom_target(test_integration
+#	COMMAND ${CMAKE_CTEST_COMMAND} -L integration --output-on-failure
+#	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#	COMMENT "Running integration tests..."
+#)
 
 # All tests with verbose output
-add_custom_target(test_verbose
-	COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -V
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	COMMENT "Running all tests (verbose)..."
-)
+#add_custom_target(test_verbose
+#	COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -V
+#	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#	COMMENT "Running all tests (verbose)..."
+#)
 
 # ==================================================================
 # Test Summary

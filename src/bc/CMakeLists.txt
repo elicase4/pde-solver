@@ -1,6 +1,6 @@
-add_library(pde_bc
-	#DirichletBC.cpp
-)
+#add_library(pde_bc
+#	DirichletBC.cpp
+#)
 
 target_include_directories(pde_bc
 	PUBLIC
@@ -11,7 +11,7 @@ target_include_directories(pde_bc
 
 target_link_libraries(pde_bc 
 	PUBLIC
-		pde_core
+#		pde_core
 		pde_mesh
 		pde_linalg
 )

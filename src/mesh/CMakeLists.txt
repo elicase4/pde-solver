@@ -9,10 +9,10 @@ target_include_directories(pde_mesh
 		$<INSTALL_INTERFACE:include/pdesolver/mesh>
 )
 
-target_link_libraries(pde_mesh 
-	PUBLIC 
-		pde_core
-)
+#target_link_libraries(pde_mesh 
+#	PUBLIC 
+#		pde_core
+#)
 
 set_target_properties(pde_mesh PROPERTIES
 	VERSION ${PROJECT_VERSION}

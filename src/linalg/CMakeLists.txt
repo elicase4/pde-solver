@@ -30,10 +30,10 @@ target_include_directories(pde_linalg
 		$<INSTALL_INTERFACE:include/pdesolver/linalg>
 )
 
-target_link_libraries(pde_linalg
-	PUBLIC
-		pde_core
-)
+#target_link_libraries(pde_linalg
+#	PUBLIC
+#		pde_core
+#)
 
 # OpenMP support
 if(ENABLE_OPENMP)

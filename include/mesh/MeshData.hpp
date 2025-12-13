@@ -26,7 +26,7 @@ namespace pdesolver {
 			// mesh data
 			std::vector<Real> xyz;
 			std::vector<Index> ien;
-			std::vector<Index> rng;
+			std::vector<Int> rng;
 			std::vector<Real> C;
 		
 		}; // struct MeshData

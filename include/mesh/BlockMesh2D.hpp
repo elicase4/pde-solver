@@ -9,7 +9,7 @@ namespace pdesolver {
 		
 		class BlockMesh2D : public MeshBase {
 		public:
-			BlockMesh2D(Index nx_, Index ny_, Real x0_, Real x1_, Real y0_, Real y1_, Int px_, Int py_): nx(nx_), ny(ny_), x0(x0_), x1(x1_), y0(y0_), y1(y1_), px(px_), py(py_) {};
+			BlockMesh2D(Index nx_, Index ny_, Real x0_, Real x1_, Real y0_, Real y1_, Index px_, Index py_): nx(nx_), ny(ny_), x0(x0_), x1(x1_), y0(y0_), y1(y1_), px(px_), py(py_) {};
 			
 			void initializeData();
 
@@ -28,8 +28,8 @@ namespace pdesolver {
 			Real y0;
 			Real y1;
 			
-			Int px;
-			Int py;
+			Index px;
+			Index py;
 
 		}; // class BlockMesh2D
 

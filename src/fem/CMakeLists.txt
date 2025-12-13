@@ -11,7 +11,7 @@ target_include_directories(pde_fem
 
 target_link_libraries(pde_fem 
 	PUBLIC
-		pde_core
+#		pde_core
 		pde_mesh
 )
 

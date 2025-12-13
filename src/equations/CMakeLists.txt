@@ -11,7 +11,7 @@ target_include_directories(pde_equations
 
 target_link_libraries(pde_equations 
 	PUBLIC
-		pde_core
+#		pde_core
 		pde_mesh
 		pde_fem
 		pde_linalg

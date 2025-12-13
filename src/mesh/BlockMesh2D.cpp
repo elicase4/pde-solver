@@ -7,7 +7,7 @@ void pdesolver::mesh::BlockMesh2D::initializeData(){
 	data.spatialDim = 2;
 
 	// basis function info
-	data.basisOrder = {px + 1, py + 1};
+	data.basisOrder = {px, py};
 	data.nodesPerElement = (px + 1)*(py + 1);
 
 	// mesh size info
@@ -27,8 +27,8 @@ void pdesolver::mesh::BlockMesh2D::initializeData(){
 void pdesolver::mesh::BlockMesh2D::generateNodes(){
 	
 	// element spacing
-	Real dx = (x1 - x0) / nx;
-	Real dy = (y1 - y0) / ny;
+	Real dx = (x1 - x0) / ( (Real) nx);
+	Real dy = (y1 - y0) / ( (Real) ny);
 
 	// populate xyz array
 	Index node = 0;
@@ -36,8 +36,8 @@ void pdesolver::mesh::BlockMesh2D::generateNodes(){
 	for (Index j = 0; j <= ny; ++j) {
 		for (Index i = 0; i <= nx; ++i) {
 			
-			data.xyz[data.spatialDim * node] = x0 + i * dx;
-			data.xyz[data.spatialDim * node + 1] = y0 + j * dy;
+			data.xyz[data.spatialDim * node] = x0 + ( (Real) i) * dx;
+			data.xyz[data.spatialDim * node + 1] = y0 + ( (Real) j) * dy;
 			
 			node++;
 		}
@@ -51,7 +51,7 @@ void pdesolver::mesh::BlockMesh2D::generateElements(){
 	for (Index ele_y = 0; ele_y < ny; ++ele_y){
 		for (Index ele_x = 0; ele_x < nx; ++ele_x){
 			
-			Index ele = ele_j * nx + ele_i;
+			Index ele = ele_y * nx + ele_x;
 			
 			for (Index a = 0; a < data.nodesPerElement; ++a){
 				
