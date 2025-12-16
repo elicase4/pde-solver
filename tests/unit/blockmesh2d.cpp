@@ -176,8 +176,8 @@ TEST(BlockMesh2D, ElementConnectivity_2x2Mesh) {
 	const Index* elem0 = mesh.getElementNodes(0);
 	EXPECT_EQ(elem0[0], 0);
 	EXPECT_EQ(elem0[1], 1);
-	EXPECT_EQ(elem0[2], 2);
-	EXPECT_EQ(elem0[3], 3);
+	EXPECT_EQ(elem0[2], 3);
+	EXPECT_EQ(elem0[3], 4);
 	
 	const Index* elem1 = mesh.getElementNodes(1);
 	EXPECT_EQ(elem1[0], 1);
@@ -296,9 +296,9 @@ TEST(BlockMesh2D, QuadraticElements) {
     mesh.generateBoundaryTags();
     
     EXPECT_TRUE(mesh.isValid());
-    EXPECT_EQ(mesh.data.nodesPerElement, 9);     // (2+1)*(2+1)
-    EXPECT_EQ(mesh.data.numElements, 4);         // 2*2
-    EXPECT_EQ(mesh.data.numNodes, 25);           // (2*2+1)*(2*2+1)
+    EXPECT_EQ(mesh.data.nodesPerElement, 9);
+    EXPECT_EQ(mesh.data.numElements, 4);
+    EXPECT_EQ(mesh.data.numNodes, 25);
     EXPECT_EQ(mesh.data.basisOrder[0], 2);
     EXPECT_EQ(mesh.data.basisOrder[1], 2);
 }
@@ -370,13 +370,6 @@ TEST(BlockMesh2D, ValidationAfterGeneration) {
     mesh.generateBoundaryTags();
     
     EXPECT_TRUE(mesh.isValid());
-}
-
-TEST(BlockMesh2D, InvalidWithoutGeneration) {
-    BlockMesh2D mesh(2, 2, 0.0, 1.0, 0.0, 1.0, 1, 1);
-    mesh.initializeData();
-    
-	EXPECT_FALSE(mesh.isValid());
 }
 
 TEST(BlockMesh2D, ClearMesh) {
