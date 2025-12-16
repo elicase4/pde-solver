@@ -405,6 +405,6 @@ TEST(BlockMesh2D, VTKOutput) {
     
     // Should not throw
     EXPECT_NO_THROW({
-        writer.writeVTK(mesh, "test_mesh.vtk");
+        writer.writeVTK(mesh, "tests/test_mesh.vtk");
     });
 }
