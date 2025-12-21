@@ -10,8 +10,6 @@ namespace pdesolver {
 		template <int Order>
 		class Lagrange1D {
 		public:
-			static constexpr int numNodes = Order + 1;
-		
 			HOST_DEVICE static void eval(Real xi, Real* N);
 			HOST_DEVICE static void evalFirstDerivative(Real xi, Real* dN);
 			HOST_DEVICE static void evalSecondDerivative(Real xi, Real* d2N);
@@ -33,8 +31,8 @@ namespace pdesolver {
 			else if constexpr (Order == 3){
 				N[0] = (-9.0/16.0) * (xi - (1.0/3.0)) * (xi - 1.0) * (xi + (1.0/3.0));
 				N[1] = (27.0/16.0) * (xi - 1.0) * (xi - (1.0/3.0)) * (xi + 1.0);
-				N[2] = (-27.0/16.0) * (xi - (1.0/3.0)) * (xi - 1.0) * (xi + 1.0);
-				N[3] = (9.0/16.0) * (xi - (1.0/3.0)) * (xi - 1.0) * (xi + (1.0/3.0));
+				N[2] = (-27.0/16.0) * (xi + (1.0/3.0)) * (xi - 1.0) * (xi + 1.0);
+				N[3] = (9.0/16.0) * (xi - (1.0/3.0)) * (xi + 1.0) * (xi + (1.0/3.0));
 			}
 			else {
 				static_assert(Order <= 3, "Lagrange1D: Orders 1,2,3 implemented");

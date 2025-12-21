@@ -8,26 +8,22 @@ namespace pdesolver {
 	namespace fem {
 		
 		template <int Px, int Py, int Pz>
-		class LagrangeQuad {
+		class LagrangeHex {
 		public:
-			static constexpr int dim = 3;
-			static constexpr int nodesPerElement = (Px + 1) * (Py + 1) * (Pz + 1);
-			
 			using BasisX = Lagrange1D<Px>;
 			using BasisY = Lagrange1D<Py>;
 			using BasisZ = Lagrange1D<Pz>;
 
 			HOST_DEVICE static void eval(const Real* xi, Real* N);
 			HOST_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta, Real* dNdzeta);
-			HOST_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Nd2zeta, 
-													Real* d2Ndthetadxi, Real* d2Ndthetadzeta, Real* d2Ndxidzeta);
+			HOST_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Nd2zeta, Real* d2Ndthetadxi, Real* d2Ndthetadzeta, Real* d2Ndxidzeta);
 			HOST_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
 
-		}; // class LagrangeQuad
+		}; // class LagrangeHex
 		
 		// Implementation: eval
 		template<int Px, int Py, int Pz>
-		HOST_DEVICE static void LagrangeHex<Px, Py, Pz>::eval(const Real* xi, Real* N){
+		HOST_DEVICE void LagrangeHex<Px, Py, Pz>::eval(const Real* xi, Real* N){
 			Real Nx[Px + 1];
 			Real Ny[Py + 1];
 			Real Nz[Pz + 1];
@@ -50,7 +46,7 @@ namespace pdesolver {
 		
 		// Implementation: evalGradient
 		template<int Px, int Py, int Pz>
-		HOST_DEVICE static void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta, Real* dNdzeta){
+		HOST_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta, Real* dNdzeta){
 			Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 			Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
 
@@ -77,8 +73,7 @@ namespace pdesolver {
 		
 		// Implementation: evalHessian
 		template<int Px, int Py, int Pz>
-		HOST_DEVICE static void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Nd2zeta, 
-																		 Real* d2Ndthetadxi, Real* d2Ndthetadzeta, Real* d2Ndxidzeta);
+		HOST_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Nd2zeta, Real* d2Ndthetadxi, Real* d2Ndthetadzeta, Real* d2Ndxidzeta){
 			Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 			Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
 			Real d2Nx[Px + 1], d2Ny[Py + 1], d2Nz[Pz + 1];
@@ -112,7 +107,7 @@ namespace pdesolver {
 		
 		// Implementation: evalLaplacian
 		template<int Px, int Py, int Pz>
-		HOST_DEVICE static void LagrangeHex<Px, Py, Pz>::evalLaplacian(const Real* xi, Real* lapN){
+		HOST_DEVICE void LagrangeHex<Px, Py, Pz>::evalLaplacian(const Real* xi, Real* lapN){
 			Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 			Real d2Nx[Px + 1], d2Ny[Py + 1], d2Nz[Pz + 1];
 
@@ -136,9 +131,9 @@ namespace pdesolver {
 		}
 		
 		// common typedefs
-		using TrilinearQuad = LangrangeHex<1,1,1>;
-		using TriquadraticQuad = LangrangeHex<2,2,2>;
-		using TricubicQuad = LangrangeHex<3,3,3>;
+		using TrilinearQuad = LagrangeHex<1,1,1>;
+		using TriquadraticQuad = LagrangeHex<2,2,2>;
+		using TricubicQuad = LagrangeHex<3,3,3>;
 
 	} // namespace fem
 

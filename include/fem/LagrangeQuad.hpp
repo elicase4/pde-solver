@@ -10,11 +10,8 @@ namespace pdesolver {
 		template <int Px, int Py>
 		class LagrangeQuad {
 		public:
-			static constexpr int dim = 2;
-			static constexpr int nodesPerElement = (Px + 1) * (Py + 1);
-
-			using BasisX = Langrange1D<Px>;
-			using BasisY = Langrange1D<Py>;
+			using BasisX = Lagrange1D<Px>;
+			using BasisY = Lagrange1D<Py>;
 
 			HOST_DEVICE static void eval(const Real* xi, Real* N);
 			HOST_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta);
@@ -25,7 +22,7 @@ namespace pdesolver {
 		
 		// Implementation: eval
 		template<int Px, int Py>
-		HOST_DEVICE static void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
+		HOST_DEVICE void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
 			Real Nx[Px + 1];
 			Real Ny[Py + 1];
 			
@@ -36,7 +33,7 @@ namespace pdesolver {
 			Index a = 0;
 			for (Index j = 0; j <= Py; ++j){
 				for (Index i = 0; i <= Px; ++i){
-					N[a] = Nx[i] * Ny[i];
+					N[a] = Nx[i] * Ny[j];
 					a++;
 				}
 			}
@@ -44,7 +41,7 @@ namespace pdesolver {
 
 		// Implementation: evalGradient
 		template<int Px, int Py>
-		HOST_DEVICE static void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta){
+		HOST_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta){
 			Real Nx[Px + 1], Ny[Py + 1];
 			Real dNx[Px + 1], dNy[Py + 1];
 			
@@ -66,7 +63,7 @@ namespace pdesolver {
 
 		// Implementation: evalHessian
 		template<int Px, int Py>
-		HOST_DEVICE static void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Ndthetadxi){
+		HOST_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Ndthetadxi){
 			Real Nx[Px + 1], Ny[Py + 1];
 			Real dNx[Px + 1], dNy[Py + 1];
 			Real d2Nx[Px + 1], d2Ny[Py + 1];
@@ -84,7 +81,7 @@ namespace pdesolver {
 				for (Index i = 0; i <= Px; ++ i){
 					d2Nd2xi[a] = d2Nx[i] * Ny[j];
 					d2Nd2theta[a] = Nx[i] * d2Ny[j];
-					d2Ndthetaxi[a] = dNx[i] * dNy[j];
+					d2Ndthetadxi[a] = dNx[i] * dNy[j];
 					a++;
 				}
 			}
@@ -92,7 +89,7 @@ namespace pdesolver {
 		
 		// Implementation: evalLaplacian
 		template<int Px, int Py>
-		HOST_DEVICE static void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Real* lapN){
+		HOST_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Real* lapN){
 			Real Nx[Px + 1], Ny[Py + 1];
 			Real d2Nx[Px + 1], d2Ny[Py + 1];
 			
