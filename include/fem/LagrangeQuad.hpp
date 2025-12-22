@@ -14,8 +14,8 @@ namespace pdesolver {
 			using BasisY = Lagrange1D<Py>;
 
 			HOST_DEVICE static void eval(const Real* xi, Real* N);
-			HOST_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta);
-			HOST_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Ndthetadxi);
+			HOST_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta);
+			HOST_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi);
 			HOST_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
 
 		}; // class LagrangeQuad
@@ -41,7 +41,7 @@ namespace pdesolver {
 
 		// Implementation: evalGradient
 		template<int Px, int Py>
-		HOST_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdtheta){
+		HOST_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta){
 			Real Nx[Px + 1], Ny[Py + 1];
 			Real dNx[Px + 1], dNy[Py + 1];
 			
@@ -55,7 +55,7 @@ namespace pdesolver {
 			for (Index j = 0; j <= Py; ++j){
 				for (Index i = 0; i <= Px; ++ i){
 					dNdxi[a] = dNx[i] * Ny[j];
-					dNdtheta[a] = Nx[i] * dNy[j];
+					dNdeta[a] = Nx[i] * dNy[j];
 					a++;
 				}
 			}
@@ -63,7 +63,7 @@ namespace pdesolver {
 
 		// Implementation: evalHessian
 		template<int Px, int Py>
-		HOST_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2theta, Real* d2Ndthetadxi){
+		HOST_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi){
 			Real Nx[Px + 1], Ny[Py + 1];
 			Real dNx[Px + 1], dNy[Py + 1];
 			Real d2Nx[Px + 1], d2Ny[Py + 1];
@@ -80,8 +80,8 @@ namespace pdesolver {
 			for (Index j = 0; j <= Py; ++j){
 				for (Index i = 0; i <= Px; ++ i){
 					d2Nd2xi[a] = d2Nx[i] * Ny[j];
-					d2Nd2theta[a] = Nx[i] * d2Ny[j];
-					d2Ndthetadxi[a] = dNx[i] * dNy[j];
+					d2Nd2eta[a] = Nx[i] * d2Ny[j];
+					d2Ndetadxi[a] = dNx[i] * dNy[j];
 					a++;
 				}
 			}
