@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "fem/Lagrange1D.hpp"
-#include "fem/LagrangeQuad.hpp"
-#include "fem/LagrangeHex.hpp"
+#include "fem/basis/Lagrange1D.hpp"
+#include "fem/basis/LagrangeQuad.hpp"
+#include "fem/basis/LagrangeHex.hpp"
 
-using namespace pdesolver::fem;
+using namespace pdesolver::fem::basis;
 
 // ======================================================
 // Lagrange1D Tests

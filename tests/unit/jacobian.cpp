@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "fem/LagrangeQuad.hpp"
-#include "fem/LagrangeHex.hpp"
-#include "fem/JacobianTransform.hpp"
+#include "fem/basis/LagrangeQuad.hpp"
+#include "fem/basis/LagrangeHex.hpp"
+#include "fem/geometry/JacobianTransform.hpp"
 
-using namespace pdesolver::fem;
+using namespace pdesolver::fem::basis;
+using namespace pdesolver::fem::geometry;
 
 // ============================================
 // 2D Jacobian Tests - Reference Domain [-1,1]^2
