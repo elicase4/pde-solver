@@ -20,3 +20,11 @@ add_pde_test(test_blockmesh2d
 	unit/blockmesh2d.cpp
 	pde_mesh pde_io
 )
+
+add_pde_test(test_lagrange
+	unit/lagrange.cpp
+)
+
+add_pde_test(test_jacobian
+	unit/jacobian.cpp
+)
