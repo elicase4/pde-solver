@@ -11,7 +11,7 @@ void pdesolver::mesh::BlockMesh2D::initializeData(){
 	data.nodesPerElement = (px + 1)*(py + 1);
 
 	// mesh size info
-	data.numNodes = (nx + 1) * (ny + 1);
+	data.numNodes = (nx*px + 1) * (ny*py + 1);
 	data.numElements = nx * ny;
 	
 	// boundary info
