@@ -14,9 +14,14 @@ namespace pdesolver {
 				using BasisY = Lagrange1D<Py>;
 
 				HOST_DEVICE static void eval(const Real* xi, Real* N);
+				
 				HOST_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta);
+				HOST_DEVICE static void evalDivergence(const Real* xi, Real* divN);
+				
 				HOST_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi);
 				HOST_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
+				
+				HOST_DEVICE static Real getFaceTopology(const Int rngID, Index* tangentID);
 
 			}; // class LagrangeQuad
 			
@@ -56,6 +61,27 @@ namespace pdesolver {
 					for (Index i = 0; i <= Px; ++ i){
 						dNdxi[a] = dNx[i] * Ny[j];
 						dNdeta[a] = Nx[i] * dNy[j];
+						a++;
+					}
+				}
+			}
+			
+			// Implementation: evalDivergence
+			template<int Px, int Py>
+			HOST_DEVICE void LagrangeQuad<Px, Py>::evalDivergence(const Real* xi, Real* divN){
+				Real Nx[Px + 1], Ny[Py + 1];
+				Real dNx[Px + 1], dNy[Py + 1];
+				
+				BasisX::eval(xi[0], Nx);
+				BasisX::evalFirstDerivative(xi[0], dNx);
+				BasisY::eval(xi[1], Ny);
+				BasisY::evalFirstDerivative(xi[1], dNy);
+
+				// evaluate tensor product & chain rule
+				Index a = 0;
+				for (Index j = 0; j <= Py; ++j){
+					for (Index i = 0; i <= Px; ++ i){
+						divN[a] = dNx[i] * Ny[j] + Nx[i] * dNy[j];
 						a++;
 					}
 				}
@@ -105,6 +131,27 @@ namespace pdesolver {
 						lapN[a] = d2Nx[i] * Ny[j] + Nx[i] * d2Ny[j];
 						a++;
 					}
+				}
+			}
+			
+			// implementation: getFaceTopology 
+			template<int Px, int Py>
+			HOST_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Index* tangentID){
+				switch (rngID){
+					case 0:
+						tangentID[0] = 1;
+						return -1.0;
+					case 1:
+						tangentID[0] = 1;
+						return 1.0;
+					case 2:
+						tangentID[0] = 0;
+						return 1.0;
+					case 3:
+						tangentID[0] = 0;
+						return -1.0;
+					default:
+						return 0.0;
 				}
 			}
 			

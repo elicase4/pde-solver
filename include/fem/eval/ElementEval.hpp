@@ -18,6 +18,7 @@ namespace pdesolver {
 				
 				// Geometry
 				Real* nodeCoords;
+				Real* normal;
 				
 				// Jacobian Transform
 				Real J[2*2];
@@ -61,6 +62,7 @@ namespace pdesolver {
 				
 				// Geometry
 				Real* nodeCoords;
+				Real* normal;
 				
 				// Jacobian Transform
 				Real J[3*3];
