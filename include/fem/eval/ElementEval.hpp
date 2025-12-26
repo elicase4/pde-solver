@@ -45,8 +45,8 @@ namespace pdesolver {
 				Real lapN[NodesPerElement];
 				
 				// Quadrature
-				Real xi[NodesPerElement];
-				Real w[NodesPerElement];
+				Real xi[2];
+				Real w;
 				
 				// Constructor
 				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
@@ -56,7 +56,7 @@ namespace pdesolver {
 											divN(nullptr),
 											d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Ndetadxi(nullptr),
 											lapN(nullptr),
-											xi(nullptr), w(nullptr) {}
+											xi(nullptr), w(0.0) {}
 			}
 			
 			// 3D specialization
@@ -97,8 +97,8 @@ namespace pdesolver {
 				Real lapN[NodesPerElement];
 				
 				// Quadrature
-				Real xi[NodesPerElement];
-				Real w[NodesPerElement];
+				Real xi[3];
+				Real w;
 				
 				// Constructor
 				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
@@ -108,7 +108,7 @@ namespace pdesolver {
 											divN(nullptr),
 											d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Nd2zeta(nullptr), d2Ndetadxi(nullptr), d2Ndetadzeta(nullptr), d2Ndxidzeta(nullptr),
 											lapN(nullptr),
-											xi(nullptr), w(nullptr) {}
+											xi(nullptr), w(0.0) {}
 				}
 
 		} // namespace eval

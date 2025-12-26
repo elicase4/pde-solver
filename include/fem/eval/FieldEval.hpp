@@ -16,7 +16,7 @@ namespace pdesolver {
 			template<Int Dim>
 			class VectorFieldEval{
 				HOST_DEVICE static void value(const Real t, const Real* x, Real* v);
-			}; // class ScalarFieldEval
+			}; // class VectorFieldEval
 
 		} // namespace eval
 	} // namespace fem
