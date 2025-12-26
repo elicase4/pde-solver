@@ -18,6 +18,7 @@ namespace pdesolver {
 				
 				// Geometry
 				Real* nodeCoords;
+				Real* normal;
 				
 				// Jacobian Transform
 				Real J[2*2];
@@ -32,6 +33,9 @@ namespace pdesolver {
 				Real* dNdxi;
 				Real* dNdeta;
 				
+				// Basis Divergence
+				Real* divN;
+				
 				// Basis Hessian
 				Real* d2Nd2xi;
 				Real* d2Nd2eta;
@@ -45,10 +49,11 @@ namespace pdesolver {
 				Real* w;
 				
 				// Constructor
-				HOST_DEVICE ElementEval() : nodeCoords(nullptr),
+				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
 											J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
 											N(nullptr),
 											dNdxi(nullptr), dNdeta(nullptr),
+											divN(nullptr),
 											d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Ndetadxi(nullptr),
 											lapN(nullptr),
 											xi(nullptr), w(nullptr) {}
@@ -61,6 +66,7 @@ namespace pdesolver {
 				
 				// Geometry
 				Real* nodeCoords;
+				Real* normal;
 				
 				// Jacobian Transform
 				Real J[3*3];
@@ -75,6 +81,9 @@ namespace pdesolver {
 				Real* dNdxi;
 				Real* dNdeta;
 				Real* dNdzeta;
+				
+				// Basis Divergence
+				Real* divN;
 				
 				// Basis Hessian
 				Real* d2Nd2xi;
@@ -92,10 +101,11 @@ namespace pdesolver {
 				Real* w;
 				
 				// Constructor
-				HOST_DEVICE ElementEval() : nodeCoords(nullptr),
+				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
 											J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
 											N(nullptr),
 											dNdxi(nullptr), dNdeta(nullptr), dNdzeta(nullptr),
+											divN(nullptr),
 											d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Nd2zeta(nullptr), d2Ndetadxi(nullptr), d2Ndetadzeta(nullptr), d2Ndxidzeta(nullptr),
 											lapN(nullptr),
 											xi(nullptr), w(nullptr) {}

@@ -23,6 +23,9 @@ namespace pdesolver {
 				// operator transforms
 				HOST_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy);
 				// TODO: add laplacian, hessian
+				
+				// normal computation
+				HOST_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
 			};
 			
 			// 3D specialization
@@ -37,6 +40,9 @@ namespace pdesolver {
 				// operator transforms
 				HOST_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz);
 				// TODO: add laplacian, hessian
+				
+				// normal computation
+				HOST_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
 			};
 			
 			// ============================================
@@ -85,6 +91,14 @@ namespace pdesolver {
 					dNdy[i] = (invJ[1] * dNdxi[i]) + (invJ[3] * dNdeta[i]);
 				}
 				
+			}
+
+			template<Int NodesPerElement>
+			HOST_DEVICE void JacobianTransform<2, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
+				
+				n[0] =        nCoeff * J[2+tangentID[0]];
+				n[1] = -1.0 * nCoeff * J[  tangentID[1]];
+	
 			}
 			
 			// ============================================
@@ -147,6 +161,15 @@ namespace pdesolver {
 					dNdz[i] = (invJ[2] * dNdxi[i]) + (invJ[5] * dNdeta[i]) + (invJ[8] * dNdzeta[i]);
 				}
 				
+			}
+			
+			template<Int NodesPerElement>
+			HOST_DEVICE void JacobianTransform<3, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
+				
+				n[0] =        nCoeff * ((J[3+tangentID[0]]*J[6+tangentID[1]]) - (J[3+tangentID[1]]*J[6+tangentID[0]]));
+				n[1] = -1.0 * nCoeff * ((J[  tangentID[0]]*J[6+tangentID[1]]) - (J[  tangentID[1]]*J[6+tangentID[0]]));
+				n[2] =        nCoeff * ((J[  tangentID[0]]*J[3+tangentID[1]]) - (J[  tangentID[1]]*J[3+tangentID[0]]));
+	
 			}
 
 		} // namespace geometry
