@@ -17,7 +17,7 @@ namespace pdesolver {
 			public:
 				
 				// Geometry
-				Real* nodeCoords;
+				Real nodeCoords[NodesPerElement];
 				Real* normal;
 				
 				// Jacobian Transform
@@ -27,26 +27,26 @@ namespace pdesolver {
 				Real detInvJ;
 				
 				// Basis
-				Real* N;
+				Real N[NodesPerElement];
 				
 				// Basis Gradient
-				Real* dNdxi;
-				Real* dNdeta;
+				Real dNdxi[NodesPerElement];
+				Real dNdeta[NodesPerElement];
 				
 				// Basis Divergence
-				Real* divN;
+				Real divN[NodesPerElement];
 				
 				// Basis Hessian
-				Real* d2Nd2xi;
-				Real* d2Nd2eta;
-				Real* d2Ndetadxi;
+				Real d2Nd2xi[NodesPerElement];
+				Real d2Nd2eta[NodesPerElement];
+				Real d2Ndetadxi[NodesPerElement];
 
 				// Basis Laplacian
-				Real* lapN;
+				Real lapN[NodesPerElement];
 				
 				// Quadrature
-				Real* xi;
-				Real* w;
+				Real xi[NodesPerElement];
+				Real w[NodesPerElement];
 				
 				// Constructor
 				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
@@ -65,7 +65,7 @@ namespace pdesolver {
 			public:
 				
 				// Geometry
-				Real* nodeCoords;
+				Real nodeCoords[NodesPerElement];
 				Real* normal;
 				
 				// Jacobian Transform
@@ -75,30 +75,30 @@ namespace pdesolver {
 				Real detInvJ;
 				
 				// Basis
-				Real* N;
+				Real N[NodesPerElement];
 				
 				// Basis Gradient
-				Real* dNdxi;
-				Real* dNdeta;
-				Real* dNdzeta;
+				Real dNdxi[NodesPerElement];
+				Real dNdeta[NodesPerElement];
+				Real dNdzeta[NodesPerElement];
 				
 				// Basis Divergence
-				Real* divN;
+				Real divN[NodesPerElement];
 				
 				// Basis Hessian
-				Real* d2Nd2xi;
-				Real* d2Nd2eta;
-				Real* d2Nd2zeta;
-				Real* d2Ndetadxi;
-				Real* d2Ndetadzeta;
-				Real* d2Ndxidzeta;
+				Real d2Nd2xi[NodesPerElement];
+				Real d2Nd2eta[NodesPerElement];
+				Real d2Nd2zeta[NodesPerElement];
+				Real d2Ndetadxi[NodesPerElement];
+				Real d2Ndetadzeta[NodesPerElement];
+				Real d2Ndxidzeta[NodesPerElement];
 
 				// Basis Laplacian
-				Real* lapN;
+				Real lapN[NodesPerElement];
 				
 				// Quadrature
-				Real* xi;
-				Real* w;
+				Real xi[NodesPerElement];
+				Real w[NodesPerElement];
 				
 				// Constructor
 				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
