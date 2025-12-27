@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_NONLINEARRESIDUALFORM_HPP
-#define PDESOLVER_NONLINEARRESIDUALFORM_HPP
+#ifndef PDESOLVER_NONLINEARFORM_HPP
+#define PDESOLVER_NONLINEARFORM_HPP
 
 #include "core/Types.hpp"
 #include "core/CudaMacros.hpp"
@@ -10,9 +10,9 @@ namespace pdesolver {
 		namespace form {
 			
 			template<Int Dim, Int NodesPerElement>
-			class NonlinearResidualForm {
+			class NonlinearForm {
 				HOST_DEVICE static void computeElementResidual(const eval::ElementEval<Dim,NodesPerElement>& eleEval, const Real* Ue, Real* Re);
-			}; // class NonlinearResidualForm
+			}; // class NonlinearForm
 		
 		} // namespace form
 	} // namespace fem
