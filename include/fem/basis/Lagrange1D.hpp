@@ -2,7 +2,7 @@
 #define PDESOLVER_LAGRANGE1D_HPP
 
 #include "core/Types.hpp"
-#include "core/CudaMacros.hpp"
+#include "config/Platform.hpp"
 
 namespace pdesolver {
 	namespace fem {
@@ -11,15 +11,15 @@ namespace pdesolver {
 			template <int Order>
 			class Lagrange1D {
 			public:
-				HOST_DEVICE static void eval(Real xi, Real* N);
-				HOST_DEVICE static void evalFirstDerivative(Real xi, Real* dN);
-				HOST_DEVICE static void evalSecondDerivative(Real xi, Real* d2N);
+				PDE_HOST PDE_DEVICE static void eval(Real xi, Real* N);
+				PDE_HOST PDE_DEVICE static void evalFirstDerivative(Real xi, Real* dN);
+				PDE_HOST PDE_DEVICE static void evalSecondDerivative(Real xi, Real* d2N);
 			
 			}; // class Lagrange1D
 
 			// Implementation: eval
 			template <int Order>
-			HOST_DEVICE void Lagrange1D<Order>::eval(Real xi, Real* N){
+			PDE_HOST PDE_DEVICE void Lagrange1D<Order>::eval(Real xi, Real* N){
 				if constexpr (Order == 1){
 					N[0] = 0.5 * (1.0 - xi);
 					N[1] = 0.5 * (1.0 + xi);
@@ -42,7 +42,7 @@ namespace pdesolver {
 			
 			// Implementation: evalFirstDerivative
 			template <int Order>
-			HOST_DEVICE void Lagrange1D<Order>::evalFirstDerivative(Real xi, Real* N){
+			PDE_HOST PDE_DEVICE void Lagrange1D<Order>::evalFirstDerivative(Real xi, Real* N){
 				if constexpr (Order == 1){
 					N[0] = -0.5;
 					N[1] = 0.5;
@@ -65,7 +65,7 @@ namespace pdesolver {
 			
 			// Implementation: evalSecondDerivative
 			template <int Order>
-			HOST_DEVICE void Lagrange1D<Order>::evalSecondDerivative(Real xi, Real* N){
+			PDE_HOST PDE_DEVICE void Lagrange1D<Order>::evalSecondDerivative(Real xi, Real* N){
 				if constexpr (Order == 1){
 					N[0] = 0.0;
 					N[1] = 0.0;

@@ -2,21 +2,21 @@
 #define PDESOLVER_FIELDEVAL_HPP
 
 #include "core/Types.hpp"
-#include "core/CudaMacros.hpp"
+#include "config/Platform.hpp"
 
 namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<Int Dim, Int NodesPerElement>
+			template<Int Dim>
 			class ScalarFieldEval{
-				HOST_DEVICE static Real value(const Real t, const Real* x);
+				PDE_HOST PDE_DEVICE static Real value(const Real t, const Real* x);
 			}; // class ScalarFieldEval
 
-			template<Int Dim, Int NodesPerElement>
+			template<Int Dim>
 			class VectorFieldEval{
-				HOST_DEVICE static void value(const Real t, const Real* x, Real* v);
-			}; // class ScalarFieldEval
+				PDE_HOST PDE_DEVICE static void value(const Real t, const Real* x, Real* v);
+			}; // class VectorFieldEval
 
 		} // namespace eval
 	} // namespace fem

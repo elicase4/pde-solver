@@ -13,21 +13,21 @@ namespace pdesolver {
 				using BasisX = Lagrange1D<Px>;
 				using BasisY = Lagrange1D<Py>;
 
-				HOST_DEVICE static void eval(const Real* xi, Real* N);
+				PDE_HOST PDE_DEVICE static void eval(const Real* xi, Real* N);
 				
-				HOST_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta);
-				HOST_DEVICE static void evalDivergence(const Real* xi, Real* divN);
+				PDE_HOST PDE_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta);
+				PDE_HOST PDE_DEVICE static void evalDivergence(const Real* xi, Real* divN);
 				
-				HOST_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi);
-				HOST_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
+				PDE_HOST PDE_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi);
+				PDE_HOST PDE_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
 				
-				HOST_DEVICE static Real getFaceTopology(const Int rngID, Index* tangentID);
+				PDE_HOST PDE_DEVICE static Real getFaceTopology(const Int rngID, Index* tangentID);
 
 			}; // class LagrangeQuad
 			
 			// Implementation: eval
 			template<int Px, int Py>
-			HOST_DEVICE void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
+			PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
 				Real Nx[Px + 1];
 				Real Ny[Py + 1];
 				
@@ -46,7 +46,7 @@ namespace pdesolver {
 
 			// Implementation: evalGradient
 			template<int Px, int Py>
-			HOST_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta){
+			PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta){
 				Real Nx[Px + 1], Ny[Py + 1];
 				Real dNx[Px + 1], dNy[Py + 1];
 				
@@ -68,7 +68,7 @@ namespace pdesolver {
 			
 			// Implementation: evalDivergence
 			template<int Px, int Py>
-			HOST_DEVICE void LagrangeQuad<Px, Py>::evalDivergence(const Real* xi, Real* divN){
+			PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalDivergence(const Real* xi, Real* divN){
 				Real Nx[Px + 1], Ny[Py + 1];
 				Real dNx[Px + 1], dNy[Py + 1];
 				
@@ -89,7 +89,7 @@ namespace pdesolver {
 
 			// Implementation: evalHessian
 			template<int Px, int Py>
-			HOST_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi){
+			PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi){
 				Real Nx[Px + 1], Ny[Py + 1];
 				Real dNx[Px + 1], dNy[Py + 1];
 				Real d2Nx[Px + 1], d2Ny[Py + 1];
@@ -115,7 +115,7 @@ namespace pdesolver {
 			
 			// Implementation: evalLaplacian
 			template<int Px, int Py>
-			HOST_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Real* lapN){
+			PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Real* lapN){
 				Real Nx[Px + 1], Ny[Py + 1];
 				Real d2Nx[Px + 1], d2Ny[Py + 1];
 				
@@ -136,7 +136,7 @@ namespace pdesolver {
 			
 			// implementation: getFaceTopology 
 			template<int Px, int Py>
-			HOST_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Index* tangentID){
+			PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Index* tangentID){
 				switch (rngID){
 					case 0:
 						tangentID[0] = 1;

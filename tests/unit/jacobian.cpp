@@ -37,7 +37,7 @@ TEST(JacobianTransform2D, BilinearQuad) {
         
         // Compute forward Jacobian
         Real J[4];
-        Real detJ = JacobianTransform<2, 4>::computeForward(nodeCoords, dNdxi, dNdeta, J);
+        Real detJ = JacobianTransform<2, 4>::computeJacobian(nodeCoords, dNdxi, dNdeta, J);
         
         // Check forward jacobian mapping
         EXPECT_NEAR(J[0], 1.0, 1e-13) << "Point " << q << ": dx/dxi";
@@ -50,7 +50,7 @@ TEST(JacobianTransform2D, BilinearQuad) {
         
         // Invert Jacobian
         Real invJ[4];
-        JacobianTransform<2, 4>::invertForward(J, detJ, invJ);
+        JacobianTransform<2, 4>::invertJacobian(J, detJ, invJ);
         
         // Check J * invJ = I
         Real I00 = J[0]*invJ[0] + J[1]*invJ[2];
@@ -91,10 +91,10 @@ TEST(JacobianTransform2D, PhysicalGradientTransform) {
         
         // Compute Jacobian
         Real J[4];
-        Real detJ = JacobianTransform<2, 4>::computeForward(nodeCoords, dNdxi, dNdeta, J);
+        Real detJ = JacobianTransform<2, 4>::computeJacobian(nodeCoords, dNdxi, dNdeta, J);
         
         Real invJ[4];
-        JacobianTransform<2, 4>::invertForward(J, detJ, invJ);
+        JacobianTransform<2, 4>::invertJacobian(J, detJ, invJ);
         
         // Transform gradients to physical space
         Real dNdx[4], dNdy[4];
@@ -155,7 +155,7 @@ TEST(JacobianTransform3D, TrilinearHex) {
         
         // Compute forward Jacobian
         Real J[9];
-        Real detJ = JacobianTransform<3, 8>::computeForward(nodeCoords, dNdxi, dNdeta, dNdzeta, J);
+        Real detJ = JacobianTransform<3, 8>::computeJacobian(nodeCoords, dNdxi, dNdeta, dNdzeta, J);
         
         // For affine mapping, Jacobian should be constant
         // J = [1.0  0    0  ]
@@ -176,7 +176,7 @@ TEST(JacobianTransform3D, TrilinearHex) {
         
         // Invert Jacobian
         Real invJ[9];
-        JacobianTransform<3, 8>::invertForward(J, detJ, invJ);
+        JacobianTransform<3, 8>::invertJacobian(J, detJ, invJ);
         
         // Check J * invJ = I (sample diagonal)
         Real I00 = J[0]*invJ[0] + J[1]*invJ[3] + J[2]*invJ[6];
@@ -219,10 +219,10 @@ TEST(JacobianTransform3D, PhysicalGradientTransform) {
         
         // Compute Jacobian
         Real J[9];
-        Real detJ = JacobianTransform<3, 8>::computeForward(nodeCoords, dNdxi, dNdeta, dNdzeta, J);
+        Real detJ = JacobianTransform<3, 8>::computeJacobian(nodeCoords, dNdxi, dNdeta, dNdzeta, J);
         
         Real invJ[9];
-        JacobianTransform<3, 8>::invertForward(J, detJ, invJ);
+        JacobianTransform<3, 8>::invertJacobian(J, detJ, invJ);
         
         // Transform gradients
         Real dNdx[8], dNdy[8], dNdz[8];

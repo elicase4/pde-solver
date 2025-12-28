@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_LINEARFORM_HPP
-#define PDESOLVER_LINEARFORM_HPP
+#ifndef PDESOLVER_NONLINEARFORM_HPP
+#define PDESOLVER_NONLINEARFORM_HPP
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
@@ -10,10 +10,10 @@ namespace pdesolver {
 		namespace form {
 			
 			template<Int Dim, Int NodesPerElement>
-			class LinearForm {
-				PDE_HOST PDE_DEVICE static void computeElementVector(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* fe);
-			}; // class LinearForm
-
+			class NonlinearForm {
+				PDE_HOST PDE_DEVICE static void computeElementResidual(const eval::ElementEval<Dim,NodesPerElement>& eleEval, const Real* Ue, Real* Re);
+			}; // class NonlinearForm
+		
 		} // namespace form
 	} // namespace fem
 } // namespace pdesolver

@@ -2,7 +2,7 @@
 #define PDESOLVER_BILINEARFORM_HPP
 
 #include "core/Types.hpp"
-#include "core/CudaMacros.hpp"
+#include "config/Platform.hpp"
 #include "fem/eval/ElementEval.hpp"
 
 namespace pdesolver {
@@ -11,7 +11,7 @@ namespace pdesolver {
 
 			template<Int Dim, Int NodesPerElement>
 			class BilinearForm {
-				HOST_DEVICE static void computeElementMatrix(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* Ke);
+				PDE_HOST PDE_DEVICE static void computeElementMatrix(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* Ke);
 			}; // class BilinearForm
 		
 		} // namespace forms
