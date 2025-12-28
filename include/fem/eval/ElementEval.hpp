@@ -2,7 +2,7 @@
 #define PDESOLVER_ELEMENTEVAL_HPP
 
 #include "core/Types.hpp"
-#include "core/CudaMacros.hpp"
+#include "config/Platform.hpp"
 
 namespace pdesolver {
 	namespace fem {
@@ -49,14 +49,14 @@ namespace pdesolver {
 				Real w;
 				
 				// Constructor
-				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
-											J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
-											N(nullptr),
-											dNdxi(nullptr), dNdeta(nullptr),
-											divN(nullptr),
-											d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Ndetadxi(nullptr),
-											lapN(nullptr),
-											xi(nullptr), w(0.0) {}
+				PDE_HOST PDE_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
+													J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
+													N(nullptr),
+													dNdxi(nullptr), dNdeta(nullptr),
+													divN(nullptr),
+													d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Ndetadxi(nullptr),
+													lapN(nullptr),
+													xi(nullptr), w(0.0) {}
 			}
 			
 			// 3D specialization
@@ -101,14 +101,14 @@ namespace pdesolver {
 				Real w;
 				
 				// Constructor
-				HOST_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
-											J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
-											N(nullptr),
-											dNdxi(nullptr), dNdeta(nullptr), dNdzeta(nullptr),
-											divN(nullptr),
-											d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Nd2zeta(nullptr), d2Ndetadxi(nullptr), d2Ndetadzeta(nullptr), d2Ndxidzeta(nullptr),
-											lapN(nullptr),
-											xi(nullptr), w(0.0) {}
+				PDE_HOST PDE_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
+													J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
+													N(nullptr),
+													dNdxi(nullptr), dNdeta(nullptr), dNdzeta(nullptr),
+													divN(nullptr),
+													d2Nd2xi(nullptr), d2Nd2eta(nullptr), d2Nd2zeta(nullptr), d2Ndetadxi(nullptr), d2Ndetadzeta(nullptr), d2Ndxidzeta(nullptr),
+													lapN(nullptr),
+													xi(nullptr), w(0.0) {}
 				}
 
 		} // namespace eval

@@ -13,14 +13,14 @@ namespace pdesolver {
 				using QuadX = GaussQuadrature1D<NumPointsX>;
 				using QuadY = GaussQuadrature1D<NumPointsY>;
 				
-				HOST_DEVICE static void getPoints(Real* xi);
-				HOST_DEVICE static void getWeights(Real* w);
+				PDE_HOST PDE_DEVICE static void getPoints(Real* xi);
+				PDE_HOST PDE_DEVICE static void getWeights(Real* w);
 			
 			}; // class GaussQuadratureQuad
 			
 			// implementation points
 			template<Int NumPointsX, Int NumPointsY>
-			HOST_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(Real* xi){
+			PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(Real* xi){
 				
 				Real xi_xi[NumPointsX];
 				Real xi_eta[NumPointsY];
@@ -41,7 +41,7 @@ namespace pdesolver {
 
 			// implementation weights
 			template<Int NumPointsX, Int NumPointsY>
-			HOST_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getWeights(Real* w){
+			PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getWeights(Real* w){
 				
 				Real w_xi[NumPointsX];
 				Real w_eta[NumPointsY];

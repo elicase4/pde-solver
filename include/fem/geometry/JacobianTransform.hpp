@@ -2,7 +2,7 @@
 #define PDESOLVER_JACOBIANTRANSFORM_HPP
 
 #include "core/Types.hpp"
-#include "core/CudaMacros.hpp"
+#include "config/Platform.hpp"
 
 namespace pdesolver {
 	namespace fem {
@@ -17,18 +17,18 @@ namespace pdesolver {
 			public:
 				
 				// base transform
-				HOST_DEVICE static void computeForward(const Real* nodeCoords, const Real* N, Real* x);
+				PDE_HOST PDE_DEVICE static void computeForward(const Real* nodeCoords, const Real* N, Real* x);
 
 				// jacobian matrix
-				HOST_DEVICE static Real computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J);
-				HOST_DEVICE static Real invertFJacobian(const Real* J, const Real detJ, Real* invJ);
+				PDE_HOST PDE_DEVICE static Real computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J);
+				PDE_HOST PDE_DEVICE static Real invertJacobian(const Real* J, const Real detJ, Real* invJ);
 				
 				// operator transforms
-				HOST_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy);
+				PDE_HOST PDE_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy);
 				// TODO: add laplacian, hessian
 				
 				// normal computation
-				HOST_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
+				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
 			};
 			
 			// 3D specialization
@@ -37,24 +37,25 @@ namespace pdesolver {
 			public:
 				
 				// base transform
-				HOST_DEVICE static void computeForward(const Real* nodeCoords, const Real* N, Real* x);
+				PDE_HOST PDE_DEVICE static void computeForward(const Real* nodeCoords, const Real* N, Real* x);
 
 				// jacobian matrix
-				HOST_DEVICE static Real computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J);
-				HOST_DEVICE static Real invertjacobian(const Real* J, const Real detJ, Real* invJ);
+				PDE_HOST PDE_DEVICE static Real computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J);
+				PDE_HOST PDE_DEVICE static Real invertJacobian(const Real* J, const Real detJ, Real* invJ);
 				
 				// operator transforms
-				HOST_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz);
+				PDE_HOST PDE_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz);
 				// TODO: add laplacian, hessian
 				
 				// normal computation
-				HOST_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
+				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
 			};
 			
 			// ============================================
 			// 2D Implementation
 			// ============================================
-			HOST_DEVICE void computeForward(const Real* nodeCoords, const Real* N, Real* x){
+			template<Int NodesPerElement>
+			PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::computeForward(const Real* nodeCoords, const Real* N, Real* x){
 				for (Index i = 0; i < NodesPerElement; ++i){
 					x[0] += N[i] * nodeCoords[2*i];
 					x[1] += N[i] * nodeCoords[2*i+1];
@@ -62,7 +63,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE Real JacobianTransform<2, NodesPerElement>::computeForward(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J){
+			PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J){
 				// initialize
 				J[0] = 0.0; J[1] = 0.0;
 				J[2] = 0.0; J[3] = 0.0;
@@ -82,7 +83,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE Real JacobianTransform<2, NodesPerElement>::invertForward(const Real* J, const Real detJ, Real* invJ){
+			PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::invertJacobian(const Real* J, const Real detJ, Real* invJ){
 				
 				// compute determinant inverse
 				Real detInvJ = 1.0 / detJ;
@@ -97,7 +98,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE void JacobianTransform<2, NodesPerElement>::transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy){
+			PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy){
 				
 				for (Index i = 0; i < NodesPerElement; ++i){
 					dNdx[i] = (invJ[0] * dNdxi[i]) + (invJ[2] * dNdeta[i]);
@@ -107,7 +108,7 @@ namespace pdesolver {
 			}
 
 			template<Int NodesPerElement>
-			HOST_DEVICE void JacobianTransform<2, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
+			PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
 				
 				n[0] =        nCoeff * J[2+tangentID[0]];
 				n[1] = -1.0 * nCoeff * J[  tangentID[1]];
@@ -117,7 +118,8 @@ namespace pdesolver {
 			// ============================================
 			// 3D Implementation
 			// ============================================
-			HOST_DEVICE void computeForward(const Real* nodeCoords, const Real* N, Real* x){
+			template<Int NodesPerElement>
+			PDE_HOST PDE_DEVICE void JacobianTransform<3, NodesPerElement>::computeForward(const Real* nodeCoords, const Real* N, Real* x){
 				for (Index i = 0; i < NodesPerElement; ++i){
 					x[0] += N[i] * nodeCoords[3*i];
 					x[1] += N[i] * nodeCoords[3*i+1];
@@ -126,7 +128,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE Real JacobianTransform<3, NodesPerElement>::computeForward(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J){
+			PDE_HOST PDE_DEVICE Real JacobianTransform<3, NodesPerElement>::computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J){
 				// initialize
 				J[0] = 0.0; J[1] = 0.0; J[2] = 0.0;
 				J[3] = 0.0; J[4] = 0.0; J[5] = 0.0;
@@ -154,7 +156,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE Real JacobianTransform<3, NodesPerElement>::invertForward(const Real* J, const Real detJ, Real* invJ){
+			PDE_HOST PDE_DEVICE Real JacobianTransform<3, NodesPerElement>::invertJacobian(const Real* J, const Real detJ, Real* invJ){
 				
 				// compute determinant inverse
 				Real detInvJ = 1.0 / detJ;
@@ -174,7 +176,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE void JacobianTransform<3, NodesPerElement>::transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz){
+			PDE_HOST PDE_DEVICE void JacobianTransform<3, NodesPerElement>::transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz){
 				
 				for (Index i = 0; i < NodesPerElement; ++i){
 					dNdx[i] = (invJ[0] * dNdxi[i]) + (invJ[3] * dNdeta[i]) + (invJ[6] * dNdzeta[i]);
@@ -185,7 +187,7 @@ namespace pdesolver {
 			}
 			
 			template<Int NodesPerElement>
-			HOST_DEVICE void JacobianTransform<3, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
+			PDE_HOST PDE_DEVICE void JacobianTransform<3, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
 				
 				n[0] =        nCoeff * ((J[3+tangentID[0]]*J[6+tangentID[1]]) - (J[3+tangentID[1]]*J[6+tangentID[0]]));
 				n[1] = -1.0 * nCoeff * ((J[  tangentID[0]]*J[6+tangentID[1]]) - (J[  tangentID[1]]*J[6+tangentID[0]]));
