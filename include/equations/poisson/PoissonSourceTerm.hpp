@@ -12,7 +12,7 @@ class PoissonSourceTerm: public fem::eval::ScalarFieldEval<Dim> {};
 
 template<>
 class PoissonSourceTerm<2> {
-	HOST_DEVICE Real value(const Real, const Real* x){
+	PDE_HOST PDE_DEVICE Real value(const Real, const Real* x){
 		return (2 * M_PI * sin(M_PI * x[0]) * sin(M_PI * x[1]));
 	}
 };
