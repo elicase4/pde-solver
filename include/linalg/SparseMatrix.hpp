@@ -1,8 +1,6 @@
 #ifndef PDESOLVER_SPARSEMATRIX_HPP
 #define PDESOLVER_SPARSEMATRIX_HPP
 
-#include <algorithm>
-#include <set>
 #include <vector>
 
 #include "core/Types.hpp"
@@ -14,9 +12,6 @@ namespace pdesolver {
 		public:
 			SparseMatrix(Index nRows, Index nCols);
 
-			// Sparsity
-			void buildSparsityPattern(const Index* ien, Index numElements, Index nodesPerElement);
-			
 			// Access
 			Real& operator()(Index row, Index col);
 			Real operator()(Index row, Index col) const;
