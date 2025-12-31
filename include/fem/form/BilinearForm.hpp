@@ -12,6 +12,7 @@ namespace pdesolver {
 			template<Int Dim, Int NodesPerElement>
 			class BilinearForm {
 				PDE_HOST PDE_DEVICE static void computeElementMatrix(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* Ke);
+				PDE_HOST PDE_DEVICE static void computeElementOperator(const eval::ElementEval<Dim,NodesPerElement>& eleEval, const Real* Ue, Real* Oe);
 			}; // class BilinearForm
 		
 		} // namespace forms
