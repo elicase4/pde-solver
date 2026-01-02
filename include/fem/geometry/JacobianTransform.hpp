@@ -51,11 +51,11 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
 			};
 			
-			#include "JacobianTransform2D.tpp"
-			#include "JacobianTransform3D.tpp"
-
 		} // namespace geometry
 	} // namespace fem
 } // namespace pdesolver
+
+#include "JacobianTransform2D.tpp"
+#include "JacobianTransform3D.tpp"
 
 #endif
