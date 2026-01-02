@@ -15,7 +15,7 @@ class PoissonLinearForm : public fem::form::LinearForm<Dim, NodesPerElement> {};
 template<Int NodesPerElement>
 class PoissonLinearForm<2, NodesPerElement> : public fem::form::LinearForm<2, NodesPerElement> {
 public:
-	PDE_HOST PDE_DEVICE static void computeElementVector(const fem::form::eval::ElementEval<2, NodesPerElement>& eleEval, Real* fe){
+	PDE_HOST PDE_DEVICE static void computeElementVector(const fem::form::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Fe){
 		
 		// get physical coordinates
 		Real x[NodesPerElement];
@@ -23,7 +23,7 @@ public:
 
 		// element vector assembly contribution
 		for (Index a = 0; a < NodesPerElement; ++a){
-			fe[a] += (PoissonSourceTerm<2>::value(0.0, x) * N[a]) * eleEval.detJ * eleEval.w;
+			Fe[a] += (PoissonSourceTerm<2>::value(0.0, x) * N[a]) * eleEval.detJ * eleEval.w;
 		}
 	}
 };
