@@ -13,7 +13,13 @@ namespace pdesolver {
 			template<typename T, typename Backend>
 			class SparseMatrix {
 			public:
-				explicit SparseMatrix(Index nRows, Index nCols) : nRows(nRows_), nCols(nCols_), rowPtr_(Backend::template alloc<Index>(nRows + 1)) {};
+				explicit SparseMatrix(Index nRows, Index nCols) : nRows_(nRows), nCols_(nCols), rowPtr_(Backend::template alloc<Index>(nRows + 1)) {};
+				
+				// Move-only
+				SparseMatrix(const SparseMatrix&) = delete;
+				SparseMatrix operator=(const SparseMatrix&) = delete;
+				SparseMatrix(SparseMatrix&&) noexcept = default;
+				SparseMatrix& operator=(SparseMatrix&&) noexcept = default;
 
 				// Size
 				Index nRows() const { return nRows; }
@@ -33,14 +39,6 @@ namespace pdesolver {
 				T* data() { return data_.get(); }
 				const T* data() const { return data_.get(); }
 
-				// rowPtr construction
-				void buildRowPtr(const std::vector<std::vector<Index>>& rowGraph){
-					rowPtr_[0] = 0;
-					for (Index i=0; i < nRows_; ++i){
-						rowPtr[i+1] = rowPtr[i]_ + rowGraph[i].size();
-					}
-				}
-				
 			private:
 				Index nRows_, nCols_;
 				
