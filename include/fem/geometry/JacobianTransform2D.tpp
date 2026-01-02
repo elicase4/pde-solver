@@ -1,6 +1,4 @@
-#include "JacobianTransform.hpp"
-
-using namespace fem::geometry;
+namespace pdesolver::fem::geometry{
 
 template<Int NodesPerElement>
 PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::computeForward(const Real* nodeCoords, const Real* N, Real* x){
@@ -62,3 +60,5 @@ PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::computeNormal(co
 	n[1] = -1.0 * nCoeff * J[  tangentID[1]];
 
 }
+
+} // namespace pdesolver::fem::geometry
