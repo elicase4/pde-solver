@@ -11,7 +11,7 @@ namespace pdesolver {
 			
 			template<Int Dim, Int NodesPerElement>
 			class LinearForm {
-				PDE_HOST PDE_DEVICE static void computeElementVector(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* fe);
+				PDE_HOST PDE_DEVICE static void computeElementVector(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* Fe);
 			}; // class LinearForm
 
 		} // namespace form
