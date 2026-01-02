@@ -4,19 +4,19 @@
 #include "fem/eval/ElementEval.hpp"
 #include "fem/eval/FieldEval.hpp"
 
-#include "form/BilinearForm.hpp"
-#include "form/LinearForm.hpp"
-#include "form/NonlinearForm.hpp"
-#include "form/NonlinearTangentForm.hpp"
+#include "fem/form/BilinearForm.hpp"
+#include "fem/form/LinearForm.hpp"
+#include "fem/form/NonlinearForm.hpp"
+#include "fem/form/NonlinearTangentForm.hpp"
 
-#include "geometry/JacobianTransform.hpp"
+#include "fem/geometry/JacobianTransform.hpp"
 
-#include "basis/Lagrange1D.hpp"
-#include "basis/LagrangeQuad.hpp"
-#include "basis/LagrangeHex.hpp"
+#include "fem/basis/Lagrange1D.hpp"
+#include "fem/basis/LagrangeQuad.hpp"
+#include "fem/basis/LagrangeHex.hpp"
 
-#include "quadrature/GaussQuadrature1D.hpp"
-#include "quadrature/GaussQuadratureQuad.hpp"
-#include "quadrature/GaussQuadratureHex.hpp"
+#include "fem/quadrature/GaussQuadrature1D.hpp"
+#include "fem/quadrature/GaussQuadratureQuad.hpp"
+#include "fem/quadrature/GaussQuadratureHex.hpp"
 
 #endif
