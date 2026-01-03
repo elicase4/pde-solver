@@ -2,8 +2,10 @@
 #define PDESOLVER_LINALG_TYPES_BACKEND_SERIAL_HPP
 
 #include <memory>
+#include <algorithm>
 
 #include "core/Types.hpp"
+#include "CopyKind.hpp"
 
 namespace pdesolver {
 	namespace linalg {
@@ -11,7 +13,7 @@ namespace pdesolver {
 			namespace backend {
 				
 				class Serial {
-					
+				public:
 					template<typename T>
 					using Ptr = std::unique_ptr<T[]>;
 
@@ -21,7 +23,7 @@ namespace pdesolver {
 					}
 
 					template<typename T>
-					static void copy(T* dst, const T* src, Index n){
+					static void copy(T* dst, const T* src, Index n, CopyKind){
 						std::copy(src, src + n, dst);
 					}
 

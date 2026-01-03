@@ -2,7 +2,6 @@
 #define PDESOLVER_SPARSEMATRIX_HPP
 
 #include <memory>
-#include <vector>
 
 #include "core/Types.hpp"
 
@@ -17,7 +16,7 @@ namespace pdesolver {
 				
 				// Move-only
 				SparseMatrix(const SparseMatrix&) = delete;
-				SparseMatrix operator=(const SparseMatrix&) = delete;
+				SparseMatrix& operator=(const SparseMatrix&) = delete;
 				SparseMatrix(SparseMatrix&&) noexcept = default;
 				SparseMatrix& operator=(SparseMatrix&&) noexcept = default;
 
