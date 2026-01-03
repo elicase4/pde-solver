@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "core/Types.hpp"
+#include "CopyKind.hpp"
 
 namespace pdesolver {
 	namespace linalg {
@@ -22,8 +23,6 @@ namespace pdesolver {
 				class CUDA {
 				public:
 					
-					enum class Direction {HostToDevice, DeviceToHost, DeviceToDevice};
-					
 					template<typename T>
 					using Ptr = std::unique_ptr<T, CudaDeleter<T>>;
 
@@ -31,30 +30,31 @@ namespace pdesolver {
 					static Ptr<T> alloc(Index n){
 						T* ptr = nullptr;
 						cudaError_t err = cudaMalloc(&ptr, n*sizeof(T));
-						if (err != cudaCuccess){
+						if (err != cudaSuccess){
 							throw std::runtime_error("cudaMalloc failure");
 						}
-						cudaMemset(ptr, 0, n*sizeof(T));
 						return Ptr<T>(ptr);
 					}
 
 					template<typename T>
-					static void copy(T* dst, const T* src, Index n, Direction dir){
-						cudaMemcpyKind kind = cudaMemcpyDefault;
-						switch(dir) {
-							case (Direction::HostToDevice){
-								kind = cudaMemcpyHostToDevice;
+					static void copy(T* dst, const T* src, Index n, CopyKind kind){
+						
+						cudaMemcpyKind CUDAKind;
+						
+						switch(kind) {
+							case (CopyKind::HostToDevice):
+								CUDAKind = cudaMemcpyHostToDevice;
 								break;
-							}
-							case (Direction::DeviceToHost){
-								kind = cudaMemcpyDeviceToHost;
+							case (CopyKind::DeviceToHost):
+								CUDAKind = cudaMemcpyDeviceToHost;
 								break;
-							}
-							case (Direction::DeviceToDevice){
-								kind = cudaMemcpyDeviceToDevice;
+							case (CopyKind::DeviceToDevice):
+								CUDAKind = cudaMemcpyDeviceToDevice;
 								break;
-							}
+							default:
+								CUDAkind = cudaMemcpyDefault;
 						}
+
 						cudaMemcpy(dst, src, n*sizeof(T), kind);
 					}
 				
