@@ -41,27 +41,6 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real
 	}
 }
 
-// Implementation: evalDivergence
-template<int Px, int Py>
-PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalDivergence(const Real* xi, Real* divN){
-	Real Nx[Px + 1], Ny[Py + 1];
-	Real dNx[Px + 1], dNy[Py + 1];
-	
-	BasisX::eval(xi[0], Nx);
-	BasisX::evalFirstDerivative(xi[0], dNx);
-	BasisY::eval(xi[1], Ny);
-	BasisY::evalFirstDerivative(xi[1], dNy);
-
-	// evaluate tensor product & chain rule
-	Index a = 0;
-	for (Index j = 0; j <= Py; ++j){
-		for (Index i = 0; i <= Px; ++ i){
-			divN[a] = dNx[i] * Ny[j] + Nx[i] * dNy[j];
-			a++;
-		}
-	}
-}
-
 // Implementation: evalHessian
 template<int Px, int Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Ndetadxi){

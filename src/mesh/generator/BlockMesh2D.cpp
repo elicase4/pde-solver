@@ -1,6 +1,6 @@
-#include "mesh/BlockMesh2D.hpp"
+#include "mesh/generator/BlockMesh2D.hpp"
 
-void pdesolver::mesh::BlockMesh2D::initializeData(){
+void pdesolver::mesh::generator::BlockMesh2D::initializeData(){
 	
 	// dimensions
 	data.parametricDim = 2;
@@ -24,7 +24,7 @@ void pdesolver::mesh::BlockMesh2D::initializeData(){
 
 }
 
-void pdesolver::mesh::BlockMesh2D::generateNodes(){
+void pdesolver::mesh::generator::BlockMesh2D::generateNodes(){
 	
 	// element spacing
 	Real dx = (x1 - x0) / ( (Real) nx);
@@ -45,7 +45,7 @@ void pdesolver::mesh::BlockMesh2D::generateNodes(){
 
 }
 
-void pdesolver::mesh::BlockMesh2D::generateElements(){
+void pdesolver::mesh::generator::BlockMesh2D::generateElements(){
 	
 	// populate ien array
 	for (Index ele_y = 0; ele_y < ny; ++ele_y){
@@ -70,7 +70,7 @@ void pdesolver::mesh::BlockMesh2D::generateElements(){
 
 }
 
-void pdesolver::mesh::BlockMesh2D::generateBoundaryTags(){
+void pdesolver::mesh::generator::BlockMesh2D::generateBoundaryTags(){
 	
 	// boundary tags
 	static constexpr Int LEFT   = 0;

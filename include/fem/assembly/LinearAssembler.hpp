@@ -2,7 +2,7 @@
 #define PDESOLVER_LINEARASSEMBLER_HPP
 
 #include "core/Types.hpp"
-#include "mesh/MeshBase.hpp"
+#include "mesh/Mesh.hpp"
 #include "linalg/types/SparseMatrix.hpp"
 #include "linalg/types/Vector.hpp"
 
@@ -15,21 +15,21 @@ namespace pdesolver {
 			public:
 				
 				// allocation functions
-				static linalg::types::SparseMatrix<Real, Backend> createMatrixSystem(const mesh::MeshBase& mesh);
-				static linalg::types::Vector<Real, Backend> createOperatorSystem(const mesh::MeshBase& mesh);
-				static linalg::types::Vector<Real, Backend> createRHSVector(const mesh::MeshBase& mesh);
+				static linalg::types::SparseMatrix<Real, Backend> createMatrixSystem(const mesh::Mesh& mesh);
+				static linalg::types::Vector<Real, Backend> createOperatorSystem(const mesh::Mesh& mesh);
+				static linalg::types::Vector<Real, Backend> createRHSVector(const mesh::Mesh& mesh);
 				
 				// matrix assembly
 				template<typename BilinearForm>
-				static void assembleMatrixSystem(const mesh::MeshBase& mesh, linalg::types::SparseMatrix<Real, Backend>& K);
+				static void assembleMatrixSystem(const mesh::Mesh& mesh, linalg::types::SparseMatrix<Real, Backend>& K);
 				
 				// operator assembly
 				template<typename BilinearForm>
-				static void assembleOperatorSystem(const mesh::MeshBase& mesh, linalg::types::Vector<Real, Backend>& O);
+				static void assembleOperatorSystem(const mesh::Mesh& mesh, linalg::types::Vector<Real, Backend>& O);
 				
 				// vector assembly
 				template<typename LinearForm>
-				static void assembleRHSVector(const mesh::MeshBase& mesh, linalg::types::Vector<Real, Backend>& F);
+				static void assembleRHSVector(const mesh::Mesh& mesh, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class LinearAssember
 

@@ -1,6 +1,6 @@
 #include "io/MeshIO.hpp"
 
-void pdesolver::io::MeshIO::writeVTK(const pdesolver::mesh::MeshBase& mesh, const std::string& filename){
+void pdesolver::io::MeshIO::writeVTK(const pdesolver::mesh::Mesh& mesh, const std::string& filename){
 
 	// open file
 	std::ofstream ofs(filename);

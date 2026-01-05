@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_MESHDATA_HPP
-#define PDESOLVER_MESHDATA_HPP
+#ifndef PDESOLVER_MESH_DATA_HPP
+#define PDESOLVER_MESH_DATA_HPP
 
 #include "core/Types.hpp"
 #include <vector>
@@ -8,7 +8,7 @@ namespace pdesolver {
 	
 	namespace mesh {
 
-		struct MeshData {
+		struct Data {
 			
 			// dimension
 			Index parametricDim;
@@ -29,7 +29,7 @@ namespace pdesolver {
 			std::vector<Int> rng;
 			std::vector<Real> C;
 		
-		}; // struct MeshData
+		}; // struct Data
 	
 	} // namespace mesh
 
