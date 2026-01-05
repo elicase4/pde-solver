@@ -1,10 +1,10 @@
 #include <cmath>
 #include <gtest/gtest.h>
 
-#include "mesh/BlockMesh2D.hpp"
+#include "mesh/generator/BlockMesh2D.hpp"
 #include "io/MeshIO.hpp"
 
-using namespace pdesolver::mesh;
+using namespace pdesolver::mesh::generator;
 using namespace pdesolver;
 
 // ===================================================

@@ -50,31 +50,6 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, R
 	}
 }
 
-// Implementation: evalDivergence
-template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalDivergence(const Real* xi, Real* divN){
-	Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
-	Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
-
-	BasisX::eval(xi[0], Nx);
-	BasisX::evalFirstDerivative(xi[0], dNx);
-	BasisY::eval(xi[1], Ny);
-	BasisX::evalFirstDerivative(xi[1], dNy);
-	BasisZ::eval(xi[2], Nz);
-	BasisX::evalFirstDerivative(xi[2], dNz);
-
-	// compute tensor product & chain rule
-	Index a = 0;
-	for (Index k = 0; k <= Pz; ++k){
-		for (Index j = 0; j <= Py; ++j){
-			for (Index i = 0; i <= Px; ++i){
-				divN[a] = (dNx[i] * Ny[j] * Nz[k]) + (Nx[i] * dNy[j] * Nz[k]) + (Nx[i] * Ny[j] * dNz[k]);
-				a++;
-			}
-		}
-	}
-}
-
 // Implementation: evalHessian
 template<int Px, int Py, int Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Nd2zeta, Real* d2Ndetadxi, Real* d2Ndetadzeta, Real* d2Ndxidzeta){

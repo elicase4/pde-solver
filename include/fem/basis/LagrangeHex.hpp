@@ -17,7 +17,6 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void eval(const Real* xi, Real* N);
 				
 				PDE_HOST PDE_DEVICE static void evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta, Real* dNdzeta);
-				PDE_HOST PDE_DEVICE static void evalDivergence(const Real* xi, Real* divN);
 					
 				PDE_HOST PDE_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Nd2zeta, Real* d2Ndetadxi, Real* d2Ndetadzeta, Real* d2Ndxidzeta);
 				PDE_HOST PDE_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);

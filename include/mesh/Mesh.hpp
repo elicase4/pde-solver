@@ -1,15 +1,15 @@
-#ifndef PDESOLVER_MESHBASE_HPP
-#define PDESOLVER_MESHBASE_HPP
+#ifndef PDESOLVER_MESH_MESH_HPP
+#define PDESOLVER_MESH_MESH_HPP
 
 #include "core/Types.hpp"
-#include "mesh/MeshData.hpp"
+#include "mesh/Data.hpp"
 #include <vector>
 
 namespace pdesolver {
 	
 	namespace mesh {
 		
-		class MeshBase {
+		class Mesh {
 		public:
 				
 			Real* getNodeCoord(Index nodeID) { return &data.xyz[nodeID * data.spatialDim]; }
@@ -61,11 +61,11 @@ namespace pdesolver {
 			
 			bool isIGA() const { return !data.C.empty(); }
 		
-			MeshData data;
+			Data data;
 		
 		protected:
 
-			MeshBase() = default;
+			Mesh() = default;
 
 			static Index computeNodesPerElement(std::vector<Index> basisOrder) {
 				Index npe = 1;
@@ -75,7 +75,7 @@ namespace pdesolver {
 				return npe;
 			}
 			
-		}; // class MeshBase
+		}; // class Mesh
 	
 	} // namespace mesh
 

@@ -1,5 +1,5 @@
 add_library(pde_mesh
-	BlockMesh2D.cpp
+	generator/BlockMesh2D.cpp
 )
 
 target_include_directories(pde_mesh
