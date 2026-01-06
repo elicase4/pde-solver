@@ -23,6 +23,8 @@ namespace pdesolver {
 				
 				PDE_HOST PDE_DEVICE static Real getFaceTopology(const Int rngID, Index* tangentID);
 
+				PDE_HOST PDE_DEVICE static void getFaceNodes(const Index faceID, Index* nodeIDs);
+
 			}; // class LagrangeHex
 			
 			// common typedefs

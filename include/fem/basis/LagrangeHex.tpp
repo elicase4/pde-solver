@@ -141,4 +141,45 @@ PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int rngI
 	}
 }
 
+template<int Px, int Py, int Pz>
+PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::getFaceNodes(const Index faceID, Index* nodeIDs){
+	switch (faceID){
+		case 0:
+			for (int j = 0; j < (Pz + 1); ++j) {
+				for (int i = 0; i < (Py + 1); ++i)
+					nodeIDs[i + j*(Py + 1)] = (Index) i*(Px + 1) + j*(Px + 1)*(Py + 1);
+			}
+		case 1:
+			for (int j = 0; j < (Pz + 1); ++j) {
+				for (int i = 0; i < (Py + 1); ++i)
+					nodeIDs[i + j*(Py + 1)] = (Index) i*(Px + 1) + j*(Px + 1)*(Py + 1) + Px;
+			}
+			break;
+		case 2:
+			for (int j = 0; j < (Pz + 1); ++j) {
+				for (int i = 0; i < (Px + 1); ++i)
+					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1)*(Py + 1);
+			}
+			break;
+		case 3:
+			for (int j = 0; j < (Pz + 1); ++j) {
+				for (int i = 0; i < (Px + 1); ++i)
+					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1)*(Py + 1) + (Px + 1)*Py;
+			}
+			break;
+		case 4:
+			for (int j = 0; j < (Py + 1); ++j) {
+				for (int i = 0; i < (Px + 1); ++i)
+					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1);
+			}
+			break;
+		case 5:
+			for (int j = 0; j < (Py + 1); ++j) {
+				for (int i = 0; i < (Px + 1); ++i)
+					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1) + (Px + 1)*(Py + 1)*Pz;
+			}
+			break;
+	}
+}
+
 } // namespace pdesolver::fem::basis
