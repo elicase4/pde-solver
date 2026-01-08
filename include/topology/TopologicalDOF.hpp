@@ -1,47 +1,63 @@
 #ifndef PDESOLVER_TOPOLOGICALDOF_HPP
 #define PDESOLVER_TOPOLOGICALDOF_HPP
 
-#include "mesh/Mesh.hpp"
+#include <vector>
+#include <unordered_map>
+
 #include "core/Types.hpp"
+#include "fem/boundary/BoundaryRegistry.hpp"
+#include "mesh/Mesh.hpp"
 
 namespace pdesolver {
-	namespace fem {
-		namespace dof {
+	namespace topology {
 
-			class TopologicalDOF {
-			public:
-				TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode) : mesh_(mesh), dofsPerNode_(dofsPerNode), numGlobalDOFs_ {};
-				
-				// size
-				Index numGlobalDOFs() const { return numGlobalDOFs_; }
-				Index dofsPerNode() const { return dofsPerNode_; }
-				
-				// node mappings
-				Index getNodeDOF(Index nodeId, Index component) const { return (nodeId * dofsPerNode_ + component); }
-				Index* getNodeDOFs(Index nodeId) { return (nodeId * dofsPerNode_); }
-				
-				// element mappings
-				void getElementDOFs(Index elemId, Index* dofs) const {
-					const Index* nodes = mesh_.getElementNodes(elemId);
-					const Index npe = mesh_.data.nodesPerElement;
+		class TopologicalDOF {
+		public:
+			TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode);
+			
+			// size
+			Index numGlobalDOFs() const { return numGlobalDOFs_; }
+			Index numFreeDOFs() const { return numFreeDOFs_; }
+			Index dofsPerNode() const { return dofsPerNode_; }
+			
+			// node mappings
+			Index getNodeDOF(Index nodeId, Index component) const { return (nodeId * dofsPerNode_ + component); }
+			
+			// element mappings
+			void getElementDOFs(Index elemId, Index* dofs) const;
+			
+			// constraints
+			template<typename Element>
+			void buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry);
 
-					Index k = 0;
-					for (Index a = 0; a < npe; ++a) {
-						for (Index c = 0; c < dofsPerNode_; ++c) {
-							dofs[k++] = nodes[a] * dofsPerNode_ + c;
-						}
-					}
-				}
+			// constraint query
+			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
+			Int getConstraintTag(Index topoDOF) const;
 
-			private:
-				const mesh::Mesh& mesh_;
-				Index dofsPerNode_;
-				Index numGlobalDOFs_;
+			// mappings
+			Index toAlgebraic(Index topoDOF) const { return topoToAlg_[topoDOF]; }
+			Index* getTopoToAlg() const { return TopoToAlg_.data(); }
+			Index toTopological(Index algDOF) const { return algToTopo_[algDOF]; }
+			Index* getAlgToTopo() const { return AlgToTopo_.data(); }
 
-			}; // class TopologicalDOF
+		private:
+			const mesh::Mesh& mesh_;
+			Index dofsPerNode_;
+			Index numGlobalDOFs_;
+			Index numFreeDOFs_;
 
-		} // namespace dof
-	} // namespace fem
+			// mappings
+			std::vector<Index> topoToAlg_; // Size: numGlobalDOFs
+			std::vector<Index> algToTopo_; // Size: numFreeDOFs
+
+			// constraints
+			std::unordered_map<Index, Int> constraintTags_;
+
+		}; // class TopologicalDOF
+
+	} // namespace topology
 } // namespace pdesolver
+
+#include "TopologicalDOF.tpp"
 
 #endif
