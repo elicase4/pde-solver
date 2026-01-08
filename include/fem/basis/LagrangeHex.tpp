@@ -141,6 +141,27 @@ PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int rngI
 	}
 }
 
+// Implementation: nodesPerFace
+template<int Px, int Py, int Pz>
+PDE_HOST PDE_DEVICE Index LagrangeHex<Px, Py, Pz>::nodesPerFace(const Index faceID){
+	switch (faceID){
+		case 0:
+			return (Pz + 1)*(Py + 1);
+		case 1:
+			return (Pz + 1)*(Py + 1);
+		case 2:
+			return (Pz + 1)*(Px + 1);
+		case 3:
+			return (Pz + 1)*(Px + 1);
+		case 4:
+			return (Py + 1)*(Px + 1);
+		case 5:
+			return (Py + 1)*(Px + 1);
+	}
+}
+
+
+// Implementation: getFaceNodes
 template<int Px, int Py, int Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::getFaceNodes(const Index faceID, Index* nodeIDs){
 	switch (faceID){

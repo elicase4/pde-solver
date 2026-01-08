@@ -109,24 +109,39 @@ PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, 
 	}
 }
 
+// implemntation: nodesPerFace
+template<int Px, int Py>
+PDE_HOST PDE_DEVICE Index LagrangeQuad<Px, Py>::nodesPerFace(const Index FaceID){
+	switch (FaceID) {
+		case 0:
+			return (Py + 1);
+		case 1:
+			return (Py + 1);
+		case 2:
+			return (Px + 1);
+		case 3:
+			return (Px + 1);
+	}
+}
+
 // implemntation: getFaceNodes
 template<int Px, int Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::getFaceNodes(const Index FaceID, Index* nodeIDs){
 	switch (FaceID) {
 		case 0:
-			for (int i = 0; i < Py; ++i)
+			for (int i = 0; i < (Py + 1); ++i)
 				nodeIDs[i] = (Index) i*(Px + 1);
 			break;
 		case 1:
-			for (int i = 0; i < Py; ++i)
+			for (int i = 0; i < (Py + 1); ++i)
 				nodeIDs[i] = (Index) i*(Px + 1) + Px;
 			break;
 		case 2:
-			for (int i = 0; i < Px; ++i)
+			for (int i = 0; i < (Px + 1); ++i)
 				nodeIDs[i] = (Index) i;
 			break;
 		case 3:
-			for (int i = 0; i < Px; ++i)
+			for (int i = 0; i < (Px + 1); ++i)
 				nodeIDs[i] = (Index) i + (Px + 1)*Py;
 			break;
 	}
