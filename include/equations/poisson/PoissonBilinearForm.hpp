@@ -1,53 +1,57 @@
 #ifndef POISSON_BILINEARFORM_HPP
 #define POISSON_BILINEARFORM_HPP
 
+#include "core/Types.hpp"
+#include "config/Platform.hpp"
 #include "fem/eval/ElementEval.hpp"
-#include "fem/form/BilinearForm.hpp"
 #include "fem/geometry/JacobianTransform.hpp"
 
-using namespace pdesolver;
+namespace pdesolver::fem::form {
 
-template<Int Dim, Int NodesPerElement>
-class PoissonBilinearForm : public fem::form::BilinearForm<Dim, NodesPerElement> {};
+	template<Int Dim>
+	struct PoissonBilinearForm; // struct PoissonBilinearForm
 
-template<Int NodesPerElement>
-class PoissonBilinearForm<2, NodesPerElement> : public fem::form::BilinearForm<2, NodesPerElement> {
-public:
-	
-	PDE_HOST PDE_DEVICE void computeElementMatrix(const fem::form::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Ke){
-		
-		// physical gradients
-		Real dNdx[NodesPerElement];
-		Real dNdy[NodesPerElement];
+	template<>
+	struct PoissonBilinearForm<2> {
 
-		// transform parametric gradients
-		fem::geometry::JacobianTransform<2, NodesPerElement>::transformGradient(eleEval.invDetJ, eleEval.dNdxi, eleEval.dNdeta, dNdx, dNdy);
+		template<Int NodesPerElement>
+		PDE_HOST PDE_DEVICE void computeElementMatrix<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Ke){
+			
+			// physical gradients
+			Real dNdx[NodesPerElement];
+			Real dNdy[NodesPerElement];
 
-		// element matrix assembly contribution
-		for (Index a = 0; a < NodesPerElement; ++a){
-			for (Index b = 0; b < NodesPerElement; ++b){
-				Ke[a * NodesPerElement + b] += (dNdx[a]*dNdx[b] + dNdy[a]*dNdy[b]) * eleEval.detJ * eleEval.w;
+			// transform parametric gradients
+			fem::geometry::JacobianTransform<2, NodesPerElement>::transformGradient(eleEval.invDetJ, eleEval.dNdxi, eleEval.dNdeta, dNdx, dNdy);
+
+			// element matrix assembly contribution
+			for (Index a = 0; a < NodesPerElement; ++a){
+				for (Index b = 0; b < NodesPerElement; ++b){
+					Ke[a * NodesPerElement + b] += (dNdx[a]*dNdx[b] + dNdy[a]*dNdy[b]) * eleEval.detJ * eleEval.w;
+				}
 			}
 		}
-	}
-	
-	PDE_HOST PDE_DEVICE void computeElementOperator(const fem::form::eval::ElementEval<2, NodesPerElement>& eleEval, const Real* Ue, Real* Oe){
 		
-		// physical gradients
-		Real dNdx[NodesPerElement];
-		Real dNdy[NodesPerElement];
+		template<Int NodesPerElement>
+		PDE_HOST PDE_DEVICE void computeElementOperator<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, const Real* Ue, Real* Oe){
+			
+			// physical gradients
+			Real dNdx[NodesPerElement];
+			Real dNdy[NodesPerElement];
 
-		// transform parametric gradients
-		fem::geometry::JacobianTransform<2, NodesPerElement>::transformGradient(eleEval.invDetJ, eleEval.dNdxi, eleEval.dNdeta, dNdx, dNdy);
+			// transform parametric gradients
+			fem::geometry::JacobianTransform<2, NodesPerElement>::transformGradient(eleEval.invDetJ, eleEval.dNdxi, eleEval.dNdeta, dNdx, dNdy);
 
-		// element matrix assembly contribution
-		for (Index a = 0; a < NodesPerElement; ++a){
-			for (Index b = 0; b < NodesPerElement; ++b){
-				Oe[a] += (dNdx[a]*dNdx[b] + dNdy[a]*dNdy[b]) * Ue[b] * eleEval.detJ * eleEval.w;
+			// element matrix assembly contribution
+			for (Index a = 0; a < NodesPerElement; ++a){
+				for (Index b = 0; b < NodesPerElement; ++b){
+					Oe[a] += (dNdx[a]*dNdx[b] + dNdy[a]*dNdy[b]) * Ue[b] * eleEval.detJ * eleEval.w;
+				}
 			}
 		}
-	}
 
-};
+	}; // struct PoissonBilinearForm<2>
+
+} // namespace pdesolver::fem::form
 
 #endif

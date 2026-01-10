@@ -44,32 +44,32 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 			if (!bcRegistry.hasEssentialBC(tag)) continue;
 
 			// get face nodes
-			Index faceNodes[Element::nodesPerFace(f)];
+			Index npf = Element::getNodesPerFace(f);
+			Index faceNodes[npf];
 			Element::getFaceNodes(f, faceNodes);
 
 			// get element nodes
 			const Index* elemNodes = mesh.getElementNodes(e);
 
 			// mark all constrained DOFs on face f
-			for (Index i = 0; i < Element::nodesPerFace(f); ++i) {
-				
+			for (Index i = 0; i < npf; ++i) {
 				Index globalNode = elemNodes[faceNodes[i]];
-				
 				for (Index c = 0; c < dofsPerNode_; ++c){
 					Index dof = getNodeDOF(globalNode, c);
 					constrainedSet.insert(dof);
 					constraintTags_[dof] = tag;
 				}
 			}
+
 		}
 	}
 
-	// build algebriac numering from free dofs
+	// build algebraic numering from free dofs
 	Index algIndex = 0;
 	algToTopo_.clear();
 	algToTopo_.reserve(numGlobalDOFs_ - constrainedSet.size());
 	
-	// loop over topological dofs to build mappings
+	// loop over topological dofs to build algebraic mapping
 	for (Index topoDOF = 0; topoDOF < numGlobalDOFs_; ++topoDOF) {
 		if (constrainedSet.find(topoDOF) != constrainedSet.end()){
 			topoToAlg_[topoDOF] = -1; // mark dof as constrained
@@ -79,12 +79,13 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 			++algIndex;
 		}
 	}
-
+	
+	// set num of free dofs to final tally
 	numFreeDOFs_ = algIndex;
 
 }
 
-Int TopologicalDOF::getConstraintTag(Index topoDOF) const{
+Int TopologicalDOF::getConstraintTag(Index topoDOF) const {
 	auto it = constraintTags_.find(topoDOF);
 	return (it != constraintTags_.end()) ? it->second : -1;
 }

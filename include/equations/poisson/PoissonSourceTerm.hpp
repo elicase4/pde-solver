@@ -5,16 +5,11 @@
 
 #include "fem/eval/FieldEval.hpp"
 
-using namespace pdesolver;
+namespace pdesolver::fem::eval {
 
-template<Int Dim>
-class PoissonSourceTerm: public fem::eval::ScalarFieldEval<Dim> {};
+	template<Int Dim>
+	struct PoissonSourceTerm; // struct PoissonSourceTerm
 
-template<>
-class PoissonSourceTerm<2> {
-	PDE_HOST PDE_DEVICE Real value(const Real, const Real* x){
-		return (2 * M_PI * sin(M_PI * x[0]) * sin(M_PI * x[1]));
-	}
-};
+} // namespace pdesolver::fem::eval
 
 #endif

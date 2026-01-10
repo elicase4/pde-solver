@@ -2,6 +2,8 @@
 #define PDESOLVER_LINEARASSEMBLER_HPP
 
 #include "core/Types.hpp"
+#include "fem/form/BilinearForm.hpp"
+#include "fem/form/LinearForm.hpp"
 #include "mesh/Mesh.hpp"
 #include "linalg/types/SparseMatrix.hpp"
 #include "linalg/types/Vector.hpp"
@@ -11,7 +13,7 @@ namespace pdesolver {
 		namespace assembly {
 			
 			template<typename Element, typename Quadrature, typename Backend>
-			class LinearAssembler{
+			class LinearAssembler {
 			public:
 				
 				// allocation functions
