@@ -29,8 +29,6 @@ namespace pdesolver {
 			// constraints
 			template<typename Element>
 			void buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry);
-
-			// constraint query
 			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
 			Int getConstraintTag(Index topoDOF) const;
 
@@ -41,7 +39,10 @@ namespace pdesolver {
 			Index* getAlgToTopo() const { return AlgToTopo_.data(); }
 
 		private:
+			// mesh
 			const mesh::Mesh& mesh_;
+			
+			// dof counts
 			Index dofsPerNode_;
 			Index numGlobalDOFs_;
 			Index numFreeDOFs_;

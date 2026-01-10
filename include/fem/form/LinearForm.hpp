@@ -9,10 +9,14 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 			
-			template<Int Dim, Int NodesPerElement>
-			class LinearForm {
-				PDE_HOST PDE_DEVICE static void computeElementVector(const eval::ElementEval<Dim,NodesPerElement>& eleEval, Real* Fe);
-			}; // class LinearForm
+			template<typename Form, Int Dim, Int NodesPerElement>
+			concept LinearForm =
+			requires (
+				const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval,
+				Real* Fe
+			) {
+				{ Form::template computeElementVector<NodesPerElement>(eleEval, Fe) };
+			}; // concept LinearForm
 
 		} // namespace form
 	} // namespace fem

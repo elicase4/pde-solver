@@ -1,6 +1,6 @@
 namespace pdesolver::fem::dof {
 
-PDE_HOST PDE_DEVICE void AlgebraicDOF::getElementDOFs(const Index* elemTopoDOFs, Index numTopoDOFs, const Index* topoToAlg, Index* elemAlgDOFs){
+PDE_HOST PDE_DEVICE void AlgebraicDOF::getElementDOFs(const Index* elemTopoDOFs, const Index numTopoDOFs, const Index* topoToAlg, Index* elemAlgDOFs){
 	
 	Index count = 0;
 	

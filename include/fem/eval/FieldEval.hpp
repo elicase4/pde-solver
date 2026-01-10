@@ -8,16 +8,25 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<Int Dim>
-			class ScalarFieldEval{
-				PDE_HOST PDE_DEVICE static Real value(const Real t, const Real* x);
-			}; // class ScalarFieldEval
+			template<typename FieldEval, Int Dim>
+			concept ScalarFieldEval =
+			requires (
+				const Real t,
+				const Real* x
+			) {
+				{ FielEval::template value(t, x) };
+			}; // concept ScalarFieldEval
 
-			template<Int Dim>
-			class VectorFieldEval{
-				PDE_HOST PDE_DEVICE static void value(const Real t, const Real* x, Real* v);
-			}; // class VectorFieldEval
-
+			template<typename FieldEval, Int Dim>
+			concept VectorFieldEval =
+			requires (
+				const Real t,
+				const Real* x,
+				Real* v
+			) {
+				{ FieldEval::template value(t, x, v) };
+			}; // concept VectorFieldEval
+			
 		} // namespace eval
 	} // namespace fem
 } // namespace pdesolver

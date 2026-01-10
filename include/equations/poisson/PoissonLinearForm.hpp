@@ -1,31 +1,34 @@
 #ifndef POISSON_BILINEARFORM_HPP
 #define POISSON_BILINEARFORM_HPP
 
+#include "equations/poisson/PoissonSourceTerm.hpp"
+
+#include "fem/core/Types.hpp"
+#include "fem/config/Platform.hpp"
 #include "fem/eval/ElementEval.hpp"
-#include "fem/form/LinearForm.hpp"
 #include "fem/geometry/JacobianTransform.hpp"
 
-#include "apps/poisson/PoissonSourceTerm.hpp"
+namespace pdesolver::fem::form {
 
-using namespace pdesolver;
+	template<Int Dim>
+	struct PoissonLinearForm; // struct PoissonBilinearForm
+	
+	template<>
+	struct PoissonLinearForm<2> {
 
-template<Int Dim, Int NodesPerElement>
-class PoissonLinearForm : public fem::form::LinearForm<Dim, NodesPerElement> {};
+		template<Int NodesPerElement>
+		PDE_HOST PDE_DEVICE void computeElementVector<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Fe){
+			
+			// get physical coordinates
+			Real x[NodesPerElement];
+			fem::geometry::JacobianTransform<2, NodesPerElement>::computeForward(eleEval.nodeCoords, eleEval.N, x);
 
-template<Int NodesPerElement>
-class PoissonLinearForm<2, NodesPerElement> : public fem::form::LinearForm<2, NodesPerElement> {
-public:
-	PDE_HOST PDE_DEVICE static void computeElementVector(const fem::form::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Fe){
-		
-		// get physical coordinates
-		Real x[NodesPerElement];
-		fem::geometry::JacobianTransform<2, NodesPerElement>::computeForward(eleEval.nodeCoords, eleEval.N, x);
-
-		// element vector assembly contribution
-		for (Index a = 0; a < NodesPerElement; ++a){
-			Fe[a] += (PoissonSourceTerm<2>::value(0.0, x) * N[a]) * eleEval.detJ * eleEval.w;
+			// element vector assembly contribution
+			for (Index a = 0; a < NodesPerElement; ++a){
+				Fe[a] += (fem::eval::PoissonSourceTerm<2>::value(0.0, x) * N[a]) * eleEval.detJ * eleEval.w;
+			}
 		}
-	}
-};
 
-#endif
+	}; // struct PoissonLinearForm<2>
+
+} // namespace pdesolver::fem::form

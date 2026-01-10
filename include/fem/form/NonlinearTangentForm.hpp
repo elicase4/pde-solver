@@ -9,11 +9,17 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 			
-			template<Int Dim, Int NodesPerElement>
-			class NonlinearTangentForm {
-				PDE_HOST PDE_DEVICE static void computeElementTangentMatrix(const eval::ElementEval<Dim,NodesPerElement>& eleEval, const Real* Ue, Real* Ke);
-				PDE_HOST PDE_DEVICE static void computeElementTangentOperator(const eval::ElementEval<Dim,NodesPerElement>& eleEval, const Real* Ue, Real* Oe);
-			}; // class NonlinearTangentForm
+			template<typename Form, Int Dim, Int NodesPerElement>
+			concept NonlinearTangentForm =
+			requires (
+				const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval,
+				Real* Ke,
+				const Real* Ue,
+				Real* Oe
+			) {
+				{ Form::template computeElementTangentMatrix<NodesPerElement>(eleEval, Ue, Ke) };
+				{ Form::template computeElementTangentOperator<NodesPerElement>(eleEval, Ue, Oe) };
+			}; // concept NonlinearTangentForm
 
 		} // namespace form
 	} // namespace fem
