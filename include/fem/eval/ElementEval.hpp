@@ -19,7 +19,10 @@ namespace pdesolver {
 				// Geometry
 				Real nodeCoords[NodesPerElement];
 				Real* normal;
-				
+
+				// Time
+				Real t;
+
 				// Jacobian Transform
 				Real J[2*2];
 				Real invJ[2*2];
@@ -67,6 +70,9 @@ namespace pdesolver {
 				// Geometry
 				Real nodeCoords[NodesPerElement];
 				Real* normal;
+				
+				// Time
+				Real t;
 				
 				// Jacobian Transform
 				Real J[3*3];

@@ -7,8 +7,7 @@
 #include <vector>
 
 #include "core/Types.hpp"
-#include "fem/boundary/EssentialBC.hpp"
-#include "fem/boundary/NaturalBC.hpp"
+#include "fem/boundary/BoundaryCondition.hpp"
 
 namespace pdesolver {
 	namespace fem {
@@ -21,12 +20,12 @@ namespace pdesolver {
 				template<typename BC>
 				void registerBC(Int tag, BC bc) {
 					bcStorage_[tag] = std::make_any<BC>(bc);
-					bcCategory_[tag] = BC::type;
+					bcCategory_[tag] = BC::category;
 				}
 
 				// Query
 				bool hasBC(Int tag) const {
-					return bcCategory_.find(tag) != bcType_.end();
+					return bcCategory_.find(tag) != bcCategory_.end();
 				}
 
 				BCCategory getBCCategory(Int tag) const {
