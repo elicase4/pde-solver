@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_BILINEARFORM_HPP
 #define PDESOLVER_BILINEARFORM_HPP
 
+#include <concepts>
+
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
 #include "fem/eval/ElementEval.hpp"
@@ -10,15 +12,9 @@ namespace pdesolver {
 		namespace form {
 
 			template<typename Form, Int Dim, Int NodesPerElement>
-			concept BilinearForm =
-			requires (
-				const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval,
-				Real* Ke,
-				const Real* Ue,
-				Real* Oe
-			) {
-				{ Form::template computeElementMatrix<NodesPerElement>(eleEval, Ke) }; 
-				{ Form::template computeElementOperator<NodesPerElement>(eleEval, Ue, Oe) }; 
+			concept BilinearForm = requires (const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval, Real* Ke, const Real* Ue, Real* Oe) {
+				{ Form::computeElementMatrix<NodesPerElement>(eleEval, Ke) } -> std::same_as<void>; 
+				{ Form::computeElementOperator<NodesPerElement>(eleEval, Ue, Oe) } -> std::same_as<void>; 
 			}; // concept BilinearForm
 				
 		} // namespace form
