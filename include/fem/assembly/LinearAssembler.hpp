@@ -33,7 +33,7 @@ namespace pdesolver {
 				template<typename LinearForm>
 				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF topoDOF, linalg::types::Vector<Real, Backend>& F);
 
-			}; // class LinearAssember
+			}; // class LinearAssembler
 
 		} // namespace assembly
 	} // namespace fem
