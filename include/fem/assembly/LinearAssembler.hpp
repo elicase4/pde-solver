@@ -23,15 +23,15 @@ namespace pdesolver {
 				
 				// matrix assembly
 				template<typename BilinearForm>
-				static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF topoDOF, linalg::types::SparseMatrix<Real, Backend>& K);
+				static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::SparseMatrix<Real, Backend>& K);
 				
 				// operator assembly
 				template<typename BilinearForm>
-				static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF topoDOF, linalg::types::Vector<Real, Backend>& O);
+				static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Backend>& O);
 				
 				// vector assembly
 				template<typename LinearForm>
-				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF topoDOF, linalg::types::Vector<Real, Backend>& F);
+				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class LinearAssembler
 
