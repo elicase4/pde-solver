@@ -15,7 +15,7 @@ namespace pdesolver::fem::form {
 	struct PoissonBilinearForm<2> {
 
 		template<Int NodesPerElement>
-		PDE_HOST PDE_DEVICE void computeElementMatrix<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Ke){
+		PDE_HOST PDE_DEVICE static void computeElementMatrix<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Ke){
 			
 			// physical gradients
 			Real dNdx[NodesPerElement];
@@ -33,7 +33,7 @@ namespace pdesolver::fem::form {
 		}
 		
 		template<Int NodesPerElement>
-		PDE_HOST PDE_DEVICE void computeElementOperator<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, const Real* Ue, Real* Oe){
+		PDE_HOST PDE_DEVICE static void computeElementOperator<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, const Real* Ue, Real* Oe){
 			
 			// physical gradients
 			Real dNdx[NodesPerElement];

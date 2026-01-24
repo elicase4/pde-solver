@@ -17,7 +17,7 @@ namespace pdesolver::fem::form {
 	struct PoissonLinearForm<2> {
 
 		template<Int NodesPerElement>
-		PDE_HOST PDE_DEVICE void computeElementVector<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Fe){
+		PDE_HOST PDE_DEVICE static void computeElementVector<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Fe){
 			
 			// get physical coordinates
 			Real x[NodesPerElement];
