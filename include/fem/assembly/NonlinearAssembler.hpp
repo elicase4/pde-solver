@@ -23,14 +23,17 @@ namespace pdesolver {
 				
 				// matrix assembly
 				template<typename NonlinearTangentForm>
+				requires fem::form::NonlinearTangentForm<NonlinearTangentForm, Element::Dim, Element::NodesPerElement>
 				static void assembleNonlinearTangentMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::SparseMatrix<Real, Backend>& K);
 				
 				// operator assembly
 				template<typename NonlinearTangentForm>
+				requires fem::form::NonlinearTangentForm<NonlinearTangentForm, Element::Dim, Element::NodesPerElement>
 				static void assembleNonlinearTangentOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Backend>& O);
 				
 				// vector assembly
 				template<typename NonlinearForm>
+				requires fem::form::NonlinearTangentForm<NonlinearTangentForm, Element::Dim, Element::NodesPerElement>
 				static void assembleResidualVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Backend>& R);
 
 			}; // class NonlinearAssember
