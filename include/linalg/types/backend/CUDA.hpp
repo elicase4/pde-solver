@@ -55,7 +55,7 @@ namespace pdesolver {
 								CUDAkind = cudaMemcpyDefault;
 						}
 
-						cudaMemcpy(dst, src, n*sizeof(T), kind);
+						cudaMemcpy(dst, src, n*sizeof(T), CUDAkind);
 					}
 				
 				}; // class CUDA

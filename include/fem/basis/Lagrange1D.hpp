@@ -15,6 +15,10 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void evalFirstDerivative(Real xi, Real* dN);
 				PDE_HOST PDE_DEVICE static void evalSecondDerivative(Real xi, Real* d2N);
 			
+				// constants
+				Int Dim = 1;
+				Int NodesPerElement = (Order + 1);
+
 			}; // class Lagrange1D
 			
 		} // namespace basis

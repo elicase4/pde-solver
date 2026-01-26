@@ -24,7 +24,11 @@ namespace pdesolver {
 				
 				PDE_HOST PDE_DEVICE static Index nodesPerFace(const Index faceID);
 				PDE_HOST PDE_DEVICE static void getFaceNodes(const Index faceID, Index* nodeIDs);
-
+				
+				// constants
+				Int Dim = 2;
+				Int NodesPerElement = (Px + 1)*(Py + 1);
+			
 			}; // class LagrangeQuad
 
 			// common typedefs
