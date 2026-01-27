@@ -22,6 +22,7 @@ namespace pdesolver {
 			
 			// node mappings
 			Index getNodeDOF(Index nodeId, Index component) const { return (nodeId * dofsPerNode_ + component); }
+			Index getDOFNode(Index topoDOF) const { return (topoDOF % dofsPerNode_); }
 			
 			// element mappings
 			void getElementDOFs(Index elemId, Index* dofs) const;
