@@ -13,8 +13,8 @@ namespace pdesolver {
 			
 			template<typename Form, typename EvalContext>
 			concept NonlinearTangentForm = requires (const EvalContext& ctx, Real* Ke, const Real* Ue, Real* Oe) {
-				{ Form::computeElementTangentMatrix<NodesPerElement>(ctx, Ue, Ke) } -> std::same_as<void>;
-				{ Form::computeElementTangentOperator<NodesPerElement>(ctx, Ue, Oe) } -> std::same_as<void>;
+				{ Form::computeElementTangentMatrix(ctx, Ue, Ke) } -> std::same_as<void>;
+				{ Form::computeElementTangentOperator(ctx, Ue, Oe) } -> std::same_as<void>;
 			}; // concept NonlinearTangentForm
 
 		} // namespace form

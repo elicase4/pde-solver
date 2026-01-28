@@ -13,8 +13,8 @@ namespace pdesolver {
 
 			template<typename Form, typename EvalContext>
 			concept BilinearForm = requires (const EvalContext& ctx, Real* Ke, const Real* Ue, Real* Oe) {
-				{ Form::computeElementMatrix<NodesPerElement>(ctx, Ke) } -> std::same_as<void>; 
-				{ Form::computeElementOperator<NodesPerElement>(ctx, Ue, Oe) } -> std::same_as<void>; 
+				{ Form::computeElementMatrix(ctx, Ke) } -> std::same_as<void>; 
+				{ Form::computeElementOperator(ctx, Ue, Oe) } -> std::same_as<void>; 
 			}; // concept BilinearForm
 				
 		} // namespace form

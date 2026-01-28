@@ -13,7 +13,7 @@ namespace pdesolver {
 			
 			template<typename Form, typename EvalContext>
 			concept NonlinearForm = requires (const EvalContext& ctx, const Real* Ue, Real* Re) {
-				{ Form::computeElementResidual<NodePerElement>(ctx, Ue, Re) } -> std::same_as<void>;
+				{ Form::computeElementResidual(ctx, Ue, Re) } -> std::same_as<void>;
 			}; // concept NonlinearForm
 		
 		} // namespace form
