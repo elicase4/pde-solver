@@ -24,17 +24,17 @@ namespace pdesolver {
 				
 				// matrix assembly
 				template<typename BilinearForm>
-				requires fem::form::BilinearForm<BilinearForm, EvalContext::Dim, EvalContext::NodesPerElement>
+				requires fem::form::BilinearForm<BilinearForm, EvalContext>
 				static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::SparseMatrix<Real, Backend>& K);
 				
 				// operator assembly
 				template<typename BilinearForm>
-				requires fem::form::BilinearForm<BilinearForm, EvalContext::Dim, EvalContext::NodesPerElement>
+				requires fem::form::BilinearForm<BilinearForm, EvalContext>
 				static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Backend>& O);
 				
 				// vector assembly
 				template<typename LinearForm>
-				requires fem::form::LinearForm<LinearForm, EvalContext::Dim, EvalContext::NodesPerElement>
+				requires fem::form::LinearForm<LinearForm, EvalContext>
 				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class LinearAssembler

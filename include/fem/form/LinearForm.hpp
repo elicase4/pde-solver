@@ -11,9 +11,9 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 			
-			template<typename Form, Int Dim, Int NodesPerElement>
-			concept LinearForm = requires (const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval, Real* Fe) {
-				{ Form::computeElementVector<NodesPerElement>(eleEval, Fe) } -> std::same_as<void>;
+			template<typename Form, typename EvalContext>
+			concept LinearForm = requires (const EvalContext& ctx, Real* Fe) {
+				{ Form::computeElementVector<NodesPerElement>(ctx, Fe) } -> std::same_as<void>;
 			}; // concept LinearForm
 
 		} // namespace form
