@@ -1,7 +1,7 @@
 namespace pdesolver::fem::geometry{
 
 template<Int NodesPerElement>
-PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::computeForward(const Real* nodeCoords, const Real* N, Real* x){
+PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::mapToPhysical(const Real* nodeCoords, const Real* N, Real* x){
 	for (Index i = 0; i < NodesPerElement; ++i){
 		x[0] += N[i] * nodeCoords[2*i];
 		x[1] += N[i] * nodeCoords[2*i+1];
@@ -9,7 +9,7 @@ PDE_HOST PDE_DEVICE void JacobianTransform<2, NodesPerElement>::computeForward(c
 }
 
 template<Int NodesPerElement>
-PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J){
+PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J){
 	// initialize
 	J[0] = 0.0; J[1] = 0.0;
 	J[2] = 0.0; J[3] = 0.0;
@@ -29,7 +29,7 @@ PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::computeJacobian(
 }
 
 template<Int NodesPerElement>
-PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::invertJacobian(const Real* J, const Real detJ, Real* invJ){
+PDE_HOST PDE_DEVICE Real JacobianTransform<2, NodesPerElement>::invertMetric(const Real* J, const Real detJ, Real* invJ){
 	
 	// compute determinant inverse
 	Real detInvJ = 1.0 / detJ;

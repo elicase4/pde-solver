@@ -17,15 +17,14 @@ namespace pdesolver {
 			public:
 				
 				// base transform
-				PDE_HOST PDE_DEVICE static void computeForward(const Real* nodeCoords, const Real* N, Real* x);
+				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
 
 				// jacobian matrix
-				PDE_HOST PDE_DEVICE static Real computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J);
-				PDE_HOST PDE_DEVICE static Real invertJacobian(const Real* J, const Real detJ, Real* invJ);
+				PDE_HOST PDE_DEVICE static Real computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J);
+				PDE_HOST PDE_DEVICE static Real invertMetric(const Real* J, const Real detJ, Real* invJ);
 				
 				// operator transforms
 				PDE_HOST PDE_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy);
-				// TODO: add laplacian, hessian
 				
 				// normal computation
 				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
@@ -37,11 +36,11 @@ namespace pdesolver {
 			public:
 				
 				// base transform
-				PDE_HOST PDE_DEVICE static void computeForward(const Real* nodeCoords, const Real* N, Real* x);
+				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
 
 				// jacobian matrix
-				PDE_HOST PDE_DEVICE static Real computeJacobian(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J);
-				PDE_HOST PDE_DEVICE static Real invertJacobian(const Real* J, const Real detJ, Real* invJ);
+				PDE_HOST PDE_DEVICE static Real computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J);
+				PDE_HOST PDE_DEVICE static Real invertMetric(const Real* J, const Real detJ, Real* invJ);
 				
 				// operator transforms
 				PDE_HOST PDE_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz);
