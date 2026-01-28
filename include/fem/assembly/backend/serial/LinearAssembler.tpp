@@ -33,7 +33,7 @@ linalg::types::SparseMatrix<Real, Serial> LinearAssembler<Element, Quadrature, G
 						if (topoDOF.isConstrained(TdofIDk)) {
 							continue;
 						} else {
-							AdofIDk = toAlgebraic(TdofIDk);
+							AdofIDk = topoDOF.toAlgebraic(TdofIDk);
 							adjList[AdofIDi].push_back(AdofIDk);
 						}
 
@@ -85,17 +85,20 @@ linalg::types::Vector<Real, Serial> LinearAssembler<Element, Quadrature, Geometr
 
 }
 
-template<typename Element, typename Quadrature, typename Geometry, typename EvalContext, typename BilinearForm>
+template<typename Element, typename Quadrature, typename Geometry, typename EvalContext>
+template<typename BilinearForm>
 void LinearAssembler<Element, Quadrature, Geometry, EvalContext, Serial>::assembleMatrixSystem<BilinearForm>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::SparseMatrix<Real, Serial>& K){
 
 }
 
-template<typename Element, typename Quadrature, typename Geometry, typename EvalContext, typename BilinearForm>
+template<typename Element, typename Quadrature, typename Geometry, typename EvalContext>
+template<typename BilinearForm>
 void LinearAssembler<Element, Quadrature, Geometry, EvalContext, Serial>::assembleOperatorSystem<BilinearForm>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Serial>& O){
 
 }
 
-template<typename Element, typename Quadrature, typename Geometry, typename EvalContext, typename LinearForm>
+template<typename Element, typename Quadrature, typename Geometry, typename EvalContext>
+template<typename LinearForm>
 void LinearAssembler<Element, Quadrature, Geometry, EvalContext, Serial>::assembleRHSVector<LinearForm>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, linalg::types::Vector<Real, Serial>& F){
 
 }
