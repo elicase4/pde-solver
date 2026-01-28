@@ -9,12 +9,16 @@ namespace pdesolver {
 		namespace eval {
 
 			template<Int Dim, Int NodesPerElement>
-			class ElementEval; // class ElementEval
+			class EvalContext; // class EvalContext
 			
 			// 2D specialization
 			template<Int NodesPerElement>
-			class ElementEval<2, NodesPerElement> {
+			class EvalContext<2, NodesPerElement> {
 			public:
+		
+				// Parameters
+				static constexpr Int Dimension = Dim;
+				static constexpr Int NumNodes = NodesPerElement;
 				
 				// Geometry
 				Real nodeCoords[NodesPerElement];
@@ -23,7 +27,7 @@ namespace pdesolver {
 				// Time
 				Real t;
 
-				// Jacobian Transform
+				// Transform
 				Real J[2*2];
 				Real invJ[2*2];
 				Real detJ;
@@ -52,7 +56,7 @@ namespace pdesolver {
 				Real w;
 				
 				// Constructor
-				PDE_HOST PDE_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
+				PDE_HOST PDE_DEVICE EvalContext() : nodeCoords(nullptr), normal(nullptr),
 													J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
 													N(nullptr),
 													dNdxi(nullptr), dNdeta(nullptr),
@@ -64,8 +68,12 @@ namespace pdesolver {
 			
 			// 3D specialization
 			template<Int NodesPerElement>
-			class ElementEval<3, NodesPerElement> {
+			class EvalContext<3, NodesPerElement> {
 			public:
+		
+				// Parameters
+				static constexpr Int Dimension = Dim;
+				static constexpr Int NumNodes = NodesPerElement;
 				
 				// Geometry
 				Real nodeCoords[NodesPerElement];
@@ -74,7 +82,7 @@ namespace pdesolver {
 				// Time
 				Real t;
 				
-				// Jacobian Transform
+				// Transform
 				Real J[3*3];
 				Real invJ[3*3];
 				Real detJ;
@@ -107,7 +115,7 @@ namespace pdesolver {
 				Real w;
 				
 				// Constructor
-				PDE_HOST PDE_DEVICE ElementEval() : nodeCoords(nullptr), normal(nullptr),
+				PDE_HOST PDE_DEVICE EvalContext() : nodeCoords(nullptr), normal(nullptr),
 													J(nullptr), invJ(nullptr), detJ(0.0), detInvJ(0.0),
 													N(nullptr),
 													dNdxi(nullptr), dNdeta(nullptr), dNdzeta(nullptr),

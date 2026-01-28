@@ -11,10 +11,10 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 
-			template<typename Form, Int Dim, Int NodesPerElement>
-			concept BilinearForm = requires (const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval, Real* Ke, const Real* Ue, Real* Oe) {
-				{ Form::computeElementMatrix<NodesPerElement>(eleEval, Ke) } -> std::same_as<void>; 
-				{ Form::computeElementOperator<NodesPerElement>(eleEval, Ue, Oe) } -> std::same_as<void>; 
+			template<typename Form, typename EvalContext>
+			concept BilinearForm = requires (const EvalContext& ctx, Real* Ke, const Real* Ue, Real* Oe) {
+				{ Form::computeElementMatrix<NodesPerElement>(ctx, Ke) } -> std::same_as<void>; 
+				{ Form::computeElementOperator<NodesPerElement>(ctx, Ue, Oe) } -> std::same_as<void>; 
 			}; // concept BilinearForm
 				
 		} // namespace form

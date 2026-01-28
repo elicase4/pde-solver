@@ -11,9 +11,9 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 			
-			template<typename Form, Int Dim, Int NodesPerElement>
-			concept NonlinearForm = requires (const fem::eval::ElementEval<Dim, NodesPerElement>& eleEval, const Real* Ue, Real* Re) {
-				{ Form::computeElementResidual<NodePerElement>(eleEval, Ue, Re) } -> std::same_as<void>;
+			template<typename Form, typename EvalContext>
+			concept NonlinearForm = requires (const EvalContext& ctx, const Real* Ue, Real* Re) {
+				{ Form::computeElementResidual<NodePerElement>(ctx, Ue, Re) } -> std::same_as<void>;
 			}; // concept NonlinearForm
 		
 		} // namespace form
