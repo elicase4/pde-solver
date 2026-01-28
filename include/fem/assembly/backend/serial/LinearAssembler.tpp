@@ -9,7 +9,7 @@ linalg::types::SparseMatrix<Real, Serial> createMatrixSystem(const mesh::Mesh& m
 	std::vector<std::vector<Index>> adjList;
 	adjList.resize(topoDOF.numFreeDOFs());
 	for (Index i = 0; i < topoDOF.numFreeDOFs(); ++i){
-		adjList[i].resize(Element::NodesPerElement);
+		adjList[i].resize(EvalContext::NumNodes);
 	}
 
 	// compute nnz
@@ -20,7 +20,7 @@ linalg::types::SparseMatrix<Real, Serial> createMatrixSystem(const mesh::Mesh& m
 		
 		Index* nodeIDs = mesh.getElementNodes(e);
 		
-		for (Index i = 0; i < Element::NodesPerElement; ++i){
+		for (Index i = 0; i < EvalContext::NumNodes; ++i){
 			for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 				
 				Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
@@ -31,7 +31,7 @@ linalg::types::SparseMatrix<Real, Serial> createMatrixSystem(const mesh::Mesh& m
 					AdofIDi = toAlgebraic(TdofIDi);
 				}
 
-				for (Index k = 0; k < Element::NodesPerElement; ++k){
+				for (Index k = 0; k < EvalContext::NumNodes; ++k){
 					for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 				
 						Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
