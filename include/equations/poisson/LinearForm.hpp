@@ -17,15 +17,15 @@ namespace pdesolver::fem::form {
 	struct PoissonLinearForm<2> {
 
 		template<Int NodesPerElement>
-		PDE_HOST PDE_DEVICE static void computeElementVector<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& eleEval, Real* Fe){
+		PDE_HOST PDE_DEVICE static void computeElementVector<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& evalCxt, Real* Fe){
 			
 			// get physical coordinates
 			Real x[NodesPerElement];
-			fem::geometry::JacobianTransform<2, NodesPerElement>::computeForward(eleEval.nodeCoords, eleEval.N, x);
+			Geometry::mapToPhysical(evalCxt.nodeCoords, evalCxt.N, x);
 
 			// element vector assembly contribution
 			for (Index a = 0; a < NodesPerElement; ++a){
-				Fe[a] += (fem::eval::PoissonSourceTerm<2>::value(0.0, x) * N[a]) * eleEval.detJ * eleEval.w;
+				Fe[a] += (fem::eval::PoissonSourceTerm<2>::value(0.0, x) * N[a]) * evalCxt.detJ * evalCxt.w;
 			}
 		}
 
