@@ -16,16 +16,12 @@ namespace pdesolver::fem::form {
 	template<>
 	struct PoissonLinearForm<2> {
 
-		template<Int NodesPerElement>
-		PDE_HOST PDE_DEVICE static void computeElementVector<NodesPerElement>(const fem::eval::ElementEval<2, NodesPerElement>& evalCxt, Real* Fe){
+		template<typename EvalContext>
+		PDE_HOST PDE_DEVICE static void computeElementVector(const EvalContext& cxt, Real* Fe){
 			
-			// get physical coordinates
-			Real x[NodesPerElement];
-			Geometry::mapToPhysical(evalCxt.nodeCoords, evalCxt.N, x);
-
 			// element vector assembly contribution
-			for (Index a = 0; a < NodesPerElement; ++a){
-				Fe[a] += (fem::eval::PoissonSourceTerm<2>::value(0.0, x) * N[a]) * evalCxt.detJ * evalCxt.w;
+			for (Index a = 0; a < ctx.NumNodes; ++a){
+				Fe[a] += (fem::eval::PoissonSourceTerm<2>::value(ctx.t, ctx.x) * ctx.N[a]) * ctx.detJ * ctx.w;
 			}
 		}
 
