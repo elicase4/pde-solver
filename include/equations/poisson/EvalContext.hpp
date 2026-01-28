@@ -7,14 +7,14 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis, Int Dim, Int NodesPerElement>
+	template<typename Geometry, typename Basis, Int Dim>
 	class PoissonEvalContext;
 
-	template<typename Geometry, typename Basis, Int NodesPerElement>
-	class PoissonEvalContext<Geometry, Basis, 2, NodesPerElement> {
+	template<typename Geometry, typename Basis>
+	class PoissonEvalContext<Geometry, Basis, 2> {
 	public:
 		static constexpr Int Dimension = 2;
-		static constexpr Int NumNodes = NodesPerElement;
+		static constexpr Int NumNodes = Basis::NodesPerElement;
 		
 		// node coordinates
 		const Real* nodeCoords;
@@ -51,6 +51,7 @@ namespace pdesolver::fem::eval {
 		}
 
 		PDE_HOST PDE_DEVICE evaluate(const Real* xi_q, const Real weight){
+			
 			// set quad info
 			xi[0] = xi_q[0];
 			xi[1] = xi_q[1];
@@ -69,13 +70,13 @@ namespace pdesolver::fem::eval {
 			Geometry::transformGradient(invJ, dNdxi, dNdeta, dNdx, dNdy);
 		}
 
-	}; // class PoissonEvalContext<Geometry, Basis, 2, NodesPerElement>
+	}; // class PoissonEvalContext<Geometry, Basis, 2>
 	
-	template<typename Geometry, typename Basis, Int NodesPerElement>
-	class PoissonEvalContext<Geometry, Basis, 3, NodesPerElement> {
+	template<typename Geometry, typename Basis>
+	class PoissonEvalContext<Geometry, Basis, 3> {
 	public:
 		static constexpr Int Dimension = 3;
-		static constexpr Int NumNodes = NodesPerElement;
+		static constexpr Int NumNodes = Basis::NodesPerElement;
 		
 		// node coordinates
 		const Real* nodeCoords;
@@ -132,7 +133,7 @@ namespace pdesolver::fem::eval {
 			Geometry::transformGradient(invJ, dNdxi, dNdeta, dNdzeta, dNdx, dNdy, dNdz);
 		}
 
-	}; // class PoissonEvalContext<Geometry, Basis, 3, NodesPerElement>
+	}; // class PoissonEvalContext<Geometry, Basis, 3>
 
 
 } // namespace pdesolver::fem::eval
