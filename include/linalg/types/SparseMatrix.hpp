@@ -21,8 +21,8 @@ namespace pdesolver {
 				SparseMatrix& operator=(SparseMatrix&&) noexcept = default;
 
 				// Size
-				Index nRows() const { return nRows; }
-				Index nCols() const { return nCols; }
+				Index nRows() const { return nRows_; }
+				Index nCols() const { return nCols_; }
 
 				// Resize
 				void resize(Index nnz){

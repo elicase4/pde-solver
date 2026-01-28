@@ -2,7 +2,7 @@
 #define PDESOLVER_LINEARASSEMBLER_HPP
 
 #include "core/Types.hpp"
-#include "fem/eval/ElementEval.hpp"
+#include "fem/eval/EvalContext.hpp"
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
 #include "mesh/Mesh.hpp"
