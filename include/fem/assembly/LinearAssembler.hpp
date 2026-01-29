@@ -43,6 +43,6 @@ namespace pdesolver {
 	} // namespace fem
 } // namespace pdesolver
 
-#include "backend/serial/LinearAssembler.tpp"
+#include "backend/Serial.tpp"
 
 #endif
