@@ -86,8 +86,8 @@ linalg::types::Vector<Real, Serial> LinearAssembler<Basis, Quadrature, Geometry,
 }
 
 template<typename Basis, typename Quadrature, typename Geometry, typename EvalContext>
-template<typename BilinearForm>
-void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assembleMatrixSystem<BilinearForm>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Serial>& K){
+template<typename Form>
+void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assembleMatrixSystem<Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Serial>& K){
 	
 	// allocate local space
 	linalg::types::Matrix<Real, Serial> Ke((EvalContext::NumNodes * topoDOF.dofsPerNode() ) * (EvalContext::NumNodes * topoDOF.dofsPerNode() ) );
@@ -120,7 +120,7 @@ void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assemble
 		for (Index q = 0; q < Quadrature::NPt; ++q){
 			
 			EvalContext::evaluate(xi[q], w[q]);
-			BilinearForm::ComputeElementMatrix(EvalContext, Ke.data());
+			Form::ComputeElementMatrix(EvalContext, Ke.data());
 		
 		}
 
@@ -158,14 +158,14 @@ void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assemble
 }
 
 template<typename Basis, typename Quadrature, typename Geometry, typename EvalContext>
-template<typename BilinearForm>
-void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assembleOperatorSystem<BilinearForm>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const real time, linalg::types::Vector<Real, Serial>& O){
+template<typename Form>
+void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assembleOperatorSystem<Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const real time, linalg::types::Vector<Real, Serial>& O){
 
 }
 
 template<typename Basis, typename Quadrature, typename Geometry, typename EvalContext>
-template<typename LinearForm>
-void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assembleRHSVector<LinearForm>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const real time, linalg::types::Vector<Real, Serial>& F){
+template<typename Form>
+void LinearAssembler<Basis, Quadrature, Geometry, EvalContext, Serial>::assembleRHSVector<Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const real time, linalg::types::Vector<Real, Serial>& F){
 
 }
 

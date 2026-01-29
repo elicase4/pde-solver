@@ -22,19 +22,34 @@ namespace pdesolver {
 				static linalg::types::Vector<Real, Backend> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				static linalg::types::Vector<Real, Backend> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
-				// matrix assembly
-				template<typename BilinearForm>
-				requires fem::form::BilinearForm<BilinearForm, EvalContext>
+				// matrix assembly bilinear form
+				template<typename Form>
+				requires fem::form::BilinearForm<Form, EvalContext>
 				static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Backend>& K);
 				
-				// operator assembly
-				template<typename BilinearForm>
-				requires fem::form::BilinearForm<BilinearForm, EvalContext>
+				// matrix assembly non-linear tangent form
+				template<typename Form>
+				requires fem::form::NonlinearTangentForm<Form, EvalContext>
+				static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Backend>& K);
+				
+				// operator assembly bilinear form
+				template<typename Form>
+				requires fem::form::BilinearForm<Form, EvalContext>
 				static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& O);
 				
-				// vector assembly
-				template<typename LinearForm>
-				requires fem::form::LinearForm<LinearForm, EvalContext>
+				// operator assembly non-linear tangent form
+				template<typename Form>
+				requires fem::form::NonlinearTangentForm<Form, EvalContext>
+				static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& O);
+				
+				// vector assembly linear form
+				template<typename Form>
+				requires fem::form::LinearForm<Form, EvalContext>
+				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& F);
+
+				// vector assembly non-linear form
+				template<typename Form>
+				requires fem::form::NonlinearForm<Form, EvalContext>
 				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class LinearAssembler
