@@ -1,8 +1,16 @@
 #ifndef PDESOLVER_FEM
 #define PDESOLVER_FEM
 
-#include "fem/eval/ElementEval.hpp"
-#include "fem/eval/FieldEval.hpp"
+#include "fem/assmebly/LinearAssembler.hpp"
+
+#include "fem/boundary/BoundaryApplicator.hpp"
+#include "fem/boundary/BoundaryCondition.hpp"
+#include "fem/boundary/BoundaryRegistry.hpp"
+
+#include "fem/dof/AlgebraicDOF.hpp"
+
+#include "fem/eval/EvalContext.hpp"
+#include "fem/eval/EvalField.hpp"
 
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"

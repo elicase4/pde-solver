@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_MESH
 #define PDESOLVER_MESH
 
-#include "mesh/MeshBase.hpp"
-#include "mesh/MeshData.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Data.hpp"
 
 #endif
