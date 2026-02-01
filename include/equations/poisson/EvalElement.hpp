@@ -8,42 +8,42 @@
 namespace pdesolver::fem::eval {
 
 	template<typename Geometry, typename Basis, Int Dim>
-	class PoissonEvalContext;
+	class PoissonEvalElement;
 
 	template<typename Geometry, typename Basis>
-	class PoissonEvalContext<Geometry, Basis, 2> {
+	class PoissonEvalElement<Geometry, Basis, 2> {
 	public:
 		static constexpr Int Dimension = 2;
-		static constexpr Int NumNodes = Basis::NodesPerElement;
+		static constexpr Int NumNodes = Basis::NumNodes;
 		
 		// node coordinates
-		const Real* nodeCoords;
+		const Real nodeCoords[Dimension*NumNodes];
 		
 		// physical coordinate
-		Real x[2];
+		Real x[Dimension*NumNodes];
 
 		// time coordinate
 		Real t;
 
 		// quadrature
-		Real xi[2];
+		Real xi[Dimension];
 		Real w;
 
 		// geometry
-		Real J[4];
-		Real invJ[4];
+		Real J[Dimension*Dimension];
+		Real invJ[Dimension*Dimension];
 		Real detJ;
 
 		// basis values
-		Real N[NodesPerElement];
+		Real N[NumNodes];
 
 		// ref gradients
-		Real dNdxi[NodesPerElement];
-		Real dNdeta[NodesPerElement];
+		Real dNdxi[NumNodes];
+		Real dNdeta[NumNodes];
 
 		// physical gradients
-		Real dNdx[NodesPerElement];
-		Real dNdy[NodesPerElement];
+		Real dNdx[NumNodes];
+		Real dNdy[NumNodes];
 
 		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
 			nodeCoords = coords;
@@ -70,42 +70,42 @@ namespace pdesolver::fem::eval {
 			Geometry::transformGradient(invJ, dNdxi, dNdeta, dNdx, dNdy);
 		}
 
-	}; // class PoissonEvalContext<Geometry, Basis, 2>
+	}; // class PoissonEvalElement<Geometry, Basis, 2>
 	
 	template<typename Geometry, typename Basis>
-	class PoissonEvalContext<Geometry, Basis, 3> {
+	class PoissonEvalElement<Geometry, Basis, 3> {
 	public:
 		static constexpr Int Dimension = 3;
-		static constexpr Int NumNodes = Basis::NodesPerElement;
+		static constexpr Int NumNodes = Basis::NumNodes;
 		
 		// node coordinates
-		const Real* nodeCoords;
+		const Real nodeCoords[Dimension*NumNodes];
 		
 		// physical coordinate
-		Real x[3];
+		Real x[Dimension];
 
 		// time coordinate
 		Real t;
 
 		// quadrature
-		Real xi[3];
+		Real xi[Dimension];
 		Real w;
 
 		// geometry
-		Real J[9];
-		Real invJ[9];
+		Real J[Dimension*Dimension];
+		Real invJ[Dimension];
 		Real detJ;
 
 		// basis values
-		Real N[NodesPerElement];
+		Real N[NumNodes];
 
 		// ref gradients
-		Real dNdxi[NodesPerElement];
-		Real dNdeta[NodesPerElement];
+		Real dNdxi[NumNodes];
+		Real dNdeta[NumNodes];
 
 		// physical gradients
-		Real dNdx[NodesPerElement];
-		Real dNdy[NodesPerElement];
+		Real dNdx[NumNodes];
+		Real dNdy[NumNodes];
 
 		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
 			nodeCoords = coords;
@@ -133,7 +133,7 @@ namespace pdesolver::fem::eval {
 			Geometry::transformGradient(invJ, dNdxi, dNdeta, dNdzeta, dNdx, dNdy, dNdz);
 		}
 
-	}; // class PoissonEvalContext<Geometry, Basis, 3>
+	}; // class PoissonEvalElement<Geometry, Basis, 3>
 
 
 } // namespace pdesolver::fem::eval
