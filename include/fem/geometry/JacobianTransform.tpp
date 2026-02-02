@@ -36,6 +36,23 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 
 }
 
+template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
+PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::computeMetric(const Real* J, Real* g){
+
+	for (Index beta = 0; beta < ParametricDim; ++beta){
+		for (Index alpha = 0; alpha < ParametricDim; ++alpha){
+			
+			Real sum = 0.0;
+			for (Index i = 0; i < SpatialDim; ++i){
+				sum += J[i*ParametricDim + alpha] * J[i*ParametricDim + beta];
+			}
+
+			g[beta*ParametricDim + alpha] = sum;
+			g[alpha*ParametricDim + beta] = sum;
+		}
+	}
+
+}
 
 template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
 PDE_HOST PDE_DEVICE Real JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::computeMeasure(const Real detJ, const Real detg){
@@ -43,9 +60,9 @@ PDE_HOST PDE_DEVICE Real JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 	Real measure;
 
 	if constexpr (SpatialDim != ParametricDim){
-		measure = std::sqrt(detg);
+		measure = sqrt(detg);
 	} else {
-		measure = detJ;
+		measure = fabs(detJ);
 	}
 
 	return measure;
@@ -53,26 +70,13 @@ PDE_HOST PDE_DEVICE Real JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 }
 
 template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
-PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* J, Real* g){
-
-	for (Index beta = 0; beta < ParametricDim; ++beta){
-		for (Index alpha = 0; alpha < ParametricDim; ++alpha){
-			
-			Real sum = 0.0;
-			for (Index i = 0; i < SpatialDim; ++i){
-				sum += J[i*ParametricDim + alpha] * J[i*ParametricDim + beta]
-			}
-
-			g[beta*parametricDim + alpha] = sum;
-			g[alpha*parametricDim + beta] = sum;
-		}
-	}
-
-}
-
-template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
 PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::transformGradient(const Real*J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx){
 
+	// initialize
+	for (Index i = 0; i < NodesPerElement*SpatialDim*ParametricDim; ++i){
+		dNdx[i] = 0.0;
+	}
+	
 	if constexpr (ParametricDim == SpatialDim){
 	
 		for (Index a = 0; a < NodesPerElement; ++a){
@@ -89,7 +93,7 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 			for (Index i = 0; i < SpatialDim; ++i){
 				for (Index beta = 0; beta < ParametricDim; ++beta){
 					for (Index alpha = 0; alpha < ParametricDim; ++alpha){
-						dNdx[a*SpatialDim + i] += (g[alpha*ParametricDim + beta] * J[i*ParametricDim + beta] * dNdxi[a*ParametricDim + alpha]);
+						dNdx[a*SpatialDim + i] += (J[i*ParametricDim + beta] * g[beta*ParametricDim + alpha] * dNdxi[a*ParametricDim + alpha]);
 					}
 				}
 			}
@@ -102,12 +106,12 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
 PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
 	
-	if constexpr (ParametricDim == 2) {
+	if constexpr (SpatialDim == 2) {
 		
 		n[0] =        nCoeff * J[2+tangentID[0]];
 		n[1] = -1.0 * nCoeff * J[  tangentID[1]];
 
-	} else if constexpr (ParametricDim == 3){
+	} else if constexpr (SpatialDim == 3){
 
 		n[0] =        nCoeff * ((J[3+tangentID[0]]*J[6+tangentID[1]]) - (J[3+tangentID[1]]*J[6+tangentID[0]]));
 		n[1] = -1.0 * nCoeff * ((J[  tangentID[0]]*J[6+tangentID[1]]) - (J[  tangentID[1]]*J[6+tangentID[0]]));
