@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_JACOBIANTRANSFORM_HPP
 #define PDESOLVER_JACOBIANTRANSFORM_HPP
 
+#include <math.h>
+
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
 
@@ -17,7 +19,7 @@ namespace pdesolver {
 
 				PDE_HOST PDE_DEVICE static Real computeMeasure(const Real detJ, const Real detg);
 
-				PDE_HOST PDE_DEVICE static void computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* J, Real* g);
+				PDE_HOST PDE_DEVICE static void computeMetric(const Real* J, Real* g);
 
 				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx);
 
