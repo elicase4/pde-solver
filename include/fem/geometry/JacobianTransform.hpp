@@ -8,53 +8,31 @@ namespace pdesolver {
 	namespace fem {
 		namespace geometry {
 			
-			template<Int Dim, Int NodesPerElement>
-			class JacobianTransform; // class JacobianTransform
+			template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
+			class JacobianTransform {
 			
-			// 2D specialization
-			template<Int NodesPerElement>
-			class JacobianTransform<2, NodesPerElement> {
-			public:
-				
-				// base transform
 				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
+				
+				PDE_HOST PDE_DEVICE static void computeJacobian(const Real* nodeCoords, const Real* dNdxi, Real* J);
 
-				// jacobian matrix
-				PDE_HOST PDE_DEVICE static Real computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, Real* J);
-				PDE_HOST PDE_DEVICE static Real invertMetric(const Real* J, const Real detJ, Real* invJ);
-				
-				// operator transforms
-				PDE_HOST PDE_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, Real* dNdx, Real* dNdy);
-				
-				// normal computation
-				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
-			};
-			
-			// 3D specialization
-			template<Int NodesPerElement>
-			class JacobianTransform<3, NodesPerElement> {
-			public:
-				
-				// base transform
-				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
+				PDE_HOST PDE_DEVICE static Real computeMeasure(const Real detJ, const Real detg);
 
-				// jacobian matrix
-				PDE_HOST PDE_DEVICE static Real computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* J);
-				PDE_HOST PDE_DEVICE static Real invertMetric(const Real* J, const Real detJ, Real* invJ);
-				
-				// operator transforms
-				PDE_HOST PDE_DEVICE static void transformGradient(const Real* invJ, const Real* dNdxi, const Real* dNdeta, const Real* dNdzeta, Real* dNdx, Real* dNdy, Real* dNdz);
-				// TODO: add laplacian, hessian
-				
-				// normal computation
+				PDE_HOST PDE_DEVICE static void computeMetric(const Real* nodeCoords, const Real* dNdxi, const Real* J, Real* g);
+
+				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx);
+
 				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
-			};
+
+				PDE_HOST PDE_DEVICE static void invertMatrix(const Real* A, const Real detA, Real* invA);
+				
+				PDE_HOST PDE_DEVICE static Real computeMatrixDeterminant(const Real* A);
+
+			}; // class JacobianTransform
 			
 		} // namespace geometry
 	} // namespace fem
 } // namespace pdesolver
 
-#include "JacobianTransform2D.tpp"
-#include "JacobianTransform3D.tpp"
+#include "JacobianTransform.tpp"
 
 #endif
