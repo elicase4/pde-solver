@@ -73,7 +73,7 @@ template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
 PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::transformGradient(const Real*J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx){
 
 	// initialize
-	for (Index i = 0; i < NodesPerElement*SpatialDim*ParametricDim; ++i){
+	for (Index i = 0; i < NodesPerElement*SpatialDim; ++i){
 		dNdx[i] = 0.0;
 	}
 	
