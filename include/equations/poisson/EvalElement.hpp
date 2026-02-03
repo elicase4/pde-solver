@@ -7,43 +7,41 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis, Int Dim>
-	class PoissonEvalElement;
-
 	template<typename Geometry, typename Basis>
-	class PoissonEvalElement<Geometry, Basis, 2> {
+	class PoissonEvalElement<Geometry, Basis> {
 	public:
-		static constexpr Int Dimension = 2;
+		static constexpr Int ParametricDim = Basis::ParametricDim;
+		static constexpr Int SpatialDim = Basis::SpatialDim;
 		static constexpr Int NumNodes = Basis::NumNodes;
 		
 		// node coordinates
-		const Real nodeCoords[Dimension*NumNodes];
+		const Real nodeCoords[SpatialDim*NumNodes];
 		
 		// physical coordinate
-		Real x[Dimension*NumNodes];
+		Real x[SpatialDim*NumNodes];
 
 		// time coordinate
 		Real t;
 
 		// quadrature
-		Real xi[Dimension];
+		Real xi[ParametricDim];
 		Real w;
 
 		// geometry
-		Real J[Dimension*Dimension];
-		Real invJ[Dimension*Dimension];
-		Real detJ;
+		Real J[SpatialDim*ParametricDim];
+		Real g[ParametricDim*ParametricDim];
 
 		// basis values
 		Real N[NumNodes];
 
 		// ref gradients
-		Real dNdxi[NumNodes];
-		Real dNdeta[NumNodes];
+		Real dNdxi[ParametricDim*NumNodes];
 
 		// physical gradients
-		Real dNdx[NumNodes];
-		Real dNdy[NumNodes];
+		Real dNdx[SpatialDim*NumNodes];
+
+		// measure
+		Real measure;
 
 		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
 			nodeCoords = coords;
@@ -53,88 +51,26 @@ namespace pdesolver::fem::eval {
 		PDE_HOST PDE_DEVICE evaluate(const Real* xi_q, const Real weight){
 			
 			// set quad info
-			xi[0] = xi_q[0];
-			xi[1] = xi_q[1];
+			for (Index pD = 0; pD < ParametricDim; ++pD){
+				xi[pD] = xi_q[pD];
+			}
 			w = weight;
 			
 			// evaluate basis
 			Basis::evaluate(xi, N);
-			Basis::evaluateGradient(xi, dNdxi, dNdeta);
+			Basis::evaluateGradient(xi, dNdxi);
 
 			// geometry
-			detJ = Geoemtry::computeMetric(nodeCoords, dNdxi, dNdeta, J);
-			Geometry::invertMetric(J, detJ, invJ);
 			Geometry::mapToPhysical(nodeCoords, N, x);
+			Geoemtry::computeJacobian(nodeCoords, dNdxi, J);
+			Geoemtry::computeMetric(J, g);
+			measure = Geometry::computeMeasure(g);
 
 			// transforms
-			Geometry::transformGradient(invJ, dNdxi, dNdeta, dNdx, dNdy);
+			Geometry::transformGradient(J, g, dNdxi, dNdx);
 		}
 
-	}; // class PoissonEvalElement<Geometry, Basis, 2>
-	
-	template<typename Geometry, typename Basis>
-	class PoissonEvalElement<Geometry, Basis, 3> {
-	public:
-		static constexpr Int Dimension = 3;
-		static constexpr Int NumNodes = Basis::NumNodes;
-		
-		// node coordinates
-		const Real nodeCoords[Dimension*NumNodes];
-		
-		// physical coordinate
-		Real x[Dimension];
-
-		// time coordinate
-		Real t;
-
-		// quadrature
-		Real xi[Dimension];
-		Real w;
-
-		// geometry
-		Real J[Dimension*Dimension];
-		Real invJ[Dimension];
-		Real detJ;
-
-		// basis values
-		Real N[NumNodes];
-
-		// ref gradients
-		Real dNdxi[NumNodes];
-		Real dNdeta[NumNodes];
-
-		// physical gradients
-		Real dNdx[NumNodes];
-		Real dNdy[NumNodes];
-
-		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
-			nodeCoords = coords;
-			t = time;
-		}
-
-		PDE_HOST PDE_DEVICE evaluate(const Real* xi_q, const Real weight){
-			
-			// set quad info
-			xi[0] = xi_q[0];
-			xi[1] = xi_q[1];
-			xi[2] = xi_q[2];
-			w = weight;
-			
-			// evaluate basis
-			Basis::evaluate(xi, N);
-			Basis::evaluateGradient(xi, dNdxi, dNdeta, dNdzeta);
-
-			// geometry
-			detJ = Geoemtry::computeMetric(nodeCoords, dNdxi, dNdeta, dNdzeta, J);
-			Geometry::invertMetric(J, detJ, invJ);
-			Geometry::mapToPhysical(nodeCoords, N, x);
-
-			// transforms
-			Geometry::transformGradient(invJ, dNdxi, dNdeta, dNdzeta, dNdx, dNdy, dNdz);
-		}
-
-	}; // class PoissonEvalElement<Geometry, Basis, 3>
-
+	}; // class PoissonEvalElement<Geometry, Basis>
 
 } // namespace pdesolver::fem::eval
 
