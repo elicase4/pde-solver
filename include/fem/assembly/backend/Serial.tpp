@@ -100,22 +100,22 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 	for (Index e = 0; e < mesh.data.numElements; ++e){
 		
 		Index* nodeIDs = mesh.getBasisNodes(e);
-		Real nodeCoords[EvalElement::Dimension * EvalElement::NumNodes];
+		Real nodeCoords[EvalElement::SpatialDim * EvalElement::NumNodes];
 		
 		// extract node coordinates
 		for (Index i = 0; i < EvalElement::NumNodes; ++i){
 			
 			Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
-			for (Index d = 0; d < EvalElement::Dimension; ++d){
-				nodeCoords[EvalElement::Dimension*i + d] = nodeCoordsPtr[d];
+			for (Index sD = 0; sD < EvalElement::SpatialDim; ++sD){
+				nodeCoords[EvalElement::SpatialDim*i + sD] = nodeCoordsPtr[sD];
 			}
 
 		}
 		
 
-		Real xi[Quadrature::NPt];
-		Real w[Quadrature::NPt];
+		Real xi[Quadrature::NumPointsTotal];
+		Real w[Quadrature::NumPointsTotal];
 		Quadrature::getPoints(xi);
 		Quadrature::getWeights(w);
 
@@ -123,7 +123,7 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 		ctx.bindElement(nodeCoords, time);
 		
 		// quadrature loop
-		for (Index q = 0; q < Quadrature::NPt; ++q){
+		for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 			
 			ctx.evaluate(xi[q], w[q]);
 			Form::ComputeElementMatrix(ctx, Ke.data());

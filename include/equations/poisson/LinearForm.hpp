@@ -10,21 +10,18 @@
 
 namespace pdesolver::fem::form {
 
-	template<Int Dim>
-	struct PoissonLinearForm; // struct PoissonBilinearForm
-	
 	template<>
-	struct PoissonLinearForm<2> {
+	struct PoissonLinearForm<SpatialDim> {
 
 		template<typename EvalContext>
 		PDE_HOST PDE_DEVICE static void computeElementVector(const EvalContext& cxt, Real* Fe){
 			
 			// element vector assembly contribution
 			for (Index a = 0; a < ctx.NumNodes; ++a){
-				Fe[a] += (fem::eval::PoissonSourceTerm<2>::value(ctx.t, ctx.x) * ctx.N[a]) * ctx.detJ * ctx.w;
+				Fe[a] += (fem::eval::PoissonSourceTerm<SpatialDim>::value(ctx.t, ctx.x) * ctx.N[a]) * ctx.measure * ctx.w;
 			}
 		}
 
-	}; // struct PoissonLinearForm<2>
+	};// struct PoissonLinearForm<SpatialDim>
 
 } // namespace pdesolver::fem::form

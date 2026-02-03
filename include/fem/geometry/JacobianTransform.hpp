@@ -12,7 +12,7 @@ namespace pdesolver {
 			
 			template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
 			class JacobianTransform {
-			
+			public:
 				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
 				
 				PDE_HOST PDE_DEVICE static void computeJacobian(const Real* nodeCoords, const Real* dNdxi, Real* J);
@@ -21,10 +21,11 @@ namespace pdesolver {
 
 				PDE_HOST PDE_DEVICE static void computeMetric(const Real* J, Real* g);
 
-				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx);
+				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* g, const Real* dNdxi, Real* dNdx);
 
 				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
-
+			
+			private:
 				PDE_HOST PDE_DEVICE static void invertMatrix(const Real* A, const Real detA, Real* invA);
 				
 				PDE_HOST PDE_DEVICE static Real computeMatrixDeterminant(const Real* A);

@@ -10,7 +10,8 @@ namespace pdesolver {
 
 			template<typename Ctx>
 			concept EvalElement = requires(Ctx ctx, const Real* nodeCoords, const Real* xi) {
-				{ Ctx::Dimension } -> std::convertible_to<Int>;
+				{ Ctx::SpatialDim } -> std::convertible_to<Int>;
+				{ Ctx::ParametricDim } -> std::convertible_to<Int>;
 				{ Ctx::NumNodes }  -> std::convertible_to<Int>;
 
 				{ ctx.bindElement(nodeCoords) } -> std::same_as<void>;

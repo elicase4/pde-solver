@@ -7,7 +7,7 @@
 
 namespace pdesolver::fem::eval {
 
-	template<Int Dim>
+	template<Int SpatialDim>
 	struct PoissonSourceTerm; // struct PoissonSourceTerm
 
 } // namespace pdesolver::fem::eval
