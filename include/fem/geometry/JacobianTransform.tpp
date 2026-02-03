@@ -55,22 +55,15 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 }
 
 template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
-PDE_HOST PDE_DEVICE Real JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::computeMeasure(const Real detJ, const Real detg){
-	
-	Real measure;
+PDE_HOST PDE_DEVICE Real JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::computeMeasure(const Real* g){
 
-	if constexpr (SpatialDim != ParametricDim){
-		measure = sqrt(detg);
-	} else {
-		measure = fabs(detJ);
-	}
-
-	return measure;
+	Real detg = computeMatrixDeterminant(g);
+	return measure = sqrt(detg);
 
 }
 
 template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
-PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::transformGradient(const Real*J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx){
+PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerElement>::transformGradient(const Real* J, const Real* invJ, const Real* invg, const Real* dNdxi, Real* dNdx){
 
 	// initialize
 	for (Index i = 0; i < NodesPerElement*SpatialDim; ++i){
@@ -93,7 +86,7 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDim, ParametricDim, NodesPerEl
 			for (Index i = 0; i < SpatialDim; ++i){
 				for (Index beta = 0; beta < ParametricDim; ++beta){
 					for (Index alpha = 0; alpha < ParametricDim; ++alpha){
-						dNdx[a*SpatialDim + i] += (J[i*ParametricDim + beta] * g[beta*ParametricDim + alpha] * dNdxi[a*ParametricDim + alpha]);
+						dNdx[a*SpatialDim + i] += (J[i*ParametricDim + beta] * invg[beta*ParametricDim + alpha] * dNdxi[a*ParametricDim + alpha]);
 					}
 				}
 			}

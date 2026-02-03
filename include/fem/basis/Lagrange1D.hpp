@@ -17,6 +17,7 @@ namespace pdesolver {
 			
 				// constants
 				Int NodesPerElement = (Order + 1);
+				Int ParametricDim = 1;
 
 			}; // class Lagrange1D
 			
