@@ -25,7 +25,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::eval(const Real* xi, Real* N){
 
 // Implementation: evalGradient
 template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, Real* dNdxi, Real* dNdeta, Real* dNdzeta){
+PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, Real* dNdxi){
 	Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 	Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
 
@@ -41,9 +41,9 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, R
 	for (Index k = 0; k <= Pz; ++k){
 		for (Index j = 0; j <= Py; ++j){
 			for (Index i = 0; i <= Px; ++i){
-				dNdxi[a] = dNx[i] * Ny[j] * Nz[k];
-				dNdeta[a] = Nx[i] * dNy[j] * Nz[k];
-				dNdzeta[a] = Nx[i] * Ny[j] * dNz[k];
+				dNdxi[a*ParametricDim    ] = dNx[i] * Ny[j] * Nz[k];
+				dNdxi[a*ParametricDim + 1] = Nx[i] * dNy[j] * Nz[k];
+				dNdxi[a*ParametricDim + 2] = Nx[i] * Ny[j] * dNz[k];
 				a++;
 			}
 		}
@@ -52,7 +52,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, R
 
 // Implementation: evalHessian
 template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Real* d2Nd2xi, Real* d2Nd2eta, Real* d2Nd2zeta, Real* d2Ndetadxi, Real* d2Ndetadzeta, Real* d2Ndxidzeta){
+PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Real* d2Nd2xi){
 	Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 	Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
 	Real d2Nx[Px + 1], d2Ny[Py + 1], d2Nz[Pz + 1];
@@ -67,17 +67,19 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Re
 	BasisX::evalFirstDerivative(xi[2], dNz);
 	BasisX::evalSecondDerivative(xi[2], d2Nz);
 
+	const Index NumEntries = 6;
+
 	// compute tensor product & chain rule
 	Index a = 0;
 	for (Index k = 0; k <= Pz; ++k){
 		for (Index j = 0; j <= Py; ++j){
 			for (Index i = 0; i <= Px; ++i){
-				d2Nd2xi[a] = d2Nx[i] * Ny[j] * Nz[k];
-				d2Nd2eta[a] = Nx[i] * d2Ny[j] * Nz[k];
-				d2Nd2zeta[a] = Nx[i] * Ny[j] * d2Nz[k];
-				d2Ndetadxi[a] = dNx[i] * dNy[j] * Nz[k];
-				d2Ndxidzeta[a] = dNx[i] * Ny[j] * dNz[k];
-				d2Ndetadzeta[a] = Nx[i] * dNy[i] * dNz[k];
+				d2Nd2xi[a*NumEntries    ] = d2Nx[i] * Ny[j] * Nz[k];
+				d2Nd2xi[a*NumEntries + 1] = Nx[i] * d2Ny[j] * Nz[k];
+				d2Nd2xi[a*NumEntries + 2] = Nx[i] * Ny[j] * d2Nz[k];
+				d2Nd2xi[a*NumEntries + 3] = dNx[i] * dNy[j] * Nz[k];
+				d2Nd2xi[a*NumEntries + 4] = dNx[i] * Ny[j] * dNz[k];
+				d2Nd2xi[a*NumEntries + 5] = Nx[i] * dNy[i] * dNz[k];
 				a++;
 			}
 		}

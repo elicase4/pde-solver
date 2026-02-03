@@ -17,7 +17,7 @@ namespace pdesolver {
 				
 				PDE_HOST PDE_DEVICE static void computeJacobian(const Real* nodeCoords, const Real* dNdxi, Real* J);
 
-				PDE_HOST PDE_DEVICE static Real computeMeasure(const Real detJ, const Real detg);
+				PDE_HOST PDE_DEVICE static Real computeMeasure(const Real* g);
 
 				PDE_HOST PDE_DEVICE static void computeMetric(const Real* J, Real* g);
 
