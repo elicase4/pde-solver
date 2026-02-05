@@ -23,9 +23,11 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
 template<int Px, int Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi){
 	
+	Index pD = 2;
+	
 	Real Nx[Px + 1], Ny[Py + 1];
 	Real dNx[Px + 1], dNy[Py + 1];
-	
+
 	BasisX::eval(xi[0], Nx);
 	BasisX::evalFirstDerivative(xi[0], dNx);
 	BasisY::eval(xi[1], Ny);
@@ -35,8 +37,8 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real
 	Index a = 0;
 	for (Index j = 0; j <= Py; ++j){
 		for (Index i = 0; i <= Px; ++ i){
-			dNdxi[a*ParametricDim    ] = dNx[i] * Ny[j];
-			dNdxi[a*ParametricDim + 1] = Nx[i] * dNy[j];
+			dNdxi[a*pD    ] = dNx[i] * Ny[j];
+			dNdxi[a*pD + 1] = Nx[i] * dNy[j];
 			a++;
 		}
 	}
@@ -45,6 +47,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real
 // Implementation: evalHessian
 template<int Px, int Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi){
+	
 	Real Nx[Px + 1], Ny[Py + 1];
 	Real dNx[Px + 1], dNy[Py + 1];
 	Real d2Nx[Px + 1], d2Ny[Py + 1];
@@ -73,6 +76,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real*
 // Implementation: evalLaplacian
 template<int Px, int Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Real* lapN){
+	
 	Real Nx[Px + 1], Ny[Py + 1];
 	Real d2Nx[Px + 1], d2Ny[Py + 1];
 	

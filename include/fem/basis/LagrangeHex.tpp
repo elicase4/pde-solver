@@ -26,6 +26,9 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::eval(const Real* xi, Real* N){
 // Implementation: evalGradient
 template<int Px, int Py, int Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, Real* dNdxi){
+	
+	Index pD = 3;
+
 	Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 	Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
 
@@ -41,9 +44,9 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, R
 	for (Index k = 0; k <= Pz; ++k){
 		for (Index j = 0; j <= Py; ++j){
 			for (Index i = 0; i <= Px; ++i){
-				dNdxi[a*ParametricDim    ] = dNx[i] * Ny[j] * Nz[k];
-				dNdxi[a*ParametricDim + 1] = Nx[i] * dNy[j] * Nz[k];
-				dNdxi[a*ParametricDim + 2] = Nx[i] * Ny[j] * dNz[k];
+				dNdxi[a*pD    ] = dNx[i] * Ny[j] * Nz[k];
+				dNdxi[a*pD + 1] = Nx[i] * dNy[j] * Nz[k];
+				dNdxi[a*pD + 2] = Nx[i] * Ny[j] * dNz[k];
 				a++;
 			}
 		}
