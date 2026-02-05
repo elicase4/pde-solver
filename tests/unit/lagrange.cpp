@@ -151,24 +151,28 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 	for (int q = 0; q < numTestPoints; ++q){
 		
 		// Gradient
-        Real dNdxi[4], dNdeta[4];
-        BilinearQuad::evalGradient(testPoints[q], dNdxi, dNdeta);
+        Real dNdxi[8];
+        BilinearQuad::evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
-		for (int i = 0; i < 4; ++i) sum_dxi += dNdxi[i];
         Real sum_deta = 0.0;
-		for (int i = 0; i < 4; ++i) sum_deta += dNdeta[i];
+		for (int i = 0; i < 4; ++i){
+			sum_dxi += dNdxi[2*i];
+			sum_deta += dNdxi[2*i+1];
+		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         
         // Hessian
-        Real d2Nd2xi[4], d2Nd2eta[4], d2Ndxideta[4];
-        BilinearQuad::evalHessian(testPoints[q], d2Nd2xi, d2Nd2eta, d2Ndxideta);
+        Real d2Nd2xi[12];
+        BilinearQuad::evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
-		for (int i = 0; i < 4; ++i) sum_d2xi += d2Nd2xi[i];
         Real sum_d2eta = 0.0;
-		for (int i = 0; i < 4; ++i) sum_d2eta += d2Nd2eta[i];
         Real sum_dxideta = 0.0;
-		for (int i = 0; i < 4; ++i) sum_dxideta += d2Ndxideta[i];
+		for (int i = 0; i < 4; ++i){ 
+			sum_d2xi += d2Nd2xi[3*i];
+			sum_d2eta += d2Nd2xi[3*i+1];
+			sum_dxideta += d2Nd2xi[3*i+2];
+		}
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_dxideta, 0.0, 1e-14) << "evalHessian().xieta p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
@@ -184,24 +188,28 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 	for (int q = 0; q < numTestPoints; ++q){
 		
 		// Gradient
-        Real dNdxi[9], dNdeta[9];
-        BiquadraticQuad::evalGradient(testPoints[q], dNdxi, dNdeta);
+        Real dNdxi[18];
+        BiquadraticQuad::evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
-		for (int i = 0; i < 9; ++i) sum_dxi += dNdxi[i];
         Real sum_deta = 0.0;
-		for (int i = 0; i < 9; ++i) sum_deta += dNdeta[i];
+		for (int i = 0; i < 9; ++i){
+			sum_dxi += dNdxi[2*i];
+			sum_deta += dNdxi[2*i+1];
+		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         
         // Hessian
-        Real d2Nd2xi[9], d2Nd2eta[9], d2Ndxideta[9];
-        BiquadraticQuad::evalHessian(testPoints[q], d2Nd2xi, d2Nd2eta, d2Ndxideta);
+        Real d2Nd2xi[27];
+        BiquadraticQuad::evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
-		for (int i = 0; i < 9; ++i) sum_d2xi += d2Nd2xi[i];
         Real sum_d2eta = 0.0;
-		for (int i = 0; i < 9; ++i) sum_d2eta += d2Nd2eta[i];
         Real sum_dxideta = 0.0;
-		for (int i = 0; i < 9; ++i) sum_dxideta += d2Ndxideta[i];
+		for (int i = 0; i < 9; ++i){ 
+			sum_d2xi += d2Nd2xi[3*i];
+			sum_d2eta += d2Nd2xi[3*i+1];
+			sum_dxideta += d2Nd2xi[3*i+2];
+		}
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_dxideta, 0.0, 1e-14) << "evalHessian().xieta p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
@@ -217,24 +225,28 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 	for (int q = 0; q < numTestPoints; ++q){
 		
 		// Gradient
-        Real dNdxi[16], dNdeta[16];
-        BicubicQuad::evalGradient(testPoints[q], dNdxi, dNdeta);
+        Real dNdxi[32];
+        BicubicQuad::evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
-		for (int i = 0; i < 16; ++i) sum_dxi += dNdxi[i];
         Real sum_deta = 0.0;
-		for (int i = 0; i < 16; ++i) sum_deta += dNdeta[i];
+		for (int i = 0; i < 16; ++i){
+			sum_dxi += dNdxi[2*i];
+			sum_deta += dNdxi[2*i+1];
+		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         
         // Hessian
-        Real d2Nd2xi[16], d2Nd2eta[16], d2Ndxideta[16];
-        BicubicQuad::evalHessian(testPoints[q], d2Nd2xi, d2Nd2eta, d2Ndxideta);
+        Real d2Nd2xi[48];
+        BicubicQuad::evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
-		for (int i = 0; i < 16; ++i) sum_d2xi += d2Nd2xi[i];
         Real sum_d2eta = 0.0;
-		for (int i = 0; i < 16; ++i) sum_d2eta += d2Nd2eta[i];
         Real sum_dxideta = 0.0;
-		for (int i = 0; i < 16; ++i) sum_dxideta += d2Ndxideta[i];
+		for (int i = 0; i < 16; ++i){ 
+			sum_d2xi += d2Nd2xi[3*i];
+			sum_d2eta += d2Nd2xi[3*i+1];
+			sum_dxideta += d2Nd2xi[3*i+2];
+		}
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_dxideta, 0.0, 1e-14) << "evalHessian().xieta p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
@@ -291,33 +303,37 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
 	for (int q = 0; q < numTestPoints; ++q){
 		
 		// Gradient
-        Real dNdxi[8], dNdeta[8], dNdzeta[8];
-        TrilinearHex::evalGradient(testPoints[q], dNdxi, dNdeta, dNdzeta);
+        Real dNdxi[24];
+        TrilinearHex::evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
-		for (int i = 0; i < 8; ++i) sum_dxi += dNdxi[i];
         Real sum_deta = 0.0;
-		for (int i = 0; i < 8; ++i) sum_deta += dNdeta[i];
         Real sum_dzeta = 0.0;
-		for (int i = 0; i < 8; ++i) sum_dzeta += dNdzeta[i];
+		for (int i = 0; i < 8; ++i){
+			sum_dxi += dNdxi[3*i];
+			sum_deta += dNdxi[3*i+1];
+			sum_dzeta += dNdxi[3*i+2];
+		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dzeta, 0.0, 1e-14) << "evalGradient().zeta p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         
         // Hessian
-        Real d2Nd2xi[8], d2Nd2eta[8], d2Nd2zeta[8], d2Ndetadxi[8], d2Ndetadzeta[8], d2Ndxidzeta[8];
-        TrilinearHex::evalHessian(testPoints[q], d2Nd2xi, d2Nd2eta, d2Nd2zeta, d2Ndetadxi, d2Ndetadzeta, d2Ndxidzeta);
+        Real d2Nd2xi[48];
+        TrilinearHex::evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
-		for (int i = 0; i < 8; ++i) sum_d2xi += d2Nd2xi[i];
         Real sum_d2eta = 0.0;
-		for (int i = 0; i < 8; ++i) sum_d2eta += d2Nd2eta[i];
         Real sum_d2zeta = 0.0;
-		for (int i = 0; i < 8; ++i) sum_d2zeta += d2Nd2zeta[i];
         Real sum_detadxi = 0.0;
-		for (int i = 0; i < 8; ++i) sum_detadxi += d2Ndetadxi[i];
         Real sum_detadzeta = 0.0;
-		for (int i = 0; i < 8; ++i) sum_detadzeta += d2Ndetadzeta[i];
         Real sum_dxidzeta = 0.0;
-		for (int i = 0; i < 8; ++i) sum_dxidzeta += d2Ndxidzeta[i];
+		for (int i = 0; i < 8; ++i){ 
+			sum_d2xi += d2Nd2xi[6*i];
+			sum_d2eta += d2Nd2xi[6*i+1];
+			sum_d2zeta += d2Nd2xi[6*i+2];
+			sum_detadxi += d2Nd2xi[6*i+3];
+			sum_detadzeta += d2Nd2xi[6*i+4];
+			sum_dxidzeta += d2Nd2xi[6*i+5];
+		}
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_d2zeta, 0.0, 1e-14) << "evalHessian().zeta2 p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
@@ -336,33 +352,37 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
 	for (int q = 0; q < numTestPoints; ++q){
 		
 		// Gradient
-        Real dNdxi[27], dNdeta[27], dNdzeta[27];
-        TriquadraticHex::evalGradient(testPoints[q], dNdxi, dNdeta, dNdzeta);
+        Real dNdxi[81];
+        TriquadraticHex::evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
-		for (int i = 0; i < 27; ++i) sum_dxi += dNdxi[i];
         Real sum_deta = 0.0;
-		for (int i = 0; i < 27; ++i) sum_deta += dNdeta[i];
         Real sum_dzeta = 0.0;
-		for (int i = 0; i < 27; ++i) sum_dzeta += dNdzeta[i];
+		for (int i = 0; i < 27; ++i){
+			sum_dxi += dNdxi[3*i];
+			sum_deta += dNdxi[3*i+1];
+			sum_deta += dNdxi[3*i+2];
+		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dzeta, 0.0, 1e-14) << "evalGradient().zeta p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         
         // Hessian
-        Real d2Nd2xi[27], d2Nd2eta[27], d2Nd2zeta[27], d2Ndetadxi[27], d2Ndetadzeta[27], d2Ndxidzeta[27];
-        TriquadraticHex::evalHessian(testPoints[q], d2Nd2xi, d2Nd2eta, d2Nd2zeta, d2Ndetadxi, d2Ndetadzeta, d2Ndxidzeta);
+        Real d2Nd2xi[162];
+        TriquadraticHex::evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
-		for (int i = 0; i < 27; ++i) sum_d2xi += d2Nd2xi[i];
         Real sum_d2eta = 0.0;
-		for (int i = 0; i < 27; ++i) sum_d2eta += d2Nd2eta[i];
         Real sum_d2zeta = 0.0;
-		for (int i = 0; i < 27; ++i) sum_d2zeta += d2Nd2zeta[i];
         Real sum_detadxi = 0.0;
-		for (int i = 0; i < 27; ++i) sum_detadxi += d2Ndetadxi[i];
         Real sum_detadzeta = 0.0;
-		for (int i = 0; i < 27; ++i) sum_detadzeta += d2Ndetadzeta[i];
         Real sum_dxidzeta = 0.0;
-		for (int i = 0; i < 27; ++i) sum_dxidzeta += d2Ndxidzeta[i];
+		for (int i = 0; i < 27; ++i){ 
+			sum_d2xi += d2Nd2xi[6*i];
+			sum_d2eta += d2Nd2xi[6*i+1];
+			sum_d2zeta += d2Nd2xi[6*i+2];
+			sum_detadxi += d2Nd2xi[6*i+3];
+			sum_detadzeta += d2Nd2xi[6*i+4];
+			sum_dxidzeta += d2Nd2xi[6*i+5];
+		}
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_d2zeta, 0.0, 1e-14) << "evalHessian().zeta2 p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
@@ -381,33 +401,37 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
 	for (int q = 0; q < numTestPoints; ++q){
 		
 		// Gradient
-        Real dNdxi[64], dNdeta[64], dNdzeta[64];
-        TricubicHex::evalGradient(testPoints[q], dNdxi, dNdeta, dNdzeta);
+        Real dNdxi[192];
+        TricubicHex::evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
-		for (int i = 0; i < 64; ++i) sum_dxi += dNdxi[i];
         Real sum_deta = 0.0;
-		for (int i = 0; i < 64; ++i) sum_deta += dNdeta[i];
         Real sum_dzeta = 0.0;
-		for (int i = 0; i < 64; ++i) sum_dzeta += dNdzeta[i];
+		for (int i = 0; i < 64; ++i){
+			sum_dxi += dNdxi[3*i];
+			sum_deta += dNdxi[3*i+1];
+			sum_deta += dNdxi[3*i+2];
+		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dzeta, 0.0, 1e-14) << "evalGradient().zeta p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         
         // Hessian
-        Real d2Nd2xi[64], d2Nd2eta[64], d2Nd2zeta[64], d2Ndetadxi[64], d2Ndetadzeta[64], d2Ndxidzeta[64];
-        TricubicHex::evalHessian(testPoints[q], d2Nd2xi, d2Nd2eta, d2Nd2zeta, d2Ndetadxi, d2Ndetadzeta, d2Ndxidzeta);
+        Real d2Nd2xi[384];
+        TricubicHex::evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
-		for (int i = 0; i < 64; ++i) sum_d2xi += d2Nd2xi[i];
         Real sum_d2eta = 0.0;
-		for (int i = 0; i < 64; ++i) sum_d2eta += d2Nd2eta[i];
         Real sum_d2zeta = 0.0;
-		for (int i = 0; i < 64; ++i) sum_d2zeta += d2Nd2zeta[i];
         Real sum_detadxi = 0.0;
-		for (int i = 0; i < 64; ++i) sum_detadxi += d2Ndetadxi[i];
         Real sum_detadzeta = 0.0;
-		for (int i = 0; i < 64; ++i) sum_detadzeta += d2Ndetadzeta[i];
         Real sum_dxidzeta = 0.0;
-		for (int i = 0; i < 64; ++i) sum_dxidzeta += d2Ndxidzeta[i];
+		for (int i = 0; i < 64; ++i){ 
+			sum_d2xi += d2Nd2xi[6*i];
+			sum_d2eta += d2Nd2xi[6*i+1];
+			sum_d2zeta += d2Nd2xi[6*i+2];
+			sum_detadxi += d2Nd2xi[6*i+3];
+			sum_detadzeta += d2Nd2xi[6*i+4];
+			sum_dxidzeta += d2Nd2xi[6*i+5];
+		}
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_d2zeta, 0.0, 1e-14) << "evalHessian().zeta2 p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
