@@ -19,7 +19,7 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi);
 				PDE_HOST PDE_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
 				
-				PDE_HOST PDE_DEVICE static Real getFaceTopology(const Int rngID, Index* tangentID);
+				PDE_HOST PDE_DEVICE static Real getFaceTopology(const Int faceID, Index* tangentID);
 				PDE_HOST PDE_DEVICE static Index nodesPerFace(const Index faceID);
 				PDE_HOST PDE_DEVICE static void getFaceNodes(const Index faceID, Index* nodeIDs);
 				

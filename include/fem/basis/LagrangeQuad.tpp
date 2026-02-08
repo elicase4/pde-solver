@@ -36,7 +36,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real
 	// evaluate tensor product & chain rule
 	Index a = 0;
 	for (Index j = 0; j <= Py; ++j){
-		for (Index i = 0; i <= Px; ++ i){
+		for (Index i = 0; i <= Px; ++i){
 			dNdxi[a*pD    ] = dNx[i] * Ny[j];
 			dNdxi[a*pD + 1] = Nx[i] * dNy[j];
 			a++;
@@ -97,20 +97,24 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Rea
 
 // implementation: getFaceTopology 
 template<int Px, int Py>
-PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Index* tangentID){
-	switch (rngID){
+PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int faceID, Index* tangentID){
+	switch (faceID){
 		case 0:
-			tangentID[0] = 1;
+			tangentID[0] = 0;
+			tangentID[1] = 1;
 			return -1.0;
 		case 1:
-			tangentID[0] = 1;
+			tangentID[0] = 0;
+			tangentID[1] = 1;
 			return 1.0;
 		case 2:
-			tangentID[0] = 0;
-			return 1.0;
-		case 3:
-			tangentID[0] = 0;
+			tangentID[0] = 1;
+			tangentID[1] = 0;
 			return -1.0;
+		case 3:
+			tangentID[0] = 1;
+			tangentID[1] = 0;
+			return 1.0;
 		default:
 			return 0.0;
 	}

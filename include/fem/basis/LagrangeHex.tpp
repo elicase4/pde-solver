@@ -115,8 +115,8 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalLaplacian(const Real* xi, 
 }
 
 template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int rngID, Index* tangentID){
-	switch (rngID){
+PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int faceID, Index* tangentID){
+	switch (faceID){
 		case 0:
 			tangentID[0] = 1;
 			tangentID[1] = 2;
