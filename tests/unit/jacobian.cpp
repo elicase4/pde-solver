@@ -122,6 +122,39 @@ TEST(JacobianTransform, LagrangeQuad3Dx2DMainTransform){
 
 }
 
+TEST(JacobianTransform, LagrangeQuad2Dx2DBoundaryNormal){
+
+	const Index pD = 2;
+	const Index sD = 2;
+	const Index npe = 4;
+
+	Real nodeCoords[sD*npe] = {
+		0, 0,
+		2, 0,
+		2, 3,
+		0, 3
+	};
+
+	Real xi[pD] = {-0.5, -1.0};
+	
+	Real dNdxi[pD*npe];
+	BilinearQuad::evalGradient(xi, dNdxi);
+
+	Real J[sD*pD];
+	JacobianTransform<sD,pD,npe>::computeJacobian(nodeCoords, dNdxi, J);
+	
+	Index tangentID[pD];
+	Real nCoeff = BilinearQuad::getFaceTopology(0, tangentID);
+	EXPECT_NEAR(nCoeff, -1.0, 1e-13);
+	EXPECT_NEAR(tangentID[0], 0, 1e-13);
+	
+	Real normal[sD];
+	JacobianTransform<sD,pD,npe>::computeNormal(J, tangentID, nCoeff, normal);
+
+	EXPECT_NEAR(normal[0], 0.0, 1e-13);
+	EXPECT_NEAR(normal[1], -xi[1], 1e-13);
+}
+
 TEST(JacobianTransform, LagrangeQuad3Dx2DBoundaryNormal){
 	
 	const Index pD = 2;
