@@ -15,14 +15,19 @@ namespace pdesolver::fem::form {
 		PDE_HOST PDE_DEVICE static void computeElementMatrix(const EvalContext& ctx, Real* Ke){
 			
 			Real integrand;
+			Real innerprod;
 			
 			// element matrix assembly contribution
 			for (Index a = 0; a < ctx.NumNodes; ++a){
 				for (Index b = 0; b < ctx.NumNodes; ++b){
 					
 					integrand = 0.0;
-					for (Index sD = 0; sD < SpatialDim; ++sD){
-						integrand += ctx.dNdx[a*SpatialDim + sD] * ctx.dNdx[b*SpatialDim + sD];
+					for (Index sDi = 0; sDi < SpatialDim; ++sD){
+						innerprod = 0.0;
+						for (Index sDj = 0; sDj < SpatialDim; ++sD){
+							innerprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
+						}
+						integrand += ctx.dNdx[a*SpatialDim + sDi] * innerprod;
 					}
 
 					Ke[a * ctx.NumNodes + b] += integrand * ctx.measure * ctx.w;
@@ -40,8 +45,12 @@ namespace pdesolver::fem::form {
 				for (Index b = 0; b < ctx.NumNodes; ++b){
 					
 					integrand = 0.0;
-					for (Index sD = 0; sD < SpatialDim; ++sD){
-						integrand += ctx.dNdx[a*SpatialDim + sD] * ctx.dNdx[b*SpatialDim + sD];
+					for (Index sDi = 0; sDi < SpatialDim; ++sD){
+						innerprod = 0.0;
+						for (Index sDj = 0; sDj < SpatialDim; ++sD){
+							innerprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
+						}
+						integrand += ctx.dNdx[a*SpatialDim + sDi] * innerprod;
 					}
 					
 					Oe[a] += integrand * Ue[b] * ctx.measure * ctx.w;

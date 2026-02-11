@@ -1,14 +1,15 @@
-#ifndef POISSON_EVALCONTEXT_HPP
-#define POISSON_EVALCONTEXT_HPP
+#ifndef POISSON_EVALELEMENT_HPP
+#define POISSON_EVALELEMENT_HPP
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
-#include "fem/eval/EvalContext.hpp"
+#include "fem/eval/EvalElement.hpp"
+#include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {
 
 	template<typename Geometry, typename Basis>
-	class PoissonEvalElement<Geometry, Basis> {
+	class PoissonEvalElement<Geometry, Basis, ConductivityModel> {
 	public:
 		static constexpr Int ParametricDim = Basis::ParametricDim;
 		static constexpr Int SpatialDim = Basis::SpatialDim;
@@ -42,6 +43,10 @@ namespace pdesolver::fem::eval {
 
 		// measure
 		Real measure;
+
+		// coefficients
+		Real K[SpatialDim * SpatialDim];
+		Real dK[SpatialDim * SpatialDim];
 
 		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
 			nodeCoords = coords;

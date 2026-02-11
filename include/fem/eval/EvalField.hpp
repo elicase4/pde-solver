@@ -12,7 +12,7 @@ namespace pdesolver {
 			template<typename F>
 			concept EvalField = requires (const F f, Int qp) {
 
-				{ Func::NumComponents() } -> std::convertible_to<Index>;
+				{ static constexpr F::NumComponents() } -> std::convertible_to<Index>;
 
 				{ f.value(qp) } -> std::same_as<const Real*>;
 				{ f.grad(qp) } -> std::same_as<const Real*>;
