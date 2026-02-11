@@ -5,19 +5,18 @@
 #include "config/Platform.hpp"
 #include <concepts>
 
+
 namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename F>
-			concept EvalField = requires (const F f, Int qp) {
+			template<typename M>
+			concept EvalModel = requires (const M m, const typename M::Context& ctx) {
 
-				{ Func::NumComponents() } -> std::convertible_to<Index>;
+				{ m.evaluate(ctx) } -> std::same_as<void>;
+				{ m.derivatives(ctx) } -> std::same_as<void>;
 
-				{ f.value(qp) } -> std::same_as<const Real*>;
-				{ f.grad(qp) } -> std::same_as<const Real*>;
-
-			}; // concept EvalField
+			}; // concept EvalModel
 
 		} // namespace eval
 	} // namespace fem

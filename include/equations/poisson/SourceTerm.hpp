@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "fem/eval/FieldEval.hpp"
+#include "fem/eval/EvalFunction.hpp"
 
 namespace pdesolver::fem::eval {
 
