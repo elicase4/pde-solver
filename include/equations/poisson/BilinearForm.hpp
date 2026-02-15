@@ -11,11 +11,10 @@ namespace pdesolver::fem::form {
 	template<Int SpatialDim>
 	struct PoissonBilinearForm<SpatialDim> {
 
-		template<typename EvalContext>
+		template<typename EvalElement>
 		PDE_HOST PDE_DEVICE static void computeElementMatrix(const EvalContext& ctx, Real* Ke){
 			
-			Real integrand;
-			Real innerprod;
+			Real integrand, matvecprod;
 			
 			// element matrix assembly contribution
 			for (Index a = 0; a < ctx.NumNodes; ++a){
@@ -23,9 +22,9 @@ namespace pdesolver::fem::form {
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < SpatialDim; ++sD){
-						innerprod = 0.0;
+						matvecprod = 0.0;
 						for (Index sDj = 0; sDj < SpatialDim; ++sD){
-							innerprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
+							matvecprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
 						}
 						integrand += ctx.dNdx[a*SpatialDim + sDi] * innerprod;
 					}
@@ -38,7 +37,7 @@ namespace pdesolver::fem::form {
 		template<typename EvalContext>
 		PDE_HOST PDE_DEVICE static void computeElementOperator(const EvalContext& ctx, const Real* Ue, Real* Oe){
 			
-			Real integrand;
+			Real integrand, matvecprod;
 
 			// element matrix assembly contribution
 			for (Index a = 0; a < ctx.NumNodes; ++a){
@@ -46,9 +45,9 @@ namespace pdesolver::fem::form {
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < SpatialDim; ++sD){
-						innerprod = 0.0;
+						matvecprod = 0.0;
 						for (Index sDj = 0; sDj < SpatialDim; ++sD){
-							innerprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
+							matvecprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
 						}
 						integrand += ctx.dNdx[a*SpatialDim + sDi] * innerprod;
 					}

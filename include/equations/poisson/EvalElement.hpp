@@ -8,7 +8,7 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis>
+	template<typename Geometry, typename Basis, typename ConductivityModel>
 	class PoissonEvalElement<Geometry, Basis, ConductivityModel> {
 	public:
 		static constexpr Int ParametricDim = Basis::ParametricDim;
@@ -44,9 +44,12 @@ namespace pdesolver::fem::eval {
 		// measure
 		Real measure;
 
-		// coefficients
+		// conductivity coefficient
 		Real K[SpatialDim * SpatialDim];
 		Real dK[SpatialDim * SpatialDim];
+
+		// rhs function
+		Real rhsF[SpatialDim];
 
 		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
 			nodeCoords = coords;

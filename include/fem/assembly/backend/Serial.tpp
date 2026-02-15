@@ -119,14 +119,14 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 		Quadrature::getPoints(xi);
 		Quadrature::getWeights(w);
 
-		EvalElement ctx;
-		ctx.bindElement(nodeCoords, time);
+		EvalElement evalE;
+		evalE.bindElement(nodeCoords, time);
 		
 		// quadrature loop
 		for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 			
-			ctx.evaluate(xi[q], w[q]);
-			Form::ComputeElementMatrix(ctx, Ke.data());
+			evalE.evaluate(xi[q], w[q]);
+			Form::ComputeElementMatrix(evalE, Ke.data());
 		
 		}
 		

@@ -9,13 +9,13 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename F>
-			concept EvalField = requires (const F f, Int qp) {
+			template<typename Field>
+			concept EvalField = requires (const Field f, const Real* xi, Real* outValue, Real* outGrad) {
 
-				{ static constexpr F::NumComponents() } -> std::convertible_to<Index>;
+				{ Field::NumComponents } -> std::convertible_to<Index>;
 
-				{ f.value(qp) } -> std::same_as<const Real*>;
-				{ f.grad(qp) } -> std::same_as<const Real*>;
+				{ f.eval(xi, outValue) } -> std::same_as<void>;
+				{ f.evalGradient(xi, outGrad) } -> std::same_as<void>;
 
 			}; // concept EvalField
 

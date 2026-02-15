@@ -8,15 +8,14 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename Ctx>
-			concept EvalElement = requires(Ctx ctx, const Real* nodeCoords, const Real* xi) {
-				{ Ctx::SpatialDim } -> std::convertible_to<Int>;
-				{ Ctx::ParametricDim } -> std::convertible_to<Int>;
-				{ Ctx::NumNodes }  -> std::convertible_to<Int>;
+			template<typename Element>
+			concept EvalElement = requires(Element elem, const Real* nodeCoords, const Real* xi) {
+				{ Element::SpatialDim } -> std::convertible_to<Int>;
+				{ Element::ParametricDim } -> std::convertible_to<Int>;
+				{ Element::NumNodes }  -> std::convertible_to<Int>;
 
-				{ ctx.bindElement(nodeCoords) } -> std::same_as<void>;
-				{ ctx.evaluate(xi) } -> std::same_as<void>;
-				{ ctx.detJ } -> std::convertible_to<Real>;
+				{ elem.bindElement(nodeCoords) } -> std::same_as<void>;
+				{ elem.evaluate(xi) } -> std::same_as<void>;
 
 			}; // concept EvalElement
 

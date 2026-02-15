@@ -9,12 +9,13 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename Func>
-			concept EvalFunction = requires (const Func f, const Real t, const Real* x, Real* out) {
+			template<typename Function>
+			concept EvalFunction = requires (const Function f, const Real t, const Real* x, Real* outValue, Real* outGrad) {
 				
-				{ Func::NumComponents() } -> std::convertible_to<Index>;
+				{ Function::NumComponents } -> std::convertible_to<Index>;
 				
-				{ f.evaluate(t, x, out) } -> std::same_as<void>;
+				{ f.eval(t, x, outValue) } -> std::same_as<void>;
+				{ f.evalGradient(t, x, outGrad) } -> std::same_as<void>;
 			
 			}; // concept EvalFunction
 
