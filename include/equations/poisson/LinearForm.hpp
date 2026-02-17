@@ -14,11 +14,11 @@ namespace pdesolver::fem::form {
 	struct PoissonLinearForm<SpatialDim> {
 
 		template<typename EvalContext>
-		PDE_HOST PDE_DEVICE static void computeElementVector(const EvalContext& ctx, Real* Fe){
+		PDE_HOST PDE_DEVICE static void computeElementVector(const auto& qp, Real* Fe){
 			
 			// element vector assembly contribution
 			for (Index a = 0; a < ctx.NumNodes; ++a){
-				Fe[a] += (ctx.rhsF * ctx.N[a]) * ctx.measure * ctx.w;
+				Fe[a] += (qp.rhsF * qp.N[a]) * qp.measure * qp.w;
 			}
 		}
 

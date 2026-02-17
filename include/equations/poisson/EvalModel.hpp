@@ -1,31 +1,26 @@
 #ifndef POISSON_EVALMODEL_HPP
 #define POISSON_EVALMODEL_HPP
 
-#include "fem/eval/EvalContext.hpp"
+#include "fem/eval/EvalField.hpp"
+#include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {
 
-	template<typename EvalElement>
+	template<typename SpatialDim, typename QuadraturePoint>
 	struct ConstantConductivity {
 		
 		Real k;
-
-		void evaluate(const EvalElement& ctx) const {
+		
+		void eval(QuadraturePoint& qp) const {
 			
-			for (Index i = 0; i < EvalElement::SpatialDim; ++i){
-				ctx.K[i*EvalElement::SpatialDim + i] = k;
+			for (Index i = 0; i < SpatialDim; ++i){
+				for (Index j = 0; i < SpatialDim; ++j){
+					qp.K[i*SpatialDim + j] = (i==j) ? k : 0.0;
+				}
 			}
 
 		}
 		
-		void derivative(const EvalElement& ctx) const {
-			
-			for (Index i = 0; i < EvalElement::SpatialDim; ++i){
-				ctx.dK[i*EvalElement::SpatialDim + i] = 0.0;
-			}
-
-		}
-
 	};
 
 }

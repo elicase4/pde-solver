@@ -24,6 +24,10 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* g, const Real* dNdxi, Real* dNdx);
 
 				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
+
+				Index SpatialDim = SpatialDim;
+				Index ParametricDim = ParametricDim;
+				Index NodesPerElement = NodesPerElement;
 			
 			private:
 				PDE_HOST PDE_DEVICE static void invertMatrix(const Real* A, const Real detA, Real* invA);

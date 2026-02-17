@@ -1,62 +1,48 @@
-#ifndef POISSON_EVALELEMENT_HPP
-#define POISSON_EVALELEMENT_HPP
+#ifndef POISSON_EVALQUADRATUREPOINT_HPP
+#define POISSON_EVALQUADRATUREPOINT_HPP
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
-#include "fem/eval/EvalElement.hpp"
+#include "fem/eval/EvalGeometry.hpp"
+#include "fem/eval/EvalQuadraturePoint.hpp"
 #include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis, typename ConductivityModel>
-	class PoissonEvalElement<Geometry, Basis, ConductivityModel> {
+	template<typename Geometry, typename Basis, typename ConductivityModel, typename SourceField>
+	class PoissonEvalQuadraturePoint<Geometry, Basis, Geometry, ConductivityModel, SourceField> {
 	public:
-		static constexpr Int ParametricDim = Basis::ParametricDim;
-		static constexpr Int SpatialDim = Basis::SpatialDim;
-		static constexpr Int NumNodes = Basis::NumNodes;
-		
-		// node coordinates
-		const Real nodeCoords[SpatialDim*NumNodes];
 		
 		// physical coordinate
-		Real x[SpatialDim*NumNodes];
-
-		// time coordinate
-		Real t;
+		Real x[Geometry::SpatialDim];
 
 		// quadrature
-		Real xi[ParametricDim];
+		Real xi[Geometry::ParametricDim];
 		Real w;
 
-		// geometry
-		Real J[SpatialDim*ParametricDim];
-		Real g[ParametricDim*ParametricDim];
-
-		// basis values
-		Real N[NumNodes];
+		// ref basis values
+		Real N[Geometry::NumNodes];
 
 		// ref gradients
-		Real dNdxi[ParametricDim*NumNodes];
+		Real dNdxi[Geometry::ParametricDim*Geometry::NumNodes];
 
 		// physical gradients
-		Real dNdx[SpatialDim*NumNodes];
+		Real dNdx[Geometry::SpatialDim*Geometry::NumNodes];
+
+		// geometry
+		Real J[Geometry::SpatialDim*Geometry::ParametricDim];
+		Real g[Geometry::ParametricDim*Geometry::ParametricDim];
 
 		// measure
 		Real measure;
 
 		// conductivity coefficient
-		Real K[SpatialDim * SpatialDim];
-		Real dK[SpatialDim * SpatialDim];
+		Real K[Geometry::SpatialDim * Geometry::SpatialDim];
 
 		// rhs function
-		Real rhsF[SpatialDim];
+		Real rhsF[Geometry::SpatialDim];
 
-		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
-			nodeCoords = coords;
-			t = time;
-		}
-
-		PDE_HOST PDE_DEVICE evaluate(const Real* xi_q, const Real weight){
+		PDE_HOST PDE_DEVICE evaluate(const Real* coords, const Real* xi_q, const Real weight){
 			
 			// set quad info
 			for (Index pD = 0; pD < ParametricDim; ++pD){
@@ -69,16 +55,23 @@ namespace pdesolver::fem::eval {
 			Basis::evaluateGradient(xi, dNdxi);
 
 			// geometry
-			Geometry::mapToPhysical(nodeCoords, N, x);
-			Geoemtry::computeJacobian(nodeCoords, dNdxi, J);
+			Geometry::mapToPhysical(coords, N, x);
+			Geoemtry::computeJacobian(coords, dNdxi, J);
 			Geoemtry::computeMetric(J, g);
 			measure = Geometry::computeMeasure(g);
 
 			// transforms
 			Geometry::transformGradient(J, g, dNdxi, dNdx);
+
+			// evalaute conductivity model
+			ConductivityModel::eval(qp);
+			
+			// evaluate rhsF
+			SourceTerm::eval(qp);
+
 		}
 
-	}; // class PoissonEvalElement<Geometry, Basis>
+	}; // class PoissonEvalQuadraturePoint<Geometry, Basis, ConductivityModel, SourceTerm>
 
 } // namespace pdesolver::fem::eval
 

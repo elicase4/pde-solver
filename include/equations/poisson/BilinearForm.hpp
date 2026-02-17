@@ -3,7 +3,7 @@
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
-#include "fem/eval/ElementEval.hpp"
+#include "fem/eval/qpentEval.hpp"
 #include "fem/geometry/JacobianTransform.hpp"
 
 namespace pdesolver::fem::form {
@@ -11,48 +11,48 @@ namespace pdesolver::fem::form {
 	template<Int SpatialDim>
 	struct PoissonBilinearForm<SpatialDim> {
 
-		template<typename EvalElement>
-		PDE_HOST PDE_DEVICE static void computeElementMatrix(const EvalContext& ctx, Real* Ke){
+		template<typename Evalqpent>
+		PDE_HOST PDE_DEVICE static void computeqpentMatrix(const auto& qp, Real* Ke){
 			
 			Real integrand, matvecprod;
 			
-			// element matrix assembly contribution
-			for (Index a = 0; a < ctx.NumNodes; ++a){
-				for (Index b = 0; b < ctx.NumNodes; ++b){
+			// qpent matrix assembly contribution
+			for (Index a = 0; a < qp.NumNodes; ++a){
+				for (Index b = 0; b < qp.NumNodes; ++b){
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < SpatialDim; ++sD){
 						matvecprod = 0.0;
 						for (Index sDj = 0; sDj < SpatialDim; ++sD){
-							matvecprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
+							matvecprod += qp.K[dSi*SpatialDim + sDj] * qp.dNdx[b*SpatialDim + sDj]
 						}
-						integrand += ctx.dNdx[a*SpatialDim + sDi] * innerprod;
+						integrand += qp.dNdx[a*SpatialDim + sDi] * innerprod;
 					}
 
-					Ke[a * ctx.NumNodes + b] += integrand * ctx.measure * ctx.w;
+					Ke[a * qp.NumNodes + b] += integrand * qp.measure * qp.w;
 				}
 			}
 		}
 		
-		template<typename EvalContext>
-		PDE_HOST PDE_DEVICE static void computeElementOperator(const EvalContext& ctx, const Real* Ue, Real* Oe){
+		template<typename Evalqpent>
+		PDE_HOST PDE_DEVICE static void computeqpentOperator(const Evalqpent& qp, const Real* Ue, Real* Oe){
 			
 			Real integrand, matvecprod;
 
-			// element matrix assembly contribution
-			for (Index a = 0; a < ctx.NumNodes; ++a){
-				for (Index b = 0; b < ctx.NumNodes; ++b){
+			// qpent matrix assembly contribution
+			for (Index a = 0; a < qp.NumNodes; ++a){
+				for (Index b = 0; b < qp.NumNodes; ++b){
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < SpatialDim; ++sD){
 						matvecprod = 0.0;
 						for (Index sDj = 0; sDj < SpatialDim; ++sD){
-							matvecprod += ctx.K[dSi*SpatialDim + sDj] * ctx.dNdx[b*SpatialDim + sDj]
+							matvecprod += qp.K[dSi*SpatialDim + sDj] * qp.dNdx[b*SpatialDim + sDj]
 						}
-						integrand += ctx.dNdx[a*SpatialDim + sDi] * innerprod;
+						integrand += qp.dNdx[a*SpatialDim + sDi] * innerprod;
 					}
 					
-					Oe[a] += integrand * Ue[b] * ctx.measure * ctx.w;
+					Oe[a] += integrand * Ue[b] * qp.measure * qp.w;
 				}
 			}
 		}

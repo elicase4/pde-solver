@@ -114,6 +114,7 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 		}
 		
 
+		/*
 		Real xi[Quadrature::NumPointsTotal];
 		Real w[Quadrature::NumPointsTotal];
 		Quadrature::getPoints(xi);
@@ -129,6 +130,7 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 			Form::ComputeElementMatrix(evalE, Ke.data());
 		
 		}
+		*/
 		
 		// scatter Ke into K
 		for (Index i = 0; i < EvalElement::NumNodes; ++i){

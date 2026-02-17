@@ -9,11 +9,11 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename Model>
-			concept EvalModel = requires (const Model m, const Real* xi, Real* outValue, Real* outGrad) {
+			template<typename Model, typename QuadraturePoint>
+			concept EvalModel = requires (const Model m, const QuadraturePoint& qp) {
 
-				{ m.eval(xi, outValue) };
-				{ m.evalGradient(xi, outGrad) };
+				{ m.eval(qp) } -> std::same_as<void>;
+				{ m.evalGradient(qp) } -> std::same_as<void>;
 
 			}; // concept EvalModel
 

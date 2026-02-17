@@ -8,12 +8,12 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename QuadraturePoint, typename Element>
-			concept EvalQuadraturePoint = requires(QuadraturePoint qp, const Element& elem, const Real* xi, const Real w) {
+			template<typename QuadraturePoint>
+			concept EvalQuadraturePoint = requires(QuadraturePoint qp, const Real* NodeCoords, const Real* xi, const Real w) {
 
-				{ qp.evaluate(elem, xi, w) } -> std::same_as<void>;
+				{ qp.evaluate(nodeCoords, xi, w) } -> std::same_as<void>;
 
-			}; // concept EvalElement
+			}; // concept EvalQuadraturePoint
 
 		} // namespace eval
 	} // namespace fem
