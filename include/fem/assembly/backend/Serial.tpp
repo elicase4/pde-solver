@@ -1,8 +1,8 @@
 namespace pdesolver::fem::assembly {
 
-template<typename Basis, typename Quadrature, typename Geometry, typename EvalElement, typename Backend>
+template<typename Backend>
 requires std::same_as<Backend, Serial>
-linalg::types::SparseMatrix<Real, Serial> Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+linalg::types::SparseMatrix<Real, Serial> Assembler<Serial>::createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 	
 	// allocate matrix
 	linalg::types::SparseMatrix<Real, Serial> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
@@ -70,28 +70,28 @@ linalg::types::SparseMatrix<Real, Serial> Assembler<Basis, Quadrature, Geometry,
 	return K;
 }
 
-template<typename Basis, typename Quadrature, typename Geometry, typename EvalElement, typename Backend>
+template<typename Backend>
 requires std::same_as<Backend, Serial>
-linalg::types::Vector<Real, Serial> Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+linalg::types::Vector<Real, Serial> Assembler<Serial>::createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 
 	linalg::types::Vector<Real, Serial> O(topoDOF.numFreeDOFs());
 	return O;
 
 }
 
-template<typename Basis, typename Quadrature, typename Geometry, typename EvalElement, typename Backend>
+template<typename Backend>
 requires std::same_as<Backend, Serial>
-linalg::types::Vector<Real, Serial> Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+linalg::types::Vector<Real, Serial> Assembler<Serial>::createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 
 	linalg::types::Vector<Real, Serial> F(topoDOF.numFreeDOFs());
 	return F;
 
 }
 
-template<typename Basis, typename Quadrature, typename Geometry, typename EvalElement, typename Backend>
-template<typename Form>
-requires (std::same_as<Backend, Serial> && fem::form::BilinearForm<Form, EvalElement>)
-void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrixSystem<Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Serial>& K){
+template<typename Backend>
+template<typename EvalElement, typename Form>
+requires std::same_as<Backend, Serial>
+void Assembler<Serial>::assembleMatrixSystem<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Serial>& K){
 	
 	// allocate local space
 	linalg::types::Matrix<Real, Serial> Ke( (EvalElement::NumNodes * topoDOF.dofsPerNode()), (EvalElement::NumNodes * topoDOF.dofsPerNode()) );
@@ -113,24 +113,9 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 
 		}
 		
-
-		/*
-		Real xi[Quadrature::NumPointsTotal];
-		Real w[Quadrature::NumPointsTotal];
-		Quadrature::getPoints(xi);
-		Quadrature::getWeights(w);
-
 		EvalElement evalE;
 		evalE.bindElement(nodeCoords, time);
-		
-		// quadrature loop
-		for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
-			
-			evalE.evaluate(xi[q], w[q]);
-			Form::ComputeElementMatrix(evalE, Ke.data());
-		
-		}
-		*/
+		evalE.quadLoop(Form);
 		
 		// scatter Ke into K
 		for (Index i = 0; i < EvalElement::NumNodes; ++i){
@@ -164,17 +149,17 @@ void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleMatrix
 
 }
 
-template<typename Basis, typename Quadrature, typename Geometry, typename EvalElement, typename Backend>
-template<typename Form>
-requires (std::same_as<Backend, Serial> && fem::form::BilinearForm<Form, EvalElement>)
-void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleOperatorSystem<Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Serial>& O){
+template<typename Backend>
+template<typename EvalElement, typename Form>
+requires std::same_as<Backend, Serial>
+void Assembler<Serial>::assembleOperatorSystem<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Serial>& O){
 
 }
 
-template<typename Basis, typename Quadrature, typename Geometry, typename EvalElement, typename Backend>
-template<typename Form>
-requires (std::same_as<Backend, Serial> && fem::form::LinearForm<Form, EvalElement>)
-void Assembler<Basis, Quadrature, Geometry, EvalElement, Serial>::assembleRHSVector<Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Serial>& F){
+template<typename Backend>
+template<typename EvalElement, typename Form>
+requires std::same_as<Backend, Serial>
+void Assembler<Serial>::assembleRHSVector<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Serial>& F){
 
 }
 

@@ -32,13 +32,13 @@ namespace pdesolver::fem::eval {
 
 		}
 		
-		template<typename Kernel>
-		PDE_HOST PDE_DEVICE quadLoop(Kernel&& kernel){
+		template<typename Form>
+		PDE_HOST PDE_DEVICE quadLoop(Form&& form){
 			
 			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 				
 				qp.evaluate(nodeCoords, xi[Element::ParametricDim*q], w[q]);
-				kernel(qp);
+				form(qp);
 
 			}
 

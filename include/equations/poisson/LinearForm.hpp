@@ -5,20 +5,26 @@
 
 #include "fem/core/Types.hpp"
 #include "fem/config/Platform.hpp"
-#include "fem/eval/ElementEval.hpp"
+#include "fem/eval/EvalQuadraturePoint.hpp"
 #include "fem/geometry/JacobianTransform.hpp"
 
 namespace pdesolver::fem::form {
 
-	template<>
+	template<Int SpatialDim, typename SourceFunction>
+	requires fem::eval::EvalFunction<SourceFunction>
 	struct PoissonLinearForm<SpatialDim> {
+		
+		SourceFunction source;
 
-		template<typename EvalContext>
+		template<typename QuadraturePoint>
 		PDE_HOST PDE_DEVICE static void computeElementVector(const auto& qp, Real* Fe){
 			
+			Real val[1];
+			source.eval(qp.time, qp.x, val);
+
 			// element vector assembly contribution
-			for (Index a = 0; a < ctx.NumNodes; ++a){
-				Fe[a] += (qp.rhsF * qp.N[a]) * qp.measure * qp.w;
+			for (Index a = 0; a < qp.NumNodes; ++a){
+				Fe[a] += (val[0] * qp.N[a]) * qp.measure * qp.w;
 			}
 		}
 

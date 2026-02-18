@@ -9,8 +9,8 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis, typename ConductivityModel, typename SourceField>
-	class PoissonEvalQuadraturePoint<Geometry, Basis, Geometry, ConductivityModel, SourceField> {
+	template<typename Geometry, typename Basis, typename ConductivityModel>
+	class PoissonEvalQuadraturePoint<Geometry, Basis, Geometry, ConductivityModel> {
 	public:
 		
 		// physical coordinate
@@ -66,9 +66,6 @@ namespace pdesolver::fem::eval {
 			// evalaute conductivity model
 			ConductivityModel::eval(qp);
 			
-			// evaluate rhsF
-			SourceTerm::eval(qp);
-
 		}
 
 	}; // class PoissonEvalQuadraturePoint<Geometry, Basis, ConductivityModel, SourceTerm>
