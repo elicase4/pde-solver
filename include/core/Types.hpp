@@ -2,8 +2,6 @@
 #define PDESOLVER_TYPES_HPP
 
 #include <cstddef>
-#include <vector>
-#include <array>
 
 // floating point types
 using Real = double;

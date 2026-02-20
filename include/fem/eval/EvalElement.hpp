@@ -9,7 +9,7 @@ namespace pdesolver {
 		namespace eval {
 
 			template<typename Element>
-			concept EvalElement = requires(Element elem, const Real* coords, const Real time) {
+			concept EvalElement = requires(Element elem, const Real* nodeCoords, const Real time) {
 
 				{ Element::SpatialDim } -> std::convertible_to<Int>;
 				{ Element::ParametricDim } -> std::convertible_to<Int>;

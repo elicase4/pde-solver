@@ -1,11 +1,11 @@
 namespace pdesolver::fem::assembly {
 
 template<typename Backend>
-requires std::same_as<Backend, Serial>
-linalg::types::SparseMatrix<Real, Serial> Assembler<Serial>::createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+requires std::same_as<Backend, linalg::types::backend::Serial>
+linalg::types::SparseMatrix<Real, linalg::types::backend::Serial> Assembler<linalg::types::backend::Serial>::createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 	
 	// allocate matrix
-	linalg::types::SparseMatrix<Real, Serial> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
+	linalg::types::SparseMatrix<Real, linalg::types::backend::Serial> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
 	
 	// allocate adjacency list
 	std::vector<std::vector<Index>> adjList(topoDOF.numFreeDOFs());
@@ -71,30 +71,30 @@ linalg::types::SparseMatrix<Real, Serial> Assembler<Serial>::createMatrixSystem(
 }
 
 template<typename Backend>
-requires std::same_as<Backend, Serial>
-linalg::types::Vector<Real, Serial> Assembler<Serial>::createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+requires std::same_as<Backend, linalg::types::backend::Serial>
+linalg::types::Vector<Real, linalg::types::backend::Serial> Assembler<linalg::types::backend::Serial>::createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 
-	linalg::types::Vector<Real, Serial> O(topoDOF.numFreeDOFs());
+	linalg::types::Vector<Real, linalg::types::backend::Serial> O(topoDOF.numFreeDOFs());
 	return O;
 
 }
 
 template<typename Backend>
-requires std::same_as<Backend, Serial>
-linalg::types::Vector<Real, Serial> Assembler<Serial>::createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+requires std::same_as<Backend, linalg::types::backend::Serial>
+linalg::types::Vector<Real, linalg::types::backend::Serial> Assembler<linalg::types::backend::Serial>::createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 
-	linalg::types::Vector<Real, Serial> F(topoDOF.numFreeDOFs());
+	linalg::types::Vector<Real, linalg::types::backend::Serial> F(topoDOF.numFreeDOFs());
 	return F;
 
 }
 
 template<typename Backend>
 template<typename EvalElement, typename Form>
-requires std::same_as<Backend, Serial>
-void Assembler<Serial>::assembleMatrixSystem<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, Serial>& K){
+requires std::same_as<Backend, linalg::types::backend::Serial>
+void Assembler<linalg::types::backend::Serial>::assembleMatrixSystem<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::SparseMatrix<Real, linalg::types::backend::Serial>& K){
 	
 	// allocate local space
-	linalg::types::Matrix<Real, Serial> Ke( (EvalElement::NumNodes * topoDOF.dofsPerNode()), (EvalElement::NumNodes * topoDOF.dofsPerNode()) );
+	linalg::types::Matrix<Real, linalg::types::backend::Serial> Ke( (EvalElement::NumNodes * topoDOF.dofsPerNode()), (EvalElement::NumNodes * topoDOF.dofsPerNode()) );
 
 	// element loop
 	for (Index e = 0; e < mesh.data.numElements; ++e){
@@ -151,15 +151,15 @@ void Assembler<Serial>::assembleMatrixSystem<EvalElement, Form>(const mesh::Mesh
 
 template<typename Backend>
 template<typename EvalElement, typename Form>
-requires std::same_as<Backend, Serial>
-void Assembler<Serial>::assembleOperatorSystem<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Serial>& O){
+requires std::same_as<Backend, linalg::types::backend::Serial>
+void Assembler<linalg::types::backend::Serial>::assembleOperatorSystem<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::Serial>& O){
 
 }
 
 template<typename Backend>
 template<typename EvalElement, typename Form>
-requires std::same_as<Backend, Serial>
-void Assembler<Serial>::assembleRHSVector<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Serial>& F){
+requires std::same_as<Backend, linalg::types::backend::Serial>
+void Assembler<linalg::types::backend::Serial>::assembleRHSVector<EvalElement, Form>(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::Serial>& F){
 
 }
 

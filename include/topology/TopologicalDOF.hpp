@@ -35,9 +35,9 @@ namespace pdesolver {
 
 			// mappings
 			Index toAlgebraic(Index topoDOF) const { return topoToAlg_[topoDOF]; }
-			Index* getTopoToAlg() const { return TopoToAlg_.data(); }
+			Int* getTopoToAlg() { return topoToAlg_.data(); }
 			Index toTopological(Index algDOF) const { return algToTopo_[algDOF]; }
-			Index* getAlgToTopo() const { return AlgToTopo_.data(); }
+			Int* getAlgToTopo() { return algToTopo_.data(); }
 
 		private:
 			// mesh
@@ -49,8 +49,8 @@ namespace pdesolver {
 			Index numFreeDOFs_;
 
 			// mappings
-			std::vector<Index> topoToAlg_; // Size: numGlobalDOFs
-			std::vector<Index> algToTopo_; // Size: numFreeDOFs
+			std::vector<Int> topoToAlg_; // Size: numGlobalDOFs
+			std::vector<Int> algToTopo_; // Size: numFreeDOFs
 
 			// constraints
 			std::unordered_map<Index, Int> constraintTags_;

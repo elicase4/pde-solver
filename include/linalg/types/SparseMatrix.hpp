@@ -46,9 +46,12 @@ namespace pdesolver {
 				typename Backend::template Ptr<T> data_; // nnz
 
 			}; // class SparseMatrix
-		
+			
 		} // namespace types
 	} // namespace linalg
 } // namespace pdesolver
 
+#include "backend/Serial.hpp"
+//#include "backend/CUDA.hpp"
+		
 #endif

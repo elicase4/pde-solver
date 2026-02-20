@@ -1,10 +1,7 @@
 #ifndef POISSON_EVALELEMENT_HPP
 #define POISSON_EVALELEMENT_HPP
 
-#include "core/Types.hpp"
-#include "config/Platform.hpp"
 #include "fem/eval/EvalElement.hpp"
-#include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {
 

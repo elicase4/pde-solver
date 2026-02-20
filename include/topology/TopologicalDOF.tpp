@@ -8,7 +8,7 @@ TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode) : mesh
 	// initialize mapping
 	topoToAlg_.resize(numGlobalDOFs_);
 	for (Index i = 0; i < numGlobalDOFs_; ++i){
-		topoToAlg[i] = i;
+		topoToAlg_[i] = i;
 	}
 
 }
@@ -30,7 +30,8 @@ void TopologicalDOF::getElementDOFs(Index elemId, Index* dofs) const {
 template<typename Element>
 void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry){
 
-	std::unordered_set<Index> constrainedSet;
+	std::set<Index> constrainedSet;
+	Index faceNodes[Element::NodesPerElement];
 
 	// loop over elements and faces to mark constrained dofs
 	for (Index e = 0; mesh_.data.numElements; ++e) {
@@ -40,16 +41,16 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 			if (!mesh_.isOnBoundary(e,f)) continue;
 
 			// check for essential bcs
-			Int tag = mesh_.getBoundaryTag(e,f);
-			if (!bcRegistry.hasEssentialBC(tag)) continue;
+			Int* tagPtr = mesh_.getBoundaryTag(e);
+			Int tag = tagPtr[f];
+			if (!bcRegistry.isEssential(tag)) continue;
 
 			// get face nodes
 			Index npf = Element::getNodesPerFace(f);
-			Index faceNodes[npf];
 			Element::getFaceNodes(f, faceNodes);
 
 			// get element nodes
-			const Index* elemNodes = mesh.getElementNodes(e);
+			const Index* elemNodes = mesh_.getElementNodes(e);
 
 			// mark all constrained DOFs on face f
 			for (Index i = 0; i < npf; ++i) {

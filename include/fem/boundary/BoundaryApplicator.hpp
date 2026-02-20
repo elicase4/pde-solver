@@ -2,7 +2,7 @@
 #define PDESOLVER_BOUNDARYAPPLICATOR_HPP
 
 #include "fem/boundary/BoundaryCondition.hpp"
-#include "fem/boundary/BoundaryRegistry"
+#include "fem/boundary/BoundaryRegistry.hpp"
 
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"

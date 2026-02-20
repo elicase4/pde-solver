@@ -28,3 +28,7 @@ add_pde_test(test_lagrange
 add_pde_test(test_jacobian
 	unit/jacobian.cpp
 )
+
+add_pde_test(test_poisson_assembly
+	integration/serial_poisson_assembly_minimal.cpp
+)

@@ -1,7 +1,6 @@
 #ifndef POISSON_EVALMODEL_HPP
 #define POISSON_EVALMODEL_HPP
 
-#include "fem/eval/EvalField.hpp"
 #include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {

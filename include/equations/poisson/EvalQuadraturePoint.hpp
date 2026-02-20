@@ -1,11 +1,7 @@
 #ifndef POISSON_EVALQUADRATUREPOINT_HPP
 #define POISSON_EVALQUADRATUREPOINT_HPP
 
-#include "core/Types.hpp"
-#include "config/Platform.hpp"
-#include "fem/eval/EvalGeometry.hpp"
 #include "fem/eval/EvalQuadraturePoint.hpp"
-#include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {
 

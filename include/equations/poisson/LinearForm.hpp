@@ -1,12 +1,8 @@
 #ifndef POISSON_BILINEARFORM_HPP
 #define POISSON_BILINEARFORM_HPP
 
+#include "fem/form/LinearForm.hpp"
 #include "equations/poisson/PoissonSourceTerm.hpp"
-
-#include "fem/core/Types.hpp"
-#include "fem/config/Platform.hpp"
-#include "fem/eval/EvalQuadraturePoint.hpp"
-#include "fem/geometry/JacobianTransform.hpp"
 
 namespace pdesolver::fem::form {
 

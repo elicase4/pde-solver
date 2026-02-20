@@ -9,7 +9,7 @@ namespace pdesolver {
 		namespace eval {
 
 			template<typename QuadraturePoint>
-			concept EvalQuadraturePoint = requires(QuadraturePoint qp, const Real* NodeCoords, const Real* xi, const Real w) {
+			concept EvalQuadraturePoint = requires(QuadraturePoint qp, const Real* nodeCoords, const Real* xi, const Real w) {
 
 				{ qp.evaluate(nodeCoords, xi, w) } -> std::same_as<void>;
 

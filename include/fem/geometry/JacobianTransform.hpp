@@ -10,7 +10,7 @@ namespace pdesolver {
 	namespace fem {
 		namespace geometry {
 			
-			template<Int SpatialDim, Int ParametricDim, Int NodesPerElement>
+			template<Int SpatialDimension, Int ParametricDimension, Int NodesPerElement>
 			class JacobianTransform {
 			public:
 				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
@@ -25,9 +25,9 @@ namespace pdesolver {
 
 				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
 
-				Index SpatialDim = SpatialDim;
-				Index ParametricDim = ParametricDim;
-				Index NodesPerElement = NodesPerElement;
+				Index SpatialDim = SpatialDimension;
+				Index ParametricDim = ParametricDimension;
+				Index NumNodes = NodesPerElement;
 			
 			private:
 				PDE_HOST PDE_DEVICE static void invertMatrix(const Real* A, const Real detA, Real* invA);

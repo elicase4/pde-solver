@@ -1,6 +1,7 @@
 #ifndef PDESOLVER_PLATFORM_HPP
 #define PDESOLVER_PLATFORM_HPP
 
+// device accessible functions
 #ifdef __CUDACC__
 	#define PDE_HOST __host__
 	#define PDE_DEVICE __device__

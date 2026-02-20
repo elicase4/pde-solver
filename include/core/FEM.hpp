@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_FEM
 #define PDESOLVER_FEM
 
-#include "fem/assmebly/Assembler.hpp"
+#include "fem/assembly/Assembler.hpp"
 
 #include "fem/boundary/BoundaryApplicator.hpp"
 #include "fem/boundary/BoundaryCondition.hpp"
@@ -11,6 +11,9 @@
 
 #include "fem/eval/EvalElement.hpp"
 #include "fem/eval/EvalField.hpp"
+#include "fem/eval/EvalFunction.hpp"
+#include "fem/eval/EvalModel.hpp"
+#include "fem/eval/EvalQuadraturePoint.hpp"
 
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"

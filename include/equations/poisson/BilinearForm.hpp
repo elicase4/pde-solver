@@ -1,10 +1,7 @@
 #ifndef POISSON_BILINEARFORM_HPP
 #define POISSON_BILINEARFORM_HPP
 
-#include "core/Types.hpp"
-#include "config/Platform.hpp"
-#include "fem/eval/qpentEval.hpp"
-#include "fem/geometry/JacobianTransform.hpp"
+#include "fem/form/BilinearForm.hpp"
 
 namespace pdesolver::fem::form {
 

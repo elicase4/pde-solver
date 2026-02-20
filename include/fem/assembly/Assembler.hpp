@@ -2,14 +2,19 @@
 #define PDESOLVER_LINEARASSEMBLER_HPP
 
 #include "core/Types.hpp"
+
 #include "fem/eval/EvalElement.hpp"
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
 #include "fem/form/NonlinearTangentForm.hpp"
 #include "fem/form/NonlinearForm.hpp"
+
 #include "mesh/Mesh.hpp"
+
 #include "linalg/types/SparseMatrix.hpp"
 #include "linalg/types/Vector.hpp"
+
+#include "topology/TopologicalDOF.hpp"
 
 namespace pdesolver {
 	namespace fem {
