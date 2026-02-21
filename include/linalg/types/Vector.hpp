@@ -35,4 +35,7 @@ namespace pdesolver {
 		} // namespace linalg
 	} // namespace pdesolver
 
+#include "backend/CPU.hpp"
+//#include "backend/CUDA.hpp"
+
 #endif

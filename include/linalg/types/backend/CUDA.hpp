@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 #include "core/Types.hpp"
-#include "CopyKind.hpp"
+#include "cuda/CopyKind.hpp"
 
 namespace pdesolver {
 	namespace linalg {
