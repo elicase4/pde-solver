@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_BOUNDARYCONDITION_HPP
 #define PDESOLVER_BOUNDARYCONDITION_HPP
 
+#include "core/Types.hpp"
+
 namespace pdesolver {
 	namespace fem {
 		namespace boundary {

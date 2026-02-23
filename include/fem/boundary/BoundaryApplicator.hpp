@@ -4,10 +4,6 @@
 #include "fem/boundary/BoundaryCondition.hpp"
 #include "fem/boundary/BoundaryRegistry.hpp"
 
-#include "fem/form/BilinearForm.hpp"
-#include "fem/form/LinearForm.hpp"
-#include "fem/form/NonlinearForm.hpp"
-
 #include "mesh/Mesh.hpp"
 #include "topology/TopologicalDOF.hpp"
 #include "linalg/types/Vector.hpp"
@@ -20,13 +16,15 @@ namespace pdesolver {
 			class BoundaryApplicator {
 			public:
 
-				static apply(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F){
+				static void apply(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F){
 					for (Int tag: registry.getAllTags()) {
 						switch (tag) {
 							case (BCCategory::Essential):
 								applyEssentialBC(mesh, topoDOF, registry, F);
+								break;
 							case (BCCategory::Natural):
 								applyNaturalBC(mesh, topoDOF, registry, F);
+								break;
 						}
 					}
 				}
@@ -34,9 +32,9 @@ namespace pdesolver {
 			
 			private:
 
-				static applyEssentialBC(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F);
+				static void applyEssentialBC(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F);
 				
-				static applyNaturalBC(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F);
+				static void applyNaturalBC(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 
@@ -44,6 +42,6 @@ namespace pdesolver {
 	} // namespace fem
 } // namespace pdesolver
 
-#include "backend/serial/BoundaryApplicator.tpp"
+//#include "backend/cpu/BoundaryApplicator.tpp"
 
 #endif

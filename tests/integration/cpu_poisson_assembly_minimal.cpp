@@ -6,30 +6,28 @@
 #include "core/Topology.hpp"
 #include "core/Types.hpp"
 
+#include "mesh/generator/BlockMesh2D.hpp"
+
 using namespace pdesolver;
 
 class PoissonAssemblerTest : public ::testing::Test {
 protected:
-	static mesh::Mesh mesh2D;
+	
+	mesh::generator::BlockMesh2D mesh2D{4, 4, 0, 4, 0, 4, 1, 1};
+	topology::TopologicalDOF topoDOF2D = topology::TopologicalDOF(mesh2D, 1);
 
-	static void SetUpTestSuite(){
-		mesh2D = mesh::generator::BlockMesh2D(4, 4, 0, 4, 0, 4, 1, 1);
+	void SetUp() override {
+		
 		mesh2D.initializeData();
 		mesh2D.generateNodes();
 		mesh2D.generateElements();
 		mesh2D.generateBoundaryTags();
 
-		auto topoDOF2D = topology::TopologicalDOF(mesh2D, 1);
+	
 	}
 	
-	static void TearDownTestSuite(){
-		mesh2D.clear();
-	}
-
 };
 
-class Serial
-
-TEST(SerialPoissonAssemblyMinimal, KMatrix){
+TEST(CPUPoissonAssemblyMinimal, KMatrix){
 
 }

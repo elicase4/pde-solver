@@ -10,9 +10,9 @@ namespace pdesolver {
 			template<Int NumPointsX, Int NumPointsY>
 			class GaussQuadratureQuad {
 				
-				static constexpr NumPointsXi = NumPointsX;
-				static constexpr NumPointsEta = NumPointsY;
-				static constexpr NumPointsTotal = NumPointsX * NumPointsY;
+				static constexpr Int NumPointsXi = NumPointsX;
+				static constexpr Int NumPointsEta = NumPointsY;
+				static constexpr Int NumPointsTotal = NumPointsX * NumPointsY;
 
 				using QuadX = GaussQuadrature1D<NumPointsX>;
 				using QuadY = GaussQuadrature1D<NumPointsY>;

@@ -11,7 +11,7 @@ namespace pdesolver {
 			template<Int NumPoints>
 			class GaussQuadrature1D {
 				
-				static constexpr NP = NumPoints;
+				static constexpr Int NP = NumPoints;
 
 				PDE_HOST PDE_DEVICE static void getPoints(Real* xi);
 				PDE_HOST PDE_DEVICE static void getWeights(Real* w);
