@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_VECTOR_HPP
-#define PDESOLVER_VECTOR_HPP
+#ifndef PDESOLVER_MATRIX_HPP
+#define PDESOLVER_MATRIX_HPP
 
 #include "core/Types.hpp"
 
@@ -35,5 +35,8 @@ namespace pdesolver {
 			} // namespace types
 		} // namespace linalg
 	} // namespace pdesolver
+
+#include "linalg/types/backend/CPU.hpp"
+//#include "linalg/types/backend/CUDA.hpp"
 
 #endif

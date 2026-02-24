@@ -3,12 +3,11 @@
 
 #include <algorithm>
 
+#include "config/Platform.hpp"
+
 #include "core/Types.hpp"
 
-#include "fem/assembly/backend/Types.hpp"
-
 #include "fem/eval/EvalElement.hpp"
-
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
 #include "fem/form/NonlinearTangentForm.hpp"
@@ -34,25 +33,25 @@ namespace pdesolver {
 				
 				// allocation function
 				template<typename EvalElement>
-				static linalg::types::CSRMatrix<Real, Backend> createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
+				PDE_HOST PDE_DEVICE static linalg::types::CSRMatrix<Real, Backend> createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
 				// allocation function
-				static linalg::types::Vector<Real, Backend> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
+				PDE_HOST PDE_DEVICE static linalg::types::Vector<Real, Backend> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
 				// allocation function
-				static linalg::types::Vector<Real, Backend> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
+				PDE_HOST PDE_DEVICE static linalg::types::Vector<Real, Backend> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
 				// matrix assembly
 				template<typename EvalElement, typename Form>
-				static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, Backend>& K);
+				PDE_HOST PDE_DEVICE static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, Backend>& K);
 				
 				// operator assembly
 				template<typename EvalElement, typename Form>
-				static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& O);
+				PDE_HOST PDE_DEVICE static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& O);
 				
 				// vector assembly
 				template<typename EvalElement, typename Form>
-				static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& F);
+				PDE_HOST PDE_DEVICE static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler
 
@@ -60,6 +59,6 @@ namespace pdesolver {
 	} // namespace fem
 } // namespace pdesolver
 
-//#include "backend/cpu/Assembler.tpp"
+#include "backend/cpu/Assembler.tpp"
 
 #endif

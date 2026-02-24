@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_FEM
 #define PDESOLVER_FEM
 
-//#include "fem/assembly/Assembler.hpp"
+#include "fem/assembly/Assembler.hpp"
 
 #include "fem/boundary/BoundaryApplicator.hpp"
 #include "fem/boundary/BoundaryCondition.hpp"

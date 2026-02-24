@@ -31,11 +31,11 @@ namespace pdesolver {
 
 			}; // class Vector
 		
-			} // namespace types
-		} // namespace linalg
-	} // namespace pdesolver
+		} // namespace types
+	} // namespace linalg
+} // namespace pdesolver
 
-#include "backend/CPU.hpp"
-//#include "backend/CUDA.hpp"
+#include "linalg/types/backend/CPU.hpp"
+//#include "linalg/types/backend/CUDA.hpp"
 
 #endif

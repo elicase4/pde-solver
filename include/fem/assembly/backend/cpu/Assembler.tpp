@@ -1,11 +1,11 @@
 namespace pdesolver::fem::assembly {
 
 template<>
-class Assembler<backend::CPU> {
+class Assembler<linalg::types::backend::CPU> {
 public:
 
 	template<typename EvalElement>
-	static linalg::types::CSRMatrix<Real, backend::CPU> createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 		
 		// allocate matrix
 		linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
@@ -16,7 +16,7 @@ public:
 		// build adjacency list
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
-			Index* nodeIDs = mesh.getBasisNodes(e);
+			Index* nodeIDs = mesh.getElementNodes(e);
 			
 			for (Index i = 0; i < EvalElement::NumNodes; ++i){
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
@@ -73,14 +73,14 @@ public:
 		return K;
 	}
 
-	static linalg::types::Vector<Real, backend::CPU> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> O(topoDOF.numFreeDOFs());
 		return O;
 
 	}
 
-	static linalg::types::Vector<Real, backend::cpu> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> F(topoDOF.numFreeDOFs());
 		return F;
@@ -88,7 +88,7 @@ public:
 	}
 
 	template<typename EvalElement, typename Form>
-	static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, backend::CPU>& K){
+	PDE_HOST PDE_DEVICE void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 		
 		// allocate local space
 		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalElement::NumNodes * topoDOF.dofsPerNode()), (EvalElement::NumNodes * topoDOF.dofsPerNode()) );
@@ -96,7 +96,7 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
-			Index* nodeIDs = mesh.getBasisNodes(e);
+			Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalElement::SpatialDim * EvalElement::NumNodes];
 			
 			// extract node coordinates
@@ -113,7 +113,7 @@ public:
 			EvalElement evalE;
 			Form form;
 			evalE.bindElement(nodeCoords, time);
-			evalE.quadLoop<Form>(form);
+			evalE.quadLoop(form);
 			
 			// scatter Ke into K
 			for (Index i = 0; i < EvalElement::NumNodes; ++i){
@@ -140,6 +140,9 @@ public:
 								}
 							}
 
+						}
+					}
+
 				}
 			}
 			
@@ -148,15 +151,15 @@ public:
 	}
 
 	template<typename EvalElement, typename Form>
-	static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, backend::CPU>& O){
+	PDE_HOST PDE_DEVICE void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& O){
 
 	}
 
 	template<typename EvalElement, typename Form>
-	static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, backend::CPU>& F){
+	PDE_HOST PDE_DEVICE void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 	}
 
-}; // class Assembler <backend::CPU>
+}; // class Assembler <linalg::types::backend::CPU>
 
 } // namespace pdesolver::fem::assembly

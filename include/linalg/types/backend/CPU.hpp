@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_LINALG_TYPES_BACKEND_CUDA_HPP
-#define PDESOLVER_LINALG_TYPES_BACKEND_CUDA_HPP
+#ifndef PDESOLVER_LINALG_TYPES_BACKEND_CPU_HPP
+#define PDESOLVER_LINALG_TYPES_BACKEND_CPU_HPP
 
 #include <memory>
 #include <algorithm>
 
 #include "core/Types.hpp"
-#include "cuda/CopyKind.hpp"
+#include "linalg/types/backend/cuda/CopyKind.hpp"
 
 namespace pdesolver {
 	namespace linalg {
