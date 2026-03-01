@@ -4,7 +4,6 @@ template<>
 class Assembler<linalg::types::backend::CPU> {
 public:
 
-	template<typename EvalElement>
 	PDE_HOST PDE_DEVICE linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 		
 		// allocate matrix
@@ -16,9 +15,9 @@ public:
 		// build adjacency list
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
-			Index* nodeIDs = mesh.getElementNodes(e);
+			const Index* nodeIDs = mesh.getElementNodes(e);
 			
-			for (Index i = 0; i < EvalElement::NumNodes; ++i){
+			for (Index i = 0; i < mesh.data.nodesPerElement; ++i){
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 					
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
@@ -29,7 +28,7 @@ public:
 						AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					}
 
-					for (Index k = 0; k < EvalElement::NumNodes; ++k){
+					for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
 						for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 					
 							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
@@ -73,34 +72,34 @@ public:
 		return K;
 	}
 
-	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createOperatorSystem(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> O(topoDOF.numFreeDOFs());
 		return O;
 
 	}
 
-	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createRHSVector(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> F(topoDOF.numFreeDOFs());
 		return F;
 
 	}
 
-	template<typename EvalElement, typename Form>
+	template<typename EvalElement, typename EvalQuadraturePoint, typename Form, typename Quadrature, typename Model>
 	PDE_HOST PDE_DEVICE void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 		
 		// allocate local space
-		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalElement::NumNodes * topoDOF.dofsPerNode()), (EvalElement::NumNodes * topoDOF.dofsPerNode()) );
+		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalElement::NodesPerElement * topoDOF.dofsPerNode()), (EvalElement::NodesPerElement * topoDOF.dofsPerNode()) );
 
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
 			Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalElement::SpatialDim * EvalElement::NumNodes];
+			Real nodeCoords[EvalElement::SpatialDim * EvalElement::NodesPerElement];
 			
 			// extract node coordinates
-			for (Index i = 0; i < EvalElement::NumNodes; ++i){
+			for (Index i = 0; i < EvalElement::NodesPerElement; ++i){
 				
 				Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
@@ -110,13 +109,28 @@ public:
 
 			}
 			
+			// get element data
 			EvalElement evalE;
-			Form form;
 			evalE.bindElement(nodeCoords, time);
-			evalE.quadLoop(form);
+			
+			// qp data
+			EvalQuadraturePoint qp;
+			Form form;
+			Model model;
+			Real xi[Quadrature::NumPointsTotal*EvalElement::ParametricDim];
+			Real w[Quadrature::NumPointsTotal];
+			Quadrature::getPoints(xi);
+			Quadrature::getWeights(w);
+			
+			// quadrature loop
+			model.eval(qp);
+			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+				qp.evaluate(evalE.nodeCoords, xi[EvalElement::ParametricDim*q], w[q]);
+				form(qp);
+			}
 			
 			// scatter Ke into K
-			for (Index i = 0; i < EvalElement::NumNodes; ++i){
+			for (Index i = 0; i < EvalElement::NodesPerElement; ++i){
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 					
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
@@ -126,7 +140,7 @@ public:
 					Index rowStart = K.rowPtr()[AdofIDi];
 					Index rowEnd = K.rowPtr()[AdofIDi + 1];
 					
-					for (Index k = 0; k < EvalElement::NumNodes; ++k){
+					for (Index k = 0; k < EvalElement::NodesPerElement; ++k){
 						for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 					
 							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
@@ -135,7 +149,7 @@ public:
 							
 							for (Index p = rowStart; p < rowEnd; ++p){
 								if (K.colIdx()[p] == AdofIDk){
-									K.data()[p] += Ke[(i*topoDOF.dofsPerNode() + j)*(EvalElement::NumNodes * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
+									K.data()[p] += Ke[(i*topoDOF.dofsPerNode() + j)*(EvalElement::NodesPerElement * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
 									break;
 								}
 							}
@@ -150,12 +164,12 @@ public:
 
 	}
 
-	template<typename EvalElement, typename Form>
+	template<typename EvalElement, typename EvalQuadraturePoint, typename Form, typename Quadrature, typename Model>
 	PDE_HOST PDE_DEVICE void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& O){
 
 	}
 
-	template<typename EvalElement, typename Form>
+	template<typename EvalElement, typename EvalQuadraturePoint, typename Form, typename Quadrature, typename Model>
 	PDE_HOST PDE_DEVICE void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 	}

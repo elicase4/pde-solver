@@ -1,9 +1,10 @@
 #ifndef PDESOLVER_EVALMODEL_HPP
 #define PDESOLVER_EVALMODEL_HPP
 
+#include <concepts>
+
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
-#include <concepts>
 
 namespace pdesolver {
 	namespace fem {

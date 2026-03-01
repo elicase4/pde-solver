@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 
 project(PDESolver
 	VERSION 0.1.0
-	DESCRIPTION "Modular Finite Element PDE Solver"
+	DESCRIPTION "Modular Finite Element PDE Solver with GPU Acceleration"
 	LANGUAGES CXX
 )
 

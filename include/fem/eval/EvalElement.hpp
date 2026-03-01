@@ -8,15 +8,13 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename Element>
+			template<typename Element, Index SpatialDim>
 			concept EvalElement = requires(Element elem, const Real* nodeCoords, const Real time) {
 
-				{ Element::SpatialDim } -> std::convertible_to<Int>;
-				{ Element::ParametricDim } -> std::convertible_to<Int>;
-				{ Element::NumNodes } -> std::convertible_to<Index>;
-
+				{ SpatialDim } -> std::convertible_to<Index>;
+				{ Element::NodesPerElement } -> std::convertible_to<Index>;
+				
 				{ elem.bind(nodeCoords, time) } -> std::same_as<void>;
-				{ elem.quadLoop([](const auto& qp) {}) } -> std::same_as<void>;
 
 			}; // concept EvalElement
 

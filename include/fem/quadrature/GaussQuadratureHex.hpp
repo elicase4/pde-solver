@@ -7,13 +7,13 @@ namespace pdesolver {
 	namespace fem {
 		namespace quadrature {
 
-			template<Int NumPointsX, Int NumPointsY, Int NumPointsZ>
+			template<Index NumPointsX, Index NumPointsY, Index NumPointsZ>
 			class GaussQuadratureHex {
 				
-				static constexpr Int NumPointsXi = NumPointsX;
-				static constexpr Int NumPointsEta = NumPointsY;
-				static constexpr Int NumPointsZeta = NumPointsZ;
-				static constexpr Int NumPointsTotal = NumPointsX * NumPointsY * NumPointsZ;
+				static constexpr Index NumPointsXi = NumPointsX;
+				static constexpr Index NumPointsEta = NumPointsY;
+				static constexpr Index NumPointsZeta = NumPointsZ;
+				static constexpr Index NumPointsTotal = NumPointsX * NumPointsY * NumPointsZ;
 			
 				using QuadX = GaussQuadrature1D<NumPointsX>;
 				using QuadY = GaussQuadrature1D<NumPointsY>;

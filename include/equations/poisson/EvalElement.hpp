@@ -5,43 +5,24 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis, typename Quadrature, typename ConductivityModel>
-	class PoissonEvalElement<Geometry, Basis, Quadrature, ConductivityModel> {
+	template<typename Element, Index SpatialDim>
+	class PoissonEvalElement {
 	public:
 		
 		// node coordinates
-		const Real nodeCoords[Basis::SpatialDim*Basis::NumNodes];
+		Real nodeCoords[SpatialDim*Element::NodesPerElement];
 		
 		// time coordinate
 		Real t;
 
-		// element quadrature data
-		Real xi[Quadrature::NumPointsTotal * Basis::SpatialDim];
-		Real w[Quadrature::NumPointsTotal];
-
-		PDE_HOST PDE_DEVICE bindElement(const Real* coords, const Real time){
+		PDE_HOST PDE_DEVICE void bindElement(const Real* coords, const Real time){
 			
 			nodeCoords = coords;
 			t = time;
 
-			Quadrature::GetPoints(xi);
-			Quadrature::GetWeights(w);
-
 		}
 		
-		template<typename Form>
-		PDE_HOST PDE_DEVICE quadLoop(Form&& form){
-			
-			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
-				
-				qp.evaluate(nodeCoords, xi[Element::ParametricDim*q], w[q]);
-				form(qp);
-
-			}
-
-		}
-
-	}; // class PoissonEvalElement<Geometry, Basis>
+	}; // class PoissonEvalElement<Basis>
 
 } // namespace pdesolver::fem::eval
 

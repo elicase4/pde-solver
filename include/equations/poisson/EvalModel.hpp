@@ -5,7 +5,7 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename SpatialDim, typename QuadraturePoint>
+	template<Int SpatialDim, typename QuadraturePoint>
 	struct ConstantConductivity {
 		
 		Real k;
@@ -13,7 +13,7 @@ namespace pdesolver::fem::eval {
 		void eval(QuadraturePoint& qp) const {
 			
 			for (Index i = 0; i < SpatialDim; ++i){
-				for (Index j = 0; i < SpatialDim; ++j){
+				for (Index j = 0; j < SpatialDim; ++j){
 					qp.K[i*SpatialDim + j] = (i==j) ? k : 0.0;
 				}
 			}

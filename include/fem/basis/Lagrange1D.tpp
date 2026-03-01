@@ -1,7 +1,7 @@
 namespace pdesolver::fem::basis{
 
 // Implementation: eval
-template <int Order>
+template <Index Order>
 PDE_HOST PDE_DEVICE void Lagrange1D<Order>::eval(Real xi, Real* N){
 	if constexpr (Order == 1){
 		N[0] = 0.5 * (1.0 - xi);
@@ -24,7 +24,7 @@ PDE_HOST PDE_DEVICE void Lagrange1D<Order>::eval(Real xi, Real* N){
 }
 
 // Implementation: evalFirstDerivative
-template <int Order>
+template <Index Order>
 PDE_HOST PDE_DEVICE void Lagrange1D<Order>::evalFirstDerivative(Real xi, Real* N){
 	if constexpr (Order == 1){
 		N[0] = -0.5;
@@ -47,7 +47,7 @@ PDE_HOST PDE_DEVICE void Lagrange1D<Order>::evalFirstDerivative(Real xi, Real* N
 }
 
 // Implementation: evalSecondDerivative
-template <int Order>
+template <Index Order>
 PDE_HOST PDE_DEVICE void Lagrange1D<Order>::evalSecondDerivative(Real xi, Real* N){
 	if constexpr (Order == 1){
 		N[0] = 0.0;

@@ -1,21 +1,21 @@
-#ifndef POISSON_BILINEARFORM_HPP
-#define POISSON_BILINEARFORM_HPP
+#ifndef POISSON_LINEARFORM_HPP
+#define POISSON_LINEARFORM_HPP
 
 #include "fem/form/LinearForm.hpp"
-#include "equations/poisson/PoissonSourceTerm.hpp"
+#include "equations/poisson/SourceTerm.hpp"
 
 namespace pdesolver::fem::form {
 
 	template<Int SpatialDim, typename SourceFunction>
 	requires fem::eval::EvalFunction<SourceFunction>
-	struct PoissonLinearForm<SpatialDim> {
+	struct PoissonLinearForm {
 		
-		SourceFunction source;
-
 		template<typename QuadraturePoint>
 		PDE_HOST PDE_DEVICE static void computeElementVector(const auto& qp, Real* Fe){
 			
+			SourceFunction source;
 			Real val[1];
+			
 			source.eval(qp.time, qp.x, val);
 
 			// element vector assembly contribution
@@ -27,3 +27,5 @@ namespace pdesolver::fem::form {
 	};// struct PoissonLinearForm<SpatialDim>
 
 } // namespace pdesolver::fem::form
+
+#endif

@@ -1,7 +1,7 @@
 namespace pdesolver::fem::quadrature {
 		
-// implementation points
-template<Int NumPointsX, Int NumPointsY>
+// implementation Points
+template<Index NumPointsX, Index NumPointsY>
 PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(Real* xi){
 	
 	Real xi_xi[NumPointsX];
@@ -22,7 +22,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(
 }
 
 // implementation weights
-template<Int NumPointsX, Int NumPointsY>
+template<Index NumPointsX, Index NumPointsY>
 PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getWeights(Real* w){
 	
 	Real w_xi[NumPointsX];

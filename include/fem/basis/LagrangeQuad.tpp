@@ -1,7 +1,7 @@
 namespace pdesolver::fem::basis{
 
 // Implementation: eval
-template<int Px, int Py>
+template<Index Px, Index Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
 	Real Nx[Px + 1];
 	Real Ny[Py + 1];
@@ -20,7 +20,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::eval(const Real* xi, Real* N){
 }
 
 // Implementation: evalGradient
-template<int Px, int Py>
+template<Index Px, Index Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real* dNdxi){
 	
 	Index pD = 2;
@@ -45,7 +45,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalGradient(const Real* xi, Real
 }
 
 // Implementation: evalHessian
-template<int Px, int Py>
+template<Index Px, Index Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real* d2Nd2xi){
 	
 	Real Nx[Px + 1], Ny[Py + 1];
@@ -74,7 +74,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real*
 }
 
 // Implementation: evalLaplacian
-template<int Px, int Py>
+template<Index Px, Index Py>
 PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Real* lapN){
 	
 	Real Nx[Px + 1], Ny[Py + 1];
@@ -96,9 +96,9 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Rea
 }
 
 // implementation: getFaceTopology 
-template<int Px, int Py>
-PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int faceID, Index* tangentID){
-	switch (faceID){
+template<Index Px, Index Py>
+PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Index* tangentID){
+	switch (rngID){
 		case 0:
 			tangentID[0] = 0;
 			tangentID[1] = 1;
@@ -121,9 +121,9 @@ PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int faceID,
 }
 
 // implemntation: nodesPerFace
-template<int Px, int Py>
-PDE_HOST PDE_DEVICE Index LagrangeQuad<Px, Py>::nodesPerFace(const Index FaceID){
-	switch (FaceID) {
+template<Index Px, Index Py>
+PDE_HOST PDE_DEVICE Index LagrangeQuad<Px, Py>::nodesPerFace(const Int rngID){
+	switch (rngID) {
 		case 0:
 			return (Py + 1);
 		case 1:
@@ -136,23 +136,23 @@ PDE_HOST PDE_DEVICE Index LagrangeQuad<Px, Py>::nodesPerFace(const Index FaceID)
 }
 
 // implemntation: getFaceNodes
-template<int Px, int Py>
-PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::getFaceNodes(const Index FaceID, Index* nodeIDs){
-	switch (FaceID) {
+template<Index Px, Index Py>
+PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::getFaceNodes(const Int rngID, Index* nodeIDs){
+	switch (rngID) {
 		case 0:
-			for (int i = 0; i < (Py + 1); ++i)
+			for (Index i = 0; i < (Py + 1); ++i)
 				nodeIDs[i] = (Index) i*(Px + 1);
 			break;
 		case 1:
-			for (int i = 0; i < (Py + 1); ++i)
+			for (Index i = 0; i < (Py + 1); ++i)
 				nodeIDs[i] = (Index) i*(Px + 1) + Px;
 			break;
 		case 2:
-			for (int i = 0; i < (Px + 1); ++i)
+			for (Index i = 0; i < (Px + 1); ++i)
 				nodeIDs[i] = (Index) i;
 			break;
 		case 3:
-			for (int i = 0; i < (Px + 1); ++i)
+			for (Index i = 0; i < (Px + 1); ++i)
 				nodeIDs[i] = (Index) i + (Px + 1)*Py;
 			break;
 	}

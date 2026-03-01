@@ -1,7 +1,7 @@
 namespace pdesolver::topology {
 
 TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode) : mesh_(mesh), dofsPerNode_(dofsPerNode) {
-
+	
 	numGlobalDOFs_ = mesh_.data.numNodes * dofsPerNode_;
 	numFreeDOFs_ = numGlobalDOFs_;
 	

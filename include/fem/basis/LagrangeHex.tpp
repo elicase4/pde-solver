@@ -1,7 +1,7 @@
 namespace pdesolver::fem::basis{
 
 // Implementation: eval
-template<int Px, int Py, int Pz>
+template<Index Px, Index Py, Index Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::eval(const Real* xi, Real* N){
 	Real Nx[Px + 1];
 	Real Ny[Py + 1];
@@ -24,7 +24,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::eval(const Real* xi, Real* N){
 }
 
 // Implementation: evalGradient
-template<int Px, int Py, int Pz>
+template<Index Px, Index Py, Index Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, Real* dNdxi){
 	
 	Index pD = 3;
@@ -54,7 +54,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, R
 }
 
 // Implementation: evalHessian
-template<int Px, int Py, int Pz>
+template<Index Px, Index Py, Index Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Real* d2Nd2xi){
 	Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 	Real dNx[Px + 1], dNy[Py + 1], dNz[Pz + 1];
@@ -90,7 +90,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Re
 }
 
 // Implementation: evalLaplacian
-template<int Px, int Py, int Pz>
+template<Index Px, Index Py, Index Pz>
 PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalLaplacian(const Real* xi, Real* lapN){
 	Real Nx[Px + 1], Ny[Py + 1], Nz[Pz + 1];
 	Real d2Nx[Px + 1], d2Ny[Py + 1], d2Nz[Pz + 1];
@@ -114,9 +114,9 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalLaplacian(const Real* xi, 
 	}
 }
 
-template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int faceID, Index* tangentID){
-	switch (faceID){
+template<Index Px, Index Py, Index Pz>
+PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int rngID, Index* tangentID){
+	switch (rngID){
 		case 0:
 			tangentID[0] = 1;
 			tangentID[1] = 2;
@@ -147,9 +147,9 @@ PDE_HOST PDE_DEVICE Real LagrangeHex<Px, Py, Pz>::getFaceTopology(const Int face
 }
 
 // Implementation: nodesPerFace
-template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE Index LagrangeHex<Px, Py, Pz>::nodesPerFace(const Index faceID){
-	switch (faceID){
+template<Index Px, Index Py, Index Pz>
+PDE_HOST PDE_DEVICE Index LagrangeHex<Px, Py, Pz>::nodesPerFace(const Int rngID){
+	switch (rngID){
 		case 0:
 			return (Pz + 1)*(Py + 1);
 		case 1:
@@ -167,41 +167,41 @@ PDE_HOST PDE_DEVICE Index LagrangeHex<Px, Py, Pz>::nodesPerFace(const Index face
 
 
 // Implementation: getFaceNodes
-template<int Px, int Py, int Pz>
-PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::getFaceNodes(const Index faceID, Index* nodeIDs){
-	switch (faceID){
+template<Index Px, Index Py, Index Pz>
+PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::getFaceNodes(const Int rngID, Index* nodeIDs){
+	switch (rngID){
 		case 0:
-			for (int j = 0; j < (Pz + 1); ++j) {
-				for (int i = 0; i < (Py + 1); ++i)
+			for (Index j = 0; j < (Pz + 1); ++j) {
+				for (Index i = 0; i < (Py + 1); ++i)
 					nodeIDs[i + j*(Py + 1)] = (Index) i*(Px + 1) + j*(Px + 1)*(Py + 1);
 			}
 		case 1:
-			for (int j = 0; j < (Pz + 1); ++j) {
-				for (int i = 0; i < (Py + 1); ++i)
+			for (Index j = 0; j < (Pz + 1); ++j) {
+				for (Index i = 0; i < (Py + 1); ++i)
 					nodeIDs[i + j*(Py + 1)] = (Index) i*(Px + 1) + j*(Px + 1)*(Py + 1) + Px;
 			}
 			break;
 		case 2:
-			for (int j = 0; j < (Pz + 1); ++j) {
-				for (int i = 0; i < (Px + 1); ++i)
+			for (Index j = 0; j < (Pz + 1); ++j) {
+				for (Index i = 0; i < (Px + 1); ++i)
 					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1)*(Py + 1);
 			}
 			break;
 		case 3:
-			for (int j = 0; j < (Pz + 1); ++j) {
-				for (int i = 0; i < (Px + 1); ++i)
+			for (Index j = 0; j < (Pz + 1); ++j) {
+				for (Index i = 0; i < (Px + 1); ++i)
 					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1)*(Py + 1) + (Px + 1)*Py;
 			}
 			break;
 		case 4:
-			for (int j = 0; j < (Py + 1); ++j) {
-				for (int i = 0; i < (Px + 1); ++i)
+			for (Index j = 0; j < (Py + 1); ++j) {
+				for (Index i = 0; i < (Px + 1); ++i)
 					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1);
 			}
 			break;
 		case 5:
-			for (int j = 0; j < (Py + 1); ++j) {
-				for (int i = 0; i < (Px + 1); ++i)
+			for (Index j = 0; j < (Py + 1); ++j) {
+				for (Index i = 0; i < (Px + 1); ++i)
 					nodeIDs[i + j*(Px + 1)] = (Index) i + j*(Px + 1) + (Px + 1)*(Py + 1)*Pz;
 			}
 			break;
