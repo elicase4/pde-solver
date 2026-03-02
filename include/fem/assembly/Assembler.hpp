@@ -9,6 +9,7 @@
 
 #include "fem/eval/EvalElement.hpp"
 #include "fem/eval/EvalQuadraturePoint.hpp"
+#include "fem/eval/EvalModel.hpp"
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
 #include "fem/form/NonlinearTangentForm.hpp"
@@ -28,6 +29,8 @@ namespace pdesolver {
 	namespace fem {
 		namespace assembly {
 
+			namespace eval = pdesolver::fem::eval;
+
 			template<typename Backend>
 			class Assembler {
 			public:
@@ -42,15 +45,18 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static linalg::types::Vector<Real, Backend> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
 				// matrix assembly
-				template<typename EvalElement, typename EvalQuadraturePoint, typename Form, typename Quadrature, typename Model>
+				template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
+				requires eval::EvalModel<Model, EvalQP>
 				PDE_HOST PDE_DEVICE static void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, Backend>& K);
 				
 				// operator assembly
-				template<typename EvalElement, typename EvalQuadraturePoint, typename Form, typename Quadrature, typename Model>
+				template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
+				requires eval::EvalModel<Model, EvalQP>
 				PDE_HOST PDE_DEVICE static void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& O);
 				
 				// vector assembly
-				template<typename EvalElement, typename EvalQuadraturePoint, typename Form, typename Quadrature, typename Model>
+				template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
+				requires eval::EvalModel<Model, EvalQP>
 				PDE_HOST PDE_DEVICE static void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler

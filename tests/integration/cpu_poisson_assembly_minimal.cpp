@@ -56,12 +56,10 @@ protected:
 	using TransformType = fem::geometry::JacobianTransform<nsd, npd, BasisType::NodesPerElement>; 
 	
 	// equation type specification
-	using BilinearForm = fem::form::PoissonBilinearForm<nsd>;
-	//using SourceFunction = fem::eval::PoissonSourceTerm<nsd, >;
-	//using LinearForm = fem::form::PoissonLinearForm<nsd, SourceFunction>;
 	using EvalElement = fem::eval::PoissonEvalElement<BasisType, nsd>;
 	using EvalQuadraturePoint = fem::eval::PoissonEvalQuadraturePoint<TransformType, BasisType>;
-	using Model = fem::eval::ConstantConductivity<nsd, EvalQuadraturePoint>;
+	using Model = fem::eval::ConstantConductivity<EvalQuadraturePoint, nsd>;
+	using BilinearForm = fem::form::PoissonBilinearForm<EvalQuadraturePoint, nsd>;
 
 };
 
@@ -74,5 +72,5 @@ TEST_F(CPUPoissonAssemblyMinimal, KMatrix){
 	auto K = assembler.createMatrixSystem(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleMatrixSystem<EvalElement, EvalQuadraturePoint, BilinearForm, QuadratureType, Model>(mesh2D, *topoDOF2D, 0.0, K);
+	assembler.assembleMatrixSystem<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, 0.0, K);
 }

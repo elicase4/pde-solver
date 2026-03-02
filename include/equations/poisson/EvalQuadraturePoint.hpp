@@ -10,7 +10,7 @@ namespace pdesolver::fem::eval {
 	public:
 
 		// dimensions
-		static constexpr Index NumNodes = Basis::NumNodes;
+		static constexpr Index NodesPerElement = Basis::NodesPerElement;
 		static constexpr Int SpatialDim = Geometry::SpatialDim;
 		static constexpr Int ParametricDim = Geometry::ParametricDim;
 		
@@ -22,13 +22,13 @@ namespace pdesolver::fem::eval {
 		Real w;
 
 		// ref basis values
-		Real N[NumNodes];
+		Real N[NodesPerElement];
 
 		// ref gradients
-		Real dNdxi[ParametricDim*NumNodes];
+		Real dNdxi[ParametricDim*NodesPerElement];
 
 		// physical gradients
-		Real dNdx[SpatialDim*NumNodes];
+		Real dNdx[SpatialDim*NodesPerElement];
 
 		// geometry
 		Real J[SpatialDim*ParametricDim];
@@ -52,8 +52,8 @@ namespace pdesolver::fem::eval {
 			w = weight;
 			
 			// evaluate basis
-			Basis::evaluate(xi, N);
-			Basis::evaluateGradient(xi, dNdxi);
+			Basis::eval(xi, N);
+			Basis::evalGradient(xi, dNdxi);
 
 			// geometry
 			Geometry::mapToPhysical(coords, N, x);

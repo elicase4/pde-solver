@@ -10,7 +10,8 @@ namespace pdesolver {
 			
 			template<Index NumPoints>
 			class GaussQuadrature1D {
-				
+			public:
+
 				static constexpr Index NumPointsTotal = NumPoints;
 
 				PDE_HOST PDE_DEVICE static void getPoints(Real* xi);

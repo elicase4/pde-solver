@@ -5,12 +5,12 @@
 
 namespace pdesolver::fem::eval {
 
-	template<Int SpatialDim, typename QuadraturePoint>
+	template<typename QuadraturePoint, Index SpatialDim>
 	struct ConstantConductivity {
 		
 		Real k;
 		
-		void eval(QuadraturePoint& qp) const {
+		void eval(QuadraturePoint& qp) {
 			
 			for (Index i = 0; i < SpatialDim; ++i){
 				for (Index j = 0; j < SpatialDim; ++j){
@@ -19,6 +19,8 @@ namespace pdesolver::fem::eval {
 			}
 
 		}
+
+		void evalGradient(QuadraturePoint& qp) {}
 		
 	};
 

@@ -5,12 +5,16 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Element, Index SpatialDim>
+	template<typename Basis, Index SD>
 	class PoissonEvalElement {
 	public:
 		
+		static constexpr Index NodesPerElement = Basis::NodesPerElement;
+		static constexpr Index SpatialDim = SD;
+		static constexpr Index ParametricDim = Basis::ParametricDim;
+
 		// node coordinates
-		Real nodeCoords[SpatialDim*Element::NodesPerElement];
+		const Real* nodeCoords;
 		
 		// time coordinate
 		Real t;

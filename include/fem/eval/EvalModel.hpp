@@ -11,7 +11,7 @@ namespace pdesolver {
 		namespace eval {
 
 			template<typename Model, typename QuadraturePoint>
-			concept EvalModel = requires (const Model m, const QuadraturePoint& qp) {
+			concept EvalModel = requires (const Model m, QuadraturePoint& qp) {
 
 				{ m.eval(qp) } -> std::same_as<void>;
 				{ m.evalGradient(qp) } -> std::same_as<void>;

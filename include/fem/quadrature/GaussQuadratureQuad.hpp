@@ -9,7 +9,8 @@ namespace pdesolver {
 		
 			template<Index NumPointsX, Index NumPointsY>
 			class GaussQuadratureQuad {
-				
+			public:
+
 				static constexpr Index NumPointsXi = NumPointsX;
 				static constexpr Index NumPointsEta = NumPointsY;
 				static constexpr Index NumPointsTotal = NumPointsX * NumPointsY;

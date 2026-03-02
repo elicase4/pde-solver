@@ -5,11 +5,10 @@
 
 namespace pdesolver::fem::form {
 
-	template<Int SpatialDim>
+	template<typename QuadraturePoint, Index SpatialDim>
 	struct PoissonBilinearForm {
 
-		template<typename QuadraturePoint>
-		PDE_HOST PDE_DEVICE static void computeElementMatrix(const auto& qp, Real* Ke){
+		PDE_HOST PDE_DEVICE static void computeElementMatrix(const QuadraturePoint& qp, Real* Ke){
 			
 			Real integrand, matvecprod;
 			
@@ -31,7 +30,6 @@ namespace pdesolver::fem::form {
 			}
 		}
 		
-		template<typename QuadraturePoint>
 		PDE_HOST PDE_DEVICE static void computeElementOperator(const auto& qp, const Real* Ue, Real* Oe){
 			
 			Real integrand, matvecprod;
