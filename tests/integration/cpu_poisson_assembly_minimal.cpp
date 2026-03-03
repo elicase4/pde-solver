@@ -69,8 +69,9 @@ TEST_F(CPUPoissonAssemblyMinimal, KMatrix){
 	auto assembler = fem::assembly::Assembler<BackendType>();
 	
 	// create system matrix
-	auto K = assembler.createMatrixSystem(mesh2D, *topoDOF2D);
+	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleMatrixSystem<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, 0.0, K);
+	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, 0.0, U, K);
 }

@@ -27,6 +27,11 @@ namespace pdesolver {
 						std::copy(src, src + n, dst);
 					}
 
+					template<typename T>
+					static void zero(T* ptr, Index n){
+						std::fill(ptr, ptr + n, T(0));
+					}
+
 				}; // class CPU
 
 			} // namespace backend

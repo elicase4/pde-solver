@@ -57,7 +57,12 @@ namespace pdesolver {
 
 						cudaMemcpy(dst, src, n*sizeof(T), CUDAkind);
 					}
-				
+					
+					template<typename T>
+					static void zero(T* ptr, Index n){
+						cudaMemset(ptr, 0, n*sizeof(T));
+					}
+
 				}; // class CUDA
 
 			} // namespace backend

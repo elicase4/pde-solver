@@ -41,6 +41,11 @@ namespace pdesolver {
 				T* data() { return data_.get(); }
 				const T* data() const { return data_.get(); }
 
+				// Zero-out data
+				void zero(){
+					Backend::template zero<T>(data_.get(), nNnz_);
+				}
+
 			private:
 				Index nRows_, nCols_, nNnz_;
 				

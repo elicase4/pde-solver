@@ -25,7 +25,12 @@ namespace pdesolver {
 				// Access
 				T* data() { return data_.get(); }
 				const T* data() const { return data_.get(); }
-			
+				
+				// Zero-out data
+				void zero(){
+					Backend::template zero<T>(data_.get(), nRows_ * nCols_);
+				}
+
 			private:
 				Index nRows_, nCols_;
 				typename Backend::template Ptr<T> data_;

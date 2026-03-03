@@ -8,13 +8,13 @@ namespace pdesolver::fem::form {
 	template<typename QuadraturePoint, Index SpatialDim>
 	struct PoissonBilinearForm {
 
-		PDE_HOST PDE_DEVICE static void computeElementMatrix(const QuadraturePoint& qp, Real* Ke){
+		PDE_HOST PDE_DEVICE static void computeElementMatrix(const QuadraturePoint& qp, const Real*, Real* Ke){
 			
 			Real integrand, matvecprod;
 			
 			// qpent matrix assembly contribution
-			for (Index a = 0; a < qp.NumNodes; ++a){
-				for (Index b = 0; b < qp.NumNodes; ++b){
+			for (Index a = 0; a < qp.NodesPerElement; ++a){
+				for (Index b = 0; b < qp.NodesPerElement; ++b){
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < SpatialDim; ++sDi){
@@ -25,7 +25,7 @@ namespace pdesolver::fem::form {
 						integrand += qp.dNdx[a*SpatialDim + sDi] * matvecprod;
 					}
 
-					Ke[a * qp.NumNodes + b] += integrand * qp.measure * qp.w;
+					Ke[a * qp.NodesPerElement + b] += integrand * qp.measure * qp.w;
 				}
 			}
 		}
@@ -35,8 +35,8 @@ namespace pdesolver::fem::form {
 			Real integrand, matvecprod;
 
 			// qpent matrix assembly contribution
-			for (Index a = 0; a < qp.NumNodes; ++a){
-				for (Index b = 0; b < qp.NumNodes; ++b){
+			for (Index a = 0; a < qp.NodesPerElement; ++a){
+				for (Index b = 0; b < qp.NodesPerElement; ++b){
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < SpatialDim; ++sDi){
