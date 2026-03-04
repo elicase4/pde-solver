@@ -1,16 +1,17 @@
 #ifndef PDESOLVER_EVALFIELD_HPP
 #define PDESOLVER_EVALFIELD_HPP
 
+#include <concepts>
+
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
-#include <concepts>
 
 namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
 			template<typename Field, typename QuadraturePoint>
-			concept EvalField = requires (const Field field, const QuadraturePoint& qp, const Real* Ue, Real* outValue, Real* outGrad) {
+			concept EvalField = requires (const Field field, QuadraturePoint& qp, const Real* Ue, Real* outValue, Real* outGrad) {
 
 				{ Field::NumComponents } -> std::convertible_to<Index>;
 

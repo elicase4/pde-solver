@@ -1,7 +1,7 @@
 namespace pdesolver::fem::quadrature {
 		
-// implementation points
-template<Int NumPointsX, Int NumPointsY>
+// implementation Points
+template<Index NumPointsX, Index NumPointsY>
 PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(Real* xi){
 	
 	Real xi_xi[NumPointsX];
@@ -11,7 +11,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(
 	QuadY::getPoints(xi_eta);
 
 	// compute tensor product
-	Index q;
+	Index q = 0;
 	for (Index j = 0; j < NumPointsY; ++j) {
 		for (Index i = 0; i < NumPointsX; ++i) {
 			xi[2*q]   = xi_xi[i];
@@ -22,7 +22,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getPoints(
 }
 
 // implementation weights
-template<Int NumPointsX, Int NumPointsY>
+template<Index NumPointsX, Index NumPointsY>
 PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getWeights(Real* w){
 	
 	Real w_xi[NumPointsX];
@@ -32,7 +32,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getWeights
 	QuadY::getPoints(w_eta);
 
 	// compute tensor product
-	Index q;
+	Index q = 0;
 	for (Index j = 0; j < NumPointsY; ++j) {
 		for (Index i = 0; i < NumPointsX; ++i) {
 			w[q] = w_xi[i] * w_eta[j];

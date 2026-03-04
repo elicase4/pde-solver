@@ -31,4 +31,5 @@ add_pde_test(test_jacobian
 
 add_pde_test(test_poisson_assembly_cpu
 	integration/cpu_poisson_assembly_minimal.cpp
+	pde_mesh
 )

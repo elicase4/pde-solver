@@ -7,7 +7,7 @@ namespace pdesolver {
 	namespace fem {
 		namespace basis {
 			
-			template <int Px, int Py, int Pz>
+			template <Index Px, Index Py, Index Pz>
 			class LagrangeHex {
 			public:
 				using BasisX = Lagrange1D<Px>;
@@ -19,13 +19,13 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void evalHessian(const Real* xi, Real* d2Nd2xi);
 				PDE_HOST PDE_DEVICE static void evalLaplacian(const Real* xi, Real* lapN);
 				
-				PDE_HOST PDE_DEVICE static Real getFaceTopology(const Int faceID, Index* tangentID);
-				PDE_HOST PDE_DEVICE static Index nodesPerFace(const Index faceID);
-				PDE_HOST PDE_DEVICE static void getFaceNodes(const Index faceID, Index* nodeIDs);
+				PDE_HOST PDE_DEVICE static Real getFaceTopology(const Int rngID, Index* tangentID);
+				PDE_HOST PDE_DEVICE static Index nodesPerFace(const Int rngID);
+				PDE_HOST PDE_DEVICE static void getFaceNodes(const Int rngID, Index* nodeIDs);
 				
 				// constants
-				Int NodesPerElement = (Px + 1)*(Py + 1)*(Pz + 1);
-				Int ParamtericDim = 3;
+				static constexpr Index NodesPerElement = (Px + 1)*(Py + 1)*(Pz + 1);
+				static constexpr Index ParamtericDim = 3;
 
 			}; // class LagrangeHex
 			

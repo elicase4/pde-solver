@@ -8,7 +8,7 @@ namespace pdesolver {
 	namespace fem {
 		namespace basis {
 		
-			template <int Order>
+			template <Index Order>
 			class Lagrange1D {
 			public:
 				PDE_HOST PDE_DEVICE static void eval(Real xi, Real* N);
@@ -16,8 +16,8 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void evalSecondDerivative(Real xi, Real* d2N);
 			
 				// constants
-				Int NodesPerElement = (Order + 1);
-				Int ParametricDim = 1;
+				static constexpr Index NodesPerElement = (Order + 1);
+				static constexpr Index ParametricDim = 1;
 
 			}; // class Lagrange1D
 			

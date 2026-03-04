@@ -1,7 +1,7 @@
 namespace pdesolver::fem::quadrature {
 
-// implementation points
-template<Int NumPointsX, Int NumPointsY, Int NumPointsZ>
+// implementation Points
+template<Index NumPointsX, Index NumPointsY, Index NumPointsZ>
 PDE_HOST PDE_DEVICE void GaussQuadratureHex<NumPointsX, NumPointsY, NumPointsZ>::getPoints(Real* xi){
 	
 	Real xi_xi[NumPointsX];
@@ -13,7 +13,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureHex<NumPointsX, NumPointsY, NumPointsZ>:
 	QuadZ::getPoints(xi_zeta);
 
 	// compute tensor product
-	Index q;
+	Index q = 0;
 	for (Index k = 0; k < NumPointsZ; ++k) {
 		for (Index j = 0; j < NumPointsY; ++j) {
 			for (Index i = 0; i < NumPointsX; ++i) {
@@ -27,7 +27,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureHex<NumPointsX, NumPointsY, NumPointsZ>:
 }
 
 // implementation weights
-template<Int NumPointsX, Int NumPointsY, Int NumPointsZ>
+template<Index NumPointsX, Index NumPointsY, Index NumPointsZ>
 PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY, NumPointsZ>::getWeights(Real* w){
 	
 	Real w_xi[NumPointsX];
@@ -39,7 +39,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY, NumPointsZ>
 	QuadZ::getPoints(w_zeta);
 
 	// compute tensor product
-	Index q;
+	Index q = 0;
 	for (Index k = 0; k < NumPointsZ; ++k) {
 		for (Index j = 0; j < NumPointsY; ++j) {
 			for (Index i = 0; i < NumPointsX; ++i) {

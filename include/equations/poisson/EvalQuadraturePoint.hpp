@@ -5,40 +5,45 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis, typename ConductivityModel>
-	class PoissonEvalQuadraturePoint<Geometry, Basis, Geometry, ConductivityModel> {
+	template<typename Geometry, typename Basis>
+	class PoissonEvalQuadraturePoint {
 	public:
+
+		// dimensions
+		static constexpr Index NodesPerElement = Basis::NodesPerElement;
+		static constexpr Int SpatialDim = Geometry::SpatialDim;
+		static constexpr Int ParametricDim = Geometry::ParametricDim;
 		
 		// physical coordinate
-		Real x[Geometry::SpatialDim];
+		Real x[SpatialDim];
 
 		// quadrature
-		Real xi[Geometry::ParametricDim];
+		Real xi[ParametricDim];
 		Real w;
 
 		// ref basis values
-		Real N[Geometry::NumNodes];
+		Real N[NodesPerElement];
 
 		// ref gradients
-		Real dNdxi[Geometry::ParametricDim*Geometry::NumNodes];
+		Real dNdxi[ParametricDim*NodesPerElement];
 
 		// physical gradients
-		Real dNdx[Geometry::SpatialDim*Geometry::NumNodes];
+		Real dNdx[SpatialDim*NodesPerElement];
 
 		// geometry
-		Real J[Geometry::SpatialDim*Geometry::ParametricDim];
-		Real g[Geometry::ParametricDim*Geometry::ParametricDim];
+		Real J[SpatialDim*ParametricDim];
+		Real g[ParametricDim*ParametricDim];
 
 		// measure
 		Real measure;
 
 		// conductivity coefficient
-		Real K[Geometry::SpatialDim * Geometry::SpatialDim];
+		Real K[SpatialDim*SpatialDim];
 
 		// rhs function
-		Real rhsF[Geometry::SpatialDim];
+		Real rhsF[SpatialDim];
 
-		PDE_HOST PDE_DEVICE evaluate(const Real* coords, const Real* xi_q, const Real weight){
+		PDE_HOST PDE_DEVICE void evaluate(const Real* coords, const Real* xi_q, const Real weight){
 			
 			// set quad info
 			for (Index pD = 0; pD < ParametricDim; ++pD){
@@ -47,24 +52,21 @@ namespace pdesolver::fem::eval {
 			w = weight;
 			
 			// evaluate basis
-			Basis::evaluate(xi, N);
-			Basis::evaluateGradient(xi, dNdxi);
+			Basis::eval(xi, N);
+			Basis::evalGradient(xi, dNdxi);
 
 			// geometry
 			Geometry::mapToPhysical(coords, N, x);
-			Geoemtry::computeJacobian(coords, dNdxi, J);
-			Geoemtry::computeMetric(J, g);
+			Geometry::computeJacobian(coords, dNdxi, J);
+			Geometry::computeMetric(J, g);
 			measure = Geometry::computeMeasure(g);
 
 			// transforms
 			Geometry::transformGradient(J, g, dNdxi, dNdx);
 
-			// evalaute conductivity model
-			ConductivityModel::eval(qp);
-			
 		}
 
-	}; // class PoissonEvalQuadraturePoint<Geometry, Basis, ConductivityModel, SourceTerm>
+	}; // class PoissonEvalQuadraturePoint<Geometry, Basis>
 
 } // namespace pdesolver::fem::eval
 

@@ -4,8 +4,7 @@ template<>
 class Assembler<linalg::types::backend::CPU> {
 public:
 
-	template<typename EvalElement>
-	PDE_HOST PDE_DEVICE linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> createMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> createMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 		
 		// allocate matrix
 		linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
@@ -16,9 +15,9 @@ public:
 		// build adjacency list
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
-			Index* nodeIDs = mesh.getElementNodes(e);
+			const Index* nodeIDs = mesh.getElementNodes(e);
 			
-			for (Index i = 0; i < EvalElement::NumNodes; ++i){
+			for (Index i = 0; i < mesh.data.nodesPerElement; ++i){
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 					
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
@@ -29,7 +28,7 @@ public:
 						AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					}
 
-					for (Index k = 0; k < EvalElement::NumNodes; ++k){
+					for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
 						for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 					
 							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
@@ -73,50 +72,89 @@ public:
 		return K;
 	}
 
-	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createOperator(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> O(topoDOF.numFreeDOFs());
 		return O;
 
 	}
 
-	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createVector(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> F(topoDOF.numFreeDOFs());
 		return F;
 
 	}
 
-	template<typename EvalElement, typename Form>
-	PDE_HOST PDE_DEVICE void assembleMatrixSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
+	template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
+	PDE_HOST PDE_DEVICE void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 		
-		// allocate local space
-		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalElement::NumNodes * topoDOF.dofsPerNode()), (EvalElement::NumNodes * topoDOF.dofsPerNode()) );
+		// allocate local space for Ke
+		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()), (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
+
+		// allocate local space for Ue
+		linalg::types::Vector<Real, linalg::types::backend::CPU> Ue( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
+
+		// zero-out data in K
+		K.zero();
 
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
-			Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalElement::SpatialDim * EvalElement::NumNodes];
-			
 			// extract node coordinates
-			for (Index i = 0; i < EvalElement::NumNodes; ++i){
+			const Index* nodeIDs = mesh.getElementNodes(e);
+			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
+			
+			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 				
-				Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
+				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
-				for (Index sD = 0; sD < EvalElement::SpatialDim; ++sD){
-					nodeCoords[EvalElement::SpatialDim*i + sD] = nodeCoordsPtr[sD];
+				for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
+					nodeCoords[EvalEle::SpatialDim*i + sD] = nodeCoordsPtr[sD];
 				}
 
 			}
+
+			// zero-out Ke
+			Ke.zero();
 			
-			EvalElement evalE;
-			Form form;
+			// zero-out Ue
+			Ue.zero();
+			
+			// gather U into Ue
+			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
+				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
+					
+					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
+					if (topoDOF.isConstrained(TdofIDi)) continue;
+					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
+					
+					Ue.data()[i*(topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+
+				}
+			}
+
+			// get element data
+			EvalEle evalE;
 			evalE.bindElement(nodeCoords, time);
-			evalE.quadLoop(form);
+			
+			// qp data
+			EvalQP qp;
+			Model model;
+			Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
+			Real w[Quadrature::NumPointsTotal];
+			Quadrature::getPoints(xi);
+			Quadrature::getWeights(w);
+			
+			// quadrature loop
+			model.eval(qp);
+			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+				qp.evaluate(evalE.nodeCoords, &xi[EvalEle::ParametricDim*q], w[q]);
+				Form::computeElementMatrix(qp, Ue.data(), Ke.data());
+			}
 			
 			// scatter Ke into K
-			for (Index i = 0; i < EvalElement::NumNodes; ++i){
+			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 					
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
@@ -126,7 +164,7 @@ public:
 					Index rowStart = K.rowPtr()[AdofIDi];
 					Index rowEnd = K.rowPtr()[AdofIDi + 1];
 					
-					for (Index k = 0; k < EvalElement::NumNodes; ++k){
+					for (Index k = 0; k < EvalEle::NodesPerElement; ++k){
 						for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 					
 							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
@@ -135,7 +173,7 @@ public:
 							
 							for (Index p = rowStart; p < rowEnd; ++p){
 								if (K.colIdx()[p] == AdofIDk){
-									K.data()[p] += Ke[(i*topoDOF.dofsPerNode() + j)*(EvalElement::NumNodes * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
+									K.data()[p] += Ke.data()[(i*topoDOF.dofsPerNode() + j)*(EvalEle::NodesPerElement * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
 									break;
 								}
 							}
@@ -149,14 +187,14 @@ public:
 		}
 
 	}
-
-	template<typename EvalElement, typename Form>
-	PDE_HOST PDE_DEVICE void assembleOperatorSystem(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& O){
+	
+	template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
+	PDE_HOST PDE_DEVICE void assembleOperator(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& O){
 
 	}
 
-	template<typename EvalElement, typename Form>
-	PDE_HOST PDE_DEVICE void assembleRHSVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
+	PDE_HOST PDE_DEVICE void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 	}
 
