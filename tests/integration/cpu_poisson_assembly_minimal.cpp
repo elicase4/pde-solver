@@ -74,4 +74,5 @@ TEST_F(CPUPoissonAssemblyMinimal, KMatrix){
 	
 	// call assembly for system matrix
 	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, 0.0, U, K);
+
 }

@@ -13,7 +13,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureHex<NumPointsX, NumPointsY, NumPointsZ>:
 	QuadZ::getPoints(xi_zeta);
 
 	// compute tensor product
-	Index q;
+	Index q = 0;
 	for (Index k = 0; k < NumPointsZ; ++k) {
 		for (Index j = 0; j < NumPointsY; ++j) {
 			for (Index i = 0; i < NumPointsX; ++i) {
@@ -39,7 +39,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY, NumPointsZ>
 	QuadZ::getPoints(w_zeta);
 
 	// compute tensor product
-	Index q;
+	Index q = 0;
 	for (Index k = 0; k < NumPointsZ; ++k) {
 		for (Index j = 0; j < NumPointsY; ++j) {
 			for (Index i = 0; i < NumPointsX; ++i) {
