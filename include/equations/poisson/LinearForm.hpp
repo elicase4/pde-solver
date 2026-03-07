@@ -11,7 +11,7 @@ namespace pdesolver::fem::form {
 	struct PoissonLinearForm {
 		
 		template<typename QuadraturePoint>
-		PDE_HOST PDE_DEVICE static void computeElementVector(const auto& qp, Real* Fe){
+		PDE_HOST PDE_DEVICE static void computeElementLevel(const auto& qp, const Real*, Real* Fe){
 			
 			SourceFunction source;
 			Real val[1];

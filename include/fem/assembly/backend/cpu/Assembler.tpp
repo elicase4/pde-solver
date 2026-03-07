@@ -72,13 +72,6 @@ public:
 		return K;
 	}
 
-	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createOperator(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
-
-		linalg::types::Vector<Real, linalg::types::backend::CPU> O(topoDOF.numFreeDOFs());
-		return O;
-
-	}
-
 	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createVector(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> F(topoDOF.numFreeDOFs());
@@ -87,7 +80,7 @@ public:
 	}
 
 	template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
-	PDE_HOST PDE_DEVICE void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
+	PDE_HOST PDE_DEVICE void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 		
 		// allocate local space for Ke
 		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()), (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
@@ -140,17 +133,17 @@ public:
 			
 			// qp data
 			EvalQP qp;
-			Model model;
 			Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
 			Real w[Quadrature::NumPointsTotal];
 			Quadrature::getPoints(xi);
 			Quadrature::getWeights(w);
 			
 			// quadrature loop
-			model.eval(qp);
 			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 				qp.evaluate(evalE.nodeCoords, &xi[EvalEle::ParametricDim*q], w[q]);
-				Form::computeElementMatrix(qp, Ue.data(), Ke.data());
+				model.eval(qp);
+				model.evalGradient(qp);
+				Form::computeElementLevel(qp, Ue.data(), Ke.data());
 			}
 			
 			// scatter Ke into K
@@ -189,12 +182,7 @@ public:
 	}
 	
 	template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
-	PDE_HOST PDE_DEVICE void assembleOperator(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& O){
-
-	}
-
-	template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
-	PDE_HOST PDE_DEVICE void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	PDE_HOST PDE_DEVICE void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 	}
 

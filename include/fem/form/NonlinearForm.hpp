@@ -13,7 +13,7 @@ namespace pdesolver {
 			
 			template<typename Form, typename QuadraturePoint>
 			concept NonlinearForm = requires (const QuadraturePoint& qp, const Real* Ue, Real* Re) {
-				{ Form::computeElementVector(qp, Ue, Re) } -> std::same_as<void>;
+				{ Form::computeElementLevel(qp, Ue, Re) } -> std::same_as<void>;
 			}; // concept NonlinearForm
 		
 		} // namespace form

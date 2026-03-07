@@ -58,7 +58,7 @@ protected:
 	// equation type specification
 	using EvalElement = fem::eval::PoissonEvalElement<BasisType, nsd>;
 	using EvalQuadraturePoint = fem::eval::PoissonEvalQuadraturePoint<TransformType, BasisType>;
-	using Model = fem::eval::ConstantConductivity<EvalQuadraturePoint, nsd>;
+	using Model = fem::eval::PoissonModel<EvalQuadraturePoint, nsd>;
 	using BilinearForm = fem::form::PoissonBilinearForm<EvalQuadraturePoint, nsd>;
 
 };
@@ -67,12 +67,19 @@ TEST_F(CPUPoissonAssemblyMinimal, KMatrix){
 	
 	// make an assembler object with the CPU backend
 	auto assembler = fem::assembly::Assembler<BackendType>();
+
+	// input data for constant conductivity model
+	Model model;
+	model.conductivity = 1.0;
+
+	// arbitrary time
+	Real t = 0.0;
 	
 	// create system matrix
 	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, 0.0, U, K);
+	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, t, model, U, K);
 
 }
