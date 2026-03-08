@@ -5,15 +5,23 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Geometry, typename Basis>
+	template<typename Element, typename Basis, typename Geometry>
 	class PoissonEvalQuadraturePoint {
 	public:
 
+		Element element;
+
+		PoissonEvalQuadraturePoint(const Element& elem) : element(elem) {}
+
 		// dimensions
-		static constexpr Index NodesPerElement = Basis::NodesPerElement;
-		static constexpr Int SpatialDim = Geometry::SpatialDim;
-		static constexpr Int ParametricDim = Geometry::ParametricDim;
-		
+		static constexpr Index NodesPerElement = Element::NodesPerElement;
+		static constexpr Int SpatialDim = Element::SpatialDim;
+		static constexpr Int ParametricDim = Element::ParametricDim;
+	
+		// parent element attributes
+		const Real time = element.t;
+		const Real* coords = element.nodeCoords;
+
 		// physical coordinate
 		Real x[SpatialDim];
 
@@ -43,7 +51,7 @@ namespace pdesolver::fem::eval {
 		// rhs function
 		Real rhsF[SpatialDim];
 
-		PDE_HOST PDE_DEVICE void evaluate(const Real* coords, const Real* xi_q, const Real weight){
+		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 			
 			// set quad info
 			for (Index pD = 0; pD < ParametricDim; ++pD){

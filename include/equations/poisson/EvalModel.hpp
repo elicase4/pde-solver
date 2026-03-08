@@ -20,7 +20,7 @@ namespace pdesolver::fem::eval {
 
 		}
 
-		void evalGradient(QuadraturePoint& qp) const {}
+		void evalGradient(QuadraturePoint&) const {}
 		
 	}; // struct PoissonModel
 

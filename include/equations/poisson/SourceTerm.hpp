@@ -21,6 +21,8 @@ namespace pdesolver::fem::eval {
 			outValue[0] = f(time, x);
 		}
 
+		void evalGradient(const Real, const Real*, Real*) const {}
+
 	}; // struct PoissonSourceTerm
 
 } // namespace pdesolver::fem::eval

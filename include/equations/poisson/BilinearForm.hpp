@@ -52,7 +52,7 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	}; // struct PoissonBilinearForm<SpatialDim>
+	}; // struct PoissonBilinearForm
 
 } // namespace pdesolver::fem::form
 
