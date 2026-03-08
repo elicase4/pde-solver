@@ -93,6 +93,23 @@ TEST_F(CPUPoissonAssemblyMinimal, KMatrix){
 
 }
 
+TEST_F(CPUPoissonAssemblyMinimal, OVector){
+	
+	// form
+	BilinearForm bilinearForm;
+
+	// arbitrary time
+	Real t = 0.0;
+	
+	// create system matrix
+	auto O = assembler.createVector(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	
+	// call assembly for system matrix
+	assembler.assembleVector<EvalElement, EvalQuadraturePoint, Model, BilinearForm, QuadratureType>(mesh2D, *topoDOF2D, t, model, bilinearForm, U, O);
+
+}
+
 TEST_F(CPUPoissonAssemblyMinimal, FVector){
 	
 	// form
