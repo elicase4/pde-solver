@@ -12,8 +12,8 @@ namespace pdesolver {
 		namespace form {
 			
 			template<typename Form, typename QuadraturePoint>
-			concept LinearForm = requires (const QuadraturePoint& qp, Real* Fe) {
-				{ Form::computeElementVector(qp, Fe) } -> std::same_as<void>;
+			concept LinearForm = requires (const Form f, const QuadraturePoint& qp, const Real* Ue, Real* Fe) {
+				{ f.computeElementLevel(qp, Ue, Fe) } -> std::same_as<void>;
 			}; // concept LinearForm
 
 		} // namespace form

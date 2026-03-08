@@ -39,25 +39,17 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static linalg::types::CSRMatrix<Real, Backend> createMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
 				// allocation function
-				PDE_HOST PDE_DEVICE static linalg::types::Vector<Real, Backend> createOperator(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
-				
-				// allocation function
 				PDE_HOST PDE_DEVICE static linalg::types::Vector<Real, Backend> createVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
 				
 				// matrix assembly
-				template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalModel<Model, EvalQP>
-				PDE_HOST PDE_DEVICE static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
-				
-				// operator assembly
-				template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalModel<Model, EvalQP>
-				PDE_HOST PDE_DEVICE static void assembleOperator(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& O);
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+				requires eval::EvalQuadraturePoint<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
+				PDE_HOST PDE_DEVICE static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
 				
 				// vector assembly
-				template<eval::EvalElement EvalEle, eval::EvalQuadraturePoint EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalModel<Model, EvalQP>
-				PDE_HOST PDE_DEVICE static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, linalg::types::Vector<Real, Backend>& F);
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+				requires eval::EvalQuadraturePoint<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
+				PDE_HOST PDE_DEVICE static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler
 

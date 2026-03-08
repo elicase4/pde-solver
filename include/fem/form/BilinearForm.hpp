@@ -12,9 +12,9 @@ namespace pdesolver {
 		namespace form {
 
 			template<typename Form, typename QuadraturePoint>
-			concept BilinearForm = requires (const QuadraturePoint& qp, const Real* Ue, Real* Ke, Real* Oe) {
-				{ Form::computeElementMatrix(qp, Ue, Ke) } -> std::same_as<void>; 
-				{ Form::computeElementOperator(qp, Ue, Oe) } -> std::same_as<void>; 
+			concept BilinearForm = requires (const Form f, const QuadraturePoint& qp, const Real* Ue, Real* Ke, Real* Oe) {
+				{ f.computeElementLevel(qp, Ue, Ke) } -> std::same_as<void>; 
+				{ f.computeElementLevel(qp, Ue, Oe) } -> std::same_as<void>; 
 			}; // concept BilinearForm
 				
 		} // namespace form
