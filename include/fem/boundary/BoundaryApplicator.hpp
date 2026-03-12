@@ -5,8 +5,11 @@
 #include "fem/boundary/BoundaryRegistry.hpp"
 
 #include "mesh/Mesh.hpp"
+
 #include "topology/TopologicalDOF.hpp"
+
 #include "linalg/types/Vector.hpp"
+#include "linalg/types/CSRMatrix.hpp"
 
 namespace pdesolver {
 	namespace fem {
@@ -43,5 +46,6 @@ namespace pdesolver {
 } // namespace pdesolver
 
 //#include "backend/cpu/BoundaryApplicator.tpp"
+//#include "backend/cuda/BoundaryApplicator.tpp"
 
 #endif

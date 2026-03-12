@@ -29,7 +29,7 @@ add_pde_test(test_jacobian
 	unit/jacobian.cpp
 )
 
-add_pde_test(test_poisson_assembly_cpu
-	integration/cpu_poisson_assembly_minimal.cpp
+add_pde_test(test_poisson_minimal_cpu
+	integration/cpu_poisson_minimal.cpp
 	pde_mesh
 )

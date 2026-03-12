@@ -256,7 +256,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] = Fe.data()[i*(topoDOF.dofsPerNode()) + j];
+					F.data()[AdofIDi] += Fe.data()[i*(topoDOF.dofsPerNode()) + j];
 
 				}
 			}
