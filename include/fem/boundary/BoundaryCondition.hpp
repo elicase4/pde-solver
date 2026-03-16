@@ -8,22 +8,28 @@ namespace pdesolver {
 		namespace boundary {
 
 			enum class BCCategory {
+				None,
 				Essential,
 				Natural
 			}; // enum class BCCategory
 
-			template<typename BC>
-			concept BoundaryCondition = requires (const Real t, const Real* x, Real* v) {
-				{ BC::evaluate(t, x, v) } -> std::same_as<void>;
-				{ BC::category() } -> std::same_as<BCCategory>;
-				{ BC::numComponents() } -> std::convertible_to<Index>;
-			}; // concept BoundaryCondition
+			template<typename Function>
+			concept BoundaryFunction = requires (const Function f, const Real time, const Real* x, Real* outValue) {
+				
+				{ Function::NumComponents() } -> std::convertible_to<Index>;
+				{ f.eval(time, x, outValue) } -> std::same_as<void>;
 
-			template<typename BC>
-			concept EssentialBC = BoundaryCondition<BC> && (BC::category() == BCCategory::Essential);
+			}; // concept BoundaryFunction
 
-			template<typename BC>
-			concept NaturalBC = BoundaryCondition<BC> && (BC::category() == BCCategory::Natural);
+			template<typename Function>
+			struct BoundaryCondition {
+				
+				Int tag;
+				static constexpr Index NumComponents = Function::NumComponents;
+				BCCategory componentType[NumComponents];
+				Function f;
+
+			}; // struct BoundaryCondition
 
 		} // namespace boundary
 	} // namespace fem

@@ -9,13 +9,13 @@
 namespace pdesolver::fem::eval {
 
 	template<Int SpatialDim, class Callable>
-	struct PoissonSourceTerm {
+	struct PoissonSourceFunction {
 
 		static constexpr Index NumComponents = 1;
 
 		Callable f;
 
-		constexpr PoissonSourceTerm(Callable func) : f(std::move(func)) {}
+		constexpr PoissonSourceFunction(Callable func) : f(std::move(func)) {}
 
 		void eval(const Real time, const Real* x, Real* outValue) const {
 			outValue[0] = f(time, x);

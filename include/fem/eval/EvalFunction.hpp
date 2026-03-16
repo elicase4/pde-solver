@@ -13,7 +13,6 @@ namespace pdesolver {
 			concept EvalFunction = requires (const Function f, const Real time, const Real* x, Real* outValue, Real* outGrad) {
 				
 				{ Function::NumComponents } -> std::convertible_to<Index>;
-				
 				{ f.eval(time, x, outValue) } -> std::same_as<void>;
 				{ f.evalGradient(time, x, outGrad) } -> std::same_as<void>;
 			

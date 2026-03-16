@@ -1,17 +1,17 @@
-#ifndef POISSON_LINEARFORM_HPP
-#define POISSON_LINEARFORM_HPP
+#ifndef POISSON_SOURCEFORM_HPP
+#define POISSON_SOURCEFORM_HPP
 
 #include "fem/form/LinearForm.hpp"
-#include "equations/poisson/SourceTerm.hpp"
+#include "equations/poisson/SourceFunction.hpp"
 
 namespace pdesolver::fem::form {
 
 	template<typename QuadraturePoint, Int SpatialDim, typename SourceFunction>
 	requires fem::eval::EvalFunction<SourceFunction>
-	struct PoissonLinearForm {
+	struct PoissonSourceForm {
 		
 		SourceFunction source;
-		constexpr PoissonLinearForm(SourceFunction src) : source(std::move(src)) {}
+		constexpr PoissonSourceForm(SourceFunction src) : source(std::move(src)) {}
 
 		PDE_HOST PDE_DEVICE void computeElementLevel(const QuadraturePoint& qp, const Real*, Real* Fe) const {
 			
@@ -24,7 +24,7 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	};// struct PoissonLinearForm
+	};// struct PoissonLoadVector
 
 } // namespace pdesolver::fem::form
 

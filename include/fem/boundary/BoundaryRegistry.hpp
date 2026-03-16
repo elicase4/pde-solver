@@ -20,7 +20,7 @@ namespace pdesolver {
 				template<typename BC>
 				void registerBC(Int tag, BC bc) {
 					bcStorage_[tag] = std::make_any<BC>(bc);
-					bcCategory_[tag] = BC::category;
+					bcCategory_[tag] = BC::Category;
 				}
 
 				// Query

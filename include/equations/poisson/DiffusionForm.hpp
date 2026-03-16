@@ -1,12 +1,12 @@
-#ifndef POISSON_BILINEARFORM_HPP
-#define POISSON_BILINEARFORM_HPP
+#ifndef POISSON_DIFFUSIONFORM_HPP
+#define POISSON_DIFFUSIONFORM_HPP
 
 #include "fem/form/BilinearForm.hpp"
 
 namespace pdesolver::fem::form {
 
 	template<typename QuadraturePoint, Index SpatialDim>
-	struct PoissonBilinearForm {
+	struct PoissonDiffusionForm {
 
 		PDE_HOST PDE_DEVICE static void computeElementLevel(const QuadraturePoint& qp, const Real*, Real* Ke){
 			
@@ -52,7 +52,7 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	}; // struct PoissonBilinearForm
+	}; // struct PoissonStiffnessMatrix
 
 } // namespace pdesolver::fem::form
 

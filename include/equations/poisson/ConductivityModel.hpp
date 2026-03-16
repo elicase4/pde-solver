@@ -1,12 +1,12 @@
-#ifndef POISSON_EVALMODEL_HPP
-#define POISSON_EVALMODEL_HPP
+#ifndef POISSON_CONDUCTIVITYMODEL_HPP
+#define POISSON_CONDUCTIVITYMODEL_HPP
 
 #include "fem/eval/EvalModel.hpp"
 
 namespace pdesolver::fem::eval {
 
 	template<typename QuadraturePoint, Index SpatialDim>
-	struct PoissonModel {
+	struct PoissonConstantConductivityModel {
 		
 		Real conductivity;
 		
@@ -22,7 +22,7 @@ namespace pdesolver::fem::eval {
 
 		void evalGradient(QuadraturePoint&) const {}
 		
-	}; // struct PoissonModel
+	}; // struct PoissonConstantConductivityModel
 
 }
 
