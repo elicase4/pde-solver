@@ -36,7 +36,10 @@ protected:
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
 	std::unique_ptr<topology::TopologicalDOF> topoDOF2D;
-	
+
+	// boundary registry
+	// fem::boundary::BoundaryRegistry bcRegistry;
+
 	// general type specification
 	using BackendType = linalg::types::backend::CPU;
 	using QuadratureType = fem::quadrature::GaussQuadratureQuad<Qx, Qy>;
@@ -54,9 +57,14 @@ protected:
 	static constexpr auto f = [](Real, const Real* x){ return x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePoint, nsd, SourceFunction>;
+	
+	/*
+	static constexpr auto g = [](Real, const Real*){ return 1.0; };
+	using PoissonDirichletBC2 = fem::eval::PoissonDirichletBC<nsd, decltype(g)>;
+	*/
 
 	// declare assembler
-	fem::assembly::Assembler<BackendType> assembler;
+	std::unique_ptr<fem::assembly::Assembler> assembler;
 
 	// declare model
 	DefaultModel defaultModel;
@@ -73,7 +81,20 @@ protected:
 		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs);
 		
 		constantConductivityModel.conductivity = 1.0;
+		
+		/*
+		fem::boundary::BoundaryCondition<PoissonDirichletBC2> bc2;
+		bc2.tag = 2;
+		bc2.componentType[0] = fem::boundary::BCCategory::Essential;
+		bcRegistry.registerBC<PoissonDirichletBC2>(bc2);
+		*/
 
+		/*
+		topoDOF2D->buildConstraints(bcRegistry);
+		*/
+
+		assembler = std::make_unique<fem::assembly::Assembler>(mesh2D, *topoDOF2D);
+		
 	}
 };
 
@@ -86,11 +107,11 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	auto K = assembler->createMatrix();
+	auto U = assembler->createVector();
 	
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler->assembleMatrix<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(t, constantConductivityModel, diffusionForm, U, K);
 
 }
 
@@ -103,11 +124,11 @@ TEST_F(CPUPoissonMinimal, OVector){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto O = assembler.createVector(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	auto O = assembler->createVector();
+	auto U = assembler->createVector();
 	
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
+	assembler->assembleVector<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(t, constantConductivityModel, diffusionForm, U, O);
 
 }
 
@@ -121,10 +142,10 @@ TEST_F(CPUPoissonMinimal, FVector){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto F = assembler.createVector(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	auto F = assembler->createVector();
+	auto U = assembler->createVector();
 	
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePoint, DefaultModel, SourceForm, QuadratureType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler->assembleVector<EvalElement, EvalQuadraturePoint, DefaultModel, SourceForm, QuadratureType>(t, defaultModel, sourceForm, U, F);
 
 }

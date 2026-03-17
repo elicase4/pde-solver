@@ -15,29 +15,34 @@ namespace pdesolver {
 	namespace fem {
 		namespace boundary {
 
+			namespace eval = pdesolver::fem::eval;
+
 			template<typename Backend>
 			class BoundaryApplicator {
 			public:
-
-				static void apply(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F){
-					for (Int tag: registry.getAllTags()) {
-						switch (tag) {
-							case (BCCategory::Essential):
-								applyEssentialBC(mesh, topoDOF, registry, F);
-								break;
-							case (BCCategory::Natural):
-								applyNaturalBC(mesh, topoDOF, registry, F);
-								break;
-						}
-					}
+				
+				BoundaryApplicator(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry) : mesh_(mesh), topoDOF_(topoDOF), bcRegistry_(bcRegistry) {}
+				
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+				requires eval::EvalModel<Model, EvalQP> && eval::EvalModel<Model, EvalQP>
+				void apply(const Real time, linalg::types::Vector<Real, Backend>& F) const {
+					applyEssentialBCs<EvalEle, EvalQP, Model, Form>(time, F);
+					applyNaturalBCs<EvalEle, EvalQP, Form, Quadrature>(time, F);
 				}
-
-			
+				
 			private:
 
-				static void applyEssentialBC(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F);
+				const mesh::Mesh& mesh_;
+				const topology::TopologicalDOF& topoDOF_;
+				const BoundaryRegistry& bcRegistry_;
+
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form>
+				requires eval::EvalModel<Model, EvalQP>
+				void applyEssentialBCs(const Real time, linalg::types::Vector<Real, Backend>& F);
 				
-				static void applyNaturalBC(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& registry, linalg::types::Vector<Real, Backend>& F);
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
+				requires eval::EvalQuadraturePoint<EvalQP, EvalEle>
+				void applyNaturalBCs(const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 

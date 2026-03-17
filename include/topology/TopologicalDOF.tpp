@@ -34,7 +34,7 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 	Index faceNodes[Element::NodesPerElement];
 
 	// loop over elements and faces to mark constrained dofs
-	for (Index e = 0; mesh_.data.numElements; ++e) {
+	for (Index e = 0; e < mesh_.data.numElements; ++e) {
 		for (Index f = 0; f < mesh_.data.facesPerElement; ++f){
 			
 			// check if element has boundary nodes
@@ -43,7 +43,6 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 			// check for essential bcs
 			Int* tagPtr = mesh_.getBoundaryTag(e);
 			Int tag = tagPtr[f];
-			if (!bcRegistry.isEssential(tag)) continue;
 
 			// get face nodes
 			Index npf = Element::getNodesPerFace(f);
@@ -54,12 +53,19 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 
 			// mark all constrained DOFs on face f
 			for (Index i = 0; i < npf; ++i) {
+				
 				Index globalNode = elemNodes[faceNodes[i]];
+				
 				for (Index c = 0; c < dofsPerNode_; ++c){
+					
+					if (!bcRegistry.isEssential(tag,c)) continue;
+
 					Index dof = getNodeDOF(globalNode, c);
+					
 					constrainedSet.insert(dof);
 					constraintTags_[dof] = tag;
 				}
+			
 			}
 
 		}
