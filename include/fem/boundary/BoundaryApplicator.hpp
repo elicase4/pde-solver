@@ -30,17 +30,13 @@ namespace pdesolver {
 				
 			private:
 
-				const mesh::Mesh& mesh_;
-				const topology::TopologicalDOF& topoDOF_;
-				const BoundaryRegistry& bcRegistry_;
-
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form>
 				requires eval::EvalModel<Model, EvalQP>
-				void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
 				
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
 				requires eval::EvalQuadraturePoint<EvalQP, EvalEle>
-				void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 
