@@ -64,7 +64,7 @@ protected:
 	*/
 
 	// declare assembler
-	std::unique_ptr<fem::assembly::Assembler> assembler;
+	fem::assembly::Assembler<BackendType> assembler;
 
 	// declare model
 	DefaultModel defaultModel;
@@ -93,8 +93,6 @@ protected:
 		topoDOF2D->buildConstraints(bcRegistry);
 		*/
 
-		assembler = std::make_unique<fem::assembly::Assembler>(mesh2D, *topoDOF2D);
-		
 	}
 };
 
@@ -107,11 +105,11 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto K = assembler->createMatrix();
-	auto U = assembler->createVector();
+	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler->assembleMatrix<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
 }
 
@@ -124,11 +122,11 @@ TEST_F(CPUPoissonMinimal, OVector){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto O = assembler->createVector();
-	auto U = assembler->createVector();
+	auto O = assembler.createVector(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler->assembleVector<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(t, constantConductivityModel, diffusionForm, U, O);
+	assembler.assembleVector<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
 }
 
@@ -142,10 +140,10 @@ TEST_F(CPUPoissonMinimal, FVector){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto F = assembler->createVector();
-	auto U = assembler->createVector();
+	auto F = assembler.createVector(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler->assembleVector<EvalElement, EvalQuadraturePoint, DefaultModel, SourceForm, QuadratureType>(t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<EvalElement, EvalQuadraturePoint, DefaultModel, SourceForm, QuadratureType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 }

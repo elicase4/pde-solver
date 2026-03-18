@@ -63,8 +63,8 @@ namespace pdesolver {
 				bool isEssential(Int tag, Index component) const {
 					
 					for (const auto& bc: entries_){
-						if (bc.tag != tag) continue;
-						if (bc.componentType(component) == BCCategory::Essential) {
+						if (bc->tag() != tag) continue;
+						if (bc->componentType(component) == BCCategory::Essential) {
 							return true;
 						}
 					}
@@ -75,8 +75,8 @@ namespace pdesolver {
 				bool isNatural(Int tag, Index component) const {
 					
 					for (const auto& bc: entries_){
-						if (bc.tag != tag) continue;
-						if (bc.componentType(component) == BCCategory::Natural) {
+						if (bc->tag() != tag) continue;
+						if (bc->componentType(component) == BCCategory::Natural) {
 							return true;
 						}
 					}
@@ -87,18 +87,19 @@ namespace pdesolver {
 				bool hasAny(Int tag) const {
 					
 					for (const auto& bc : entries_) {
-						if (bc.tag == tag) return true;
+						if (bc->tag() == tag) return true;
 					}
 
 					return false;
 				}
 
-				std::vector<const BoundaryCondition*> getBCs(Int tag) const {
+				template<typename Function>
+				std::vector<const BoundaryCondition<Function>*> getBCs(Int tag) const {
 					
-					std::vector<const BoundaryCondition*> result;
+					std::vector<const BoundaryCondition<Function>*> result;
 
 					for (const auto& bc : entries_) {
-						if (bc.tag == tag) {
+						if (bc->tag() == tag) {
 							result.push_back(&bc);
 						}
 					}
