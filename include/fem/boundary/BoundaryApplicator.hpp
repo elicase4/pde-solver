@@ -21,22 +21,13 @@ namespace pdesolver {
 			class BoundaryApplicator {
 			public:
 				
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalModel<Model, EvalQP> && eval::EvalModel<Model, EvalQP>
-				static void apply(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F) {
-					applyEssentialBCs<EvalEle, EvalQP, Model, Form>(mesh, topoDOF, bcRegistry, time, F);
-					applyNaturalBCs<EvalEle, EvalQP, Form, Quadrature>(mesh, topoDOF, bcRegistry, time, F);
-				}
-				
-			private:
-
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form>
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Basis, typename Form, typename Model>
 				requires eval::EvalModel<Model, EvalQP>
-				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, Backend>& F);
 				
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
-				requires eval::EvalQuadraturePoint<EvalQP, EvalEle>
-				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Basis, typename Form, typename Quadrature>
+				requires eval::EvalQuadraturePoint<EvalQP, EvalEle> && eval::
+				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 
