@@ -52,7 +52,7 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	}; // struct PoissonStiffnessMatrix
+	}; // struct PoissonDiffusionForm
 
 } // namespace pdesolver::fem::form
 

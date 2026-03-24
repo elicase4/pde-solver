@@ -24,7 +24,7 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	};// struct PoissonLoadVector
+	};// struct PoissonSourceForm
 
 } // namespace pdesolver::fem::form
 

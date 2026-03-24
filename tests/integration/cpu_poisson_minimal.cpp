@@ -49,6 +49,7 @@ protected:
 	// equation type specification
 	using EvalElement = fem::eval::PoissonEvalElement<BasisType, nsd>;
 	using EvalQuadraturePointVolume = fem::eval::PoissonEvalQuadraturePointVolume<EvalElement, BasisType, TransformType>;
+	// using EvalQuadraturePointBoundary = fem::eval::PoissonEvalQuadraturePointBoundary<EvalElement, BasisType, TransformType>;
 	
 	using DefaultModel = fem::eval::PoissonDefaultModel<EvalQuadraturePointVolume>;
 	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePointVolume, nsd>;
@@ -57,12 +58,18 @@ protected:
 	static constexpr auto f = [](Real, const Real* x){ return x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, nsd, SourceFunction>;
-	
+
 	/*
 	static constexpr auto g = [](Real, const Real*){ return 1.0; };
 	using PoissonDirichletBC2 = fem::eval::PoissonDirichletBC<nsd, decltype(g)>;
 	*/
 
+	/*
+	static constexpr auto h1 = [](Real, const Real*){ return 1.0; };
+	using FLuxBoundaryForm = fem::
+	using PoissonNeumannBC1 = fem::eval::PoissonFluxBC<nsd, decltype(h1)>;
+	*/
+	
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;
 

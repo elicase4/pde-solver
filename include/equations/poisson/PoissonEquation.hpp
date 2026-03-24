@@ -3,6 +3,7 @@
 
 #include "equations/poisson/DiffusionForm.hpp"
 #include "equations/poisson/SourceForm.hpp"
+#include "equations/poisson/FluxBoundaryForm.hpp"
 
 #include "equations/poisson/SourceFunction.hpp"
 

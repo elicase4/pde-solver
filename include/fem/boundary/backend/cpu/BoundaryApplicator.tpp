@@ -55,17 +55,14 @@ public:
 
 						if (bcRegistry.isNatural(rngTag, j)){
 							
-							// template function required, bake this into the form?
-							//auto BoundaryConditions bcRegistry.getBCs(rngTag);
+							auto BoundaryConditions bcRegistry.getBCs(rngTag);
 
 							for (auto& BoundaryCondition : BoundaryConditions){
 								
-								// maybe change to evalB?
 								// get element data
 								EvalEle evalE;
 								evalE.bindElement(faceNodeCoords, time);
 								
-								// maybe add qp volume and qp boundary data?
 								// qp data
 								EvalQP qp(EvalE);
 								Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
@@ -76,8 +73,7 @@ public:
 								// quadrature loop
 								for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 									qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
-									// bake functions into form?
-									form.computeElementLevel(qp, Fe.data());
+									form.computeElementLevelVector(qp, Fe.data());
 								}
 
 								// scatter Fe into F
