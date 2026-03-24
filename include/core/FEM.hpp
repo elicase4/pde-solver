@@ -13,7 +13,8 @@
 #include "fem/eval/EvalField.hpp"
 #include "fem/eval/EvalFunction.hpp"
 #include "fem/eval/EvalModel.hpp"
-#include "fem/eval/EvalQuadraturePoint.hpp"
+#include "fem/eval/EvalQuadraturePointVolume.hpp"
+#include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"

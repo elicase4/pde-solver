@@ -11,6 +11,7 @@
 
 #include "equations/poisson/EvalElement.hpp"
 #include "equations/poisson/EvalField.hpp"
-#include "equations/poisson/EvalQuadraturePoint.hpp"
+#include "equations/poisson/EvalQuadraturePointVolume.hpp"
+#include "equations/poisson/EvalQuadraturePointBoundary.hpp"
 
 #endif

@@ -48,15 +48,15 @@ protected:
 	
 	// equation type specification
 	using EvalElement = fem::eval::PoissonEvalElement<BasisType, nsd>;
-	using EvalQuadraturePoint = fem::eval::PoissonEvalQuadraturePoint<EvalElement, BasisType, TransformType>;
+	using EvalQuadraturePointVolume = fem::eval::PoissonEvalQuadraturePointVolume<EvalElement, BasisType, TransformType>;
 	
-	using DefaultModel = fem::eval::PoissonDefaultModel<EvalQuadraturePoint>;
-	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePoint, nsd>;
-	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePoint, nsd>;
+	using DefaultModel = fem::eval::PoissonDefaultModel<EvalQuadraturePointVolume>;
+	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePointVolume, nsd>;
+	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume, nsd>;
 	
 	static constexpr auto f = [](Real, const Real* x){ return x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, decltype(f)>;
-	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePoint, nsd, SourceFunction>;
+	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, nsd, SourceFunction>;
 	
 	/*
 	static constexpr auto g = [](Real, const Real*){ return 1.0; };
@@ -109,7 +109,7 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
 }
 
@@ -126,7 +126,7 @@ TEST_F(CPUPoissonMinimal, OVector){
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePoint, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
+	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
 }
 
@@ -144,6 +144,6 @@ TEST_F(CPUPoissonMinimal, FVector){
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePoint, DefaultModel, SourceForm, QuadratureType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 }

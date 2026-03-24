@@ -5,10 +5,10 @@
 
 namespace pdesolver::fem::form {
 
-	template<typename QuadraturePoint, Index SpatialDim>
+	template<typename QuadraturePointVolume, Index SpatialDim>
 	struct PoissonDiffusionForm {
 
-		PDE_HOST PDE_DEVICE static void computeElementLevel(const QuadraturePoint& qp, const Real*, Real* Ke){
+		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, const Real*, Real* Ke){
 			
 			Real integrand, matvecprod;
 			
@@ -30,7 +30,7 @@ namespace pdesolver::fem::form {
 			}
 		}
 		
-		PDE_HOST PDE_DEVICE static void computeElementLevel(const auto& qp, const Real* Ue, Real* Oe){
+		PDE_HOST PDE_DEVICE static void computeElementLevelVector(const QuadraturePointVolume& qp, const Real* Ue, Real* Oe){
 			
 			Real integrand, matvecprod;
 

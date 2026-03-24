@@ -8,7 +8,7 @@
 #include "core/Types.hpp"
 
 #include "fem/eval/EvalElement.hpp"
-#include "fem/eval/EvalQuadraturePoint.hpp"
+#include "fem/eval/EvalQuadraturePointVolume.hpp"
 #include "fem/eval/EvalModel.hpp"
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
@@ -43,12 +43,12 @@ namespace pdesolver {
 				
 				// matrix assembly
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalQuadraturePoint<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
+				requires eval::EvalQuadraturePointVolume<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
 				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
 				
 				// vector assembly
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalQuadraturePoint<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
+				requires eval::EvalQuadraturePointVolume<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
 				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler

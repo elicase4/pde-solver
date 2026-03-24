@@ -143,7 +143,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevel(qp, Ue.data(), Ke.data());
+				form.computeElementLevelMatrix(qp, Ue.data(), Ke.data());
 			}
 			
 			// scatter Ke into K
@@ -245,7 +245,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevel(qp, Ue.data(), Fe.data());
+				form.computeElementLevelVector(qp, Ue.data(), Fe.data());
 			}
 			
 			// scatter Fe into F

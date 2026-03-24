@@ -4,6 +4,9 @@
 #include "fem/boundary/BoundaryCondition.hpp"
 #include "fem/boundary/BoundaryRegistry.hpp"
 
+#include "fem/eval/EvalQuadraturePointBoundary.hpp"
+#include "fem/eval/EvalQuadraturePointVolume.hpp"
+
 #include "mesh/Mesh.hpp"
 
 #include "topology/TopologicalDOF.hpp"
@@ -22,11 +25,11 @@ namespace pdesolver {
 			public:
 				
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Basis, typename Form, typename Model>
-				requires eval::EvalModel<Model, EvalQP>
+				requires eval::EvalModel<Model, EvalQP> && eval::EvalQuadraturePointVolume<EvalQP, EvalEle>
 				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, Backend>& F);
 				
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Basis, typename Form, typename Quadrature>
-				requires eval::EvalQuadraturePoint<EvalQP, EvalEle> && eval::
+				requires eval::EvalQuadraturePointBoundary<EvalQP, EvalEle>
 				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
