@@ -38,7 +38,7 @@ protected:
 	std::unique_ptr<topology::TopologicalDOF> topoDOF2D;
 
 	// boundary registry
-	// fem::boundary::BoundaryRegistry bcRegistry;
+	fem::boundary::BoundaryRegistry bcRegistry;
 
 	// general type specification
 	using BackendType = linalg::types::backend::CPU;
@@ -49,26 +49,34 @@ protected:
 	// equation type specification
 	using EvalElement = fem::eval::PoissonEvalElement<BasisType, nsd>;
 	using EvalQuadraturePointVolume = fem::eval::PoissonEvalQuadraturePointVolume<EvalElement, BasisType, TransformType>;
-	// using EvalQuadraturePointBoundary = fem::eval::PoissonEvalQuadraturePointBoundary<EvalElement, BasisType, TransformType>;
+	using EvalQuadraturePointBoundary = fem::eval::PoissonEvalQuadraturePointBoundary<EvalElement, BasisType, TransformType>;
 	
+	// consitituitve models and diffusion form
 	using DefaultModel = fem::eval::PoissonDefaultModel<EvalQuadraturePointVolume>;
 	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePointVolume, nsd>;
 	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume, nsd>;
-	
+
+	// rhs source functions
 	static constexpr auto f = [](Real, const Real* x){ return x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, nsd, SourceFunction>;
-
-	/*
-	static constexpr auto g = [](Real, const Real*){ return 1.0; };
-	using PoissonDirichletBC2 = fem::eval::PoissonDirichletBC<nsd, decltype(g)>;
-	*/
-
-	/*
-	static constexpr auto h1 = [](Real, const Real*){ return 1.0; };
-	using FluxBoundaryForm = fem::
-	using PoissonNeumannBC1 = fem::eval::PoissonFluxBC<nsd, decltype(h1)>;
-	*/
+	
+	// specify bc functions
+	static constexpr auto g0 = [](Real, const Real*){ return 1.0; };
+	using PoissonDirichletBC0 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g0)>;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC0>> bc0;
+	
+	static constexpr auto g1 = [](Real, const Real*){ return 1.0; };
+	using PoissonDirichletBC1 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g1)>;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC1>> bc1;
+	
+	static constexpr auto h2 = [](Real, const Real*){ return 1.0; };
+	using PoissonFluxBC2 = fem::boundary::PoissonBoundaryFluxFunction<nsd, decltype(h2)>;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC2>> bc2;
+	
+	static constexpr auto g3 = [](Real, const Real*){ auto vec = std::make_unique<Real[]>(nsd); vec[0] = 1.0; vec[1] = 1.0; return vec; };
+	using PoissonDirichletBC3 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g3)>;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC3>> bc3;
 	
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;
@@ -89,16 +97,31 @@ protected:
 		
 		constantConductivityModel.conductivity = 1.0;
 		
-		/*
-		fem::boundary::BoundaryCondition<PoissonDirichletBC2> bc2;
-		bc2.tag = 2;
-		bc2.componentType[0] = fem::boundary::BCCategory::Essential;
-		bcRegistry.registerBC<PoissonDirichletBC2>(bc2);
-		*/
+		// Set and register boundary 0
+		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC0>>();
+		bc0->tag = 0;
+		bc0->componentType[0] = fem::boundary::BCCategory::Essential;
+		bcRegistry.registerBC<PoissonDirichletBC0>(*bc0);
+		
+		// Set and register boundary 1
+		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC1>>();
+		bc1->tag = 1;
+		bc1->componentType[0] = fem::boundary::BCCategory::Essential;
+		bcRegistry.registerBC<PoissonDirichletBC1>(*bc1);
+		
+		// Set and register boundary 2
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>();
+		bc2->tag = 2;
+		bc2->componentType[0] = fem::boundary::BCCategory::Natural;
+		bcRegistry.registerBC<PoissonFluxBC2>(*bc2);
+		
+		// Set and register boundary 3
+		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC3>>();
+		bc3->tag = 3;
+		bc3->componentType[0] = fem::boundary::BCCategory::Essential;
+		bcRegistry.registerBC<PoissonDirichletBC3>(*bc3);
 
-		/*
-		topoDOF2D->buildConstraints(bcRegistry);
-		*/
+		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
 
 	}
 };

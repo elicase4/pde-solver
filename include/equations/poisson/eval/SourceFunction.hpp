@@ -23,7 +23,7 @@ namespace pdesolver::fem::eval {
 
 		void evalGradient(const Real, const Real*, Real*) const {}
 
-	}; // struct PoissonSourceTerm
+	}; // struct PoissonSourceFunction
 
 } // namespace pdesolver::fem::eval
 

@@ -2,7 +2,7 @@
 #define POISSON_SOURCEFORM_HPP
 
 #include "fem/form/LinearForm.hpp"
-#include "equations/poisson/SourceFunction.hpp"
+#include "equations/poisson/eval/SourceFunction.hpp"
 
 namespace pdesolver::fem::form {
 
