@@ -1,19 +1,20 @@
 #ifndef POISSON_FLUXBOUNDARYFORM_HPP
 #define POISSON_FLUXBOUNDARYFORM_HPP
 
-#include "fem/form/LinearForm.hpp"
 #include "fem/boundary/BoundaryCondition.hpp"
+#include "fem/eval/EvalQuadraturePointBoundary.hpp"
+#include "fem/form/LinearForm.hpp"
 
 namespace pdesolver::fem::form {
 
-	template<typename QuadraturePointBoundary, Int SpatialDim, typename BoundaryFunction>
-	requires fem::boundary::BoundaryFunction<BFunction>
+	template<typename QuadraturePointBoundary, typename BoundaryCondition, typename Function, Int SpatialDim>
 	struct PoissonFluxBoundaryForm {
 		
-		BFunction source;
-		constexpr PoissonFluxBoundaryForm(BFunction src) : source(std::move(src)) {}
+		Function source;
 
-		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointVolume& qp, const Real*, Real* Fe) const {
+		constexpr PoissonFluxBoundaryForm(BoundaryCondition bc) : source(std::move(bc.f)) {}
+
+		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointBoundary& qp, const Real*, Real* Fe) const {
 			
 			Real val[1];
 			source.eval(qp.time, qp.x, val);

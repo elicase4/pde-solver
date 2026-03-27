@@ -66,7 +66,7 @@ protected:
 
 	/*
 	static constexpr auto h1 = [](Real, const Real*){ return 1.0; };
-	using FLuxBoundaryForm = fem::
+	using FluxBoundaryForm = fem::
 	using PoissonNeumannBC1 = fem::eval::PoissonFluxBC<nsd, decltype(h1)>;
 	*/
 	
