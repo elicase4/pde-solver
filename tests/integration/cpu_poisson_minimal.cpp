@@ -70,11 +70,11 @@ protected:
 	using PoissonDirichletBC1 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g1)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC1>> bc1;
 	
-	static constexpr auto h2 = [](Real, const Real*){ return 1.0; };
+	static constexpr auto h2 = [](Real, const Real*, Real* out){ out[0] = 1.0; out[1] = 1.0; };
 	using PoissonFluxBC2 = fem::boundary::PoissonBoundaryFluxFunction<nsd, decltype(h2)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC2>> bc2;
 	
-	static constexpr auto g3 = [](Real, const Real*){ auto vec = std::make_unique<Real[]>(nsd); vec[0] = 1.0; vec[1] = 1.0; return vec; };
+	static constexpr auto g3 = [](Real, const Real*){ return 1.0; };
 	using PoissonDirichletBC3 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g3)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC3>> bc3;
 	
@@ -98,33 +98,29 @@ protected:
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC0>>();
-		bc0->tag = 0;
-		bc0->componentType[0] = fem::boundary::BCCategory::Essential;
+		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC0>>(fem::boundary::BoundaryCondition<PoissonDirichletBC0>{0, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC0{g0}});
 		bcRegistry.registerBC<PoissonDirichletBC0>(*bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC1>>();
-		bc1->tag = 1;
-		bc1->componentType[0] = fem::boundary::BCCategory::Essential;
+		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC1>>(fem::boundary::BoundaryCondition<PoissonDirichletBC1>{1, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC1{g1}});
 		bcRegistry.registerBC<PoissonDirichletBC1>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>();
-		bc2->tag = 2;
-		bc2->componentType[0] = fem::boundary::BCCategory::Natural;
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>(fem::boundary::BoundaryCondition<PoissonFluxBC2>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC2{h2}});
 		bcRegistry.registerBC<PoissonFluxBC2>(*bc2);
 		
 		// Set and register boundary 3
-		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC3>>();
-		bc3->tag = 3;
-		bc3->componentType[0] = fem::boundary::BCCategory::Essential;
+		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC3>>(fem::boundary::BoundaryCondition<PoissonDirichletBC3>{3, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC3{g3}});
 		bcRegistry.registerBC<PoissonDirichletBC3>(*bc3);
 
 		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
 
 	}
 };
+
+TEST_F(CPUPOissonMinimal, TopoDOF){
+
+}
 
 TEST_F(CPUPoissonMinimal, KMatrix){
 

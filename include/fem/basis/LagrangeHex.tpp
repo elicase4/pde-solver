@@ -1,4 +1,4 @@
-namespace pdesolver::fem::basis{
+namespace pdesolver::fem::basis {
 
 // Implementation: eval
 template<Index Px, Index Py, Index Pz>
@@ -162,6 +162,8 @@ PDE_HOST PDE_DEVICE Index LagrangeHex<Px, Py, Pz>::nodesPerFace(const Int rngID)
 			return (Py + 1)*(Px + 1);
 		case 5:
 			return (Py + 1)*(Px + 1);
+		default:
+			return 0;
 	}
 }
 

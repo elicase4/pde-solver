@@ -132,6 +132,8 @@ PDE_HOST PDE_DEVICE Index LagrangeQuad<Px, Py>::nodesPerFace(const Int rngID){
 			return (Px + 1);
 		case 3:
 			return (Px + 1);
+		default:
+			return 0;
 	}
 }
 

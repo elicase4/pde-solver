@@ -4,6 +4,7 @@
 #include <cmath>
 #include <utility>
 
+#include "core/Types.hpp"
 #include "fem/eval/EvalFunction.hpp"
 
 namespace pdesolver::fem::boundary {
@@ -18,10 +19,7 @@ namespace pdesolver::fem::boundary {
 		constexpr PoissonBoundaryFluxFunction(Callable func) : f(std::move(func)) {}
 
 		void eval(const Real time, const Real* x, Real* outValue) const {
-			Real* out = f(time, x);
-			for (Index i = 0; i < SpatialDim; ++i){
-				outValue[i] = out[i];
-			}
+			f(time, x, outValue);
 		}
 
 		void evalGradient(const Real, const Real*, Real*) const {}

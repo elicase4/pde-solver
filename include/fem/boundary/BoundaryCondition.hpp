@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_BOUNDARYCONDITION_HPP
 #define PDESOLVER_BOUNDARYCONDITION_HPP
 
+#include <utility>
+
 #include "core/Types.hpp"
 
 namespace pdesolver {
@@ -24,8 +26,9 @@ namespace pdesolver {
 			template<typename Function>
 			struct BoundaryCondition {
 				
-				Int tag;
 				static constexpr Index NumComponents = Function::NumComponents;
+				
+				Int tag;
 				BCCategory componentType[NumComponents];
 				Function f;
 

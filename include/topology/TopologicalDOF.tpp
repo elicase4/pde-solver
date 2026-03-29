@@ -41,11 +41,11 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 			if (!mesh_.isOnBoundary(e,f)) continue;
 
 			// check for essential bcs
-			Int* tagPtr = mesh_.getBoundaryTag(e);
+			const Int* tagPtr = mesh_.getBoundaryTag(e);
 			Int tag = tagPtr[f];
 
 			// get face nodes
-			Index npf = Element::getNodesPerFace(f);
+			Index npf = Element::nodesPerFace(f);
 			Element::getFaceNodes(f, faceNodes);
 
 			// get element nodes
