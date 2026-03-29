@@ -57,16 +57,16 @@ protected:
 	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume, nsd>;
 
 	// rhs source functions
-	static constexpr auto f = [](Real, const Real* x){ return x[0]*x[1]; };
+	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, nsd, SourceFunction>;
 	
 	// specify bc functions
-	static constexpr auto g0 = [](Real, const Real*){ return 1.0; };
+	static constexpr auto g0 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
 	using PoissonDirichletBC0 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g0)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC0>> bc0;
 	
-	static constexpr auto g1 = [](Real, const Real*){ return 1.0; };
+	static constexpr auto g1 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
 	using PoissonDirichletBC1 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g1)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC1>> bc1;
 	
@@ -74,7 +74,7 @@ protected:
 	using PoissonFluxBC2 = fem::boundary::PoissonBoundaryFluxFunction<nsd, decltype(h2)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC2>> bc2;
 	
-	static constexpr auto g3 = [](Real, const Real*){ return 1.0; };
+	static constexpr auto g3 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
 	using PoissonDirichletBC3 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g3)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC3>> bc3;
 	
@@ -113,12 +113,68 @@ protected:
 		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC3>>(fem::boundary::BoundaryCondition<PoissonDirichletBC3>{3, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC3{g3}});
 		bcRegistry.registerBC<PoissonDirichletBC3>(*bc3);
 
+		// build algrebraic dofs after all boundaries are registered
 		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
 
 	}
 };
 
-TEST_F(CPUPOissonMinimal, TopoDOF){
+TEST_F(CPUPoissonMinimal, DOFHandling){
+
+	// Test topologicalDOF
+	EXPECT_EQ(topoDOF2D->dofsPerNode(), 1);
+	EXPECT_EQ(topoDOF2D->numGlobalDOFs(), 25);
+	EXPECT_EQ(topoDOF2D->numFreeDOFs(), 12);
+
+	// Test topological DOF to algebraic DOF mapping
+	for (Index i = 0; i <= 20; i+=5){
+		EXPECT_EQ(topoDOF2D->toAlgebraic(i), -1);
+	}
+	for (Index i = 4; i <= 24; i+=5){
+		EXPECT_EQ(topoDOF2D->toAlgebraic(i), -1);
+	}
+	for (Index i = 21; i <= 22; i++){
+		EXPECT_EQ(topoDOF2D->toAlgebraic(i), -1);
+	}
+	EXPECT_EQ(topoDOF2D->toAlgebraic(1),  0);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(2),  1);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(3),  2);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(6),  3);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(7),  4);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(8),  5);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(11), 6);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(12), 7);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(13), 8);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(16), 9);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(17), 10);
+	EXPECT_EQ(topoDOF2D->toAlgebraic(18), 11);
+
+	// Test algebraic DOF to topological DOF mapping
+	EXPECT_EQ(topoDOF2D->toTopological(0),  1);
+	EXPECT_EQ(topoDOF2D->toTopological(1),  2);
+	EXPECT_EQ(topoDOF2D->toTopological(2),  3);
+	EXPECT_EQ(topoDOF2D->toTopological(3),  6);
+	EXPECT_EQ(topoDOF2D->toTopological(4),  7);
+	EXPECT_EQ(topoDOF2D->toTopological(5),  8);
+	EXPECT_EQ(topoDOF2D->toTopological(6),  11);
+	EXPECT_EQ(topoDOF2D->toTopological(7),  12);
+	EXPECT_EQ(topoDOF2D->toTopological(8),  13);
+	EXPECT_EQ(topoDOF2D->toTopological(9),  16);
+	EXPECT_EQ(topoDOF2D->toTopological(10), 17);
+	EXPECT_EQ(topoDOF2D->toTopological(11), 18);
+
+	// Test constraint flag
+	EXPECT_TRUE(topoDOF2D->isConstrained(15));
+	EXPECT_TRUE(topoDOF2D->isConstrained(22));
+	EXPECT_TRUE(topoDOF2D->isConstrained(14));
+	EXPECT_FALSE(topoDOF2D->isConstrained(17));
+	EXPECT_FALSE(topoDOF2D->isConstrained(6));
+
+	// Test get constraint tag
+	EXPECT_EQ(topoDOF2D->getConstraintTag(10), 0);
+	EXPECT_EQ(topoDOF2D->getConstraintTag(15), 0);
+	EXPECT_EQ(topoDOF2D->getConstraintTag(21), 3);
+	EXPECT_EQ(topoDOF2D->getConstraintTag(9), 1);
 
 }
 

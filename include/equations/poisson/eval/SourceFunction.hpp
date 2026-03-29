@@ -18,7 +18,7 @@ namespace pdesolver::fem::eval {
 		constexpr PoissonSourceFunction(Callable func) : f(std::move(func)) {}
 
 		void eval(const Real time, const Real* x, Real* outValue) const {
-			outValue[0] = f(time, x);
+			f(time, x, outValue);
 		}
 
 		void evalGradient(const Real, const Real*, Real*) const {}
