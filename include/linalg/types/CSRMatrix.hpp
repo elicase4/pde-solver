@@ -40,6 +40,15 @@ namespace pdesolver {
 				const Index* colIdx() const { return colIdx_.get(); }
 				T* data() { return data_.get(); }
 				const T* data() const { return data_.get(); }
+				
+				Index getDataIndex(Index i, Index j){
+					for (Index p = rowPtr_.get()[i]; p < rowPtr_.get()[i+1]; ++p){
+						if (colIdx_.get()[p] == j){
+							return p;
+						}
+					}
+					return 0;
+				}
 
 				// Zero-out data
 				void zero(){

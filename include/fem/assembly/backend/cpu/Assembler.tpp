@@ -122,7 +122,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*(topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+					Ue.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -154,22 +154,15 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 
-					Index rowStart = K.rowPtr()[AdofIDi];
-					Index rowEnd = K.rowPtr()[AdofIDi + 1];
-					
 					for (Index k = 0; k < EvalEle::NodesPerElement; ++k){
 						for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 					
 							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
 							if (topoDOF.isConstrained(TdofIDk)) continue;
 							Index AdofIDk = topoDOF.toAlgebraic(TdofIDk);
+							Index p = K.getDataIndex(AdofIDi, AdofIDk);
 							
-							for (Index p = rowStart; p < rowEnd; ++p){
-								if (K.colIdx()[p] == AdofIDk){
-									K.data()[p] += Ke.data()[(i*topoDOF.dofsPerNode() + j)*(EvalEle::NodesPerElement * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
-									break;
-								}
-							}
+							K.data()[p] += Ke.data()[(i*topoDOF.dofsPerNode() + j)*(EvalEle::NodesPerElement * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
 
 						}
 					}
@@ -224,7 +217,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*(topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+					Ue.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -256,7 +249,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] += Fe.data()[i*(topoDOF.dofsPerNode()) + j];
+					F.data()[AdofIDi] += Fe.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j];
 
 				}
 			}
