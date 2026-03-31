@@ -26,10 +26,10 @@ namespace pdesolver {
 			template<typename Function>
 			struct BoundaryCondition {
 				
-				static constexpr Index NumComponents = Function::NumComponents;
+				static constexpr Index numComponents = Function::NumComponents();
 				
 				Int tag;
-				BCCategory componentType[NumComponents];
+				BCCategory componentType[numComponents];
 				Function f;
 
 			}; // struct BoundaryCondition

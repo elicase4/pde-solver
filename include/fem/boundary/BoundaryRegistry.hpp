@@ -19,7 +19,7 @@ namespace pdesolver {
 
 					virtual Int tag() const = 0;
 					virtual Index numComponents() const = 0;
-
+					
 					virtual BCCategory componentType(Index c) const = 0;
 
 					virtual void eval(Real time, const Real* x, Real* out) const = 0;
@@ -38,7 +38,7 @@ namespace pdesolver {
 					}
 
 					Index numComponents() const override {
-						return bc.NumComponents;
+						return bc.numComponents;
 					}
 
 					BCCategory componentType(Index c) const override {

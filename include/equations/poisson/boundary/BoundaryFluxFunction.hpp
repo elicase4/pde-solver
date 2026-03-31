@@ -9,10 +9,10 @@
 
 namespace pdesolver::fem::boundary {
 
-	template<Int SpatialDim, class Callable>
+	template<Index SpatialDim, Index numDOFs, class Callable>
 	struct PoissonBoundaryFluxFunction {
 
-		static constexpr Index NumComponents = SpatialDim;
+		static constexpr Index NumComponents = numDOFs;
 
 		Callable f;
 

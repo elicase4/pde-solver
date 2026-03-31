@@ -58,24 +58,24 @@ protected:
 
 	// rhs source functions
 	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = x[0]*x[1]; };
-	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, decltype(f)>;
+	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, numDOFs, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, nsd, SourceFunction>;
-	
+
 	// specify bc functions
 	static constexpr auto g0 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
-	using PoissonDirichletBC0 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g0)>;
+	using PoissonDirichletBC0 = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g0)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC0>> bc0;
 	
 	static constexpr auto g1 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
-	using PoissonDirichletBC1 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g1)>;
+	using PoissonDirichletBC1 = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g1)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC1>> bc1;
 	
 	static constexpr auto h2 = [](Real, const Real*, Real* out){ out[0] = 1.0; out[1] = 1.0; };
-	using PoissonFluxBC2 = fem::boundary::PoissonBoundaryFluxFunction<nsd, decltype(h2)>;
+	using PoissonFluxBC2 = FluxFunctionType<nsd, numDOFs, decltype(h2)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC2>> bc2;
 	
 	static constexpr auto g3 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
-	using PoissonDirichletBC3 = fem::boundary::PoissonBoundaryValueFunction<nsd, decltype(g3)>;
+	using PoissonDirichletBC3 = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g3)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC3>> bc3;
 	
 	// declare assembler
@@ -106,7 +106,7 @@ protected:
 		bcRegistry.registerBC<PoissonDirichletBC1>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>(fem::boundary::BoundaryCondition<PoissonFluxBC2>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC2{h2}});
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>(fem::boundary::BoundaryCondition<PoissonFluxBC2>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC2{h2});
 		bcRegistry.registerBC<PoissonFluxBC2>(*bc2);
 		
 		// Set and register boundary 3
