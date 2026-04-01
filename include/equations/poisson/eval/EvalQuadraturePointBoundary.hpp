@@ -5,15 +5,14 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename Element, typename Basis, typename Geometry, typename Function>
+	template<typename Element, typename Basis, typename Geometry>
 	class PoissonEvalQuadraturePointBoundary {
 	public:
 
 		Element element;
 		Int faceID;
-		BoundaryCondition bc;
 
-		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int rngID, const BoundaryCondition<Function>& bcIn) : element(elem), faceID(rngID), bc(bcIn) {}
+		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int rngID) : element(elem), faceID(rngID) {}
 
 		// dimensions
 		static constexpr Index NodesPerFace = Element::NodesPerFace;
@@ -45,9 +44,6 @@ namespace pdesolver::fem::eval {
 		Index tangentID[ParametricDim - 1];
 		Real nCoeff;
 
-		// flux function output
-		Real fluxVal[SpatialDim];
-
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 			
 			// set quad info
@@ -65,9 +61,6 @@ namespace pdesolver::fem::eval {
 			Geometry::mapToPhysical(coords, N, x);
 			Geometry::computeJacobian(coords, dNdxi, J);
 			Geometry::computeNormal(J, tangentID, nCoeff, normal);
-
-			// evaluate flux function
-			bc.f.eval(time, x, fluxVal);
 
 		}
 

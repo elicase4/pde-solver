@@ -5,22 +5,22 @@
 
 namespace pdesolver::fem::eval {
 
-	template<typename QuadraturePoint, Index SpatialDim>
+	template<typename QuadraturePointVolume>
 	struct PoissonConstantConductivityModel {
 		
 		Real conductivity;
 		
-		void eval(QuadraturePoint& qp) const {
+		void eval(QuadraturePointVolume& qp) const {
 			
-			for (Index i = 0; i < SpatialDim; ++i){
-				for (Index j = 0; j < SpatialDim; ++j){
-					qp.K[i*SpatialDim + j] = (i==j) ? conductivity : 0.0;
+			for (Index i = 0; i < qp.SpatialDim; ++i){
+				for (Index j = 0; j < qp.SpatialDim; ++j){
+					qp.K[i*qp.SpatialDim + j] = (i==j) ? conductivity : 0.0;
 				}
 			}
 
 		}
 
-		void evalGradient(QuadraturePoint&) const {}
+		void evalGradient(QuadraturePointVolume&) const {}
 		
 	}; // struct PoissonConstantConductivityModel
 

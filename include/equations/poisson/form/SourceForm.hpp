@@ -6,21 +6,23 @@
 
 namespace pdesolver::fem::form {
 
-	template<typename QuadraturePointVolume, Int SpatialDim, typename SourceFunction>
+	template<typename QuadraturePointVolume, typename SourceFunction>
 	requires fem::eval::EvalFunction<SourceFunction>
 	struct PoissonSourceForm {
 		
-		SourceFunction source;
-		constexpr PoissonSourceForm(SourceFunction src) : source(std::move(src)) {}
+		SourceFunction sourceFunction;
+		constexpr PoissonSourceForm(SourceFunction src) : sourceFunction(std::move(src)) {}
 
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointVolume& qp, const Real*, Real* Fe) const {
 			
-			Real val[1];
-			source.eval(qp.time, qp.x, val);
+			Real val[SourceFunction::NumComponents];
+			sourceFunction.eval(qp.time, qp.x, val);
 
 			// element vector assembly contribution
-			for (Index a = 0; a < qp.NodesPerElement; ++a){
-				Fe[a] += (val[0] * qp.N[a]) * qp.measure * qp.w;
+			for (Index i = 0; i < SourceFunction::NumComponents; ++i) {
+				for (Index a = 0; a < qp.NodesPerElement; ++a){
+					Fe[a*SourceFunction::NumComponents + i] += (val[i] * qp.N[a]) * qp.measure * qp.w;
+				}
 			}
 		}
 

@@ -5,7 +5,7 @@
 
 namespace pdesolver::fem::form {
 
-	template<typename QuadraturePointVolume, Index SpatialDim>
+	template<typename QuadraturePointVolume>
 	struct PoissonDiffusionForm {
 
 		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, const Real*, Real* Ke){
@@ -17,12 +17,12 @@ namespace pdesolver::fem::form {
 				for (Index b = 0; b < qp.NodesPerElement; ++b){
 					
 					integrand = 0.0;
-					for (Index sDi = 0; sDi < SpatialDim; ++sDi){
+					for (Index sDi = 0; sDi < qp.SpatialDim; ++sDi){
 						matvecprod = 0.0;
-						for (Index sDj = 0; sDj < SpatialDim; ++sDj){
-							matvecprod += qp.K[sDi*SpatialDim + sDj] * qp.dNdx[b*SpatialDim + sDj];
+						for (Index sDj = 0; sDj < qp.SpatialDim; ++sDj){
+							matvecprod += qp.K[sDi*qp.SpatialDim + sDj] * qp.dNdx[b*qp.SpatialDim + sDj];
 						}
-						integrand += qp.dNdx[a*SpatialDim + sDi] * matvecprod;
+						integrand += qp.dNdx[a*qp.SpatialDim + sDi] * matvecprod;
 					}
 
 					Ke[a * qp.NodesPerElement + b] += integrand * qp.measure * qp.w;
@@ -39,12 +39,12 @@ namespace pdesolver::fem::form {
 				for (Index b = 0; b < qp.NodesPerElement; ++b){
 					
 					integrand = 0.0;
-					for (Index sDi = 0; sDi < SpatialDim; ++sDi){
+					for (Index sDi = 0; sDi < qp.SpatialDim; ++sDi){
 						matvecprod = 0.0;
-						for (Index sDj = 0; sDj < SpatialDim; ++sDj){
-							matvecprod += qp.K[sDi*SpatialDim + sDj] * qp.dNdx[b*SpatialDim + sDj];
+						for (Index sDj = 0; sDj < qp.SpatialDim; ++sDj){
+							matvecprod += qp.K[sDi*qp.SpatialDim + sDj] * qp.dNdx[b*qp.SpatialDim + sDj];
 						}
-						integrand += qp.dNdx[a*SpatialDim + sDi] * matvecprod;
+						integrand += qp.dNdx[a*qp.SpatialDim + sDi] * matvecprod;
 					}
 					
 					Oe[a] += integrand * Ue[b] * qp.measure * qp.w;

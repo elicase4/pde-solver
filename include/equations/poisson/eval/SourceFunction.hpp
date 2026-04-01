@@ -8,10 +8,11 @@
 
 namespace pdesolver::fem::eval {
 
-	template<Int SpatialDim, Int numDOFs, class Callable>
+	template<Int SpatialDimension, Int numDOFs, class Callable>
 	struct PoissonSourceFunction {
 
 		static constexpr Index NumComponents = numDOFs;
+		static constexpr Index SpatialDim = SpatialDimension;
 
 		Callable f;
 

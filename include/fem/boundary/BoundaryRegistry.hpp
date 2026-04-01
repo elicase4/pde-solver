@@ -38,7 +38,7 @@ namespace pdesolver {
 					}
 
 					Index numComponents() const override {
-						return bc.numComponents;
+						return bc.NumComponents;
 					}
 
 					BCCategory componentType(Index c) const override {

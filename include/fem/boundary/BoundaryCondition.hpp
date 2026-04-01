@@ -18,7 +18,7 @@ namespace pdesolver {
 			template<typename Function>
 			concept BoundaryFunction = requires (const Function f, const Real time, const Real* x, Real* outValue) {
 				
-				{ Function::NumComponents() } -> std::convertible_to<Index>;
+				{ Function::NumComponents } -> std::convertible_to<Index>;
 				{ f.eval(time, x, outValue) } -> std::same_as<void>;
 
 			}; // concept BoundaryFunction
@@ -26,10 +26,10 @@ namespace pdesolver {
 			template<typename Function>
 			struct BoundaryCondition {
 				
-				static constexpr Index numComponents = Function::NumComponents();
+				static constexpr Index NumComponents = Function::NumComponents;
 				
 				Int tag;
-				BCCategory componentType[numComponents];
+				BCCategory componentType[Function::NumComponents];
 				Function f;
 
 			}; // struct BoundaryCondition

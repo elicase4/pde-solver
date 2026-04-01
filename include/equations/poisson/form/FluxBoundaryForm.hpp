@@ -7,15 +7,23 @@
 
 namespace pdesolver::fem::form {
 
-	template<typename QuadraturePointBoundary, Int SpatialDim>
+	template<typename QuadraturePointBoundary, typename FluxFunction>
 	struct PoissonFluxBoundaryForm {
+
+		FluxFunction fluxFunction;
+		constexpr PoissonFluxBoundaryForm(FluxFunction src) : fluxFunction(std::move(src)) {}
 		
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointBoundary& qp, const Real*, Real* Fe) const {
-			
+		
+			Real val[FluxFunction::SpatialDim * FluxFunction::NumComponents];
+			fluxFunction.eval(qp.time, qp.x, val);
+
 			// element vector assembly contribution
-			for (Index a = 0; a < qp.NodesPerFace; ++a){
-				for (Index i = 0; i < SpatialDim; ++i){
-					Fe[a] += (qp.fluxVal[i] * qp.N[a]) * qp.normal[i] * qp.w;
+			for (Index i = 0; i < FluxFunction::NumComponents; ++i) {
+				for (Index a = 0; a < qp.NodesPerFace; ++a){
+					for (Index sD = 0; sD < FluxFunction::SpatialDim; ++sD){
+						Fe[a * FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.N[a]) * qp.normal[sD] * qp.w;
+					}
 				}
 			}
 		}

@@ -53,13 +53,13 @@ protected:
 	
 	// consitituitve models and diffusion form
 	using DefaultModel = fem::eval::PoissonDefaultModel<EvalQuadraturePointVolume>;
-	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePointVolume, nsd>;
-	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume, nsd>;
+	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePointVolume>;
+	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume>;
 
 	// rhs source functions
 	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, numDOFs, decltype(f)>;
-	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, nsd, SourceFunction>;
+	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
 	// specify bc functions
 	static constexpr auto g0 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
@@ -71,7 +71,7 @@ protected:
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC1>> bc1;
 	
 	static constexpr auto h2 = [](Real, const Real*, Real* out){ out[0] = 1.0; out[1] = 1.0; };
-	using PoissonFluxBC2 = FluxFunctionType<nsd, numDOFs, decltype(h2)>;
+	using PoissonFluxBC2 = fem::boundary::PoissonBoundaryFluxFunction<nsd, numDOFs, decltype(h2)>;
 	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC2>> bc2;
 	
 	static constexpr auto g3 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
@@ -106,7 +106,7 @@ protected:
 		bcRegistry.registerBC<PoissonDirichletBC1>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>(fem::boundary::BoundaryCondition<PoissonFluxBC2>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC2{h2});
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>(fem::boundary::BoundaryCondition<PoissonFluxBC2>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC2{h2}});
 		bcRegistry.registerBC<PoissonFluxBC2>(*bc2);
 		
 		// Set and register boundary 3
