@@ -24,11 +24,11 @@ namespace pdesolver {
 			class BoundaryApplicator {
 			public:
 				
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Basis, typename Form, typename Model>
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Model, typename Quadrature, typename Function>
 				requires eval::EvalModel<Model, EvalQP> && eval::EvalQuadraturePointVolume<EvalQP, EvalEle>
 				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, Backend>& F);
 				
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Basis, typename Form, typename Quadrature>
+				template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature, typename Basis>
 				requires eval::EvalQuadraturePointBoundary<EvalQP, EvalEle>
 				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, Backend>& F);
 
@@ -38,7 +38,7 @@ namespace pdesolver {
 	} // namespace fem
 } // namespace pdesolver
 
-//#include "backend/cpu/BoundaryApplicator.tpp"
+#include "backend/cpu/BoundaryApplicator.tpp"
 //#include "backend/cuda/BoundaryApplicator.tpp"
 
 #endif

@@ -94,17 +94,15 @@ namespace pdesolver {
 				}
 
 				template<typename Function>
-				std::vector<const BoundaryCondition<Function>*> getBCs(Int tag) const {
+				const BoundaryCondition<Function> getBC(Int tag) const {
 					
-					std::vector<const BoundaryCondition<Function>*> result;
-
 					for (const auto& bc : entries_) {
 						if (bc->tag() == tag) {
-							result.push_back(&bc);
+							return bc;
 						}
 					}
 
-					return result;
+					return nullptr;
 				}
 
 			private:

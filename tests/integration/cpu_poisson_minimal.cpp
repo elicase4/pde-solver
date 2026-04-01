@@ -30,8 +30,7 @@ protected:
 	static constexpr Index npd = 2;
 	static constexpr Index Px = 1;
 	static constexpr Index Py = 1;
-	static constexpr Index Qx = 2;
-	static constexpr Index Qy = 2;
+	static constexpr Index numQuadPoint = 2;
 	
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
@@ -42,7 +41,8 @@ protected:
 
 	// general type specification
 	using BackendType = linalg::types::backend::CPU;
-	using QuadratureType = fem::quadrature::GaussQuadratureQuad<Qx, Qy>;
+	using QuadratureVolumeType = fem::quadrature::GaussQuadratureQuad<numQuadPoint, numQuadPoint>;
+	using QuadratureBoundaryType = fem::quadrature::GaussQuadrature1D<numQuadPoint>;
 	using BasisType = fem::basis::LagrangeQuad<Px, Py>;
 	using TransformType = fem::geometry::JacobianTransform<nsd, npd, BasisType::NodesPerElement>; 
 	
@@ -62,56 +62,59 @@ protected:
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
 	// specify bc functions
-	static constexpr auto g0 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
-	using PoissonDirichletBC0 = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g0)>;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC0>> bc0;
+	static constexpr auto g = [](Real, const Real*, Real* out){ out[0] = 1.0; };
+	using PoissonDirichletBC = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g)>;
 	
-	static constexpr auto g1 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
-	using PoissonDirichletBC1 = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g1)>;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC1>> bc1;
-	
-	static constexpr auto h2 = [](Real, const Real*, Real* out){ out[0] = 1.0; out[1] = 1.0; };
-	using PoissonFluxBC2 = fem::boundary::PoissonBoundaryFluxFunction<nsd, numDOFs, decltype(h2)>;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC2>> bc2;
-	
-	static constexpr auto g3 = [](Real, const Real*, Real* out){ out[0] = 1.0; };
-	using PoissonDirichletBC3 = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g3)>;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC3>> bc3;
+	static constexpr auto h = [](Real, const Real*, Real* out){ out[0] = 1.0; out[1] = 1.0; };
+	using PoissonFluxBC = fem::boundary::PoissonBoundaryFluxFunction<nsd, numDOFs, decltype(h)>;
+	using FluxForm = fem::form::PoissonFluxBoundaryForm<EvalQuadraturePointBoundary, PoissonFluxBC>;
 	
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;
+
+	// declare bc applicator
+	fem::boundary::BoundaryApplicator<BackendType> bcApplicator;
 
 	// declare model
 	DefaultModel defaultModel;
 	ConductivityModel constantConductivityModel;
 
+	// declare bcs
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc0;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc1;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC>> bc2;
+	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc3;
+
 	// SetUp method
 	void SetUp() override {
 		
+		// build 2D block mesh
 		mesh2D.initializeData();
 		mesh2D.generateNodes();
 		mesh2D.generateElements();
 		mesh2D.generateBoundaryTags();
-	
+		
+		// create topological DOF manager
 		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs);
 		
+		// set conductivity model parameters
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC0>>(fem::boundary::BoundaryCondition<PoissonDirichletBC0>{0, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC0{g0}});
-		bcRegistry.registerBC<PoissonDirichletBC0>(*bc0);
+		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{0, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
+		bcRegistry.registerBC<PoissonDirichletBC>(*bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC1>>(fem::boundary::BoundaryCondition<PoissonDirichletBC1>{1, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC1{g1}});
-		bcRegistry.registerBC<PoissonDirichletBC1>(*bc1);
+		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{1, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
+		bcRegistry.registerBC<PoissonDirichletBC>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC2>>(fem::boundary::BoundaryCondition<PoissonFluxBC2>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC2{h2}});
-		bcRegistry.registerBC<PoissonFluxBC2>(*bc2);
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC>>(fem::boundary::BoundaryCondition<PoissonFluxBC>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC{h}});
+		bcRegistry.registerBC<PoissonFluxBC>(*bc2);
 		
 		// Set and register boundary 3
-		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC3>>(fem::boundary::BoundaryCondition<PoissonDirichletBC3>{3, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC3{g3}});
-		bcRegistry.registerBC<PoissonDirichletBC3>(*bc3);
+		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{3, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
+		bcRegistry.registerBC<PoissonDirichletBC>(*bc3);
 
 		// build algrebraic dofs after all boundaries are registered
 		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
@@ -191,7 +194,7 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
 }
 
@@ -208,16 +211,23 @@ TEST_F(CPUPoissonMinimal, OVector){
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
+	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
 }
 
 TEST_F(CPUPoissonMinimal, FVector){
 	
-	// form
-	SourceFunction source(f);
-	SourceForm sourceForm(source);
+	// diffusion form
+	DiffusionForm diffusionForm;
 
+	// source form
+	SourceFunction sourceFunction(f);
+	SourceForm sourceForm(sourceFunction);
+
+	// flux form
+	PoissonFluxBC fluxFunction(h);
+	FluxForm fluxForm(fluxFunction);
+	
 	// arbitrary time
 	Real t = 0.0;
 	
@@ -226,6 +236,18 @@ TEST_F(CPUPoissonMinimal, FVector){
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
+	// test before bc application
+	
+	// apply natural bcs
+	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType, BasisType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
+
+	// tests after applying natural bcs
+	
+	// apply essential bcs
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	
+	// tests after applying essential bcs
+	
 }

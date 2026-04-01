@@ -1,11 +1,11 @@
 namespace pdesolver::fem::boundary {
 
 template<>
-class BoundaryApplicator<linalg::types::backend::CPU>
+class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 	
-	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Basis, typename Model>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form&form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Model, typename Quadrature, typename Function>
+	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
 		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
@@ -37,35 +37,63 @@ public:
 
 			}
 
-			// gather G into Ge
+			// get element data
+			EvalEle evalE;
+			evalE.bindElement(nodeCoords, time);
+			
+			// qp data
+			EvalQP qp(evalE);
+			Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
+			Real w[Quadrature::NumPointsTotal];
+			Quadrature::getPoints(xi);
+			Quadrature::getWeights(w);
+			
+			// fill Ge
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
-				// fix this loop to compensate for bcs with multiple dof components
+				
+				Real bcVal[BoundaryCondition<Function>::NumComponents];
+				Int rngTag;
+				
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					Int rngTag;
-					if (topoDOF.isConstrained(TdofIDi){
+					if (topoDOF.isConstrained(TdofIDi)) {
 						rngTag = topoDOF.getConstraintTag(TdofIDi);
 					} else {
 						continue;
 					}
 					
+					// extract and evaluate boundary value function
+					const BoundaryCondition<Function> bc = bcRegistry.getBC<Function>(rngTag);
+					bc.f.eval(qp.time, qp.x, bcVal);
+					
 					if (bcRegistry.isEssential(rngTag, j)){
 						
-						auto BoundaryConditions bcRegistry.getBCs(rngTag);
-
-						for (auto& BoundaryCondition : BoundaryConditions){
-				
-							Real outValue[BoundaryCondition.f.NumComponents()];
-							BoundaryCondition.f.eval(time, &nodeCoords[i*EvalEle::NodesPerElement], outValue);
-							
-							for (k = 0; k < BoundaryCondition.f.NumComponents(); ++k){
-								Ge.data()[i*(EvalElel::NodesPErElement*topoDOF.dofsPerNode()) + j + k] = outValue[k];
-							}
-
-						}
+						Ge.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j] = bcVal[j];
 					
 					}
+
+				}
+
+			}
+
+			// quadrature loop
+			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
+				model.eval(qp);
+				model.evalGradient(qp);
+				form.computeElementLevelVector(qp, Ge.data(), Fe.data());
+			}
+			
+			// scatter Fe into F
+			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
+				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
+					
+					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
+					if (topoDOF.isConstrained(TdofIDi)) continue;
+					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
+					
+					F.data()[AdofIDi] -= Fe.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j];
 
 				}
 			}
@@ -74,7 +102,7 @@ public:
 
 	}
 
-	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Basis, typename Quadrature>
+	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature, typename Basis>
 	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
@@ -96,7 +124,7 @@ public:
 				Int rngTag = rngTags[f];
 				const Index nodesPerFace = Basis::nodesPerFace(rngTag);
 
-				Real faceNodeCoords[EvalEle::SpatialDim * nodesPerFace]
+				Real faceNodeCoords[EvalEle::SpatialDim * nodesPerFace];
 				Index faceNodeIDs[nodesPerFace];
 				Basis::getFaceNodes(rngTag, faceNodeIDs);
 
@@ -110,17 +138,15 @@ public:
 				
 				}
 
-				auto BoundaryConditions bcRegistry.getBCs(rngTag);
+				for (Index i = 0; i < nodesPerFace; ++i){
 					
-				if (bcRegistry.isNatural(rngTag)){
+					for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 
-					for (Index i = 0; i < nodesPerFace; ++i){
-						
-						for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
-
+						if (bcRegistry.isNatural(rngTag, j)){
+							
 							Index TdofIDi = topoDOF.getNodeDOF(faceNodeIDs[i], j);
 							Index AdofIDi;
-							if (topoDOF.isConstrained(TdofID) {
+							if (topoDOF.isConstrained(TdofIDi)) {
 								continue;
 							} else {
 								AdofIDi = topoDOF.toAlgebraic(TdofIDi);
@@ -131,7 +157,7 @@ public:
 							evalE.bindElement(faceNodeCoords, time);
 							
 							// qp data
-							EvalQP qp(EvalE, rngTag, BoundaryConditions[j].f);
+							EvalQP qp(evalE, rngTag);
 							Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
 							Real w[Quadrature::NumPointsTotal];
 							Quadrature::getPoints(xi);
@@ -149,25 +175,27 @@ public:
 						
 				}
 
-			}
-				
-		}
-
-			// scatter Fe into F
-			for (Index i = 0; i < NodesPerFace; ++i){
-				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
+				// scatter Fe into F
+				for (Index i = 0; i < nodesPerFace; ++i){
 					
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) continue;
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-					
-					F.data()[AdofIDi] += Fe.data()[i*(nodesPerFace*topoDOF.dofsPerNode()) + j];
+					for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
+						
+						Index TdofIDi = topoDOF.getNodeDOF(faceNodeIDs[i], j);
+						if (topoDOF.isConstrained(TdofIDi)) continue;
+						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
+						
+						F.data()[AdofIDi] += Fe.data()[i*(nodesPerFace*topoDOF.dofsPerNode()) + j];
 
+					}
 				}
+			
 			}
 		
 		}
 
+		
 	}
+
+}; // class BoundaryApplicator
 
 } // namespace pdesolver::fem::boundary
