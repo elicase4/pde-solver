@@ -8,7 +8,7 @@ namespace pdesolver {
 	namespace fem {
 		namespace eval {
 
-			template<typename QuadraturePointVolume, typename Element>
+			template<typename QuadraturePointVolume, typename Element, typename Basis, typename Geometry>
 			concept EvalQuadraturePointVolume = requires(const QuadraturePointVolume qp, const Element& elem, const Real* xi, const Real w) {
 
 				{ QuadraturePointVolume::SpatialDim } -> std::convertible_to<Index>;

@@ -19,13 +19,14 @@ namespace pdesolver::fem::form {
 			fluxFunction.eval(qp.time, qp.x, val);
 
 			// element vector assembly contribution
-			for (Index i = 0; i < FluxFunction::NumComponents; ++i) {
-				for (Index a = 0; a < qp.NodesPerFace; ++a){
+			for (Index a = 0; a < QuadraturePointBoundary::NodesPerFace(qp.faceID); ++a){
+				for (Index i = 0; i < FluxFunction::NumComponents; ++i) {
 					for (Index sD = 0; sD < FluxFunction::SpatialDim; ++sD){
 						Fe[a * FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.N[a]) * qp.normal[sD] * qp.w;
 					}
 				}
 			}
+
 		}
 
 	};// struct PoissonFluxBoundaryForm

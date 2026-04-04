@@ -43,12 +43,10 @@ namespace pdesolver {
 				
 				// matrix assembly
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalQuadraturePointVolume<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
 				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
 				
 				// vector assembly
 				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				requires eval::EvalQuadraturePointVolume<EvalQP, EvalEle> && eval::EvalModel<Model, EvalQP>
 				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler

@@ -15,9 +15,18 @@ namespace pdesolver::fem::eval {
 		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int rngID) : element(elem), faceID(rngID) {}
 
 		// dimensions
-		static constexpr Index NodesPerFace = Element::NodesPerFace;
+		static constexpr Index NodesPerElement = Element::NodesPerElement;
 		static constexpr Int SpatialDim = Element::SpatialDim;
 		static constexpr Int ParametricDim = Element::ParametricDim;
+
+		// helper functions
+		static Index NodesPerFace(const Int rngID){
+			return Basis::nodesPerFace(rngID);
+		}
+	
+		static void getFaceNodes(const Int rngID, Index* nodeIDs){
+			Basis::getFaceNodes(rngID, nodeIDs);
+		}
 	
 		// parent element attributes
 		const Real time = element.t;
@@ -31,10 +40,10 @@ namespace pdesolver::fem::eval {
 		Real w;
 
 		// ref basis values
-		Real N[NodesPerFace];
+		Real N[Element::NodesPerElement];
 
 		// ref gradients
-		Real dNdxi[ParametricDim*NodesPerFace];
+		Real dNdxi[ParametricDim*Element::NodesPerElement];
 
 		// normal vector
 		Real normal[SpatialDim];

@@ -241,7 +241,7 @@ TEST_F(CPUPoissonMinimal, FVector){
 	// test before bc application
 	
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType, BasisType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
+	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
 
 	// tests after applying natural bcs
 	

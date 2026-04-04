@@ -25,7 +25,7 @@ namespace pdesolver {
 					virtual void eval(Real time, const Real* x, Real* out) const = 0;
 				
 				}; // struct BCEntryBase
-
+				
 				template<typename Function>
 				struct BCEntry : BCEntryBase {
 
@@ -91,18 +91,6 @@ namespace pdesolver {
 					}
 
 					return false;
-				}
-
-				template<typename Function>
-				const BoundaryCondition<Function> getBC(Int tag) const {
-					
-					for (const auto& bc : entries_) {
-						if (bc->tag() == tag) {
-							return bc;
-						}
-					}
-
-					return nullptr;
 				}
 
 			private:

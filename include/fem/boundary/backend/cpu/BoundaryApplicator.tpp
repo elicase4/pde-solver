@@ -64,8 +64,11 @@ public:
 					}
 					
 					// extract and evaluate boundary value function
-					const BoundaryCondition<Function> bc = bcRegistry.getBC<Function>(rngTag);
-					bc.f.eval(qp.time, qp.x, bcVal);
+					for (const auto& entry: bcRegistry.entries()){
+						if (entry->tag() != rngTag) continue;
+						if (entry->componentType(j) != BCCategory::Essential) continue;
+						entry->eval(qp.time, qp.x, bcVal);
+					}
 					
 					if (bcRegistry.isEssential(rngTag, j)){
 						
@@ -102,7 +105,7 @@ public:
 
 	}
 
-	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature, typename Basis>
+	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
 	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
@@ -122,11 +125,11 @@ public:
 				
 				// get face rng tag
 				Int rngTag = rngTags[f];
-				const Index nodesPerFace = Basis::nodesPerFace(rngTag);
+				const Index nodesPerFace = EvalQP::NodesPerFace(rngTag);
 
-				Real faceNodeCoords[EvalEle::SpatialDim * nodesPerFace];
-				Index faceNodeIDs[nodesPerFace];
-				Basis::getFaceNodes(rngTag, faceNodeIDs);
+				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement];
+				Index faceNodeIDs[EvalQP::NodesPerElement];
+				EvalQP::getFaceNodes(rngTag, faceNodeIDs);
 
 				// extract face coordinates
 				for (Index i = 0; i < nodesPerFace; ++i){
@@ -144,14 +147,6 @@ public:
 
 						if (bcRegistry.isNatural(rngTag, j)){
 							
-							Index TdofIDi = topoDOF.getNodeDOF(faceNodeIDs[i], j);
-							Index AdofIDi;
-							if (topoDOF.isConstrained(TdofIDi)) {
-								continue;
-							} else {
-								AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-							}
-
 							// get element data
 							EvalEle evalE;
 							evalE.bindElement(faceNodeCoords, time);
@@ -166,7 +161,7 @@ public:
 							// quadrature loop
 							for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 								qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
-								form.computeElementLevelVector(qp, Fe.data());
+								form.computeElementLevelVector(qp, Fe.data(), Fe.data());
 							}
 
 						}
