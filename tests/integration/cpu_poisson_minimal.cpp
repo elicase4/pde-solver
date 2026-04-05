@@ -196,6 +196,11 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	// call assembly for system matrix
 	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
+	// test tolerance
+	const Real tol = 1e-10;
+
+	// tests for system matrix
+	EXPECT_NEAR(K.data()[K.getDataIndex(0,0)], 4.0/3.0, tol); // topoDOF = (1,0)
 }
 
 TEST_F(CPUPoissonMinimal, OVector){
@@ -213,6 +218,7 @@ TEST_F(CPUPoissonMinimal, OVector){
 	// call assembly for system matrix
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
+	// tests for system matrix
 }
 
 TEST_F(CPUPoissonMinimal, FVector){
