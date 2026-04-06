@@ -55,6 +55,7 @@ namespace pdesolver::fem::eval {
 
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 			
+			// TODO: add basis function to extract pd component for a face based on faceID
 			// set quad info (need to add missing coordinate here, use faceID info)
 			for (Index pD = 0; pD < ParametricDim; ++pD){
 				if (){

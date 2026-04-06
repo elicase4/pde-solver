@@ -152,14 +152,14 @@ public:
 				
 				// qp data
 				EvalQP qp(evalE, f);
-				Real xi[Quadrature::NumPointsTotal*(EvalEle::ParametricDim-1)];
+				Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
 				Real w[Quadrature::NumPointsTotal];
 				Quadrature::getPoints(xi);
 				Quadrature::getWeights(w);
 
 				// quadrature loop
 				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
-					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
+					qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 					form.computeElementLevelVector(qp, nullptr, Fe.data());
 				}
 
