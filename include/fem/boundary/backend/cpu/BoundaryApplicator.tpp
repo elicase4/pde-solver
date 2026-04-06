@@ -72,7 +72,7 @@ public:
 					
 					if (bcRegistry.isEssential(rngTag, j)){
 						
-						Ge.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j] = bcVal[j];
+						Ge.data()[i + j] = bcVal[j];
 					
 					}
 
@@ -96,7 +96,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] -= Fe.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j];
+					F.data()[AdofIDi] -= Fe.data()[i + j];
 
 				}
 			}
@@ -179,7 +179,7 @@ public:
 						if (topoDOF.isConstrained(TdofIDi)) continue;
 						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 						
-						F.data()[AdofIDi] += Fe.data()[i*(nodesPerFace*topoDOF.dofsPerNode()) + j];
+						F.data()[AdofIDi] += Fe.data()[i + j];
 
 					}
 				}

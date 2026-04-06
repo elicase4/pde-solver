@@ -94,6 +94,12 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
+			// zero-out Ke
+			Ke.zero();
+			
+			// zero-out Ue
+			Ue.zero();
+			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
@@ -107,12 +113,6 @@ public:
 				}
 
 			}
-
-			// zero-out Ke
-			Ke.zero();
-			
-			// zero-out Ue
-			Ue.zero();
 			
 			// gather U into Ue
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
@@ -189,6 +189,12 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
+			// zero-out Ke
+			Fe.zero();
+			
+			// zero-out Ue
+			Ue.zero();
+			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
@@ -202,12 +208,6 @@ public:
 				}
 
 			}
-
-			// zero-out Ke
-			Fe.zero();
-			
-			// zero-out Ue
-			Ue.zero();
 			
 			// gather U into Ue
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
@@ -217,7 +217,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+					Ue.data()[i + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -249,7 +249,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] += Fe.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j];
+					F.data()[AdofIDi] += Fe.data()[i + j];
 
 				}
 			}

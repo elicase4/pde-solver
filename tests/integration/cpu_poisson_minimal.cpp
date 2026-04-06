@@ -192,7 +192,14 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	// create system matrix
 	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
-	
+
+	// test matrix sizes
+	EXPECT_EQ(K.nRows(), 12);
+	EXPECT_EQ(K.nCols(), 12);
+
+	// test vector sizes
+	EXPECT_EQ(U.size(), 12);
+
 	// call assembly for system matrix
 	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
@@ -200,7 +207,50 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	const Real tol = 1e-10;
 
 	// tests for system matrix
-	EXPECT_NEAR(K.data()[K.getDataIndex(0,0)], 4.0/3.0, tol); // topoDOF = (1,0)
+	
+	// diagonal: bottom-free nodes (touching 2 elements)
+	for (Index i = 0; i < 3; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i)], 4.0/3.0, tol);
+	}
+	
+	// diagonal: interior-free nodes (touching 2 elements)
+	for (Index i = 3; i < 12; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i)], 8.0/3.0, tol);
+	}
+	
+	// off-diagonal: same-row adjacent (share one element edge - x-adjacent with no upper shared element)
+	for (Index i = 0; i < 2; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+1)], -1.0/6.0, tol);
+		EXPECT_NEAR(K.data()[K.getDataIndex(i+1,i)], -1.0/6.0, tol);
+	}
+
+	// off-diagonal: interior-free nodes (nodes sharing 2 elements - x adjacent and y-adjacent interior pairs)
+	for (Index i = 3; i < 4; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+1)], -1.0/3.0, tol);
+		EXPECT_NEAR(K.data()[K.getDataIndex(i+1,i)], -1.0/3.0, tol);
+	}
+	for (Index i = 6; i < 8; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+1)], -1.0/3.0, tol);
+		EXPECT_NEAR(K.data()[K.getDataIndex(i+1,i)], -1.0/3.0, tol);
+	}
+	for (Index i = 9; i < 11; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+1)], -1.0/3.0, tol);
+		EXPECT_NEAR(K.data()[K.getDataIndex(i+1,i)], -1.0/3.0, tol);
+	}
+
+	// off-diagonal: same column-adjacent (nodes sharing 2 elements - y-adjacent pairs)
+	for (Index i = 0; i < 9; ++i){
+		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+3)], -1.0/3.0, tol);
+		EXPECT_NEAR(K.data()[K.getDataIndex(i+3,i)], -1.0/3.0, tol);
+	}
+
+	// symmetry of K
+	for (Index i = 0; i < 12; ++i){
+		for (Index j = 0; j < 12; ++j){
+			EXPECT_NEAR(K.data()[K.getDataIndex(i,j)], K.data()[K.getDataIndex(j,i)], tol);
+		}
+	}
+
 }
 
 TEST_F(CPUPoissonMinimal, OVector){
@@ -215,10 +265,47 @@ TEST_F(CPUPoissonMinimal, OVector){
 	auto O = assembler.createVector(mesh2D, *topoDOF2D);
 	auto U = assembler.createVector(mesh2D, *topoDOF2D);
 	
+	// test vector sizes
+	EXPECT_EQ(O.size(), 12);
+	EXPECT_EQ(U.size(), 12);
+
+	// fill U
+	for (Index i = 0; i < topoDOF2D->numFreeDOFs(); ++i){
+		U.data()[i] = 1.0;
+	}
+
 	// call assembly for system matrix
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
-	// tests for system matrix
+	// test tolerance
+	const Real tol = 1e-10;
+
+	// tests for system operator
+	
+	// bottom-row corner nodes
+	EXPECT_NEAR(O.data()[0], 0.5,     tol); // row_sum = 4/3 - 1/6 - 1/3 - 1/3 = 1/2
+	EXPECT_NEAR(O.data()[2], 0.5,     tol); // row_sum = 4/3 - 1/6 - 1/3 - 1/3 = 1/2
+	
+	// bottom-row mid node
+	EXPECT_NEAR(O.data()[1], 0.0,     tol); // row_sum = 0
+
+	// left/right column interior nodes
+	EXPECT_NEAR(O.data()[3], 1.0,     tol); // row_sum = 1
+	EXPECT_NEAR(O.data()[5], 1.0,     tol); // row_sum = 1
+	EXPECT_NEAR(O.data()[6], 1.0,     tol); // row_sum = 1
+	EXPECT_NEAR(O.data()[8], 1.0,     tol); // row_sum = 1
+
+	// full interior nodes
+	EXPECT_NEAR(O.data()[4], 0.0,     tol); // row_sum = 0
+	EXPECT_NEAR(O.data()[7], 0.0,     tol); // row_sum = 0
+
+	// bottom-row corner nodes
+	EXPECT_NEAR(O.data()[9], 5.0/3.0,  tol); // row_sum = 8/3 - 1/3 - 1/3 - 1/3 = 5/3
+	EXPECT_NEAR(O.data()[11], 5.0/3.0,  tol); // row_sum = 8/3 - 1/3 - 1/3 - 1/3 = 5/3
+	
+	// top-row mid node
+	EXPECT_NEAR(O.data()[10], 1.0,     tol); // row_sum = 8/3 - 1/3 - 1/3 = 1
+
 }
 
 TEST_F(CPUPoissonMinimal, FVector){
