@@ -12,7 +12,7 @@ namespace pdesolver::fem::eval {
 		Element element;
 		Int faceID;
 
-		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int rngID) : element(elem), faceID(rngID) {}
+		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int fID) : element(elem), faceID(fID) {}
 
 		// dimensions
 		static constexpr Index NodesPerElement = Element::NodesPerElement;
@@ -20,12 +20,12 @@ namespace pdesolver::fem::eval {
 		static constexpr Int ParametricDim = Element::ParametricDim;
 
 		// helper functions
-		static Index NodesPerFace(const Int rngID){
-			return Basis::nodesPerFace(rngID);
+		static Index NodesPerFace(const Int faceID){
+			return Basis::nodesPerFace(faceID);
 		}
 	
-		static void getFaceNodes(const Int rngID, Index* nodeIDs){
-			Basis::getFaceNodes(rngID, nodeIDs);
+		static void getFaceNodes(const Int faceID, Index* nodeIDs){
+			Basis::getFaceNodes(faceID, nodeIDs);
 		}
 	
 		// parent element attributes
@@ -36,7 +36,7 @@ namespace pdesolver::fem::eval {
 		Real x[SpatialDim];
 
 		// quadrature
-		Real xi[ParametricDim];
+		Real xi[ParametricDim-1];
 		Real w;
 
 		// ref basis values
@@ -50,14 +50,18 @@ namespace pdesolver::fem::eval {
 
 		// geometry
 		Real J[SpatialDim*ParametricDim];
-		Index tangentID[ParametricDim - 1];
+		Index tangentID[ParametricDim-1];
 		Real nCoeff;
 
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 			
-			// set quad info
+			// set quad info (need to add missing coordinate here, use faceID info)
 			for (Index pD = 0; pD < ParametricDim; ++pD){
-				xi[pD] = xi_q[pD];
+				if (){
+					xi[pD] = 
+				} else {
+					xi[pD] = xi_q[pD];
+				}
 			}
 			w = weight;
 			

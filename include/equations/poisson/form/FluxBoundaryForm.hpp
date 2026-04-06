@@ -22,7 +22,7 @@ namespace pdesolver::fem::form {
 			for (Index a = 0; a < QuadraturePointBoundary::NodesPerFace(qp.faceID); ++a){
 				for (Index i = 0; i < FluxFunction::NumComponents; ++i) {
 					for (Index sD = 0; sD < FluxFunction::SpatialDim; ++sD){
-						Fe[a * FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.N[a]) * qp.normal[sD] * qp.w;
+						Fe[a*FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.N[a]) * qp.normal[sD] * qp.w;
 					}
 				}
 			}

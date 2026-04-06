@@ -19,9 +19,9 @@ namespace pdesolver::fem::form {
 			sourceFunction.eval(qp.time, qp.x, val);
 
 			// element vector assembly contribution
-			for (Index i = 0; i < SourceFunction::NumComponents; ++i) {
-				for (Index a = 0; a < qp.NodesPerElement; ++a){
-					Fe[a*SourceFunction::NumComponents + i] += (val[i] * qp.N[a]) * qp.measure * qp.w;
+			for (Index a = 0; a < qp.NodesPerElement; ++a){
+				for (Index i = 0; i < SourceFunction::NumComponents; ++i) {
+					Fe[a + i] += (val[i] * qp.N[a]) * qp.measure * qp.w;
 				}
 			}
 		}

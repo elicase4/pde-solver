@@ -72,7 +72,7 @@ public:
 					
 					if (bcRegistry.isEssential(rngTag, j)){
 						
-						Ge.data()[i + j] = bcVal[j];
+						Ge.data()[i*topoDOF.dofsPerNode() + j] = bcVal[j];
 					
 					}
 
@@ -96,7 +96,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] -= Fe.data()[i + j];
+					F.data()[AdofIDi] -= Fe.data()[i*topoDOF.dofsPerNode() + j];
 
 				}
 			}
@@ -117,57 +117,50 @@ public:
 			// get element rngTags
 			const Int* rngTags = mesh.getBoundaryTag(e);
 
-			// zero-out Fe
-			Fe.zero();
-
 			// face loop
 			for (Index f = 0; f < mesh.data.facesPerElement; ++f){
 				
+				// zero-out Fe
+				Fe.zero();
+
 				// get face rng tag
 				Int rngTag = rngTags[f];
+				if (rngTag < 0) continue;
+				if (!bcRegistry.hasAny(rngTag)) continue;
 				const Index nodesPerFace = EvalQP::NodesPerFace(rngTag);
 
 				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement];
-				Index faceNodeIDs[EvalQP::NodesPerElement];
-				EvalQP::getFaceNodes(rngTag, faceNodeIDs);
+				Index faceNodeLocalIDs[EvalQP::NodesPerElement];
+				EvalQP::getFaceNodes(rngTag, faceNodeLocalIDs);
+				const Index* elemNodeGlobalIDs = mesh.getElementNodes(e);
 
 				// extract face coordinates
 				for (Index i = 0; i < nodesPerFace; ++i){
 					
-					const Real* faceNodeCoordsPtr = mesh.getNodeCoord(faceNodeIDs[i]);
+					Index faceNodeGlobalID = elemNodeGlobalIDs[faceNodeLocalIDs[i]];
+					const Real* faceNodeCoordsPtr = mesh.getNodeCoord(faceNodeGlobalID);
+					
 					for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
 						faceNodeCoords[EvalEle::SpatialDim*i + sD] = faceNodeCoordsPtr[sD];
 					}
 				
 				}
 
-				for (Index i = 0; i < nodesPerFace; ++i){
-					
-					for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
+				// get element data
+				EvalEle evalE;
+				evalE.bindElement(faceNodeCoords, time);
+				
+				// qp data
+				EvalQP qp(evalE, f);
+				Real xi[Quadrature::NumPointsTotal*(EvalEle::ParametricDim-1)];
+				Real w[Quadrature::NumPointsTotal];
+				Quadrature::getPoints(xi);
+				Quadrature::getWeights(w);
 
-						if (bcRegistry.isNatural(rngTag, j)){
-							
-							// get element data
-							EvalEle evalE;
-							evalE.bindElement(faceNodeCoords, time);
-							
-							// qp data
-							EvalQP qp(evalE, rngTag);
-							Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
-							Real w[Quadrature::NumPointsTotal];
-							Quadrature::getPoints(xi);
-							Quadrature::getWeights(w);
-
-							// quadrature loop
-							for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
-								qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
-								form.computeElementLevelVector(qp, Fe.data(), Fe.data());
-							}
-
-						}
-
-					}
-						
+				// quadrature loop
+				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
+					form.computeElementLevelVector(qp, nullptr, Fe.data());
 				}
 
 				// scatter Fe into F
@@ -175,11 +168,12 @@ public:
 					
 					for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 						
-						Index TdofIDi = topoDOF.getNodeDOF(faceNodeIDs[i], j);
+						if (!bcRegistry.isNatural(rngTag, j)) continue;
+						Index TdofIDi = topoDOF.getNodeDOF(elemNodeGlobalIDs[faceNodeLocalIDs[i]], j);
 						if (topoDOF.isConstrained(TdofIDi)) continue;
 						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 						
-						F.data()[AdofIDi] += Fe.data()[i + j];
+						F.data()[AdofIDi] += Fe.data()[i*topoDOF.dofsPerNode() + j];
 
 					}
 				}

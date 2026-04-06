@@ -122,7 +122,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*(EvalEle::NodesPerElement*topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+					Ue.data()[i*topoDOF.dofsPerNode() + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -217,7 +217,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i + j] = U.data()[AdofIDi];
+					Ue.data()[i*topoDOF.dofsPerNode() + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -249,7 +249,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] += Fe.data()[i + j];
+					F.data()[AdofIDi] += Fe.data()[i*topoDOF.dofsPerNode() + j];
 
 				}
 			}
