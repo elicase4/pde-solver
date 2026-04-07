@@ -11,8 +11,18 @@ namespace pdesolver::fem::eval {
 
 		Element element;
 		Int faceID;
+		Real faceCoords[Element::NodesPerElement];
 
-		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int fID) : element(elem), faceID(fID) {}
+		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
+			
+			// set face coordinates
+			for (Index a = 0; a < NodesPerFace(faceID); ++a){
+				for (Index sD = 0; sD < SpatialDim; ++sD){
+					faceCoords[a*SpatialDim + sD] = faceNodeCoords[a*SpatialDim + sD];
+				}
+			}
+			
+		}
 
 		// dimensions
 		static constexpr Index NodesPerElement = Element::NodesPerElement;
@@ -32,11 +42,15 @@ namespace pdesolver::fem::eval {
 		const Real time = element.t;
 		const Real* coords = element.nodeCoords;
 
-		// physical coordinate
+		// physical coordinates
 		Real x[SpatialDim];
+		Real x_face[SpatialDim];
+
+		// reference coordinate
+		Real xi[ParametricDim];
 
 		// quadrature
-		Real xi[ParametricDim-1];
+		Real xi_face[ParametricDim-1];
 		Real w;
 
 		// ref basis values
@@ -53,18 +67,16 @@ namespace pdesolver::fem::eval {
 		Index tangentID[ParametricDim-1];
 		Real nCoeff;
 
-		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
+		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_face_q, const Real weight){
 			
-			// TODO: add basis function to extract pd component for a face based on faceID
-			// set quad info (need to add missing coordinate here, use faceID info)
-			for (Index pD = 0; pD < ParametricDim; ++pD){
-				if (){
-					xi[pD] = 
-				} else {
-					xi[pD] = xi_q[pD];
-				}
+			// set quad info
+			for (Index pD = 0; pD < (ParametricDim - 1); ++pD){
+				xi_face[pD] = xi_face_q[pD];
 			}
 			w = weight;
+			
+			// get volume parametric coordinates
+			Basis::mapFaceToElement(faceID, xi_face, xi);
 			
 			// evaluate basis
 			Basis::eval(xi, N);
@@ -73,6 +85,7 @@ namespace pdesolver::fem::eval {
 
 			// geometry
 			Geometry::mapToPhysical(coords, N, x);
+			Geometry::mapToPhysical(faceCoords, N, x_face);
 			Geometry::computeJacobian(coords, dNdxi, J);
 			Geometry::computeNormal(J, tangentID, nCoeff, normal);
 

@@ -42,7 +42,8 @@ protected:
 
 	// general type specification
 	using BackendType = linalg::types::backend::CPU;
-	using QuadratureType = fem::quadrature::GaussQuadratureQuad<numQuadPoint, numQuadPoint>;
+	using QuadratureVolumeType = fem::quadrature::GaussQuadratureQuad<numQuadPoint, numQuadPoint>;
+	using QuadratureBoundaryType = fem::quadrature::GaussQuadrature1D<numQuadPoint>;
 	using BasisType = fem::basis::LagrangeQuad<Px, Py>;
 	using TransformType = fem::geometry::JacobianTransform<nsd, npd, BasisType::NodesPerElement>; 
 	
@@ -201,7 +202,7 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 	EXPECT_EQ(U.size(), 12);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -275,7 +276,7 @@ TEST_F(CPUPoissonMinimal, OVector){
 	}
 
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
+	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -336,7 +337,7 @@ TEST_F(CPUPoissonMinimal, FVector){
 	const Real tol = 1e-10;
 
 	// call assembly for force vector
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// test before bc application
 	for (Index i = 0; i < 12; ++i){
@@ -344,7 +345,7 @@ TEST_F(CPUPoissonMinimal, FVector){
 	}
 
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
+	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
 
 	// tests after applying natural bcs
 	EXPECT_NEAR(F.data()[0], -1.0, tol);
@@ -353,9 +354,9 @@ TEST_F(CPUPoissonMinimal, FVector){
 	for (Index i = 3; i < 12; ++i){
 		EXPECT_NEAR(F.data()[i], 0.0, tol) << "Stage 2: non-bottom node, alg DOF = " << i << " should be 0.";
 	}
-	
+
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 	
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], -0.5, tol);

@@ -9,7 +9,7 @@ namespace pdesolver {
 		namespace eval {
 
 			template<typename QuadraturePointBoundary, typename Element, typename Basis, typename Geometry>
-			concept EvalQuadraturePointBoundary = requires(const QuadraturePointBoundary qp, const Element& elem, const Int rngID, const Real* xi, const Real w) {
+			concept EvalQuadraturePointBoundary = requires(const QuadraturePointBoundary qp, const Element& elem, const Int rngID, const Real* xi, const Real w, const Real* faceNodeCoords) {
 
 				{ QuadraturePointBoundary::SpatialDim } -> std::convertible_to<Index>;
 				{ QuadraturePointBoundary::ParametricDim } -> std::convertible_to<Index>;

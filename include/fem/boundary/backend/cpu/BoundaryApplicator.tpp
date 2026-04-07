@@ -26,7 +26,7 @@ public:
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
 
-			// extract node coordinates and fill Ge
+			// extract node coordinates
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
@@ -114,6 +114,21 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 				
+			// extract node coordinates
+			const Index* nodeIDs = mesh.getElementNodes(e);
+			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
+
+			// extract node coordinates
+			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
+
+				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
+
+				for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
+					nodeCoords[EvalEle::SpatialDim*i + sD] = nodeCoordsPtr[sD];
+				}
+
+			}
+			
 			// get element rngTags
 			const Int* rngTags = mesh.getBoundaryTag(e);
 
@@ -148,18 +163,18 @@ public:
 
 				// get element data
 				EvalEle evalE;
-				evalE.bindElement(faceNodeCoords, time);
+				evalE.bindElement(nodeCoords, time);
 				
 				// qp data
-				EvalQP qp(evalE, f);
-				Real xi[Quadrature::NumPointsTotal*EvalEle::ParametricDim];
+				EvalQP qp(evalE, f, faceNodeCoords);
+				Real xi[Quadrature::NumPointsTotal*(EvalEle::ParametricDim-1)];
 				Real w[Quadrature::NumPointsTotal];
 				Quadrature::getPoints(xi);
 				Quadrature::getWeights(w);
 
 				// quadrature loop
 				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
-					qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
+					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
 					form.computeElementLevelVector(qp, nullptr, Fe.data());
 				}
 

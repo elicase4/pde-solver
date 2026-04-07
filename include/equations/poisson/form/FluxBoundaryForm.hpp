@@ -16,7 +16,7 @@ namespace pdesolver::fem::form {
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointBoundary& qp, const Real*, Real* Fe) const {
 		
 			Real val[FluxFunction::SpatialDim * FluxFunction::NumComponents];
-			fluxFunction.eval(qp.time, qp.x, val);
+			fluxFunction.eval(qp.time, qp.x_face, val);
 
 			// element vector assembly contribution
 			for (Index a = 0; a < QuadraturePointBoundary::NodesPerFace(qp.faceID); ++a){
