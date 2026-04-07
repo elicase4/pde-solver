@@ -1,4 +1,4 @@
-namespace pdesolver::fem::basis{
+namespace pdesolver::fem::basis {
 
 // Implementation: eval
 template<Index Px, Index Py, Index Pz>
@@ -162,6 +162,8 @@ PDE_HOST PDE_DEVICE Index LagrangeHex<Px, Py, Pz>::nodesPerFace(const Int rngID)
 			return (Py + 1)*(Px + 1);
 		case 5:
 			return (Py + 1)*(Px + 1);
+		default:
+			return 0;
 	}
 }
 
@@ -207,5 +209,45 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::getFaceNodes(const Int rngID, 
 			break;
 	}
 }
+// implemntation: mapFaceToElement
+template<Index Px, Index Py, Index Pz>
+PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::mapFaceToElement(const Int rngID, const Real* xi_face, Real* xi_elem){
+	
+	const Real s = xi_face[0];
+	const Real t = xi_face[1];
 
+	switch (rngID) {
+		case 0:
+			xi_elem[0] = -1.0;
+			xi_elem[1] = s;
+			xi_elem[2] = t;
+			break;
+		case 1:
+			xi_elem[0] = 1.0;
+			xi_elem[1] = s;
+			xi_elem[2] = t;
+			break;
+		case 2:
+			xi_elem[0] = s;
+			xi_elem[1] = -1.0;
+			xi_elem[2] = t;
+			break;
+		case 3:
+			xi_elem[0] = s;
+			xi_elem[1] = 1.0;
+			xi_elem[2] = t;
+			break;
+		case 4:
+			xi_elem[0] = s;
+			xi_elem[1] = t;
+			xi_elem[2] = -1.0;
+			break;
+		case 5:
+			xi_elem[0] = s;
+			xi_elem[1] = t;
+			xi_elem[2] = 1.0;
+			break;
+	}
+
+}
 } // namespace pdesolver::fem::basis

@@ -9,9 +9,9 @@ namespace pdesolver::fem::eval {
 	class PoissonEvalElement {
 	public:
 		
-		static constexpr Index NodesPerElement = Basis::NodesPerElement;
 		static constexpr Index SpatialDim = SD;
 		static constexpr Index ParametricDim = Basis::ParametricDim;
+		static constexpr Index NodesPerElement = Basis::NodesPerElement;
 
 		// node coordinates
 		const Real* nodeCoords;

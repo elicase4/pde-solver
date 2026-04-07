@@ -5,16 +5,16 @@
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
-#include "fem/eval/EvalQuadraturePoint.hpp"
+#include "fem/eval/EvalQuadraturePointVolume.hpp"
 
 namespace pdesolver {
 	namespace fem {
 		namespace form {
 			
-			template<typename Form, typename QuadraturePoint>
-			concept NonlinearTangentForm = requires (const Form f, const QuadraturePoint& qp, const Real* Ue, Real* Ke, Real* Oe) {
-				{ f.computeElementLevel(qp, Ue, Ke) } -> std::same_as<void>;
-				{ f.computeElementLevel(qp, Ue, Oe) } -> std::same_as<void>;
+			template<typename Form, typename QuadraturePointVolume>
+			concept NonlinearTangentForm = requires (const Form f, const QuadraturePointVolume& qp, const Real* Ue, Real* Ke, Real* Oe) {
+				{ f.computeElementLevelMatrix(qp, Ue, Ke) } -> std::same_as<void>;
+				{ f.computeElementLevelVector(qp, Ue, Oe) } -> std::same_as<void>;
 			}; // concept NonlinearTangentForm
 
 		} // namespace form

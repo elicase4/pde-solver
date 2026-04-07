@@ -28,8 +28,8 @@ PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY>::getWeights
 	Real w_xi[NumPointsX];
 	Real w_eta[NumPointsY];
 
-	QuadX::getPoints(w_xi);
-	QuadY::getPoints(w_eta);
+	QuadX::getWeights(w_xi);
+	QuadY::getWeights(w_eta);
 
 	// compute tensor product
 	Index q = 0;

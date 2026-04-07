@@ -132,6 +132,8 @@ PDE_HOST PDE_DEVICE Index LagrangeQuad<Px, Py>::nodesPerFace(const Int rngID){
 			return (Px + 1);
 		case 3:
 			return (Px + 1);
+		default:
+			return 0;
 	}
 }
 
@@ -156,6 +158,33 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::getFaceNodes(const Int rngID, Ind
 				nodeIDs[i] = (Index) i + (Px + 1)*Py;
 			break;
 	}
+}
+
+// implemntation: mapFaceToElement
+template<Index Px, Index Py>
+PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::mapFaceToElement(const Int rngID, const Real* xi_face, Real* xi_elem){
+	
+	const Real s = xi_face[0];
+
+	switch (rngID) {
+		case 0:
+			xi_elem[0] = -1.0;
+			xi_elem[1] = s;
+			break;
+		case 1:
+			xi_elem[0] = 1.0;
+			xi_elem[1] = s;
+			break;
+		case 2:
+			xi_elem[0] = s;
+			xi_elem[1] = -1.0;
+			break;
+		case 3:
+			xi_elem[0] = s;
+			xi_elem[1] = 1.0;
+			break;
+	}
+
 }
 
 } // namespace pdesolver::fem::basis

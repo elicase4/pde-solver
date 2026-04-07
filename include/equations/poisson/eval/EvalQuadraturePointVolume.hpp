@@ -1,17 +1,17 @@
-#ifndef POISSON_EVALQUADRATUREPOINT_HPP
-#define POISSON_EVALQUADRATUREPOINT_HPP
+#ifndef POISSON_EVALQUADRATUREPOINTVOLUME_HPP
+#define POISSON_EVALQUADRATUREPOINTVOLUME_HPP
 
-#include "fem/eval/EvalQuadraturePoint.hpp"
+#include "fem/eval/EvalQuadraturePointVolume.hpp"
 
 namespace pdesolver::fem::eval {
 
 	template<typename Element, typename Basis, typename Geometry>
-	class PoissonEvalQuadraturePoint {
+	class PoissonEvalQuadraturePointVolume {
 	public:
 
 		Element element;
 
-		PoissonEvalQuadraturePoint(const Element& elem) : element(elem) {}
+		PoissonEvalQuadraturePointVolume(const Element& elem) : element(elem) {}
 
 		// dimensions
 		static constexpr Index NodesPerElement = Element::NodesPerElement;
@@ -48,9 +48,6 @@ namespace pdesolver::fem::eval {
 		// conductivity coefficient
 		Real K[SpatialDim*SpatialDim];
 
-		// rhs function
-		Real rhsF[SpatialDim];
-
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 			
 			// set quad info
@@ -74,7 +71,7 @@ namespace pdesolver::fem::eval {
 
 		}
 
-	}; // class PoissonEvalQuadraturePoint<Geometry, Basis>
+	}; // class PoissonEvalQuadraturePointVolume
 
 } // namespace pdesolver::fem::eval
 

@@ -4,7 +4,7 @@ template<>
 class Assembler<linalg::types::backend::CPU> {
 public:
 
-	PDE_HOST PDE_DEVICE linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> createMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
+	linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> createMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF){
 		
 		// allocate matrix
 		linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
@@ -72,7 +72,7 @@ public:
 		return K;
 	}
 
-	PDE_HOST PDE_DEVICE linalg::types::Vector<Real, linalg::types::backend::CPU> createVector(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
+	linalg::types::Vector<Real, linalg::types::backend::CPU> createVector(const mesh::Mesh&, const topology::TopologicalDOF& topoDOF){
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> F(topoDOF.numFreeDOFs());
 		return F;
@@ -80,7 +80,7 @@ public:
 	}
 
 	template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-	PDE_HOST PDE_DEVICE void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
+	void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 		
 		// allocate local space for Ke
 		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()), (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
@@ -94,6 +94,12 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
+			// zero-out Ke
+			Ke.zero();
+			
+			// zero-out Ue
+			Ue.zero();
+			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
@@ -107,12 +113,6 @@ public:
 				}
 
 			}
-
-			// zero-out Ke
-			Ke.zero();
-			
-			// zero-out Ue
-			Ue.zero();
 			
 			// gather U into Ue
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
@@ -122,7 +122,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*(topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+					Ue.data()[i*topoDOF.dofsPerNode() + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -143,7 +143,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevel(qp, Ue.data(), Ke.data());
+				form.computeElementLevelMatrix(qp, Ue.data(), Ke.data());
 			}
 			
 			// scatter Ke into K
@@ -154,22 +154,15 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 
-					Index rowStart = K.rowPtr()[AdofIDi];
-					Index rowEnd = K.rowPtr()[AdofIDi + 1];
-					
 					for (Index k = 0; k < EvalEle::NodesPerElement; ++k){
 						for (Index l = 0; l < topoDOF.dofsPerNode(); ++l){
 					
 							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
 							if (topoDOF.isConstrained(TdofIDk)) continue;
 							Index AdofIDk = topoDOF.toAlgebraic(TdofIDk);
+							Index p = K.getDataIndex(AdofIDi, AdofIDk);
 							
-							for (Index p = rowStart; p < rowEnd; ++p){
-								if (K.colIdx()[p] == AdofIDk){
-									K.data()[p] += Ke.data()[(i*topoDOF.dofsPerNode() + j)*(EvalEle::NodesPerElement * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
-									break;
-								}
-							}
+							K.data()[p] += Ke.data()[(i*topoDOF.dofsPerNode() + j)*(EvalEle::NodesPerElement * topoDOF.dofsPerNode()) + (k*topoDOF.dofsPerNode() + l)];
 
 						}
 					}
@@ -182,7 +175,7 @@ public:
 	}
 	
 	template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-	PDE_HOST PDE_DEVICE void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
 		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
@@ -196,6 +189,12 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
+			// zero-out Ke
+			Fe.zero();
+			
+			// zero-out Ue
+			Ue.zero();
+			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
@@ -209,12 +208,6 @@ public:
 				}
 
 			}
-
-			// zero-out Ke
-			Fe.zero();
-			
-			// zero-out Ue
-			Ue.zero();
 			
 			// gather U into Ue
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
@@ -224,7 +217,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*(topoDOF.dofsPerNode()) + j] = U.data()[AdofIDi];
+					Ue.data()[i*topoDOF.dofsPerNode() + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -245,7 +238,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevel(qp, Ue.data(), Fe.data());
+				form.computeElementLevelVector(qp, Ue.data(), Fe.data());
 			}
 			
 			// scatter Fe into F
@@ -256,7 +249,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] = Fe.data()[i*(topoDOF.dofsPerNode()) + j];
+					F.data()[AdofIDi] += Fe.data()[i*topoDOF.dofsPerNode() + j];
 
 				}
 			}

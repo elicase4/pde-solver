@@ -1,10 +1,8 @@
 #ifndef PDESOLVER_BOUNDARYREGISTRY_HPP
 #define PDESOLVER_BOUNDARYREGISTRY_HPP
 
-#include <any>
-#include <stdexcept>
-#include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "core/Types.hpp"
 #include "fem/boundary/BoundaryCondition.hpp"
@@ -16,78 +14,90 @@ namespace pdesolver {
 			class BoundaryRegistry {
 			public:
 				
-				// registration
-				template<typename BC>
-				void registerBC(Int tag, BC bc) {
-					bcStorage_[tag] = std::make_any<BC>(bc);
-					bcCategory_[tag] = BC::category;
+				struct BCEntryBase {
+					virtual ~BCEntryBase() = default;
+
+					virtual Int tag() const = 0;
+					virtual Index numComponents() const = 0;
+					
+					virtual BCCategory componentType(Index c) const = 0;
+
+					virtual void eval(Real time, const Real* x, Real* out) const = 0;
+				
+				}; // struct BCEntryBase
+				
+				template<typename Function>
+				struct BCEntry : BCEntryBase {
+
+					BoundaryCondition<Function> bc;
+
+					BCEntry(const BoundaryCondition<Function>& bcIn) : bc(bcIn) {}
+
+					Int tag() const override {
+						return bc.tag;
+					}
+
+					Index numComponents() const override {
+						return bc.NumComponents;
+					}
+
+					BCCategory componentType(Index c) const override {
+						return bc.componentType[c];
+					}
+
+					void eval(Real time, const Real* x, Real* out) const override {
+						bc.f.eval(time, x, out);
+					}
+
+				}; // struct BCEntry
+
+				template<typename Function>
+				void registerBC(const BoundaryCondition<Function>& bc){
+					entries_.push_back(std::make_unique<BCEntry<Function>>(bc));
 				}
 
-				// Query
-				bool hasBC(Int tag) const {
-					return bcCategory_.find(tag) != bcCategory_.end();
+				const auto& entries() const {
+					return entries_;
 				}
 
-				BCCategory getBCCategory(Int tag) const {
-					auto it = bcCategory_.find(tag);
-					if (it == bcCategory_.end()) {
-						throw std::runtime_error("No BC registered for tag " + std::to_string(tag));
-					}
-					return it->second;
-				}
-				
-				bool isEssential(Int tag) const {
-					return (hasBC(tag) &&getBCCategory(tag) == BCCategory::Essential);
-				}
-				
-				bool isNatural(Int tag) const {
-					return (hasBC(tag) &&getBCCategory(tag) == BCCategory::Natural);
-				}
-
-				template<typename BC>
-				BC getBC(Int tag) const {
-					auto it = bcStorage_.find(tag);
-					if (it == bcStorage_.end()) {
-						throw std::runtime_error("No BC registered for tag " + std::to_string(tag));
-					}
-					try {
-						return std::any_cast<BC>(it->second);
-					} catch (const std::bad_any_cast&) {
-						throw std::runtime_error("BC type mismatch for tag " + std::to_string(tag));
-					}
-				}
-				
-				// get tags
-				std::vector<Int> getTagsByCategory(BCCategory category) const {
-					std::vector<Int> tags;
-					for (const auto& [tag, cat] : bcCategory_) {
-						if (cat == category) {
-							tags.push_back(tag);
+				bool isEssential(Int tag, Index component) const {
+					
+					for (const auto& bc: entries_){
+						if (bc->tag() != tag) continue;
+						if (bc->componentType(component) == BCCategory::Essential) {
+							return true;
 						}
 					}
-					return tags;
+
+					return false;
 				}
 
-				std::vector<Int> getEssentialTags() const {
-					return getTagsByCategory(BCCategory::Essential);
-				}
-
-				std::vector<Int> getNaturalTags() const {
-					return getTagsByCategory(BCCategory::Natural);
-				}
-
-				std::vector<Int> getAllTags() const{
-					std::vector<Int> tags;
-					for (const auto& [tag, _] : bcCategory_){
-						tags.push_back(tag);
+				bool isNatural(Int tag, Index component) const {
+					
+					for (const auto& bc: entries_){
+						if (bc->tag() != tag) continue;
+						if (bc->componentType(component) == BCCategory::Natural) {
+							return true;
+						}
 					}
-					return tags;
+
+					return false;
+				}
+
+				bool hasAny(Int tag) const {
+					
+					for (const auto& bc : entries_) {
+						if (bc->tag() == tag) return true;
+					}
+
+					return false;
 				}
 
 			private:
-				std::unordered_map<Int, std::any> bcStorage_;
-				std::unordered_map<Int, BCCategory> bcCategory_;
-			
+				
+				std::vector<std::unique_ptr<BCEntryBase>> entries_;
+
+						
 			}; // class BoundaryRegistry
 
 		} // namespace boundary
