@@ -8,24 +8,28 @@ namespace pdesolver {
 		namespace operations {
 
 			// c = y^T x
-			template<typename T, typename Backend>
-			T dot(const types::Vector<T, Backend>& a, const types::Vector<T, Backend>& b);
+			template<typename VectorType>
+			VectorType::value_type dot(const VectorType& a, const VectorType& b);
 
 			// y = y + alpha*x
-			template<typename T, typename Backend>
-			void axpy(const T alpha, const types::Vector<T, Backend>& x, types::Vector<T, Backend>& y);
+			template<typename VectorType>
+			void axpy(const VectorType::value_type alpha, const VectorType& x, VectorType& y);
+
+			// y = beta*y + alpha*x
+			template<typename VectorType>
+			void axpby(const VectorType::value_type alpha, const VectorType::value_type beta, const VectorType& x, VectorType& y);
 
 			// x = alpha*x
-			template<typename T, typename Backend>
-			void scal(const T alpha, types::Vector<T, Backend>& x);
+			template<typename VectorType>
+			void scal(const VectorType::value_type alpha, VectorType& x);
 
 			// y = x
-			template<typename T, typename Backend>
-			void copy(const types::Vector<T, Backend>& x, types::Vector<T, Backend>& y);
+			template<typename VectorType>
+			void copy(const VectorType& x, VectorType& y);
 
 			// c = || x ||_2
-			template<typename T, typename Backend>
-			T norm(const types::Vector<T, Backend>& x);
+			template<typename VectorType>
+			VectorType::value_type norm(const VectorType& x);
 
 		} // namespace operations
 	} // namespace linalg

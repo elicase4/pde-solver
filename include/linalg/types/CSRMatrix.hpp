@@ -13,6 +13,9 @@ namespace pdesolver {
 			class CSRMatrix {
 			public:
 
+				using value_type = T;
+				using backend_type = Backend;
+
 				CSRMatrix(Index nRows, Index nCols) : nRows_(nRows), nCols_(nCols), rowPtr_(Backend::template alloc<Index>(nRows + 1)) {};
 				
 				// Move-only
@@ -42,11 +45,27 @@ namespace pdesolver {
 				const T* data() const { return data_.get(); }
 				
 				Index getDataIndex(Index i, Index j){
-					for (Index p = rowPtr_.get()[i]; p < rowPtr_.get()[i+1]; ++p){
-						if (colIdx_.get()[p] == j){
-							return p;
+
+					Index start = rowPtr_.get()[i];
+					Index end = rowPtr_.get()[i+1];
+
+					const Index* cols = coldIdx_.get();
+
+					// binary search
+					while (start < end){
+						
+						Index mid = start + (end - start) / 2;
+
+						if (cols[mid] == j){
+							return mid;
+						} else if (cols[mid] < j){
+							start = mid + 1;
+						} else {
+							end = mid;
 						}
+
 					}
+
 					return 0;
 				}
 

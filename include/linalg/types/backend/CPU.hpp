@@ -32,6 +32,11 @@ namespace pdesolver {
 						std::fill(ptr, ptr + n, T(0));
 					}
 
+					template<typename T>
+					static void set(T* ptr, Index n, T value){
+						std::fill(ptr, ptr + n, T(value));
+					}
+
 				}; // class CPU
 
 			} // namespace backend
