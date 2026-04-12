@@ -17,19 +17,27 @@ function(add_pde_test TEST_NAME SOURCE_FILE)
 endfunction()
 
 add_pde_test(test_blockmesh2d
-	unit/blockmesh2d.cpp
+	unit/mesh/blockmesh2d.cpp
 	pde_mesh pde_io
 )
 
 add_pde_test(test_lagrange
-	unit/lagrange.cpp
+	unit/fem/lagrange.cpp
 )
 
 add_pde_test(test_jacobian
-	unit/jacobian.cpp
+	unit/fem/jacobian.cpp
+)
+
+add_pde_test(test_vectorops_cpu
+	unit/linalg/cpu/VectorOperations.cpp
+)
+
+add_pde_test(test_matrixops_cpu
+	unit/linalg/cpu/MatrixOperations.cpp
 )
 
 add_pde_test(test_poisson_minimal_cpu
-	integration/cpu_poisson_minimal.cpp
+	integration/cpu/poisson_minimal.cpp
 	pde_mesh
 )
