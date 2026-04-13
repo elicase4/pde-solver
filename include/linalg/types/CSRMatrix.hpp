@@ -49,7 +49,7 @@ namespace pdesolver {
 					Index start = rowPtr_.get()[i];
 					Index end = rowPtr_.get()[i+1];
 
-					const Index* cols = coldIdx_.get();
+					const Index* cols = colIdx_.get();
 
 					// binary search
 					while (start < end){

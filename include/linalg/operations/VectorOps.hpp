@@ -9,19 +9,19 @@ namespace pdesolver {
 
 			// c = y^T x
 			template<typename VectorType>
-			VectorType::value_type dot(const VectorType& a, const VectorType& b);
+			typename VectorType::value_type dot(const VectorType& a, const VectorType& b);
 
 			// y = y + alpha*x
 			template<typename VectorType>
-			void axpy(const VectorType::value_type alpha, const VectorType& x, VectorType& y);
+			void axpy(const typename VectorType::value_type alpha, const VectorType& x, VectorType& y);
 
 			// y = beta*y + alpha*x
 			template<typename VectorType>
-			void axpby(const VectorType::value_type alpha, const VectorType::value_type beta, const VectorType& x, VectorType& y);
+			void axpby(const typename VectorType::value_type alpha, const typename VectorType::value_type beta, const VectorType& x, VectorType& y);
 
 			// x = alpha*x
 			template<typename VectorType>
-			void scal(const VectorType::value_type alpha, VectorType& x);
+			void scal(const typename VectorType::value_type alpha, VectorType& x);
 
 			// y = x
 			template<typename VectorType>
@@ -29,7 +29,7 @@ namespace pdesolver {
 
 			// c = || x ||_2
 			template<typename VectorType>
-			VectorType::value_type norm(const VectorType& x);
+			typename VectorType::value_type norm(const VectorType& x);
 
 		} // namespace operations
 	} // namespace linalg

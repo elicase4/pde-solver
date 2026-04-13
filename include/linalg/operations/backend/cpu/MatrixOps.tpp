@@ -12,8 +12,8 @@ namespace pdesolver::linalg::operations {
 
 			typename VectorType::value_type sum = 0;
 
-			for (Index p = A.rowPtr()[i]; p < A.rowPtr()[i+1], ++p){
-				sum += A.data()[p] * x.data()[A.colIdx[p]];
+			for (Index p = A.rowPtr()[i]; p < A.rowPtr()[i+1]; ++p){
+				sum += A.data()[p] * x.data()[A.colIdx()[p]];
 			}
 
 			y.data()[i] = sum;

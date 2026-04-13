@@ -5,11 +5,11 @@ namespace pdesolver::linalg::operations {
 
 	// c = y^T x
 	template<typename VectorType>
-	VectorType::value_type dot(const VectorType& x, const VectorType& y){
+	typename VectorType::value_type dot(const VectorType& x, const VectorType& y){
 		
 		assert(x.size() == y.size());
 
-		VectorType::value_type result = 0;
+		typename VectorType::value_type result = 0;
 		for (Index i = 0; i < x.size(); ++i){
 			result += x.data()[i] * y.data()[i];
 		}
@@ -20,7 +20,7 @@ namespace pdesolver::linalg::operations {
 
 	// y = y + alpha*x
 	template<typename VectorType>
-	void axpy(const VectorType::value_type alpha, const VectorType& x, VectorType& y){
+	void axpy(const typename VectorType::value_type alpha, const VectorType& x, VectorType& y){
 
 		assert(x.size() == y.size());
 
@@ -32,7 +32,7 @@ namespace pdesolver::linalg::operations {
 
 	// y = y + alpha*x
 	template<typename VectorType>
-	void axpby(const VectorType::value_type alpha, const VectorType::value_type beta, const VectorType& x, VectorType& y){
+	void axpby(const typename VectorType::value_type alpha, const typename VectorType::value_type beta, const VectorType& x, VectorType& y){
 
 		assert(x.size() == y.size());
 
@@ -44,9 +44,9 @@ namespace pdesolver::linalg::operations {
 
 	// x = alpha*x
 	template<typename VectorType>
-	void scal(const VectorType::value_type alpha, VectorType& x){
+	void scal(const typename VectorType::value_type alpha, VectorType& x){
 
-		for (Index i = 0; i < y.size(); ++i){
+		for (Index i = 0; i < x.size(); ++i){
 			x.data()[i] *= alpha;
 		}
 
@@ -66,7 +66,7 @@ namespace pdesolver::linalg::operations {
 
 	// c = || x ||_2
 	template<typename VectorType>
-	VectorType::value_type norm(const VectorType& x){
+	typename VectorType::value_type norm(const VectorType& x){
 
 		return std::sqrt(dot(x,x));
 

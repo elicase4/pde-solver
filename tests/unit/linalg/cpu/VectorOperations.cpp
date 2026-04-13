@@ -50,9 +50,9 @@ TEST(VectorOpsCpu, Scal){
 
 	linalg::operations::scal(2.0, x);
 
-	EXPECT_NEAR(y.data()[0], 2.0, 1e-12);
-	EXPECT_NEAR(y.data()[1], 4.0, 1e-12);
-	EXPECT_NEAR(y.data()[2], 6.0, 1e-12);
+	EXPECT_NEAR(x.data()[0], 2.0, 1e-12);
+	EXPECT_NEAR(x.data()[1], 4.0, 1e-12);
+	EXPECT_NEAR(x.data()[2], 6.0, 1e-12);
 
 }
 

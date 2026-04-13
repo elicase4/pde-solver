@@ -38,6 +38,6 @@ add_pde_test(test_matrixops_cpu
 )
 
 add_pde_test(test_poisson_minimal_cpu
-	integration/cpu/poisson_minimal.cpp
+	integration/fem/cpu/poisson_minimal.cpp
 	pde_mesh
 )
