@@ -5,7 +5,7 @@ class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 	
 	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Model, typename Quadrature, typename Function>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
 		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
@@ -106,7 +106,7 @@ public:
 	}
 
 	template<eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
-	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
 		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topoDOF.dofsPerNode()) );
