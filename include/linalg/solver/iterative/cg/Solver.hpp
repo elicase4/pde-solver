@@ -16,7 +16,7 @@ namespace pdesolver {
 			namespace iterative {
 				namespace cg {
 
-					template<typename OperatorType, typename VectorType, typename PreconditionerType = void, typename LoggerType = void>
+					template<typename OperatorType, typename VectorType, typename PreconditionerType, typename LoggerType>
 					class Solver {
 					public:
 						Solver(const Config<VectorType>& cfg) : config(cfg) {}
