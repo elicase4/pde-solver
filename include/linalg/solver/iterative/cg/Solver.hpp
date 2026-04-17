@@ -21,14 +21,16 @@ namespace pdesolver {
 					public:
 						Solver(const Config<VectorType>& cfg) : config(cfg) {}
 
-						bool solve(const OperatorType& A, const VectorType& b, VectorType& x, Workspace<VectorType>& W, SolverReport& report, PreconditionderType& M, LoggerType& logger){
+						bool solve(const OperatorType& A, const VectorType& b, VectorType& x, Workspace<VectorType>& W, solver::SolverReport<VectorType>& report, PreconditionerType& M, LoggerType& logger){
+
+							// get data type
+							using DataType = typename VectorType::value_type;
 
 							// compute intial values
-							const Index n = b.size();
-							A.apply(W.x, W.Ap); // Ap = A*x
-							operations::copy(W.b, W.r); // b = r
+							A.apply(x, W.Ap); // Ap = A*x
+							operations::copy(b, W.r); // b = r
 							operations::axpy(-1.0, W.Ap, W.r); // r = Ap - b
-							config.DataType res0 = norm(r); // ||r||
+							DataType res0 = operations::norm(W.r); // ||r||
 							
 							// report & log intial values
 							report.initialResidual = res0;
@@ -47,7 +49,7 @@ namespace pdesolver {
 							operations::copy(W.z, W.p); // p = z
 
 							// set previous residual product
-							config.DataType rz_old = operations::dot(W.r, W.z); // rz_old =r * z
+							DataType rz_old = operations::dot(W.r, W.z); // rz_old = r * z
 
 							// solver loop
 							for (Index k = 1; k < config.maxIters; ++k){
@@ -55,12 +57,12 @@ namespace pdesolver {
 								A.apply(W.p, W.Ap); // Ap = A * p
 
 								// compute alpha
-								config.DataType alpha = rz_old / operations::dot(W.p, W.Ap);// alpha = r*z / p*Ap
-								operations::axpy(alpha, A.p, x); // x = p - alpha * x
-								operations::axpy(-alpha, A.Ap, W.r); // r = Ap - alpha * r
+								DataType alpha = rz_old / operations::dot(W.p, W.Ap);// alpha = r*z / p*Ap
+								operations::axpy(alpha, W.p, x); // x = p - alpha * x
+								operations::axpy(-alpha, W.Ap, W.r); // r = Ap - alpha * r
 
 								// report & log intial values
-								config.DataType res = operations::norm(W.r); // res = ||r||
+								DataType res = operations::norm(W.r); // res = ||r||
 								logger.log(k, res);
 
 								// check convergence with initial values
@@ -72,11 +74,11 @@ namespace pdesolver {
 								}
 
 								// apply preconditioner
-								M.apply(r, z);
+								M.apply(W.r, W.z);
 
 								// update quantities for new iter
-								config.DataType rz_new = operations::dot(W.r, W.z); // rz_new = r*z
-								config.DataType beta = rz_new / rz_old;
+								DataType rz_new = operations::dot(W.r, W.z); // rz_new = r*z
+								DataType beta = rz_new / rz_old;
 
 								operations::scal(beta, W.p); // p = beta * p
 								operations::axpy(1.0, W.z, W.p); // p = p + z
@@ -87,8 +89,8 @@ namespace pdesolver {
 
 							// set report values if max iter is reached
 							report.converged = false;
-							report.finalResidual = operations::norm(r);
-							report.Iterations = config.maxIters;
+							report.finalResidual = operations::norm(W.r);
+							report.iterations = config.maxIters;
 							
 							return false;
 

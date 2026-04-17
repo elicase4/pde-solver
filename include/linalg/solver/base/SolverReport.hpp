@@ -7,16 +7,18 @@ namespace pdesolver {
 	namespace linalg {
 		namespace solver {
 			
-			template<typename DataType>
+			template<typename VectorType>
 			struct SolverReport {
 				
+				using DataType = typename VectorType::value_type;
+
 				bool converged = false;
 				Index iterations = 0;
 				DataType initialResidual = 0.0;
 				DataType finalResidual = 0.0;
 
-				dataType reduction() const {
-					if (intialResidual == 0.0) return 0.0;
+				DataType reduction() const {
+					if (initialResidual == 0.0) return 0.0;
 					return finalResidual / initialResidual;
 				}
 
@@ -25,3 +27,5 @@ namespace pdesolver {
 		} // namespace solver
 	} // namespace linalg
 } // namespace pdesolver
+
+#endif

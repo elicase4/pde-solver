@@ -10,6 +10,7 @@ namespace pdesolver {
 
 			template<typename MatrixType>
 			class CSROperator {
+			public:
 
 				using value_type = typename MatrixType::value_type;
 

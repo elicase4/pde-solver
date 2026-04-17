@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
 #include "linalg/types/Vector.hpp"
-#include "linalg/solver/iterative/cg/CGSolver.hpp"
+#include "linalg/solver/iterative/cg/Solver.hpp"
 #include "linalg/operator/CSROperator.hpp"
 #include "linalg/solver/preconditioner/Identity.hpp"
-#include "utils/logging/NullLogger.hpp"
+#include "utils/logging/core/NullLogger.hpp"
 
 using namespace pdesolver;
 
@@ -30,7 +30,7 @@ TEST(CGSolver, Solve2x2SPD) {
 	A.colIdx()[2] = 0; A.data()[2] = 1.0;
 	A.colIdx()[3] = 1; A.data()[3] = 3.0;
 
-	linalg::op::CSROperator op(A);
+	linalg::op::CSROperator<Mat> op(A);
 
 	// setup linear system Ax = b, with b = [[1], [2]]
 	Vec b(2);
@@ -43,23 +43,26 @@ TEST(CGSolver, Solve2x2SPD) {
 
 	// setup solver workspace & report
 	linalg::solver::iterative::cg::Workspace<Vec> W(2);
-	linalg::solver::SolverReport<Real> report;
+	linalg::solver::SolverReport<Vec> report;
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<Vec> M;
 	utils::logging::NullLogger logger;
-	
-	// declare solver
-	linalg::solver::iterative::cg::Solver<decltype(op), Vec, decltype(M), decltype(logger)> solver;
 
-	// solver system
+	// setup solver config
 	const Real solverTol = 1e-12;
 	const Index MaxIter = 50;
-	solver.solve(op, b, x, W, report, solverTol, MaxIter, M, logger);
+	linalg::solver::iterative::cg::Config<Vec> cfg{solverTol, MaxIter};
+
+	// declare solver
+	linalg::solver::iterative::cg::Solver<decltype(op), Vec, decltype(M), decltype(logger)> solver(cfg);
+
+	// solver system
+	solver.solve(op, b, x, W, report, M, logger);
 
 	// check solution x = [[1/11], [7/11]]
 	const Real tol = 1e-10;
 	EXPECT_NEAR(x.data()[0], 1.0/11.0, tol);
-	EXPECT_NEAR(x.data()[0], 7.0/11.0, tol);
+	EXPECT_NEAR(x.data()[1], 7.0/11.0, tol);
 
 }

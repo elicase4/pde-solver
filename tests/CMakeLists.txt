@@ -37,6 +37,10 @@ add_pde_test(test_matrixops_cpu
 	unit/linalg/cpu/MatrixOperations.cpp
 )
 
+add_pde_test(test_cg_solver_cpu
+	unit/linalg/cpu/CG.cpp
+)
+
 add_pde_test(test_poisson_minimal_cpu
 	integration/fem/cpu/poisson_minimal.cpp
 	pde_mesh
