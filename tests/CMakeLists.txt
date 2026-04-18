@@ -41,7 +41,12 @@ add_pde_test(test_cg_solver_cpu
 	unit/linalg/cpu/CG.cpp
 )
 
-add_pde_test(test_poisson_minimal_cpu
+add_pde_test(test_poisson_assembly_minimal_cpu
 	integration/fem/cpu/poisson_minimal.cpp
+	pde_mesh
+)
+
+add_pde_test(test_poisson_solve_minimal_cpu
+	integration/full/cpu/poisson_minimal.cpp
 	pde_mesh
 )

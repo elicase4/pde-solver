@@ -3,32 +3,45 @@
 
 #include "fem/assembly/Assembler.hpp"
 
+#include "fem/eval/EvalElement.hpp"
+#include "fem/eval/EvalQuadraturePointVolume.hpp"
+#include "fem/eval/EvalModel.hpp"
+
+#include "fem/form/BilinearForm.hpp"
+#include "fem/form/NonlinearTangentForm.hpp"
+
+#include "mesh/Mesh.hpp"
+
+#include "linalg/types/Vector.hpp"
+
+#include "topology/TopologicalDOF.hpp"
+
 namespace pdesolver {
 	namespace linalg {
 		namespace op {
 
-			template<fem::eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+			template<typename Assembler, fem::eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
 			class FEMOperator {
 			public:
 				
-				FEMOperator(const fem::assembly::Assembler& assembler_, const mesh::Mesh& mesh_, const topology::topologicalDOF& topoDOF_, const Real time_, const Model& model_, const Form& form_) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), form(form_) {}
+				FEMOperator(const Assembler& assembler_, const mesh::Mesh& mesh_, const topology::TopologicalDOF& topoDOF_, const Real time_, const Model& model_, const Form& form_) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), form(form_) {}
 
 				template<typename VectorType>
 				void apply(const VectorType& x, VectorType& y) const {
-					assembler.assembleVector<EvalEle, EvalQP, Model, Form, Quadrature>(mesh, topoDOF, time, model, form, x, y);
+					assembler.template assembleVector<EvalEle, EvalQP, Model, Form, Quadrature>(mesh, topoDOF, time, model, form, x, y);
 				}
 
 				Index size() const {
-					return topoDOF.numFreeDofs();
+					return topoDOF.numFreeDOFs();
 				}
 
 			private:
-				fem::assembly::Assembler& assembler;
-				mesh::Mesh& mesh;
-				topology::topologicalDOF& topoDOF;
-				Real time;
-				Model model;
-				Form form;
+				const Assembler& assembler;
+				const mesh::Mesh& mesh;
+				const topology::TopologicalDOF& topoDOF;
+				const Real time;
+				const Model model;
+				const Form form;
 
 			}; // class FEMOperator
 

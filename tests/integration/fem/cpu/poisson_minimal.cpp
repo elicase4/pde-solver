@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <cmath>
 #include <memory.h>
 
 #include "core/Config.hpp"
@@ -58,7 +57,7 @@ protected:
 	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume>;
 
 	// rhs source functions
-	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = std::sin(M_PI*x[0])*std::sin(M_PI*x[1]); };
+	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = x[0]*x[1]; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, numDOFs, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
@@ -340,36 +339,51 @@ TEST_F(CPUPoissonMinimal, FVector){
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// test before bc application
-	for (Index i = 0; i < 12; ++i){
-		EXPECT_NEAR(F.data()[i], 0.0, tol) << "Stage 1 failed at alg DOF = " << i << ".";
-	}
+	EXPECT_NEAR(F.data()[0], 1.0/6.0, tol);
+	EXPECT_NEAR(F.data()[1], 1.0/3.0, tol);
+	EXPECT_NEAR(F.data()[2], 1.0/2.0, tol);
+	EXPECT_NEAR(F.data()[3], 1.0, tol);
+	EXPECT_NEAR(F.data()[4], 2.0, tol);
+	EXPECT_NEAR(F.data()[5], 3.0, tol);
+	EXPECT_NEAR(F.data()[6], 2.0, tol);
+	EXPECT_NEAR(F.data()[7], 4.0, tol);
+	EXPECT_NEAR(F.data()[8], 6.0, tol);
+	EXPECT_NEAR(F.data()[9], 3.0, tol);
+	EXPECT_NEAR(F.data()[10], 6.0, tol);
+	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply natural bcs
 	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
 
 	// tests after applying natural bcs
-	EXPECT_NEAR(F.data()[0], -1.0, tol);
-	EXPECT_NEAR(F.data()[1], -1.0, tol);
-	EXPECT_NEAR(F.data()[2], -1.0, tol);
-	for (Index i = 3; i < 12; ++i){
-		EXPECT_NEAR(F.data()[i], 0.0, tol) << "Stage 2: non-bottom node, alg DOF = " << i << " should be 0.";
-	}
-
+	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
+	EXPECT_NEAR(F.data()[1], 1.0/3.0 - 1.0, tol);
+	EXPECT_NEAR(F.data()[2], 1.0/2.0 - 1.0, tol);
+	EXPECT_NEAR(F.data()[3], 1.0, tol);
+	EXPECT_NEAR(F.data()[4], 2.0, tol);
+	EXPECT_NEAR(F.data()[5], 3.0, tol);
+	EXPECT_NEAR(F.data()[6], 2.0, tol);
+	EXPECT_NEAR(F.data()[7], 4.0, tol);
+	EXPECT_NEAR(F.data()[8], 6.0, tol);
+	EXPECT_NEAR(F.data()[9], 3.0, tol);
+	EXPECT_NEAR(F.data()[10], 6.0, tol);
+	EXPECT_NEAR(F.data()[11], 9.0, tol);
+	
 	// apply essential bcs
 	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 	
 	// tests after applying essential bcs
-	EXPECT_NEAR(F.data()[0], -0.5, tol);
-	EXPECT_NEAR(F.data()[1], -1.0, tol);
-	EXPECT_NEAR(F.data()[2], -0.5, tol);
-	EXPECT_NEAR(F.data()[3], 1.0, tol);
-	EXPECT_NEAR(F.data()[4], 0.0, tol);
-	EXPECT_NEAR(F.data()[5], 1.0, tol);
-	EXPECT_NEAR(F.data()[6], 1.0, tol);
-	EXPECT_NEAR(F.data()[7], 0.0, tol);
-	EXPECT_NEAR(F.data()[8], 1.0, tol);
-	EXPECT_NEAR(F.data()[9], 5.0/3.0, tol);
-	EXPECT_NEAR(F.data()[10], 1.0, tol);
-	EXPECT_NEAR(F.data()[11], 5.0/3.0, tol);
+	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0 + 0.5, tol);
+	EXPECT_NEAR(F.data()[1], 1.0/3.0 - 1.0, tol);
+	EXPECT_NEAR(F.data()[2], 1.0/2.0 - 1.0 + 0.5, tol);
+	EXPECT_NEAR(F.data()[3], 1.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[4], 2.0, tol);
+	EXPECT_NEAR(F.data()[5], 3.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[6], 2.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[7], 4.0, tol);
+	EXPECT_NEAR(F.data()[8], 6.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[9], 3.0 + 5.0/3.0, tol);
+	EXPECT_NEAR(F.data()[10], 6.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[11], 9.0 + 5.0/3.0, tol);
 	
 }
