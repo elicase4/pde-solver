@@ -28,8 +28,8 @@ namespace pdesolver {
 
 							// compute intial values
 							A.apply(x, W.Ap); // Ap = A*x
-							operations::copy(b, W.r); // b = r
-							operations::axpy(-1.0, W.Ap, W.r); // r = Ap - b
+							operations::copy(b, W.r); // r = b
+							operations::axpy(-1.0, W.Ap, W.r); // r = b - Ap
 							DataType res0 = operations::norm(W.r); // ||r||
 							
 							// report & log intial values
@@ -58,8 +58,8 @@ namespace pdesolver {
 
 								// compute alpha
 								DataType alpha = rz_old / operations::dot(W.p, W.Ap);// alpha = r*z / p*Ap
-								operations::axpy(alpha, W.p, x); // x = p - alpha * x
-								operations::axpy(-alpha, W.Ap, W.r); // r = Ap - alpha * r
+								operations::axpy(alpha, W.p, x); // x += alpha * x
+								operations::axpy(-alpha, W.Ap, W.r); // r -= alpha * Ap
 
 								// report & log intial values
 								DataType res = operations::norm(W.r); // res = ||r||
