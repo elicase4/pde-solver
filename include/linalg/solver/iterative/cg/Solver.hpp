@@ -21,7 +21,7 @@ namespace pdesolver {
 					public:
 						Solver(const Config<VectorType>& cfg) : config(cfg) {}
 
-						bool solve(const OperatorType& A, const VectorType& b, VectorType& x, Workspace<VectorType>& W, solver::SolverReport<VectorType>& report, PreconditionerType& M, LoggerType& logger){
+						bool solve(solver::SolverReport<VectorType>& report, LoggerType& logger, Workspace<VectorType>& W, PreconditionerType& M, const OperatorType& A, const VectorType& b, VectorType& x){
 
 							// get data type
 							using DataType = typename VectorType::value_type;

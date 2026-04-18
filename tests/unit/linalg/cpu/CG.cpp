@@ -58,7 +58,7 @@ TEST(CGSolver, Solve2x2SPD) {
 	linalg::solver::iterative::cg::Solver<decltype(op), Vec, decltype(M), decltype(logger)> solver(cfg);
 
 	// solver system
-	solver.solve(op, b, x, W, report, M, logger);
+	solver.solve(report, logger, W, M, op, b, x);
 
 	// check solution x = [[1/11], [7/11]]
 	const Real tol = 1e-10;

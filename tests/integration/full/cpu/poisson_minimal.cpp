@@ -20,10 +20,10 @@ class CPUPoissonMinimal : public ::testing::Test {
 protected:
 	
 	// block mesh parameters
-	const Real x0 = 0.0;
-	const Real x1 = 4.0;
-	const Real y0 = 0.0;
-	const Real y1 = 4.0;
+	const Real x0 = -1.0;
+	const Real x1 = 1.0;
+	const Real y0 = -1.0;
+	const Real y1 = 1.0;
 	const Index nx = 24;
 	const Index ny = 24;
 
@@ -60,7 +60,7 @@ protected:
 	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume>;
 
 	// rhs source functions
-	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = std::sin(M_PI*x[0])*std::sin(M_PI*x[1]); };
+	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = 2*(1 - x[0]*x[0]) + 2*(1 - x[1]*x[1]); };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, numDOFs, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
@@ -179,19 +179,22 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolver){
 	linalg::solver::iterative::cg::Solver<decltype(op), decltype(F), decltype(M), decltype(logger)> solver(cfg);
 
 	// solver linear system
-	solver.solve(op, F, U, W, report, M, logger);
+	solver.solve(report, logger, W, M, op, F, U);
 
 	// test tolerance
-	const Real tol = 5e-2;
+	const Real tol = 2e-3;
 
 	// test report
 	EXPECT_TRUE(report.converged);
-
+	EXPECT_NEAR(report.finalResidual, 1e-12, 1e-11);
+	
 	// test solution
 	Index solIndex = 0;
-	for (Index i = 1; i < nx; ++i) {
-		for (Index j = 1; j < ny; ++j) {
-			EXPECT_NEAR(U.data()[solIndex], (1 / (2*M_PI*M_PI) )*std::sin(M_PI*(x0 + i*((x1-x0)/nx) ))*std::sin(M_PI*(y0 + j*((y1-y0)/ny) )), tol);
+	for (Index j = 1; j < ny; ++j) {
+		for (Index i = 1; i < nx; ++i) {
+			Real x_ij = x0 + i*((x1-x0)/nx);
+			Real y_ij = y0 + j*((y1-y0)/ny);
+			EXPECT_NEAR(U.data()[solIndex], (1 - x_ij*x_ij)*(1 - y_ij*y_ij), tol);
 			solIndex++;
 		}
 	}
@@ -242,19 +245,22 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 	linalg::solver::iterative::cg::Solver<decltype(op), decltype(F), decltype(M), decltype(logger)> solver(cfg);
 
 	// solver linear system
-	solver.solve(op, F, U, W, report, M, logger);
+	solver.solve(report, logger, W, M, op, F, U);
 
 	// test tolerance
-	const Real tol = 5e-2;
+	const Real tol = 2e-3;
 
 	// test report
 	EXPECT_TRUE(report.converged);
+	EXPECT_NEAR(report.finalResidual, 1e-12, 1e-11);
 
 	// test solution
 	Index solIndex = 0;
-	for (Index i = 1; i < nx; ++i) {
-		for (Index j = 1; j < ny; ++j) {
-			EXPECT_NEAR(U.data()[solIndex], (1 / (2*M_PI*M_PI) )*std::sin(M_PI*(x0 + i*((x1-x0)/nx) ))*std::sin(M_PI*(y0 + j*((y1-y0)/ny) )), tol);
+	for (Index j = 1; j < ny; ++j) {
+		for (Index i = 1; i < nx; ++i) {
+			Real x_ij = x0 + i*((x1-x0)/nx);
+			Real y_ij = y0 + j*((y1-y0)/ny);
+			EXPECT_NEAR(U.data()[solIndex], (1 - x_ij*x_ij)*(1 - y_ij*y_ij), tol);
 			solIndex++;
 		}
 	}
