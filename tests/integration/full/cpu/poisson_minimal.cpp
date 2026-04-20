@@ -132,7 +132,7 @@ TEST_F(CPUPoissonMinimal, DOFHandling_CGSolve){
 
 TEST_F(CPUPoissonMinimal, MatrixCGSolver){
 
-	// form
+	// forms
 	DiffusionForm diffusionForm;
 	SourceFunction sourceFunction(f);
 	SourceForm sourceForm(sourceFunction);
@@ -158,6 +158,9 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolver){
 
 	// call assembly for rhs vector
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+
+	// apply essential bcs (included for flow, not-needed for homogeneoud bcs)
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
 	linalg::op::CSROperator<linalg::types::CSRMatrix<Real, BackendType>> op(K);
@@ -224,6 +227,9 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 
 	// call assembly for rhs vector
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+
+	// apply essential bcs (included for flow, not-needed for homogeneoud bcs)
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
 	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm);

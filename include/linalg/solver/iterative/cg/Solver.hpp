@@ -58,7 +58,7 @@ namespace pdesolver {
 
 								// compute alpha
 								DataType alpha = rz_old / operations::dot(W.p, W.Ap);// alpha = r*z / p*Ap
-								operations::axpy(alpha, W.p, x); // x += alpha * x
+								operations::axpy(alpha, W.p, x); // x += alpha * p
 								operations::axpy(-alpha, W.Ap, W.r); // r -= alpha * Ap
 
 								// report & log intial values
@@ -80,8 +80,8 @@ namespace pdesolver {
 								DataType rz_new = operations::dot(W.r, W.z); // rz_new = r*z
 								DataType beta = rz_new / rz_old;
 
-								operations::scal(beta, W.p); // p = beta * p
-								operations::axpy(1.0, W.z, W.p); // p = p + z
+								operations::scal(beta, W.p); // p *= beta
+								operations::axpy(1.0, W.z, W.p); // p += z
 
 								rz_old = rz_new;
 

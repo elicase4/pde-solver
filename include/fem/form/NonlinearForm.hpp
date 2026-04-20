@@ -11,8 +11,8 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 			
-			template<typename Form, typename QuadraturePointVolume>
-			concept NonlinearForm = requires (const Form f, const QuadraturePointVolume& qp, const Real* Ue, Real* Re) {
+			template<typename Form, typename QuadraturePoint, typename refPtr>
+			concept NonlinearForm = requires (const Form f, const QuadraturePoint& qp, refPtr Ue, Real* Re) {
 				{ f.computeElementLevelVector(qp, Ue, Re) } -> std::same_as<void>;
 			}; // concept NonlinearForm
 		

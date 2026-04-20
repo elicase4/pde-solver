@@ -62,10 +62,10 @@ protected:
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
 	// specify bc functions
-	static constexpr auto g = [](Real, const Real*, Real* out){ out[0] = 1.0; };
+	static constexpr auto g = [](Real, const Real* x, Real* out){ out[0] = x[0]; };
 	using PoissonDirichletBC = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g)>;
 	
-	static constexpr auto h = [](Real, const Real*, Real* out){ out[0] = 1.0; out[1] = 1.0; };
+	static constexpr auto h = [](Real, const Real* x, Real* out){ out[0] = 0.0; out[1] = x[0]; };
 	using PoissonFluxBC = fem::boundary::PoissonBoundaryFluxFunction<nsd, numDOFs, decltype(h)>;
 	using FluxForm = fem::form::PoissonFluxBoundaryForm<EvalQuadraturePointBoundary, PoissonFluxBC>;
 	
@@ -310,9 +310,6 @@ TEST_F(CPUPoissonMinimal, OVector){
 
 TEST_F(CPUPoissonMinimal, FVector){
 	
-	// diffusion form
-	DiffusionForm diffusionForm;
-
 	// source form
 	SourceFunction sourceFunction(f);
 	SourceForm sourceForm(sourceFunction);
@@ -320,6 +317,9 @@ TEST_F(CPUPoissonMinimal, FVector){
 	// flux form
 	PoissonFluxBC fluxFunction(h);
 	FluxForm fluxForm(fluxFunction);
+
+	// diffusion form
+	DiffusionForm diffusionForm;
 	
 	// arbitrary time
 	Real t = 0.0;
@@ -354,11 +354,11 @@ TEST_F(CPUPoissonMinimal, FVector){
 
 	// apply natural bcs
 	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
-
+	
 	// tests after applying natural bcs
-	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
-	EXPECT_NEAR(F.data()[1], 1.0/3.0 - 1.0, tol);
-	EXPECT_NEAR(F.data()[2], 1.0/2.0 - 1.0, tol);
+	EXPECT_NEAR(F.data()[0], 1.0/6.0 + 1.0/2.0, tol);
+	EXPECT_NEAR(F.data()[1], 1.0/3.0 + 5.0/3.0, tol);
+	EXPECT_NEAR(F.data()[2], 1.0/2.0 + 8.0/3.0, tol);
 	EXPECT_NEAR(F.data()[3], 1.0, tol);
 	EXPECT_NEAR(F.data()[4], 2.0, tol);
 	EXPECT_NEAR(F.data()[5], 3.0, tol);
@@ -368,22 +368,22 @@ TEST_F(CPUPoissonMinimal, FVector){
 	EXPECT_NEAR(F.data()[9], 3.0, tol);
 	EXPECT_NEAR(F.data()[10], 6.0, tol);
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
-	
+
 	// apply essential bcs
 	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 	
 	// tests after applying essential bcs
-	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0 + 0.5, tol);
-	EXPECT_NEAR(F.data()[1], 1.0/3.0 - 1.0, tol);
-	EXPECT_NEAR(F.data()[2], 1.0/2.0 - 1.0 + 0.5, tol);
-	EXPECT_NEAR(F.data()[3], 1.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[0], 1.0/6.0 + 1.0/2.0, tol);
+	EXPECT_NEAR(F.data()[1], 1.0/3.0 + 5.0/3.0, tol);
+	EXPECT_NEAR(F.data()[2], 1.0/2.0 + 8.0/3.0 + 2.0, tol);
+	EXPECT_NEAR(F.data()[3], 1.0, tol);
 	EXPECT_NEAR(F.data()[4], 2.0, tol);
-	EXPECT_NEAR(F.data()[5], 3.0 + 1.0, tol);
-	EXPECT_NEAR(F.data()[6], 2.0 + 1.0, tol);
+	EXPECT_NEAR(F.data()[5], 3.0 + 4.0/3.0, tol);
+	EXPECT_NEAR(F.data()[6], 2.0, tol);
 	EXPECT_NEAR(F.data()[7], 4.0, tol);
-	EXPECT_NEAR(F.data()[8], 6.0 + 1.0, tol);
-	EXPECT_NEAR(F.data()[9], 3.0 + 5.0/3.0, tol);
-	EXPECT_NEAR(F.data()[10], 6.0 + 1.0, tol);
-	EXPECT_NEAR(F.data()[11], 9.0 + 5.0/3.0, tol);
-	
+	EXPECT_NEAR(F.data()[8], 6.0 + 4.0/3.0, tol);
+	EXPECT_NEAR(F.data()[9], 3.0 + 1.0/3.0, tol);
+	EXPECT_NEAR(F.data()[10], 6.0 + 2.0/3.0, tol);
+	EXPECT_NEAR(F.data()[11], 9.0 + 7.0/3.0, tol);
+
 }
