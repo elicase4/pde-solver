@@ -9,9 +9,14 @@ namespace pdesolver::fem::eval {
 	class PoissonEvalQuadraturePointBoundary {
 	public:
 
+		// dimensions
+		static constexpr Index NodesPerElement = Element::NodesPerElement;
+		static constexpr Int SpatialDim = Element::SpatialDim;
+		static constexpr Int ParametricDim = Element::ParametricDim;
+		
 		Element element;
 		Int faceID;
-		Real faceCoords[Element::NodesPerElement];
+		Real faceCoords[SpatialDim*Element::NodesPerElement];
 
 		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
 			
@@ -23,11 +28,6 @@ namespace pdesolver::fem::eval {
 			}
 			
 		}
-
-		// dimensions
-		static constexpr Index NodesPerElement = Element::NodesPerElement;
-		static constexpr Int SpatialDim = Element::SpatialDim;
-		static constexpr Int ParametricDim = Element::ParametricDim;
 
 		// helper functions
 		static Index NodesPerFace(const Int faceID){
@@ -59,13 +59,12 @@ namespace pdesolver::fem::eval {
 		// ref gradients
 		Real dNdxi[ParametricDim*Element::NodesPerElement];
 
-		// normal vector
+		// normal vectors
 		Real normal[SpatialDim];
+		Real normalRef[ParametricDim];
 
 		// geometry
 		Real J[SpatialDim*ParametricDim];
-		Index tangentID[ParametricDim-1];
-		Real nCoeff;
 
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_face_q, const Real weight){
 			
@@ -81,13 +80,13 @@ namespace pdesolver::fem::eval {
 			// evaluate basis
 			Basis::eval(xi, N);
 			Basis::evalGradient(xi, dNdxi);
-			nCoeff = Basis::getFaceTopology(faceID, tangentID);
+			Basis::getFaceTopology(faceID, normalRef);
 
 			// geometry
 			Geometry::mapToPhysical(coords, N, x);
 			Geometry::mapToPhysical(faceCoords, N, x_face);
 			Geometry::computeJacobian(coords, dNdxi, J);
-			Geometry::computeNormal(J, tangentID, nCoeff, normal);
+			Geometry::computeBoundaryNormal(J, normalRef, normal);
 
 		}
 

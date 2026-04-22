@@ -17,8 +17,8 @@ TEST(JacobianTransform, LagrangeQuad2Dx2DMainTransform){
 	Real nodeCoords[sD*npe] = {
 		0, 0,
 		2, 0,
-		2, 3,
-		0, 3
+		0, 3,
+		2, 3
 	};
 
 	Real xi[pD] = {-0.2, -0.4};
@@ -28,20 +28,20 @@ TEST(JacobianTransform, LagrangeQuad2Dx2DMainTransform){
 
 	Real J[sD*pD];
 	JacobianTransform<sD,pD,npe>::computeJacobian(nodeCoords, dNdxi, J);
-	EXPECT_NEAR(J[0], -xi[1], 1e-13);
-	EXPECT_NEAR(J[1], -xi[0], 1e-13);
+	EXPECT_NEAR(J[0], 1.0, 1e-13);
+	EXPECT_NEAR(J[1], 0.0, 1e-13);
 	EXPECT_NEAR(J[2], 0.0, 1e-13);
 	EXPECT_NEAR(J[3], 1.5, 1e-13);
 
 	Real g[pD*pD];
 	JacobianTransform<sD,pD,npe>::computeMetric(J, g);
-	EXPECT_NEAR(g[0], xi[1] * xi[1], 1e-13);
-	EXPECT_NEAR(g[1], xi[1] * xi[0], 1e-13);
-	EXPECT_NEAR(g[2], xi[1] * xi[0], 1e-13);
-	EXPECT_NEAR(g[3], xi[0] * xi[0] + 2.25, 1e-13);
+	EXPECT_NEAR(g[0], 1.0, 1e-13);
+	EXPECT_NEAR(g[1], 0.0, 1e-13);
+	EXPECT_NEAR(g[2], 0.0, 1e-13);
+	EXPECT_NEAR(g[3], 2.25, 1e-13);
 
 	Real measure = JacobianTransform<sD,pD,npe>::computeMeasure(g);
-	EXPECT_NEAR(measure, sqrt((xi[1] * xi[1] * (xi[0] * xi[0] + 2.25) ) - (xi[1] * xi[1] * xi[0]* xi[0])), 1e-13);
+	EXPECT_NEAR(measure, 1.5, 1e-13);
 
 }
 
@@ -54,8 +54,8 @@ TEST(JacobianTransform, LagrangeQuad2Dx2DGradientTransform){
 	Real nodeCoords[sD*npe] = {
 		0, 0,
 		2, 0,
-		2, 3,
-		0, 3
+		0, 3,
+		2, 3
 	};
 
 	Real xi[pD] = {-0.2, -0.4};
@@ -131,11 +131,11 @@ TEST(JacobianTransform, LagrangeQuad2Dx2DBoundaryNormal){
 	Real nodeCoords[sD*npe] = {
 		0, 0,
 		2, 0,
-		2, 3,
-		0, 3
+		0, 3,
+		2, 3
 	};
 
-	Real xi[pD] = {-0.5, -1.0};
+	Real xi[pD] = {-1.0, -0.5};
 	
 	Real dNdxi[pD*npe];
 	BilinearQuad::evalGradient(xi, dNdxi);
@@ -143,16 +143,16 @@ TEST(JacobianTransform, LagrangeQuad2Dx2DBoundaryNormal){
 	Real J[sD*pD];
 	JacobianTransform<sD,pD,npe>::computeJacobian(nodeCoords, dNdxi, J);
 	
-	Index tangentID[pD];
-	Real nCoeff = BilinearQuad::getFaceTopology(0, tangentID);
-	EXPECT_NEAR(nCoeff, -1.0, 1e-13);
-	EXPECT_NEAR(tangentID[0], 0, 1e-13);
+	Real nRef[pD];
+	BilinearQuad::getFaceTopology(0, nRef);
+	EXPECT_NEAR(nRef[0], -1.0, 1e-13);
+	EXPECT_NEAR(nRef[1], 0.0, 1e-13);
 	
 	Real normal[sD];
-	JacobianTransform<sD,pD,npe>::computeNormal(J, tangentID, nCoeff, normal);
+	JacobianTransform<sD,pD,npe>::computeBoundaryNormal(J, nRef, normal);
 
-	EXPECT_NEAR(normal[0], 0.0, 1e-13);
-	EXPECT_NEAR(normal[1], -xi[1], 1e-13);
+	EXPECT_NEAR(normal[0], -1.5, 1e-13);
+	EXPECT_NEAR(normal[1], 0.0, 1e-13);
 }
 
 TEST(JacobianTransform, LagrangeQuad3Dx2DBoundaryNormal){
@@ -168,7 +168,7 @@ TEST(JacobianTransform, LagrangeQuad3Dx2DBoundaryNormal){
 		 2,  3, -1
 	};
 	
-	Real xi[pD] = {-0.5, -1.0};
+	Real xi[pD] = {-1.0, -0.5};
 
 	Real dNdxi[pD*npe];
 	BilinearQuad::evalGradient(xi, dNdxi);
@@ -176,16 +176,15 @@ TEST(JacobianTransform, LagrangeQuad3Dx2DBoundaryNormal){
 	Real J[sD*pD];
 	JacobianTransform<sD,pD,npe>::computeJacobian(nodeCoords, dNdxi, J);
 	
-	Index tangentID[pD];
-	Real nCoeff = BilinearQuad::getFaceTopology(0, tangentID);
-	EXPECT_NEAR(nCoeff, -1.0, 1e-13);
-	EXPECT_NEAR(tangentID[0], 0, 1e-13);
-	EXPECT_NEAR(tangentID[1], 1, 1e-13);
+	Real nRef[pD];
+	BilinearQuad::getFaceTopology(0, nRef);
+	EXPECT_NEAR(nRef[0], -1.0, 1e-13);
+	EXPECT_NEAR(nRef[1], 0.0, 1e-13);
 	
 	Real normal[sD];
-	JacobianTransform<sD,pD,npe>::computeNormal(J, tangentID, nCoeff, normal);
-
-	EXPECT_NEAR(normal[0], -1.0 * (-1.25 * xi[0] + 0.25*xi[0]*xi[1])*2.0, 1e-13);
-	EXPECT_NEAR(normal[1], (10.25 - 2.5*xi[1] + 0.25*xi[1]*xi[1])*3.0, 1e-13);
-	EXPECT_NEAR(normal[2], -1.0 * (-1.25 * xi[0] + 0.25*xi[0]*xi[1])*(-2.5 + 0.5*xi[1]) + (10.25 - 2.5*xi[1] + 0.25*xi[1]*xi[1])*(0.5*xi[0]), 1e-13);
+	JacobianTransform<sD,pD,npe>::computeBoundaryNormal(J, nRef, normal);
+	
+	EXPECT_NEAR(normal[0], -18.0 - 0.5*xi[0]*xi[0], 1e-13);
+	EXPECT_NEAR(normal[1], -3.75*xi[0] + 0.75*xi[0]*xi[1], 1e-13);
+	EXPECT_NEAR(normal[2], 22.5 - 4.5*xi[1], 1e-13);
 }

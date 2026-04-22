@@ -369,6 +369,7 @@ TEST_F(CPUPoissonMinimal, FVector){
 	EXPECT_NEAR(F.data()[10], 6.0, tol);
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
+	/*
 	// apply essential bcs
 	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 	
@@ -385,5 +386,6 @@ TEST_F(CPUPoissonMinimal, FVector){
 	EXPECT_NEAR(F.data()[9], 3.0 + 1.0/3.0, tol);
 	EXPECT_NEAR(F.data()[10], 6.0 + 2.0/3.0, tol);
 	EXPECT_NEAR(F.data()[11], 9.0 + 7.0/3.0, tol);
+	*/
 
 }

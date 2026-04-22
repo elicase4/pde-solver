@@ -23,7 +23,7 @@ namespace pdesolver {
 
 				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* g, const Real* dNdxi, Real* dNdx);
 
-				PDE_HOST PDE_DEVICE static void computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n);
+				PDE_HOST PDE_DEVICE static void computeBoundaryNormal(const Real* J, const Real* nRef, Real* n);
 
 				static constexpr Index SpatialDim = SpatialDimension;
 				static constexpr Index ParametricDim = ParametricDimension;
@@ -33,6 +33,8 @@ namespace pdesolver {
 				PDE_HOST PDE_DEVICE static void invertMatrix(const Real* A, const Real detA, Real* invA);
 				
 				PDE_HOST PDE_DEVICE static Real computeMatrixDeterminant(const Real* A);
+				
+				PDE_HOST PDE_DEVICE static void computeMatrixCofactor(const Real* A, Real* cofA);
 
 			}; // class JacobianTransform
 			

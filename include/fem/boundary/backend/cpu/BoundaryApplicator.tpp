@@ -141,7 +141,7 @@ public:
 				if (!bcRegistry.hasAny(rngTag)) continue;
 				const Index nodesPerFace = EvalQP::NodesPerFace(rngTag);
 
-				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement];
+				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement] = {0};
 				Index faceNodeLocalIDs[EvalQP::NodesPerElement];
 				EvalQP::getFaceNodes(rngTag, faceNodeLocalIDs);
 				const Index* elemNodeGlobalIDs = mesh.getElementNodes(e);

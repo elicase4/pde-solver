@@ -97,26 +97,27 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalLaplacian(const Real* xi, Rea
 
 // implementation: getFaceTopology 
 template<Index Px, Index Py>
-PDE_HOST PDE_DEVICE Real LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Index* tangentID){
+PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::getFaceTopology(const Int rngID, Real* nRef){
 	switch (rngID){
 		case 0:
-			tangentID[0] = 0;
-			tangentID[1] = 1;
-			return -1.0;
+			nRef[0] = -1.0;
+			nRef[1] = 0.0;
+			break;
 		case 1:
-			tangentID[0] = 0;
-			tangentID[1] = 1;
-			return 1.0;
+			nRef[0] = 1.0;
+			nRef[1] = 0.0;
+			break;
 		case 2:
-			tangentID[0] = 1;
-			tangentID[1] = 0;
-			return -1.0;
+			nRef[0] = 0.0;
+			nRef[1] = -1.0;
+			break;
 		case 3:
-			tangentID[0] = 1;
-			tangentID[1] = 0;
-			return 1.0;
+			nRef[0] = 0.0;
+			nRef[1] = 1.0;
+			break;
 		default:
-			return 0.0;
+			nRef[0] = 0.0;
+			nRef[1] = 0.0;
 	}
 }
 
