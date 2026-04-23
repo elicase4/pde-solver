@@ -60,12 +60,12 @@ protected:
 	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume>;
 
 	// rhs source functions
-	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = 2*(1 - x[0]*x[0]) + 2*(1 - x[1]*x[1]); };
+	static constexpr auto f = [](Real, const Real*, Real* out){ out[0] = 0.0; };
 	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, numDOFs, decltype(f)>;
 	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
 	// specify bc functions
-	static constexpr auto g = [](Real, const Real*, Real* out){ out[0] = 0.0; };
+	static constexpr auto g = [](Real, const Real* x, Real* out){ out[0] = (1 - x[0])*(1 - x[1]); };
 	using PoissonDirichletBC = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g)>;
 	
 	// declare assembler
@@ -121,7 +121,7 @@ protected:
 	}
 };
 
-TEST_F(CPUPoissonMinimal, DOFHandling_CGSolve){
+TEST_F(CPUPoissonMinimal, DOFHandlingCGSolve){
 
 	// Test topologicalDOF
 	EXPECT_EQ(topoDOF2D->dofsPerNode(), 1);
@@ -130,7 +130,7 @@ TEST_F(CPUPoissonMinimal, DOFHandling_CGSolve){
 
 }
 
-TEST_F(CPUPoissonMinimal, MatrixCGSolver){
+TEST_F(CPUPoissonMinimal, MatrixCGSolverBilinearSolP1){
 
 	// forms
 	DiffusionForm diffusionForm;
@@ -159,7 +159,7 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolver){
 	// call assembly for rhs vector
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
-	// apply essential bcs (included for flow, not-needed for homogeneoud bcs)
+	// apply essential bcs
 	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
@@ -197,7 +197,7 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolver){
 		for (Index i = 1; i < nx; ++i) {
 			Real x_ij = x0 + i*((x1-x0)/nx);
 			Real y_ij = y0 + j*((y1-y0)/ny);
-			EXPECT_NEAR(U.data()[solIndex], (1 - x_ij*x_ij)*(1 - y_ij*y_ij), tol);
+			EXPECT_NEAR(U.data()[solIndex], (1 - x_ij)*(1 - y_ij), tol);
 			solIndex++;
 		}
 	}
@@ -228,7 +228,7 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 	// call assembly for rhs vector
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
-	// apply essential bcs (included for flow, not-needed for homogeneoud bcs)
+	// apply essential bcs
 	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
@@ -266,7 +266,7 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 		for (Index i = 1; i < nx; ++i) {
 			Real x_ij = x0 + i*((x1-x0)/nx);
 			Real y_ij = y0 + j*((y1-y0)/ny);
-			EXPECT_NEAR(U.data()[solIndex], (1 - x_ij*x_ij)*(1 - y_ij*y_ij), tol);
+			EXPECT_NEAR(U.data()[solIndex], (1 - x_ij)*(1 - y_ij), tol);
 			solIndex++;
 		}
 	}
