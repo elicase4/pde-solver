@@ -185,7 +185,7 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolverBilinearSolP1){
 	solver.solve(report, logger, W, M, op, F, U);
 
 	// test tolerance
-	const Real tol = 2e-3;
+	const Real tol = 1e-10;
 
 	// test report
 	EXPECT_TRUE(report.converged);
@@ -254,7 +254,7 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 	solver.solve(report, logger, W, M, op, F, U);
 
 	// test tolerance
-	const Real tol = 2e-3;
+	const Real tol = 1e-10;
 
 	// test report
 	EXPECT_TRUE(report.converged);
