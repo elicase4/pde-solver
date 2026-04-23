@@ -10,6 +10,10 @@ namespace pdesolver {
 			template<typename T, typename Backend>
 			class Matrix {
 			public:
+
+				using value_type = T;
+				using backend_type = Backend;
+
 				explicit Matrix(Index nRows, Index nCols) : nRows_(nRows), nCols_(nCols), data_(Backend::template alloc<T>(nRows * nCols)) {};
 				
 				// Move only operations

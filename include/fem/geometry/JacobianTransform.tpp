@@ -107,43 +107,50 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDimension, ParametricDimension
 }
 
 template<Int SpatialDimension, Int ParametricDimension, Int NodesPerElement>
-PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDimension, ParametricDimension, NodesPerElement>::computeNormal(const Real* J, const Index* tangentID, const Real nCoeff, Real* n){
+PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDimension, ParametricDimension, NodesPerElement>::computeBoundaryNormal(const Real* J, const Real* nRef, Real* n){
 	
-	if constexpr (ParametricDimension == 2 && SpatialDimension == 2) {
+	if constexpr (ParametricDimension == SpatialDimension) {
 
-		Real t0 = J[tangentID[0]];
-		Real t1 = J[ParametricDimension+tangentID[0]];
-		
-		n[0] = nCoeff * t1;
-		n[1] = -1.0 * nCoeff * t0;
-		
-	} else if constexpr (ParametricDimension == 2 && SpatialDimension == 3){
-		
-		Real t0 = J[tangentID[0]];
-		Real t1 = J[ParametricDimension+tangentID[0]];
-		Real t2 = J[2*ParametricDimension+tangentID[0]];
-		
-		Real a0 = J[tangentID[1]];
-		Real a1 = J[ParametricDimension+tangentID[1]];
-		Real a2 = J[2*ParametricDimension+tangentID[1]];
+		Real cofJ[ParametricDimension*ParametricDimension];
+		computeMatrixCofactor(J, cofJ);
 
-		n[0] = nCoeff * ( ((t0*a0 + t1*a1 + t2*a2) * t0) - ((t0*t0 + t1*t1 + t2*t2) * a0) );
-		n[1] = nCoeff * ( ((t0*a0 + t1*a1 + t2*a2) * t1) - ((t0*t0 + t1*t1 + t2*t2) * a1) );
-		n[2] = nCoeff * ( ((t0*a0 + t1*a1 + t2*a2) * t2) - ((t0*t0 + t1*t1 + t2*t2) * a2) );
+		for (Index i = 0; i < ParametricDimension; ++i){
+			n[i] = 0.0;
+			for (Index j = 0; j < ParametricDimension; ++j){
+				n[i] += cofJ[i*ParametricDimension + j] * nRef[j];
+			}
+		}
 
-	} else if constexpr (ParametricDimension == 3 && SpatialDimension == 3){
-		
-		Real t0 = J[tangentID[0]];
-		Real t1 = J[ParametricDimension+tangentID[0]];
-		Real t2 = J[2*ParametricDimension+tangentID[0]];
-		
-		Real a0 = J[tangentID[1]];
-		Real a1 = J[ParametricDimension+tangentID[1]];
-		Real a2 = J[2*ParametricDimension+tangentID[1]];
-		
-		n[0] = nCoeff * ( (t1*a2) - (a1*t2) );
-		n[1] = -1.0 * nCoeff * ( (t0*a2) - (a0*t2) );
-		n[2] = nCoeff * ( (t0*a1) - (a0*t1) );
+	} else if constexpr (ParametricDimension == 2 && SpatialDimension == 3) {
+
+		// extract a1
+		Real a10 = J[0];
+		Real a11 = J[2];
+		Real a12 = J[4];
+
+		// extract a2
+		Real a20 = J[1];
+		Real a21 = J[3];
+		Real a22 = J[5];
+
+		// compute surface normal
+		Real ns0 = a11*a22 - a12*a21;
+		Real ns1 = a12*a20 - a10*a22;
+		Real ns2 = a10*a21 - a11*a20;
+
+		// compute nref_purp
+		Real r0 = -nRef[1];
+		Real r1 =  nRef[0];
+
+		// compute t = J*r
+		Real t0 = a10*r0 + a20*r1;
+		Real t1 = a11*r0 + a21*r1;
+		Real t2 = a12*r0 + a22*r1;
+
+		// compute n = t x n_s
+		n[0] = t1*ns2 - t2*ns1;
+		n[1] = t2*ns0 - t0*ns2;
+		n[2] = t0*ns1 - t1*ns0;
 
 	}
 
@@ -195,6 +202,34 @@ PDE_HOST PDE_DEVICE Real JacobianTransform<SpatialDimension, ParametricDimension
 	}
 
 	return detA;
+
+}
+
+template<Int SpatialDimension, Int ParametricDimension, Int NodesPerElement>
+PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDimension, ParametricDimension, NodesPerElement>::computeMatrixCofactor(const Real* A, Real* cofA){
+
+	if constexpr (ParametricDimension == 2) {
+		
+		cofA[0] =  A[3];
+		cofA[1] = -A[2];
+		cofA[2] = -A[1];
+		cofA[3] =  A[0];
+
+	} else if constexpr (ParametricDimension == 3){
+
+		cofA[0] =  (A[4]*A[8] - A[5]*A[7]);
+		cofA[1] = -(A[3]*A[8] - A[5]*A[6]);
+		cofA[2] =  (A[3]*A[7] - A[4]*A[6]);
+
+		cofA[3] = -(A[1]*A[8] - A[2]*A[7]);
+		cofA[4] =  (A[0]*A[8] - A[2]*A[6]);
+		cofA[5] = -(A[0]*A[7] - A[1]*A[6]);
+
+		cofA[6] =  (A[1]*A[5] - A[2]*A[4]);
+		cofA[7] = -(A[0]*A[5] - A[2]*A[3]);
+		cofA[8] =  (A[0]*A[4] - A[1]*A[3]);
+
+	}
 
 }
 

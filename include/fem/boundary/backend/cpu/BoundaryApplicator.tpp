@@ -50,10 +50,10 @@ public:
 			
 			// fill Ge
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
-				
+
 				Real bcVal[BoundaryCondition<Function>::NumComponents];
 				Int rngTag;
-				
+
 				for (Index j = 0; j < topoDOF.dofsPerNode(); ++j){
 
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
@@ -63,17 +63,14 @@ public:
 						continue;
 					}
 					
-					// extract and evaluate boundary value function
-					for (const auto& entry: bcRegistry.entries()){
+					for (auto& entry: bcRegistry.entries()){
 						if (entry->tag() != rngTag) continue;
 						if (entry->componentType(j) != BCCategory::Essential) continue;
-						entry->eval(qp.time, qp.x, bcVal);
+						entry->eval(time, &nodeCoords[EvalEle::SpatialDim*i], bcVal);
 					}
-					
+
 					if (bcRegistry.isEssential(rngTag, j)){
-						
 						Ge.data()[i*topoDOF.dofsPerNode() + j] = bcVal[j];
-					
 					}
 
 				}
@@ -144,7 +141,7 @@ public:
 				if (!bcRegistry.hasAny(rngTag)) continue;
 				const Index nodesPerFace = EvalQP::NodesPerFace(rngTag);
 
-				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement];
+				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement] = {0};
 				Index faceNodeLocalIDs[EvalQP::NodesPerElement];
 				EvalQP::getFaceNodes(rngTag, faceNodeLocalIDs);
 				const Index* elemNodeGlobalIDs = mesh.getElementNodes(e);

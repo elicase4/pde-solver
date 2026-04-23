@@ -10,6 +10,10 @@ namespace pdesolver {
 			template<typename T, typename Backend>
 			class Vector {
 			public:
+				
+				using value_type = T;
+				using backend_type = Backend;
+
 				explicit Vector(Index size) : size_(size), data_(Backend::template alloc<T>(size)) {};
 				
 				// Move only operations
@@ -28,6 +32,10 @@ namespace pdesolver {
 				// Zero-out data
 				void zero(){
 					Backend::template zero<T>(data_.get(), size_);
+				}
+
+				void set(T value){
+					Backend::template set<T>(data_.get(), size_, value);
 				}
 			
 			private:
