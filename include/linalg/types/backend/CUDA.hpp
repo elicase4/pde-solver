@@ -52,7 +52,7 @@ namespace pdesolver {
 								CUDAKind = cudaMemcpyDeviceToDevice;
 								break;
 							default:
-								CUDAkind = cudaMemcpyDefault;
+								CUDAKind = cudaMemcpyDefault;
 						}
 
 						cudaMemcpy(dst, src, n*sizeof(T), CUDAkind);

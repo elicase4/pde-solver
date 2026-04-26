@@ -1,11 +1,13 @@
 #ifndef PDESOLVER_TOPOLOGICALDOF_HPP
 #define PDESOLVER_TOPOLOGICALDOF_HPP
 
+#include <numeric>
 #include <vector>
 #include <unordered_map>
 
 #include "core/Types.hpp"
 #include "fem/boundary/BoundaryRegistry.hpp"
+#include "fem/dof/DOFOrdering.hpp"
 #include "mesh/Mesh.hpp"
 
 namespace pdesolver {
@@ -13,16 +15,22 @@ namespace pdesolver {
 
 		class TopologicalDOF {
 		public:
-			TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode);
+			TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering);
 			
 			// size
 			Index numGlobalDOFs() const { return numGlobalDOFs_; }
 			Index numFreeDOFs() const { return numFreeDOFs_; }
 			Index dofsPerNode() const { return dofsPerNode_; }
+			Index numFreeDOFsPerField() const { return numFreeDOFsPerField_; }
+			fem::dof::DOFOrdering ordering() const { return ordering_; }
+			Index fieldOffset(Index component) const { return component * numFreeDOFsPerField_; }
 			
+			//Index numFreeDOFsPerField(Index component) const { return numFreeDOFsPerField_[component]; }
+			//Index fieldOffset(Index component) { return std::acculumate(numFreeDOFsPerField_.begin(), numFreeDOFsPerField_.begin() + component, (Index) 0); }			
+
 			// node mappings
 			Index getNodeDOF(Index nodeId, Index component) const { return (nodeId * dofsPerNode_ + component); }
-			Index getDOFNode(Index topoDOF) const { return (topoDOF % dofsPerNode_); }
+			Index getDOFNode(Index topoDOF) const { return (topoDOF / dofsPerNode_); }
 			
 			// element mappings
 			void getElementDOFs(Index elemId, Index* dofs) const;
@@ -47,7 +55,11 @@ namespace pdesolver {
 			Index dofsPerNode_;
 			Index numGlobalDOFs_;
 			Index numFreeDOFs_;
+			fem::dof::DOFOrdering ordering_;
+			Index numFreeDOFsPerField_;
 
+			//std::vector<Index> numFreeDOFsPerField_;
+			
 			// mappings
 			std::vector<Int> topoToAlg_; // Size: numGlobalDOFs
 			std::vector<Int> algToTopo_; // Size: numFreeDOFs

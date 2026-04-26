@@ -1,6 +1,6 @@
 namespace pdesolver::topology {
 
-TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode) : mesh_(mesh), dofsPerNode_(dofsPerNode) {
+TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering) : mesh_(mesh), dofsPerNode_(dofsPerNode), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
 	
 	numGlobalDOFs_ = mesh_.data.numNodes * dofsPerNode_;
 	numFreeDOFs_ = numGlobalDOFs_;
@@ -8,7 +8,7 @@ TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode) : mesh
 	// initialize mapping
 	topoToAlg_.resize(numGlobalDOFs_);
 	for (Index i = 0; i < numGlobalDOFs_; ++i){
-		topoToAlg_[i] = i;
+		topoToAlg_[i] = static_cast<Int>(i);
 	}
 
 }
@@ -72,23 +72,38 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 	}
 
 	// build algebraic numering from free dofs
-	Index algIndex = 0;
 	algToTopo_.clear();
 	algToTopo_.reserve(numGlobalDOFs_ - constrainedSet.size());
 	
-	// loop over topological dofs to build algebraic mapping
-	for (Index topoDOF = 0; topoDOF < numGlobalDOFs_; ++topoDOF) {
-		if (constrainedSet.find(topoDOF) != constrainedSet.end()){
-			topoToAlg_[topoDOF] = -1; // mark dof as constrained
-		} else {
-			topoToAlg_[topoDOF] = algIndex; // map to free dof
+	for (Index i = 0; i < numGlobalDOFs_; ++i) topoToAlg[i] = -1;
+	Index algIndex = 0;
+	
+	if (ordering_ == fem::dof::DOFOrdering::Interleaved) {
+		
+		for (Index topoDOF = 0; topoDOF < numGlobalDOFs_; ++topoDOF) {
+			if (constrainedSet.count(topoDOF)) continue;
+			topoToAlg_[topoDOF] = static_cast<Int>(algIndex); // map to free dof
 			algToTopo_.push_back(topoDOF);
 			++algIndex;
 		}
+
+	} else {
+
+		for (Index c = 0; c < dofsPerNode_; ++c) {
+			for (Index node = 0; node < mesh_.data.numNodes; ++node) {
+				Index topoDOF = getNodeDOF(node, c);
+				if (constrainedSet.count(topoDOF)) continue;
+				topoToAlg_[topoDOF] = static_cast<Int>(algIndex); // map to free dof
+				algToTopo_.push_back(topoDOF);
+				++algIndex;
+			}
+		}
+
 	}
-	
+
 	// set num of free dofs to final tally
 	numFreeDOFs_ = algIndex;
+	numFreeDOFsPerField_ = (dofsPerNode > 0) ? (numFreeDOFs_ / dofsPerNode_ ) : 0; // extension later to mixed order elements
 
 }
 
