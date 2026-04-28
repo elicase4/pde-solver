@@ -62,11 +62,13 @@ namespace pdesolver {
 					static void zero(T* ptr, Index n){
 						cudaMemset(ptr, 0, n*sizeof(T));
 					}
-
+					
+					/*
 					template<typename T>
 					static void set(T* ptr, Index n, T value){
 						cudaMemset(ptr, value, n*sizeof(T));
 					}
+					*/
 
 				}; // class CUDA
 
