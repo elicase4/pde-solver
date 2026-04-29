@@ -11,8 +11,8 @@ namespace pdesolver::fem::eval {
 
 		// dimensions
 		static constexpr Index NodesPerElement = Element::NodesPerElement;
-		static constexpr Int SpatialDim = Element::SpatialDim;
-		static constexpr Int ParametricDim = Element::ParametricDim;
+		static constexpr Index SpatialDim = Element::SpatialDim;
+		static constexpr Index ParametricDim = Element::ParametricDim;
 		
 		Element element;
 		Int faceID;

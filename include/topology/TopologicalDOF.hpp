@@ -4,6 +4,7 @@
 #include <numeric>
 #include <vector>
 #include <unordered_map>
+#include <set>
 
 #include "core/Types.hpp"
 #include "fem/boundary/BoundaryRegistry.hpp"

@@ -5,7 +5,7 @@
 
 namespace pdesolver::fem::eval {
 
-	template<Index NumNodes, Int SpatialDim>
+	template<Index NumNodes, Index SpatialDim>
 	struct PoissonField {
 
 		static constexpr Index NumComponents = 1;

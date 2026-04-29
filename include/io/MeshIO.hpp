@@ -39,10 +39,6 @@ namespace pdesolver {
 		public:
 			void writeBinary(const mesh::Mesh& mesh, const std::string& filename);
 			void readBinary(mesh::Mesh& mesh, const std::string& filename);
-		/*
-		private:
-			std::vector<Index> rowMajorToCCW(const Index* row_major_ordering, Index num_nodes);
-		*/
 		}; // class MeshIO
 	
 	} // namespace io

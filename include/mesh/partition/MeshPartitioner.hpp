@@ -3,6 +3,8 @@
 
 #include "core/Types.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/partition/PartitionData.hpp"
+#include "mesh/partition/PartitionMethod.hpp"
 
 namespace pdesolver {
 	namespace mesh {

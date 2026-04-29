@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_LINALG
-#define PDESOLVER_LINALG
+#ifndef PDESOLVER_LINALG_HPP
+#define PDESOLVER_LINALG_HPP
 
 #include "linalg/operations/MatrixOps.hpp"
 #include "linalg/operations/VectorOps.hpp"

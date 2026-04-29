@@ -1,6 +1,6 @@
 namespace pdesolver::topology {
 
-TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering) : mesh_(mesh), dofsPerNode_(dofsPerNode), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
+TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering = fem::dof::DOFOrdering::Interleaved) : mesh_(mesh), dofsPerNode_(dofsPerNode), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
 	
 	numGlobalDOFs_ = mesh_.data.numNodes * dofsPerNode_;
 	numFreeDOFs_ = numGlobalDOFs_;
@@ -75,7 +75,7 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 	algToTopo_.clear();
 	algToTopo_.reserve(numGlobalDOFs_ - constrainedSet.size());
 	
-	for (Index i = 0; i < numGlobalDOFs_; ++i) topoToAlg[i] = -1;
+	for (Index i = 0; i < numGlobalDOFs_; ++i) topoToAlg_[i] = -1;
 	Index algIndex = 0;
 	
 	if (ordering_ == fem::dof::DOFOrdering::Interleaved) {
@@ -103,7 +103,7 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 
 	// set num of free dofs to final tally
 	numFreeDOFs_ = algIndex;
-	numFreeDOFsPerField_ = (dofsPerNode > 0) ? (numFreeDOFs_ / dofsPerNode_ ) : 0; // extension later to mixed order elements
+	numFreeDOFsPerField_ = (dofsPerNode_ > 0) ? (numFreeDOFs_ / dofsPerNode_ ) : 0; // extension later to mixed order elements
 
 }
 

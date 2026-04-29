@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_CONFIG
-#define PDESOLVER_CONFIG
+#ifndef PDESOLVER_CONFIG_HPP
+#define PDESOLVER_CONFIG_HPP
 
 #include "config/Platform.hpp"
 
