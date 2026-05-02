@@ -7,6 +7,8 @@ namespace pdesolver {
 			namespace iterative {
 				namespace cg {
 
+					enum class ToleranceType {Relative, Absolute}; // enum class Tolerance Type
+
 					template<typename VectorType>
 					struct Config {
 						

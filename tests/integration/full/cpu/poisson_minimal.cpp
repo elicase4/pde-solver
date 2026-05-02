@@ -35,6 +35,9 @@ protected:
 	static constexpr Index Py = 1;
 	static constexpr Index numQuadPoint = 2;
 	
+	// dof parameters
+	const fem::dof::DOFOrdering = fem::dof::DOFOrdering::Interleaved;
+	
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
 	std::unique_ptr<topology::TopologicalDOF> topoDOF2D;

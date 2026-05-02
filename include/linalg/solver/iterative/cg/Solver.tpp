@@ -1,6 +1,3 @@
-#ifndef PDESOLVER_LINALG_CG_SOLVER_HPP
-#define PDESOLVER_LINALG_CG_SOLVER_HPP
-
 #include <cmath>
 #include <cassert>
 #include <vector>
@@ -18,7 +15,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 
 		// get config info
 		using DataType = typename VectorType::value_type;
-		const bool relMode = (config.tolType = ToleranceType::Relative);
+		const bool relMode = (config.tolType == ToleranceType::Relative);
 
 		// compute intial residual
 		A.apply(x, W.Ap); // Ap = A*x
@@ -61,7 +58,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 
 			// compute alpha
 			DataType pAp = operations::dot(W.p, W.Ap); // pAp = p*Ap
-			DataType alpha = rz_old / pAP;// alpha = r*z / p*Ap
+			DataType alpha = rz_old / pAp;// alpha = r*z / p*Ap
 			operations::axpy(alpha, W.p, x); // x += alpha * p
 			operations::axpy(-alpha, W.Ap, W.r); // r -= alpha * Ap
 
@@ -70,7 +67,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 			DataType rel = res / (res0 + DataType(1e-50));
 
 			// log iteration
-			if (config.reportInterval > 0 && k % config.reportInterval == 0) {
+			if ((config.reportInterval > 0) && (k % config.reportInterval == 0)) {
 				auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
 				logger.log(k, res, rel, perDOF);
 			}
@@ -82,7 +79,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 				report.finalResidual = res;
 				report.finalResidualRel = rel;
 				report.iterations = k;
-				report.PerFieldResidual = std::vector<DataType>(perDOF.begin(), perDOF.end());
+				report.perFieldResidual = std::vector<DataType>(perDOF.begin(), perDOF.end());
 				// print convergence line
 				if (config.reportInterval > 0 && k % config.reportInterval != 0){
 					logger.log(k, res, rel, perDOF);
@@ -108,12 +105,10 @@ namespace pdesolver::linalg::solver::iterative::cg {
 		const DataType res_final = operations::norm(W.r);
 		report.converged = false;
 		report.finalResidual = res_final;
-		report.finalResidualRel = res_final / (res0 + DataType(1e-50))
+		report.finalResidualRel = res_final / (res0 + DataType(1e-50));
 		report.iterations = config.maxIters;
 		return false;
 
 	}
 
 } // namespace pdesolver::linalg::solver::iterative::cg
-
-#endif

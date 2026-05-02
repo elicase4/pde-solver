@@ -8,10 +8,7 @@ namespace pdesolver {
 	namespace mesh {
 		namespace partition {
 
-			class PartitionMethod {
-			public:
-				void RCB(); // reverse coordinate bisection
-			}; // class PartitionMethod
+			enum class PartitionMethod {RCB, METIS}; // enum class PartitionMethod
 
 		} // namespace partition
 	} // namespace mesh

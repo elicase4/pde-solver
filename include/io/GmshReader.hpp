@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_GMSHREADER
-#define PDESOLVER_IO_GMSHREADER
+#ifndef PDESOLVER_IO_GMSHREADER_HPP
+#define PDESOLVER_IO_GMSHREADER_HPP
 
 #include <fstream>
 #include <iostream>
@@ -13,6 +13,7 @@ namespace pdesolver {
 		class GmshReader {
 			public:
 				void read(mesh::Mesh& mesh, const std::string& filename, const std::unordered_map<int, Int>& physicalGroupMap = {});
+
 			private:
 				void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
 				void readMSH2(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);

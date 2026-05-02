@@ -1,14 +1,16 @@
-#ifndef PDESOLVER_MESH_IO_HPP
-#define PDESOLVER_MESH_IO_HPP
+#ifndef PDESOLVER_IO_MESHIO_HPP
+#define PDESOLVER_IO_MESHIO_HPP
 
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "core/Types.hpp"
 #include "mesh/Mesh.hpp"
-#include "VTKWriter.hpp"
+#include "io/VTKWriter.hpp"
 
 /* Binary Mesh Format Description
 [HEADER]
@@ -37,8 +39,14 @@ namespace pdesolver {
 		
 		class MeshIO {
 		public:
+
+			// write mesh geometry to VTK legacy
+			void writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
+
+			// read/write binary PMSH
 			void writeBinary(const mesh::Mesh& mesh, const std::string& filename);
 			void readBinary(mesh::Mesh& mesh, const std::string& filename);
+
 		}; // class MeshIO
 	
 	} // namespace io

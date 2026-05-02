@@ -31,6 +31,9 @@ protected:
 	static constexpr Index Px = 1;
 	static constexpr Index Py = 1;
 	static constexpr Index numQuadPoint = 2;
+
+	// dof parameters
+	const fem::dof::DOFOrdering = fem::dof::DOFOrdering::Interleaved;
 	
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
@@ -95,7 +98,7 @@ protected:
 		mesh2D.generateBoundaryTags();
 		
 		// create topological DOF manager
-		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs);
+		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs, dofOrdering);
 		
 		// set conductivity model parameters
 		constantConductivityModel.conductivity = 1.0;

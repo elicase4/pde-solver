@@ -1,6 +1,6 @@
 namespace pdesolver::topology {
 
-TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering = fem::dof::DOFOrdering::Interleaved) : mesh_(mesh), dofsPerNode_(dofsPerNode), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
+TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering) : mesh_(mesh), dofsPerNode_(dofsPerNode), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
 	
 	numGlobalDOFs_ = mesh_.data.numNodes * dofsPerNode_;
 	numFreeDOFs_ = numGlobalDOFs_;

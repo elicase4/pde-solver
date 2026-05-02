@@ -28,10 +28,10 @@ namespace pdesolver {
 				fem::dof::DOFOrdering dofOrdering;
 
 				// single-field constructor
-				explicit ConsoleLogger(std::string solverNameIn, std::string equationLabel = "Solver", Index reportInterval = 1) : solverName(std::move(SolverNameIn)), label(std::move(equationLabel)), dofNames({label}), interval(reportInterval), printHeader(true), freeDOFsPerField(0), dofOrdering(fem::dof::DOFOrdering::Interleaved) {}
+				explicit ConsoleLogger(std::string solverNameIn, std::string equationLabel = "Solver", Index reportInterval = 1) : solverName(std::move(solverNameIn)), label(std::move(equationLabel)), dofNames({label}), interval(reportInterval), printHeader(true), freeDOFsPerField(0), dofOrdering(fem::dof::DOFOrdering::Interleaved) {}
 
 				// multi-field constructor
-				explicit ConsoleLogger(std::string solverNameIn, std::string equationLabel = "Solver", std::vector<std::string> componentNames, Index freeDOFsPerFieldIn, fem::dof::DOFOrdering ordering, Index reportInterval = 1) : solverName(std::move(SolverNameIn)), label(std::move(equationLabel)), dofNames(std::move(componentNames)), interval(reportInterval), printHeader(true), freeDOFsPerField(freeDOFsPerFieldIn), dofOrdering(ordering) {}
+				explicit ConsoleLogger(std::string solverNameIn, std::string equationLabel = "Solver", std::vector<std::string> componentNames, Index freeDOFsPerFieldIn, fem::dof::DOFOrdering ordering, Index reportInterval = 1) : solverName(std::move(solverNameIn)), label(std::move(equationLabel)), dofNames(std::move(componentNames)), interval(reportInterval), printHeader(true), freeDOFsPerField(freeDOFsPerFieldIn), dofOrdering(ordering) {}
 
 				// log()
 				template<typename DataType>

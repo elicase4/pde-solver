@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_DOFORDER_HPP
-#define PDESOLVER_FEM_DOFORDER_HPP
+#ifndef PDESOLVER_FEM_DOFORDERING_HPP
+#define PDESOLVER_FEM_DOFORDERING_HPP
 
 namespace pdesolver {
 	namespace fem {
