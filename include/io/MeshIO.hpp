@@ -9,8 +9,9 @@
 #include <vector>
 
 #include "core/Types.hpp"
-#include "mesh/Mesh.hpp"
 #include "io/VTKWriter.hpp"
+#include "io/utils/Binary.hpp"
+#include "mesh/Mesh.hpp"
 
 /* Binary Mesh Format Description
 [HEADER]
@@ -46,6 +47,9 @@ namespace pdesolver {
 			// read/write binary PMSH
 			void writeBinary(const mesh::Mesh& mesh, const std::string& filename);
 			void readBinary(mesh::Mesh& mesh, const std::string& filename);
+
+			static constexpr uint32_t PMSH_MAGIC = 0x504D5348u; // "PMSH" format identifier
+			static constexpr uint32_t PMSH_VERSION = 1u;
 
 		}; // class MeshIO
 	

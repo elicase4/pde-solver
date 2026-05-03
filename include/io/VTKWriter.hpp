@@ -13,33 +13,6 @@
 namespace pdesolver {
 	namespace io {
 
-		namespace vtk {
-			
-			bool hostIsLittleEndian() {
-				const uint32_t probe = 1u;
-				uint8_t byte0;
-				std::memcpy(&byte0, &probe, 1);
-				return (byte0 == 1u);
-			}
-
-			template<typename T>
-			T swapBytes(T val){
-				
-				static_assert((sizeof(T) == 4 || sizeof(T) == 8), "swapBytes: only 4-byte or 8-byte types are supported");
-
-				T out;
-				const char* src = reinterpret_cast<const char*>(&val);
-				char* dst = reinterpret_cast<char*>(&out);
-				for (std::size_t i = 0; i < sizeof(T); ++i){
-					dst[i] = src[sizeof(T) - 1 - i];
-				}
-
-				return out;
-
-			}
-
-		}
-
 		class VTKWriter {
 		public:
 
@@ -105,21 +78,6 @@ namespace pdesolver {
 			static std::vector<Index> rowMajorToCCW(const Index* rm, Index numNodes);
 
 		private:
-			
-			// write a value in big-endian format
-			template<typename T>
-			void writeBinaryBE(T val){
-				if (vtk::hostIsLittleEndian()) val = vtk::swapBytes(val);
-				ofs_.write(reinterpret_cast<const char*>(&val), sizeof(T));
-			}
-			
-			/*
-			// dispatch to ASCII or binary
-			template<typename T>
-			void writeBinary(T val){
-
-			}
-			*/
 			
 			std::ofstream ofs_;
 			Format fmt_;

@@ -7,10 +7,11 @@
 #include <vector>
 
 #include "core/Types.hpp"
-#include "mesh/Mesh.hpp"
-#include "topology/TopologicalDOF.hpp"
 #include "fem/boundary/BoundaryRegistry.hpp"
 #include "io/VTKWriter.hpp"
+#include "io/utils/Binary.hpp"
+#include "mesh/Mesh.hpp"
+#include "topology/TopologicalDOF.hpp"
 
 namespace pdesolver {
 	namespace io {

@@ -46,9 +46,9 @@ void pdesolver::io::VTKWriter::writePoints(const Real* xyz, Index numNodes, Inde
 			ofs_ << p[0] << ' ' << p[1] << ' ';
 			ofs_ << (spatialDim == 3 ? p[2] : static_cast<Real>(0.0)) << '\n';
 		} else {
-			writeBinaryBE<double>(static_cast<double>(p[0]));
-			writeBinaryBE<double>(static_cast<double>(p[1]));
-			writeBinaryBE<double>(static_cast<double>( spatialDim == 3 ? p[2] : static_cast<Real>(0.0) ));
+			binary::writeBE<double>(ofs_, static_cast<double>(p[0]));
+			binary::writeBE<double>(ofs_, static_cast<double>(p[1]));
+			binary::writeBE<double>(ofs_, static_cast<double>( spatialDim == 3 ? p[2] : static_cast<Real>(0.0) ));
 		}
 
 	}
@@ -77,9 +77,9 @@ void VTKWriter::writeCells(const Index* ien, Index numElems, Index nodesPerElem)
 			}
 			ofs_ << '\n';
 		} else {
-			writeBinaryBE<uint32_t>(static_cast<uint32_t>(nodesPerElem));
+			binary::writeBE<uint32_t>(ofs_, static_cast<uint32_t>(nodesPerElem));
 			for (Index k = 0; k < nodesPerElem; ++k){
-				writeBinaryBE<uint32_t>(static_cast<uint32_t>(nodes[k]);
+				binary::writeBE<uint32_t>(ofs_, static_cast<uint32_t>(nodes[k]);
 			}
 		}
 
@@ -104,7 +104,7 @@ void pdesolver::io::VTKWriter::writeCellTypes(int vtkType, Index numElems) {
 		if (fmt_ == Format::ASCII){
 			ofs_ << vtkType << '\n';
 		} else {
-			writeBinaryBE<uint32_t>(static_cast<uint32_t>(vtkType));
+			binary::writeBE<uint32_t>(ofs_, static_cast<uint32_t>(vtkType));
 		}
 
 	}
@@ -136,7 +136,7 @@ void pdesolver::io::VTKWriter::writeScalar(const std::string& name, const Real* 
 		if (fmt_ == Format::ASCII) {
 			ofs_ << data[n] << '\n';
 		} else {
-			writeBinaryBE<double>(static_cast<double>(data[n]));
+			binary::writeBE<double>(ofs_, static_cast<double>(data[n]));
 		}
 
 	}
@@ -166,9 +166,9 @@ void pdesolver::io::VTKWriter::writeVector(const std::string& name, const Real* 
 			ofs_ << '\n';
 		} else {
 			for (Index c = 0; c < numComponents; ++c){
-				writeBinaryBE<double>(static_cast<double>(data[n*numComponents + c]));
+				binary::writeBE<double>(ofs_, static_cast<double>(data[n*numComponents + c]));
 			}
-			if (numComponents == 2) writeBindaryBE<double>(0.0);
+			if (numComponents == 2) binary::writeBE<double>(0.0);
 		}
 
 	}
@@ -205,7 +205,7 @@ void pdesolver::io::VTKWriter::writeScalarCell(const std::string& name, const Re
 		if (fmt_ == Format::ASCII) {
 			ofs_ << data[e] << '\n';
 		} else {
-			writeBinaryBE<double>(static_cast<double>(data[e]));
+			binary::writeBE<double>(ofs_, static_cast<double>(data[e]));
 		}
 
 	}
