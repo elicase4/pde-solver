@@ -2,6 +2,7 @@
 #define PDESOLVER_IO_VTKWRITER_HPP
 
 #include <cassert>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
 #include <stdexcept>
@@ -9,6 +10,7 @@
 #include <vector>
 
 #include "core/Types.hpp"
+#include "io/utils/Binary.hpp"
 
 namespace pdesolver {
 	namespace io {

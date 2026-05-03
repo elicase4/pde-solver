@@ -22,7 +22,7 @@ void pdesolver::io::FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::To
 		std::vector<Index> ccw = VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
 
 		for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
-			ienCCW[e * mesh.data.nodesPerElement + k] = ccw[k]
+			ienCCW[e * mesh.data.nodesPerElement + k] = ccw[k];
 		}
 
 	}
@@ -67,10 +67,10 @@ std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh
 	for (Index i = 0; i < topoDOF.numFreeDOFs(); ++i) {
 		
 		const Index topoDOFIdx = topoDOF.toTopological(i);
-		const Index nodeId = topoDOF.getDOFnode(topoDOFIdx);
+		const Index nodeId = topoDOF.getDOFNode(topoDOFIdx);
 		const Index component = topoDOFIdx - (nodeId * topoDOF.dofsPerNode());
 
-		nodalField[nodeID * topoDOF.dofsPerNode() + component] = algField[i];
+		nodalField[nodeId * topoDOF.dofsPerNode() + component] = algField[i];
 	
 	}
 
@@ -81,7 +81,7 @@ std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh
 
 		const Index nodeId = topoDOF.getDOFNode(topoDOFIdx);
 		const Index component = topoDOFIdx - (nodeId * topoDOF.dofsPerNode());
-		const Int tag = topoDOF.getconstraintTag(topoDOFIdx);
+		const Int tag = topoDOF.getConstraintTag(topoDOFIdx);
 		const Real* xyz = mesh.getNodeCoord(nodeId);
 
 		for (const auto& entry : bcRegistry.entries()) {
@@ -90,7 +90,7 @@ std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh
 			if (entry->componentType(component) != fem::boundary::BCCategory::Essential) continue;
 
 			entry->eval(time, xyz, bcVal.data());
-			nodalField[nodeID * topoDOF.dofsPerNode() + component] = bcVal[component];
+			nodalField[nodeId * topoDOF.dofsPerNode() + component] = bcVal[component];
 
 			break;
 

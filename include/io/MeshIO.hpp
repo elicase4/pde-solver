@@ -42,7 +42,7 @@ namespace pdesolver {
 		public:
 
 			// write mesh geometry to VTK legacy
-			void writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
+			void writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt);
 
 			// read/write binary PMSH
 			void writeBinary(const mesh::Mesh& mesh, const std::string& filename);

@@ -3,7 +3,9 @@
 pdesolver::io::VTKWriter::VTKWriter(const std::string& filename, Format fmt) : fmt_(fmt) {
 
 	auto mode = std::ios::out;
-	if (fmt = pdesolver::io::VTKWriter::Format::Binary) mode |= std::ios::binary;
+	if (fmt_ == pdesolver::io::VTKWriter::Format::Binary){
+		mode |= std::ios::binary;
+	}
 	ofs_.open(filename, mode);
 	if (!ofs_.is_open()) {
 		throw std::runtime_error("VTK Writer: cannot open file '" + filename + "'");
@@ -19,12 +21,12 @@ void pdesolver::io::VTKWriter::writeHeader(const std::string& title) {
 
 	assert(state_ == State::Open);
 	
-	os << "# vtk DataFile Version 3.0\n";
-	os << title.substr(0, 256) << "\n";
-	os << (fmt == Format::ASCII ? "ASCII\n" : "BINARY\n");
-	os << "DATASET UNSTRUCTURED_GRID\n";
+	ofs_ << "# vtk DataFile Version 3.0\n";
+	ofs_ << title.substr(0, 256) << "\n";
+	ofs_ << (fmt_ == Format::ASCII ? "ASCII\n" : "BINARY\n");
+	ofs_ << "DATASET UNSTRUCTURED_GRID\n";
 	
-	state_ = State:HeaderWritten;
+	state_ = State::HeaderWritten;
 
 }
 
@@ -59,7 +61,7 @@ void pdesolver::io::VTKWriter::writePoints(const Real* xyz, Index numNodes, Inde
 
 }
 
-void VTKWriter::writeCells(const Index* ien, Index numElems, Index nodesPerElem) {
+void pdesolver::io::VTKWriter::writeCells(const Index* ien, Index numElems, Index nodesPerElem) {
 
 	assert(state_ == State::PointsWritten);
 
@@ -79,7 +81,7 @@ void VTKWriter::writeCells(const Index* ien, Index numElems, Index nodesPerElem)
 		} else {
 			binary::writeBE<uint32_t>(ofs_, static_cast<uint32_t>(nodesPerElem));
 			for (Index k = 0; k < nodesPerElem; ++k){
-				binary::writeBE<uint32_t>(ofs_, static_cast<uint32_t>(nodes[k]);
+				binary::writeBE<uint32_t>(ofs_, static_cast<uint32_t>(nodes[k]));
 			}
 		}
 
@@ -99,8 +101,6 @@ void pdesolver::io::VTKWriter::writeCellTypes(int vtkType, Index numElems) {
 	
 	for (Index e = 0; e < numElems; ++e) {
 
-		const Index* nodes = ien + e*nodesPerElem;
-
 		if (fmt_ == Format::ASCII){
 			ofs_ << vtkType << '\n';
 		} else {
@@ -117,9 +117,9 @@ void pdesolver::io::VTKWriter::writeCellTypes(int vtkType, Index numElems) {
 
 void pdesolver::io::VTKWriter::beginPointData(Index numNodes) {
 
-	assert(state_ == State:CellTypesWritten);
+	assert(state_ == State::CellTypesWritten);
 	ofs_ << "POINT_DATA " << numNodes << '\n';
-	state_ = State:InPointData;
+	state_ = State::InPointData;
 	pointDataOpen_ = true;
 
 }
@@ -145,7 +145,7 @@ void pdesolver::io::VTKWriter::writeScalar(const std::string& name, const Real* 
 
 }
 
-void pdesolver::io::VTKWriter::writeVector(const std::string& name, const Real* data, Index numNodes) {
+void pdesolver::io::VTKWriter::writeVector(const std::string& name, const Real* data, Index numNodes, Index numComponents) {
 
 	assert(state_ == State::InPointData && pointDataOpen_);
 
@@ -168,7 +168,7 @@ void pdesolver::io::VTKWriter::writeVector(const std::string& name, const Real* 
 			for (Index c = 0; c < numComponents; ++c){
 				binary::writeBE<double>(ofs_, static_cast<double>(data[n*numComponents + c]));
 			}
-			if (numComponents == 2) binary::writeBE<double>(0.0);
+			if (numComponents == 2) binary::writeBE<double>(ofs_, 0.0);
 		}
 
 	}

@@ -12,7 +12,7 @@ void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filena
 	}
 
 	// Build CCW connectivity from row-major connectivity
-	std::vector<Index> ienCCW(mesh.data.numElements * mesh.domain.nodesPerElement);
+	std::vector<Index> ienCCW(mesh.data.numElements * mesh.data.nodesPerElement);
 	for (Index e = 0; e < mesh.data.numElements; ++e) {
 		std::vector<Index> ccw = VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
 		for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
@@ -22,7 +22,7 @@ void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filena
 
 	VTKWriter w(filename, fmt);
 	w.writeHeader("solver mesh");
-	w.writePoints(mesh.data.xyz.data(), mesh.data.numNodes, mesh.data.SpatialDim);
+	w.writePoints(mesh.data.xyz.data(), mesh.data.numNodes, mesh.data.spatialDim);
 	w.writeCells(ienCCW.data(), mesh.data.numElements, mesh.data.nodesPerElement);
 	w.writeCellTypes(cellType, mesh.data.numElements);
 
@@ -58,7 +58,7 @@ void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::strin
 
 	const uint8_t hasC = mesh.isIGA() ? 1u : 0u;
 	ofs.write(reinterpret_cast<const char*>(&hasC), 1);
-	binary::writeLE<uint64_t>(ofs, static_cast<uint64_t>(mesh.data.C.size());
+	binary::writeLE<uint64_t>(ofs, static_cast<uint64_t>(mesh.data.C.size()));
 
 	// Data
 	for (Real v : mesh.data.xyz){
@@ -108,17 +108,17 @@ void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& file
 	mesh.data.nodesPerElement = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 	mesh.data.facesPerElement = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 
-	const uint32_t numBasisOrders = binary::realLE<uint32_t>(ifs);
+	const uint32_t numBasisOrders = binary::readLE<uint32_t>(ifs);
 	mesh.data.basisOrder.resize(numBasisOrders);
 	for (uint32_t i = 0; i < numBasisOrders; ++i){
-		mesh.data.basisOrder[i] = static_cast<Index>(binary::realLE<uint32_t>(ifs));
+		mesh.data.basisOrder[i] = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 	}
 
 	uint8_t hasExtractionOps = 0;
 	ifs.read(reinterpret_cast<char*>(&hasExtractionOps), 1);
 	if (!ifs) throw std::runtime_error("MeshIO::readBinary: unexpected EOF in header");
 
-	const uint64_t extractionOpSize = binary::realLE<uint64_t>(ifs);
+	const uint64_t extractionOpSize = binary::readLE<uint64_t>(ifs);
 
 	// Data
 	mesh.data.xyz.resize(mesh.data.numNodes * mesh.data.spatialDim);
@@ -127,19 +127,19 @@ void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& file
 	}
 	
 	mesh.data.ien.resize(mesh.data.numElements * mesh.data.nodesPerElement);
-	for (Real& v : mesh.data.ien){
+	for (Index& v : mesh.data.ien){
 		v = static_cast<Index>(binary::readLE<uint64_t>(ifs));
 	}
 
 	mesh.data.rng.resize(mesh.data.numElements * mesh.data.facesPerElement);
-	for (Real& v : mesh.data.rng){
+	for (Int& v : mesh.data.rng){
 		v = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 	}
 
 	if (hasExtractionOps && extractionOpSize > 0) {
 		mesh.data.C.resize(static_cast<Index>(extractionOpSize));
 		for (Real& v : mesh.data.C){
-			v = static_cast<Real>(realLE<double>(ifs));
+			v = static_cast<Real>(binary::readLE<double>(ifs));
 		}
 	}
 
@@ -147,6 +147,6 @@ void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& file
 		throw std::runtime_error("MeshIO:readBindary: mesh from '" + filename + "' failed validation");
 	}
 
-	std::cout << "MeshIO: binary mesh read from '" << filename "'\n";
+	std::cout << "MeshIO: binary mesh read from '" << filename << "'\n";
 
 }

@@ -3,6 +3,7 @@
 
 #include "mesh/generator/BlockMesh2D.hpp"
 #include "io/MeshIO.hpp"
+#include "io/VTKWriter.hpp"
 
 using namespace pdesolver::mesh::generator;
 using namespace pdesolver;
@@ -405,6 +406,6 @@ TEST(BlockMesh2D, VTKOutput) {
     
     // Should not throw
     EXPECT_NO_THROW({
-        writer.writeVTK(mesh, "tests/test_mesh.vtk");
+        writer.writeVTK(mesh, "tests/test_mesh.vtk", pdesolver::io::VTKWriter::Format::ASCII);
     });
 }

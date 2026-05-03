@@ -2,6 +2,7 @@
 #define PDESOLVER_IO_UTILS_BINARY_HPP
 
 #include <cassert>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
 
@@ -11,7 +12,7 @@ namespace pdesolver {
 	namespace io {
 		namespace binary {
 			
-			bool hostIsLittleEndian() {
+			inline bool hostIsLittleEndian() {
 				const uint32_t probe = 1u;
 				uint8_t byte0;
 				std::memcpy(&byte0, &probe, 1);
