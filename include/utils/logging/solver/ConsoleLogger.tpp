@@ -1,20 +1,8 @@
-#ifndef PDESOLVER_CONSOLELOGGER_HPP
-#define PDESOLVER_CONSOLELOGGER_HPP
-
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "core/Types.hpp"
-#include "fem/dof/DOFOrdering.hpp"
-
 namespace pdesolver::utils::logging {
 
 	// log()
 	template<typename DataType>
-	void ConsoleLogger::log(Index iter, DataType absRes, DataType relRes = DataType(-1), const std::vector<DataType>& perDOF = {}) const {
+	void ConsoleLogger::log(Index iter, DataType absRes, DataType relRes, const std::vector<DataType>& perDOF) const {
 		
 		// check to print based on config
 		if (interval == 0) return;
@@ -89,7 +77,7 @@ namespace pdesolver::utils::logging {
 
 	}
 
-	ConsoleLogger::printBanner(std::string solverName) const {
+	inline void ConsoleLogger::printBanner(std::string solverName) const {
 
 		const int width = 60;
 		
@@ -112,7 +100,7 @@ namespace pdesolver::utils::logging {
 	
 	}
 
-	ConsoleLogger::printColumnHeader(Index numPerDOF) const {
+	inline void ConsoleLogger::printColumnHeader(Index numPerDOF) const {
 		
 		std::cout << "  " << std::left
 				  << std::setw(6)  << "Iter" << "  "
@@ -129,5 +117,3 @@ namespace pdesolver::utils::logging {
 	}
 
 } // namespace pdesolver::utils::logging
-
-#endif

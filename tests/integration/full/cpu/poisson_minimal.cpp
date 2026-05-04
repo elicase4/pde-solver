@@ -36,7 +36,7 @@ protected:
 	static constexpr Index numQuadPoint = 2;
 	
 	// dof parameters
-	const fem::dof::DOFOrdering = fem::dof::DOFOrdering::Interleaved;
+	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Interleaved;
 	
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
@@ -97,7 +97,7 @@ protected:
 		mesh2D.generateBoundaryTags();
 		
 		// create topological DOF manager
-		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs);
+		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs, DOFOrdering);
 		
 		// set conductivity model parameters
 		constantConductivityModel.conductivity = 1.0;
@@ -174,12 +174,13 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolverBilinearSolP1){
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<linalg::types::Vector<Real, BackendType>> M;
-	utils::logging::NullLogger logger;
+	utils::logging::ConsoleLogger logger("PCG", "theta");
 
 	// setup solver config
 	const Real solverTol = 1e-12;
 	const Index MaxIter = 10000;
-	linalg::solver::iterative::cg::Config<linalg::types::Vector<Real, BackendType>> cfg{solverTol, MaxIter};
+	const linalg::solver::iterative::cg::ToleranceType tolType = linalg::solver::iterative::cg::ToleranceType::Relative;
+	linalg::solver::iterative::cg::Config<linalg::types::Vector<Real, BackendType>> cfg{solverTol, tolType, MaxIter};
 
 	// declare solver
 	linalg::solver::iterative::cg::Solver<decltype(op), decltype(F), decltype(M), decltype(logger)> solver(cfg);
@@ -243,12 +244,13 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<linalg::types::Vector<Real, BackendType>> M;
-	utils::logging::NullLogger logger;
+	utils::logging::ConsoleLogger logger("PCG", "theta");
 
 	// setup solver config
 	const Real solverTol = 1e-12;
 	const Index MaxIter = 10000;
-	linalg::solver::iterative::cg::Config<linalg::types::Vector<Real, BackendType>> cfg{solverTol, MaxIter};
+	const linalg::solver::iterative::cg::ToleranceType tolType = linalg::solver::iterative::cg::ToleranceType::Relative;
+	linalg::solver::iterative::cg::Config<linalg::types::Vector<Real, BackendType>> cfg{solverTol, tolType, MaxIter};
 
 	// declare solver
 	linalg::solver::iterative::cg::Solver<decltype(op), decltype(F), decltype(M), decltype(logger)> solver(cfg);

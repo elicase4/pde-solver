@@ -19,8 +19,8 @@ namespace pdesolver::fem::eval {
 		static constexpr Index ParametricDim = Element::ParametricDim;
 	
 		// parent element attributes
-		Real time = element.t;
-		Real* coords = element.nodeCoords;
+		const Real time = element.t;
+		const Real* coords = element.nodeCoords;
 
 		// physical coordinate
 		Real x[SpatialDim];

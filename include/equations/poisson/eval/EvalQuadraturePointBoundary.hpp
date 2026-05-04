@@ -30,17 +30,17 @@ namespace pdesolver::fem::eval {
 		}
 
 		// helper functions
-		Index NodesPerFace(){
+		static Index NodesPerFace(Int faceID){
 			return Basis::nodesPerFace(faceID);
 		}
 	
-		void getFaceNodes(Index* nodeIDs){
+		static void getFaceNodes(Int faceID, Index* nodeIDs){
 			Basis::getFaceNodes(faceID, nodeIDs);
 		}
 	
 		// parent element attributes
-		Real time = element.t;
-		Real* coords = element.nodeCoords;
+		const Real time = element.t;
+		const Real* coords = element.nodeCoords;
 
 		// physical coordinates
 		Real x[SpatialDim];
