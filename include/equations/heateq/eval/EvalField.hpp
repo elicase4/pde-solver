@@ -3,10 +3,10 @@
 
 #include "fem/eval/EvalField.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<Index NumNodes, Index SpatialDim>
-	struct PoissonField {
+	struct EvalField {
 
 		static constexpr Index NumComponents = 1;
 
@@ -35,8 +35,8 @@ namespace pdesolver::fem::eval {
 
 		}
 
-	}; // struct PoissonField<NumNodes, SpatialDim>
+	}; // struct EvalField
 
-}
+} // namespace pdesolver::equations::heateq
 
 #endif

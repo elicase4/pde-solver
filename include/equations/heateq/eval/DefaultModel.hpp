@@ -3,17 +3,17 @@
 
 #include "fem/eval/EvalModel.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<typename QuadraturePoint>
-	struct PoissonDefaultModel {
+	struct DefaultModel {
 		
 		void eval(QuadraturePoint&) const {}
 
 		void evalGradient(QuadraturePoint&) const {}
 		
-	}; // struct PoissonDefaultModel
+	}; // struct DefaultModel
 
-}
+} // pdesolver::equations::heateq
 
 #endif

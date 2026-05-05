@@ -1,7 +1,7 @@
 add_library(pde_io
 	MeshIO.cpp
 	FieldIO.cpp
-	GmshReader.cpp
+	#GmshReader.cpp
 	VTKWriter.cpp
 )
 

@@ -16,7 +16,7 @@ namespace pdesolver {
 
 		class TopologicalDOF {
 		public:
-			TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering);
+			inline TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering);
 			
 			// size
 			Index numGlobalDOFs() const { return numGlobalDOFs_; }
@@ -34,13 +34,13 @@ namespace pdesolver {
 			Index getDOFNode(Index topoDOF) const { return (topoDOF / dofsPerNode_); }
 			
 			// element mappings
-			void getElementDOFs(Index elemId, Index* dofs) const;
+			inline void getElementDOFs(Index elemId, Index* dofs) const;
 			
 			// constraints
 			template<typename Element>
 			void buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry);
 			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
-			Int getConstraintTag(Index topoDOF) const;
+			inline Int getConstraintTag(Index topoDOF) const;
 
 			// mappings
 			Index toAlgebraic(Index topoDOF) const { return topoToAlg_[topoDOF]; }

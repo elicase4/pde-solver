@@ -1,6 +1,6 @@
 #include "io/FieldIO.hpp"
 
-void pdesolver::io::FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII) {
+void pdesolver::io::FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt) {
 
 	if (!mesh.isValid()){
 		throw std::runtime_error("FieldIO::writeVTK: mesh is invalid");

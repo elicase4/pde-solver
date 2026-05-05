@@ -12,6 +12,7 @@
 
 #include "core/Types.hpp"
 #include "io/utils/Binary.hpp"
+#include "io/utils/Gmsh.hpp"
 #include "mesh/Mesh.hpp"
 
 namespace pdesolver {
@@ -22,8 +23,8 @@ namespace pdesolver {
 				void read(mesh::Mesh& mesh, const std::string& filename, const std::unordered_map<int, Int>& physicalGroupMap = {});
 
 			private:
-				void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
 				void readMSH2(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
+				void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
 		}; // class GmashReader
 	} // namespace io
 } // namespace pdesolver

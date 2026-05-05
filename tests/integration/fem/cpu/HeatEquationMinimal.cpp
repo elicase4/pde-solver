@@ -9,7 +9,7 @@
 
 #include "mesh/generator/BlockMesh2D.hpp"
 
-#include "equations/poisson/PoissonEquation.hpp"
+#include "equations/heateq/HeatEquation.hpp"
 
 using namespace pdesolver;
 
@@ -50,27 +50,27 @@ protected:
 	using TransformType = fem::geometry::JacobianTransform<nsd, npd, BasisType::NodesPerElement>; 
 	
 	// equation type specification
-	using EvalElement = fem::eval::PoissonEvalElement<BasisType, nsd>;
-	using EvalQuadraturePointVolume = fem::eval::PoissonEvalQuadraturePointVolume<EvalElement, BasisType, TransformType>;
-	using EvalQuadraturePointBoundary = fem::eval::PoissonEvalQuadraturePointBoundary<EvalElement, BasisType, TransformType>;
+	using EvalElement = equations::heateq::EvalElement<BasisType, nsd>;
+	using EvalQuadraturePointVolume = equations::heateq::EvalQuadraturePointVolume<EvalElement, BasisType, TransformType>;
+	using EvalQuadraturePointBoundary = equations::heateq::EvalQuadraturePointBoundary<EvalElement, BasisType, TransformType>;
 	
 	// consitituitve models and diffusion form
-	using DefaultModel = fem::eval::PoissonDefaultModel<EvalQuadraturePointVolume>;
-	using ConductivityModel = fem::eval::PoissonConstantConductivityModel<EvalQuadraturePointVolume>;
-	using DiffusionForm = fem::form::PoissonDiffusionForm<EvalQuadraturePointVolume>;
+	using DefaultModel = equations::heateq::DefaultModel<EvalQuadraturePointVolume>;
+	using ConductivityModel = equations::heateq::ConstantConductivityModel<EvalQuadraturePointVolume>;
+	using DiffusionForm = equations::heateq::DiffusionForm<EvalQuadraturePointVolume>;
 
 	// rhs source functions
 	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = x[0]*x[1]; };
-	using SourceFunction = fem::eval::PoissonSourceFunction<nsd, numDOFs, decltype(f)>;
-	using SourceForm = fem::form::PoissonSourceForm<EvalQuadraturePointVolume, SourceFunction>;
+	using SourceFunction = equations::heateq::SourceFunction<nsd, numDOFs, decltype(f)>;
+	using SourceForm = equations::heateq::SourceForm<EvalQuadraturePointVolume, SourceFunction>;
 
 	// specify bc functions
 	static constexpr auto g = [](Real, const Real* x, Real* out){ out[0] = x[0]; };
-	using PoissonDirichletBC = fem::boundary::PoissonBoundaryValueFunction<nsd, numDOFs, decltype(g)>;
+	using PoissonDirichletBC = equations::heateq::BoundaryValueFunction<nsd, numDOFs, decltype(g)>;
 	
 	static constexpr auto h = [](Real, const Real* x, Real* out){ out[0] = 0.0; out[1] = x[0]; };
-	using PoissonFluxBC = fem::boundary::PoissonBoundaryFluxFunction<nsd, numDOFs, decltype(h)>;
-	using FluxForm = fem::form::PoissonFluxBoundaryForm<EvalQuadraturePointBoundary, PoissonFluxBC>;
+	using PoissonFluxBC = equations::heateq::BoundaryFluxFunction<nsd, numDOFs, decltype(h)>;
+	using FluxForm = equations::heateq::FluxBoundaryForm<EvalQuadraturePointBoundary, PoissonFluxBC>;
 	
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;

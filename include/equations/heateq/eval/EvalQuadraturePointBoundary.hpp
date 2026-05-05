@@ -3,10 +3,10 @@
 
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<typename Element, typename Basis, typename Geometry>
-	class PoissonEvalQuadraturePointBoundary {
+	class EvalQuadraturePointBoundary {
 	public:
 
 		// dimensions
@@ -18,7 +18,7 @@ namespace pdesolver::fem::eval {
 		Int faceID;
 		Real faceCoords[SpatialDim*Element::NodesPerElement];
 
-		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
+		EvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
 			
 			// set face coordinates
 			for (Index a = 0; a < NodesPerFace(faceID); ++a){
@@ -90,8 +90,8 @@ namespace pdesolver::fem::eval {
 
 		}
 
-	}; // class PoissonEvalQuadraturePointBoundary
+	}; // class EvalQuadraturePointBoundary
 
-} // namespace pdesolver::fem::eval
+} // namespace pdesolver::equations::heateq
 
 #endif

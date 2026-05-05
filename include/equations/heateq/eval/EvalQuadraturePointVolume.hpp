@@ -3,15 +3,15 @@
 
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<typename Element, typename Basis, typename Geometry>
-	class PoissonEvalQuadraturePointVolume {
+	class EvalQuadraturePointVolume {
 	public:
 
 		Element element;
 
-		PoissonEvalQuadraturePointVolume(const Element& elem) : element(elem) {}
+		EvalQuadraturePointVolume(const Element& elem) : element(elem) {}
 
 		// dimensions
 		static constexpr Index NodesPerElement = Element::NodesPerElement;
@@ -71,8 +71,8 @@ namespace pdesolver::fem::eval {
 
 		}
 
-	}; // class PoissonEvalQuadraturePointVolume
+	}; // class EvalQuadraturePointVolume
 
-} // namespace pdesolver::fem::eval
+} // namespace pdesolver::equations::heateq
 
 #endif

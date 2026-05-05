@@ -3,10 +3,10 @@
 
 #include "fem/eval/EvalModel.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<typename QuadraturePointVolume>
-	struct PoissonConstantConductivityModel {
+	struct ConstantConductivityModel {
 		
 		Real conductivity;
 		
@@ -22,8 +22,8 @@ namespace pdesolver::fem::eval {
 
 		void evalGradient(QuadraturePointVolume&) const {}
 		
-	}; // struct PoissonConstantConductivityModel
+	}; // struct ConstantConductivityModel
 
-}
+} // namespace pdesolver::equations::heateq
 
 #endif

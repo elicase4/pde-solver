@@ -1,6 +1,6 @@
 #include "io/MeshIO.hpp"
 
-void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII){
+void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt){
 
 	if (!mesh.isValid()) {
 		throw std::runtime_error("MeshIO::writeVTK: mesh is invalid");
