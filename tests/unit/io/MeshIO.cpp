@@ -71,6 +71,23 @@ TEST(MeshIO, WriteVTK_BlockMesh2D){
 	std::ifstream file(output_path);
 	EXPECT_TRUE(file.good());
 
+	std::string line;
+
+	std::getline(file, line);
+	EXPECT_EQ(line, "# vtk DataFile Version 3.0");
+
+	std::getline(file, line);
+	EXPECT_EQ(line, "solver mesh");
+
+	std::getline(file, line);
+	EXPECT_EQ(line, "ASCII");
+
+	std::getline(file, line);
+	EXPECT_EQ(line, "DATASET UNSTRUCTURED_GRID");
+
+	std::getline(file, line);
+	EXPECT_EQ(line, "POINTS 25 double");
+
 	file.seekg(0, std::ios::end);
 	EXPECT_GT(file.tellg(), 0);
 
