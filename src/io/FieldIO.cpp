@@ -57,7 +57,7 @@ void pdesolver::io::FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::To
 
 }
 
-std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField) const {
+std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField) {
 
 	// initialize containers for eval
 	std::vector<Real> nodalField(mesh.data.numNodes * topoDOF.dofsPerNode(), Real(0.0));

@@ -65,10 +65,10 @@ void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::strin
 		binary::writeLE<double>(ofs, static_cast<double>(v));
 	}
 	for (Index v : mesh.data.ien){
-		binary::writeLE<double>(ofs, static_cast<double>(v));
+		binary::writeLE<uint64_t>(ofs, static_cast<double>(v));
 	}
 	for (Int v : mesh.data.rng){
-		binary::writeLE<double>(ofs, static_cast<double>(v));
+		binary::writeLE<int>(ofs, static_cast<double>(v));
 	}
 	for (Real v : mesh.data.C){
 		binary::writeLE<double>(ofs, static_cast<double>(v));
@@ -133,7 +133,7 @@ void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& file
 
 	mesh.data.rng.resize(mesh.data.numElements * mesh.data.facesPerElement);
 	for (Int& v : mesh.data.rng){
-		v = static_cast<Index>(binary::readLE<uint32_t>(ifs));
+		v = static_cast<Int>(binary::readLE<int>(ifs));
 	}
 
 	if (hasExtractionOps && extractionOpSize > 0) {

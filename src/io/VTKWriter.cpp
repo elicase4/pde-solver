@@ -38,15 +38,15 @@ void pdesolver::io::VTKWriter::writePoints(const Real* xyz, Index numNodes, Inde
 		throw std::runtime_error("VTKWriter::writePoints: spatialDim must be 2 or 3");
 	}
 
-	ofs_ << "POINTS" << numNodes << " double\n";
+	ofs_ << "POINTS " << numNodes << " double\n";
 
 	for (Index n = 0; n < numNodes; ++n) {
 		
-		const Real* p = xyz + n*spatialDim;
+		const double* p = xyz + n*spatialDim;
 
 		if (fmt_ == Format::ASCII){
 			ofs_ << p[0] << ' ' << p[1] << ' ';
-			ofs_ << (spatialDim == 3 ? p[2] : static_cast<Real>(0.0)) << '\n';
+			ofs_ << (spatialDim == 3 ? p[2] : static_cast<double>(0.0)) << '\n';
 		} else {
 			binary::writeBE<double>(ofs_, static_cast<double>(p[0]));
 			binary::writeBE<double>(ofs_, static_cast<double>(p[1]));

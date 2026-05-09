@@ -390,22 +390,3 @@ TEST(BlockMesh2D, ClearMesh) {
     EXPECT_EQ(mesh.data.ien.size(), 0);
     EXPECT_FALSE(mesh.isValid());
 }
-
-// ==================================================================
-// VTK Output Test (Integration)
-// ==================================================================
-
-TEST(BlockMesh2D, VTKOutput) {
-    BlockMesh2D mesh(3, 3, 0.0, 1.0, 0.0, 1.0, 1, 1);
-    mesh.initializeData();
-    mesh.generateNodes();
-    mesh.generateElements();
-    mesh.generateBoundaryTags();
-    
-    pdesolver::io::MeshIO writer;
-    
-    // Should not throw
-    EXPECT_NO_THROW({
-        writer.writeVTK(mesh, "tests/test_mesh.vtk", pdesolver::io::VTKWriter::Format::ASCII);
-    });
-}

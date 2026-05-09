@@ -20,11 +20,13 @@ namespace pdesolver {
 		class GmshReader {
 			public:
 				
-				void read(mesh::Mesh& mesh, const std::string& filename, const std::unordered_map<int, Int>& physicalGroupMap = {});
+				static void read(mesh::Mesh& mesh, const std::string& filename, const std::unordered_map<int, Int>& physicalGroupMap = {});
 
 			private:
-				void readMSH2(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
-				void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
+				
+				static void readMSH2(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
+				
+				static void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
 		}; // class GmashReader
 	} // namespace io
 } // namespace pdesolver

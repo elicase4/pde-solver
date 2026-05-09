@@ -2,6 +2,21 @@
 function(add_pde_test TEST_NAME SOURCE_FILE)
 	add_executable(${TEST_NAME} ${SOURCE_FILE})
 
+	# Data directory
+	set(TEST_DATA_DIR "${CMAKE_BINARY_DIR}/test_outputs/${TEST_NAME}")
+
+	file(MAKE_DIRECTORY "${TEST_DATA_DIR}")
+
+	# Organize binaries
+	set_target_properties(${TEST_NAME} PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/tests"
+	)
+	
+	# Cpp macro for test paths
+	target_compile_definitions(${TEST_NAME} PRIVATE
+		TEST_DATA_PATH="${TEST_DATA_DIR}"
+	)
+
 	# Link against GTest libraries
 	target_link_libraries(${TEST_NAME}
 		PRIVATE
@@ -46,10 +61,10 @@ add_pde_test(UnitTest_Linalg_Cpu_CG
 #	pde_mesh pde_io
 #)
 
-#add_pde_test(UnitTest_IO_MeshIO
-#	unit/io/MeshIO.cpp
-#	pde_mesh pde_io
-#)
+add_pde_test(UnitTest_IO_MeshIO
+	unit/io/MeshIO.cpp
+	pde_mesh pde_io
+)
 
 #add_pde_test(UnitTest_IO_GmshReader
 #	unit/io/GmshReader.cpp
