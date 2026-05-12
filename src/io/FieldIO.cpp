@@ -12,7 +12,7 @@ void pdesolver::io::FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::To
 
 	const int cellType = VTKWriter::inferVTKCellType(mesh.data.spatialDim, mesh.data.nodesPerElement);
 	if (cellType == 0){
-		throw std::runtime_error("FieldIO::writeVTK: unsupported spatialDim/nodesPerElement "" combination (" + std::to_string(mesh.data.spatialDim) + "D, " + std::to_string(mesh.data.nodesPerElement) + " nodes/elem");
+		throw std::runtime_error("FieldIO::writeVTK: unsupported spatialDim/nodesPerElement combination (" + std::to_string(mesh.data.spatialDim) + "D, " + std::to_string(mesh.data.nodesPerElement) + " nodes/elem");
 	}
 
 	// get ccw connectivity
@@ -40,7 +40,7 @@ void pdesolver::io::FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::To
 	// write point data
 	w.beginPointData(mesh.data.numNodes);
 
-	// extract interleaved data from nodalField for stride-1 buffer to input to writeScalar
+	// extract interleaved data (always the case for topologicalDOF) from nodalField for stride-1 buffer to input to writeScalar
 	std::vector<Real> componentBuf(mesh.data.numNodes);
 	for (Index c = 0; c < topoDOF.dofsPerNode(); ++c) {
 		for (Index n = 0; n < mesh.data.numNodes; ++n){
@@ -84,6 +84,8 @@ std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh
 		const Int tag = topoDOF.getConstraintTag(topoDOFIdx);
 		const Real* xyz = mesh.getNodeCoord(nodeId);
 
+		bool bcEntryFound = false;
+
 		for (const auto& entry : bcRegistry.entries()) {
 			
 			if (entry->tag() != tag) continue;
@@ -91,9 +93,14 @@ std::vector<Real> pdesolver::io::FieldIO::reconstructNodalField(const mesh::Mesh
 
 			entry->eval(time, xyz, bcVal.data());
 			nodalField[nodeId * topoDOF.dofsPerNode() + component] = bcVal[component];
+			bcEntryFound = true;
 
 			break;
 
+		}
+
+		if (!bcEntryFound) {
+			throw std::runtime_error("FieldIO::recosntructNodelField: constrained DOF could not be reconstructed");
 		}
 
 	}

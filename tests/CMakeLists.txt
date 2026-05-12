@@ -56,10 +56,10 @@ add_pde_test(UnitTest_Linalg_Cpu_CG
 	unit/linalg/cpu/CG.cpp
 )
 
-#add_pde_test(UnitTest_IO_FieldIO
-#	unit/io/FieldIO.cpp
-#	pde_mesh pde_io
-#)
+add_pde_test(UnitTest_IO_FieldIO
+	unit/io/FieldIO.cpp
+	pde_mesh pde_io
+)
 
 add_pde_test(UnitTest_IO_MeshIO
 	unit/io/MeshIO.cpp
@@ -77,5 +77,5 @@ add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 
 add_pde_test(IntegrationTest_Full_Cpu_HeatEquationMinimal
 	integration/full/cpu/HeatEquationMinimal.cpp
-	pde_mesh
+	pde_mesh pde_io
 )

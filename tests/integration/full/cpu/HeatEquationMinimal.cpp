@@ -1,9 +1,12 @@
+#include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
 #include <cmath>
 #include <memory.h>
 
 #include "core/Config.hpp"
 #include "core/FEM.hpp"
+#include "core/IO.hpp"
 #include "core/Mesh.hpp"
 #include "core/LinAlg.hpp"
 #include "core/Topology.hpp"
@@ -16,7 +19,7 @@
 
 using namespace pdesolver;
 
-class CPUPoissonMinimal : public ::testing::Test {
+class CPUHeatEquationMinimal : public ::testing::Test {
 protected:
 	
 	// block mesh parameters
@@ -69,7 +72,7 @@ protected:
 
 	// specify bc functions
 	static constexpr auto g = [](Real, const Real* x, Real* out){ out[0] = (1 - x[0])*(1 - x[1]); };
-	using PoissonDirichletBC = equations::heateq::BoundaryValueFunction<nsd, numDOFs, decltype(g)>;
+	using HeatEqDirichletBC = equations::heateq::BoundaryValueFunction<nsd, numDOFs, decltype(g)>;
 	
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;
@@ -82,10 +85,10 @@ protected:
 	ConductivityModel constantConductivityModel;
 
 	// declare bcs
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc0;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc1;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc2;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc3;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc0;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc1;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc2;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc3;
 
 	// SetUp method
 	void SetUp() override {
@@ -103,20 +106,20 @@ protected:
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{0, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc0);
+		bc0 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{0, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{1, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc1);
+		bc1 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{1, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{2, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc2);
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{2, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc2);
 		
 		// Set and register boundary 3
-		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{3, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc3);
+		bc3 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{3, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc3);
 
 		// build algrebraic dofs after all boundaries are registered
 		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
@@ -124,7 +127,7 @@ protected:
 	}
 };
 
-TEST_F(CPUPoissonMinimal, DOFHandlingCGSolve){
+TEST_F(CPUHeatEquationMinimal, DOFHandlingCGSolve){
 
 	// Test topologicalDOF
 	EXPECT_EQ(topoDOF2D->dofsPerNode(), 1);
@@ -133,7 +136,7 @@ TEST_F(CPUPoissonMinimal, DOFHandlingCGSolve){
 
 }
 
-TEST_F(CPUPoissonMinimal, MatrixCGSolverBilinearSolP1){
+TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 
 	// forms
 	DiffusionForm diffusionForm;
@@ -163,7 +166,7 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolverBilinearSolP1){
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, HeatEqDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
 	linalg::op::CSROperator<linalg::types::CSRMatrix<Real, BackendType>> op(K);
@@ -206,9 +209,13 @@ TEST_F(CPUPoissonMinimal, MatrixCGSolverBilinearSolP1){
 		}
 	}
 
+	// write solution
+	const auto path = std::filesystem::path(TEST_DATA_PATH) / "matrixsol_output.vtk";
+	io::FieldIO::writeVTK(mesh2D, *topoDOF2D, bcRegistry, t, U.data(), {"theta"}, path.string());
+
 }
 
-TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
+TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	
 	// form
 	DiffusionForm diffusionForm;
@@ -233,7 +240,7 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, HeatEqDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
 	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm);
@@ -275,5 +282,9 @@ TEST_F(CPUPoissonMinimal, MatrixFreeCGSolver){
 			solIndex++;
 		}
 	}
+
+	// write solution
+	const auto path = std::filesystem::path(TEST_DATA_PATH) / "matrixfreesol_output.vtk";
+	io::FieldIO::writeVTK(mesh2D, *topoDOF2D, bcRegistry, t, U.data(), {"theta"}, path.string());
 
 }

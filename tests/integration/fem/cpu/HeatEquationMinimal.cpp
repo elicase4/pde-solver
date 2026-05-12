@@ -13,7 +13,7 @@
 
 using namespace pdesolver;
 
-class CPUPoissonMinimal : public ::testing::Test {
+class CPUHeatEquationMinimal : public ::testing::Test {
 protected:
 	
 	// block mesh parameters
@@ -66,11 +66,11 @@ protected:
 
 	// specify bc functions
 	static constexpr auto g = [](Real, const Real* x, Real* out){ out[0] = x[0]; };
-	using PoissonDirichletBC = equations::heateq::BoundaryValueFunction<nsd, numDOFs, decltype(g)>;
+	using HeatEqDirichletBC = equations::heateq::BoundaryValueFunction<nsd, numDOFs, decltype(g)>;
 	
 	static constexpr auto h = [](Real, const Real* x, Real* out){ out[0] = 0.0; out[1] = x[0]; };
-	using PoissonFluxBC = equations::heateq::BoundaryFluxFunction<nsd, numDOFs, decltype(h)>;
-	using FluxForm = equations::heateq::FluxBoundaryForm<EvalQuadraturePointBoundary, PoissonFluxBC>;
+	using HeatEqFluxBC = equations::heateq::BoundaryFluxFunction<nsd, numDOFs, decltype(h)>;
+	using FluxForm = equations::heateq::FluxBoundaryForm<EvalQuadraturePointBoundary, HeatEqFluxBC>;
 	
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;
@@ -83,10 +83,10 @@ protected:
 	ConductivityModel constantConductivityModel;
 
 	// declare bcs
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc0;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc1;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonFluxBC>> bc2;
-	std::unique_ptr<fem::boundary::BoundaryCondition<PoissonDirichletBC>> bc3;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc0;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc1;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqFluxBC>> bc2;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqDirichletBC>> bc3;
 
 	// SetUp method
 	void SetUp() override {
@@ -104,20 +104,20 @@ protected:
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{0, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc0);
+		bc0 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{0, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{1, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc1);
+		bc1 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{1, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<PoissonFluxBC>>(fem::boundary::BoundaryCondition<PoissonFluxBC>{2, {fem::boundary::BCCategory::Natural}, PoissonFluxBC{h}});
-		bcRegistry.registerBC<PoissonFluxBC>(*bc2);
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqFluxBC>>(fem::boundary::BoundaryCondition<HeatEqFluxBC>{2, {fem::boundary::BCCategory::Natural}, HeatEqFluxBC{h}});
+		bcRegistry.registerBC<HeatEqFluxBC>(*bc2);
 		
 		// Set and register boundary 3
-		bc3 = std::make_unique<fem::boundary::BoundaryCondition<PoissonDirichletBC>>(fem::boundary::BoundaryCondition<PoissonDirichletBC>{3, {fem::boundary::BCCategory::Essential}, PoissonDirichletBC{g}});
-		bcRegistry.registerBC<PoissonDirichletBC>(*bc3);
+		bc3 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqDirichletBC>>(fem::boundary::BoundaryCondition<HeatEqDirichletBC>{3, {fem::boundary::BCCategory::Essential}, HeatEqDirichletBC{g}});
+		bcRegistry.registerBC<HeatEqDirichletBC>(*bc3);
 
 		// build algrebraic dofs after all boundaries are registered
 		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
@@ -125,7 +125,7 @@ protected:
 	}
 };
 
-TEST_F(CPUPoissonMinimal, DOFHandling){
+TEST_F(CPUHeatEquationMinimal, DOFHandling){
 
 	// Test topologicalDOF
 	EXPECT_EQ(topoDOF2D->dofsPerNode(), 1);
@@ -184,7 +184,7 @@ TEST_F(CPUPoissonMinimal, DOFHandling){
 
 }
 
-TEST_F(CPUPoissonMinimal, KMatrix){
+TEST_F(CPUHeatEquationMinimal, KMatrix){
 
 	// form
 	DiffusionForm diffusionForm;
@@ -258,7 +258,7 @@ TEST_F(CPUPoissonMinimal, KMatrix){
 
 }
 
-TEST_F(CPUPoissonMinimal, OVector){
+TEST_F(CPUHeatEquationMinimal, OVector){
 	
 	// form
 	DiffusionForm diffusionForm;
@@ -313,14 +313,14 @@ TEST_F(CPUPoissonMinimal, OVector){
 
 }
 
-TEST_F(CPUPoissonMinimal, FVector){
+TEST_F(CPUHeatEquationMinimal, FVector){
 	
 	// source form
 	SourceFunction sourceFunction(f);
 	SourceForm sourceForm(sourceFunction);
 
 	// flux form
-	PoissonFluxBC fluxFunction(h);
+	HeatEqFluxBC fluxFunction(h);
 	FluxForm fluxForm(fluxFunction);
 
 	// diffusion form
@@ -375,7 +375,7 @@ TEST_F(CPUPoissonMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 	
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, PoissonDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, HeatEqDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 	
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
