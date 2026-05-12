@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM
-#define PDESOLVER_FEM
+#ifndef PDESOLVER_FEM_HPP
+#define PDESOLVER_FEM_HPP
 
 #include "fem/assembly/Assembler.hpp"
 
@@ -8,6 +8,7 @@
 #include "fem/boundary/BoundaryRegistry.hpp"
 
 #include "fem/dof/AlgebraicDOF.hpp"
+#include "fem/dof/DOFOrdering.hpp"
 
 #include "fem/eval/EvalElement.hpp"
 #include "fem/eval/EvalField.hpp"

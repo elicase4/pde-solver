@@ -5,13 +5,13 @@
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 #include "fem/form/LinearForm.hpp"
 
-namespace pdesolver::fem::form {
+namespace pdesolver::equations::heateq {
 
 	template<typename QuadraturePointBoundary, typename FluxFunction>
-	struct PoissonFluxBoundaryForm {
+	struct FluxBoundaryForm {
 
 		FluxFunction fluxFunction;
-		constexpr PoissonFluxBoundaryForm(FluxFunction src) : fluxFunction(std::move(src)) {}
+		constexpr FluxBoundaryForm(FluxFunction src) : fluxFunction(std::move(src)) {}
 		
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointBoundary& qp, const Real*, Real* Fe) const {
 		
@@ -29,8 +29,8 @@ namespace pdesolver::fem::form {
 
 		}
 
-	};// struct PoissonFluxBoundaryForm
+	};// struct FluxBoundaryForm
 
-} // namespace pdesolver::fem::form
+} // namespace pdesolver::equations::heateq
 
 #endif

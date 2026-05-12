@@ -2,16 +2,16 @@
 #define POISSON_SOURCEFORM_HPP
 
 #include "fem/form/LinearForm.hpp"
-#include "equations/poisson/eval/SourceFunction.hpp"
+#include "equations/heateq/eval/SourceFunction.hpp"
 
-namespace pdesolver::fem::form {
+namespace pdesolver::equations::heateq {
 
 	template<typename QuadraturePointVolume, typename SourceFunction>
 	requires fem::eval::EvalFunction<SourceFunction>
-	struct PoissonSourceForm {
+	struct SourceForm {
 		
 		SourceFunction sourceFunction;
-		constexpr PoissonSourceForm(SourceFunction src) : sourceFunction(std::move(src)) {}
+		constexpr SourceForm(SourceFunction src) : sourceFunction(std::move(src)) {}
 
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointVolume& qp, const Real*, Real* Fe) const {
 			
@@ -26,8 +26,8 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	};// struct PoissonSourceForm
+	};// struct SourceForm
 
-} // namespace pdesolver::fem::form
+} // namespace pdesolver::equations::heateq
 
 #endif

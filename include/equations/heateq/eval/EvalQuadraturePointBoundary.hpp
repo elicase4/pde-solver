@@ -3,22 +3,22 @@
 
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<typename Element, typename Basis, typename Geometry>
-	class PoissonEvalQuadraturePointBoundary {
+	class EvalQuadraturePointBoundary {
 	public:
 
 		// dimensions
 		static constexpr Index NodesPerElement = Element::NodesPerElement;
-		static constexpr Int SpatialDim = Element::SpatialDim;
-		static constexpr Int ParametricDim = Element::ParametricDim;
+		static constexpr Index SpatialDim = Element::SpatialDim;
+		static constexpr Index ParametricDim = Element::ParametricDim;
 		
 		Element element;
 		Int faceID;
 		Real faceCoords[SpatialDim*Element::NodesPerElement];
 
-		PoissonEvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
+		EvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
 			
 			// set face coordinates
 			for (Index a = 0; a < NodesPerFace(faceID); ++a){
@@ -30,11 +30,11 @@ namespace pdesolver::fem::eval {
 		}
 
 		// helper functions
-		static Index NodesPerFace(const Int faceID){
+		static Index NodesPerFace(Int faceID){
 			return Basis::nodesPerFace(faceID);
 		}
 	
-		static void getFaceNodes(const Int faceID, Index* nodeIDs){
+		static void getFaceNodes(Int faceID, Index* nodeIDs){
 			Basis::getFaceNodes(faceID, nodeIDs);
 		}
 	
@@ -90,8 +90,8 @@ namespace pdesolver::fem::eval {
 
 		}
 
-	}; // class PoissonEvalQuadraturePointBoundary
+	}; // class EvalQuadraturePointBoundary
 
-} // namespace pdesolver::fem::eval
+} // namespace pdesolver::equations::heateq
 
 #endif

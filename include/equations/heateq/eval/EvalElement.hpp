@@ -3,10 +3,10 @@
 
 #include "fem/eval/EvalElement.hpp"
 
-namespace pdesolver::fem::eval {
+namespace pdesolver::equations::heateq {
 
 	template<typename Basis, Index SD>
-	class PoissonEvalElement {
+	class EvalElement {
 	public:
 		
 		static constexpr Index SpatialDim = SD;
@@ -26,8 +26,8 @@ namespace pdesolver::fem::eval {
 
 		}
 		
-	}; // class PoissonEvalElement<Basis>
+	}; // class EvalElement
 
-} // namespace pdesolver::fem::eval
+} // namespace pdesolver::equations::heateq
 
 #endif

@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(PDESolver
+project(PHASESOLVER
 	VERSION 0.1.0
-	DESCRIPTION "Modular Finite Element PDE Solver with GPU Acceleration"
+	DESCRIPTION "PHASE - A Modular Finite Element Solver"
 	LANGUAGES CXX
 )
+
+# Set global output dirs
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Cpp Standard
 set(CMAKE_CXX_STANDARD 20)

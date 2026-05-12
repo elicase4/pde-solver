@@ -10,12 +10,10 @@ namespace pdesolver {
 			struct NullLogger {
 
 				template<typename DataType>
-				inline void log(Index, DataType) const {
-				}
+				inline void log(Index, DataType, DataType = DataType(-1), const std::vector<DataType>& = {}) const {}
 
 				template<typename Args>
-				inline void event(Args&&) const {
-				}
+				inline void event(Args&&) const {}
 
 			}; // struct NullLogger
 

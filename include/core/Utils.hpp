@@ -3,4 +3,6 @@
 
 #include "utils/logging/core/NullLogger.hpp"
 
+#include "utils/logging/solver/ConsoleLogger.hpp"
+
 #endif

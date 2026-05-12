@@ -14,9 +14,6 @@ namespace pdesolver {
 				{ QuadraturePointBoundary::SpatialDim } -> std::convertible_to<Index>;
 				{ QuadraturePointBoundary::ParametricDim } -> std::convertible_to<Index>;
 				{ QuadraturePointBoundary::NodesPerElement } -> std::convertible_to<Index>;
-				{ QuadraturePointBoundary::NodesPerFace } -> std::convertible_to<Index>;
-				{ QuadraturePointBoundary::getFaceNodes } -> std::same_as<void>;
-				{ QuadraturePointBoundary::faceID } -> std::same_as<Int>;
 
 				{ qp.evaluate(xi, w) } -> std::same_as<void>;
 

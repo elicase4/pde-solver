@@ -7,12 +7,21 @@ namespace pdesolver {
 			namespace iterative {
 				namespace cg {
 
+					enum class ToleranceType {Relative, Absolute}; // enum class Tolerance Type
+
 					template<typename VectorType>
 					struct Config {
+						
 						using DataType = typename VectorType::value_type;
 
 						DataType tol = 1e-8;
+						ToleranceType tolType = ToleranceType::Relative;
 						Index maxIters = 1000;
+
+						Index reportInterval = 1;
+
+						Index dofsPerNode = 1;
+
 					}; // struct Config
 
 				} // namespace cg

@@ -12,6 +12,8 @@ namespace pdesolver {
 		class Mesh {
 		public:
 				
+			Mesh() = default;
+
 			Real* getNodeCoord(Index nodeID) { return &data.xyz[nodeID * data.spatialDim]; }
 			const Real* getNodeCoord(Index nodeID) const { return &data.xyz[nodeID * data.spatialDim]; }
 			
@@ -64,8 +66,6 @@ namespace pdesolver {
 			Data data;
 		
 		protected:
-
-			Mesh() = default;
 
 			static Index computeNodesPerElement(std::vector<Index> basisOrder) {
 				Index npe = 1;

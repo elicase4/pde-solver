@@ -2,6 +2,8 @@
 #define PDESOLVER_CSRMATRIX_HPP
 
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 #include "core/Types.hpp"
 
@@ -66,7 +68,8 @@ namespace pdesolver {
 
 					}
 
-					return 0;
+					throw std::out_of_range("Index does not correspond to non-zero entry.");
+					
 				}
 
 				// Zero-out data
@@ -89,6 +92,6 @@ namespace pdesolver {
 } // namespace pdesolver
 
 #include "linalg/types/backend/CPU.hpp"
-//include "linalg/types/backend/CUDA.hpp"
+//#include "linalg/types/backend/CUDA.hpp"
 		
 #endif

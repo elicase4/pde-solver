@@ -5,6 +5,7 @@
 #include "linalg/operator/CSROperator.hpp"
 #include "linalg/solver/preconditioner/Identity.hpp"
 #include "utils/logging/core/NullLogger.hpp"
+#include "utils/logging/solver/ConsoleLogger.hpp"
 
 using namespace pdesolver;
 
@@ -47,12 +48,11 @@ TEST(CGSolver, Solve2x2SPD) {
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<Vec> M;
-	utils::logging::NullLogger logger;
+	utils::logging::ConsoleLogger logger("PCG", "x");
 
 	// setup solver config
 	const Real solverTol = 1e-12;
-	const Index MaxIter = 50;
-	linalg::solver::iterative::cg::Config<Vec> cfg{solverTol, MaxIter};
+	linalg::solver::iterative::cg::Config<Vec> cfg{solverTol};
 
 	// declare solver
 	linalg::solver::iterative::cg::Solver<decltype(op), Vec, decltype(M), decltype(logger)> solver(cfg);

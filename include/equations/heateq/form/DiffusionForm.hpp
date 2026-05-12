@@ -3,10 +3,10 @@
 
 #include "fem/form/BilinearForm.hpp"
 
-namespace pdesolver::fem::form {
+namespace pdesolver::equations::heateq {
 
 	template<typename QuadraturePointVolume>
-	struct PoissonDiffusionForm {
+	struct DiffusionForm {
 
 		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, const Real*, Real* Ke){
 			
@@ -52,8 +52,8 @@ namespace pdesolver::fem::form {
 			}
 		}
 
-	}; // struct PoissonDiffusionForm
+	}; // struct DiffusionForm
 
-} // namespace pdesolver::fem::form
+} // namespace pdesolver::equations::heateq
 
 #endif
