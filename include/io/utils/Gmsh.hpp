@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_IO_UTILS_GMSH_HPP
 #define PDESOLVER_IO_UTILS_GMSH_HPP
 
+#include <vector>
+
 #include "mesh/exchange/gmsh/ElementType.hpp"
 
 namespace pdesolver {

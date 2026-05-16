@@ -139,18 +139,22 @@ std::vector<Index> pdesolver::io::gmsh::basisOrder(pdesolver::mesh::exchange::gm
 	switch (type) {
 
 		case ET::LineP1:
+			return {1};
 		case ET::TriP1:
 		case ET::QuadP1:
+			return {1,1};
 		case ET::TetP1:
 		case ET::HexP1:
-			return {1};
+			return {1,1,1};
 
 		case ET::LineP2:
+			return {2};
 		case ET::TriP2:
 		case ET::QuadP2:
+			return {2,2};
 		case ET::TetP2:
 		case ET::HexP2:
-			return {1};
+			return {2,2,2};
 
 		default:
 			return {};
@@ -184,10 +188,10 @@ std::vector<Index> pdesolver::io::gmsh::reorderToSolver(Index* conn, pdesolver::
 		case ET::TetP1:
 		case ET::TriP2:
 		case ET::TetP2:
-			return conn;
+			return std::vector<Index>(conn, conn + nodesPerElement(type));
 
 		default:
-			return conn;
+			return std::vector<Index>(conn, conn + nodesPerElement(type));
 	
 	}
 
