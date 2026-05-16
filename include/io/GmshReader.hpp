@@ -1,33 +1,41 @@
 #ifndef PDESOLVER_IO_GMSHREADER_HPP
 #define PDESOLVER_IO_GMSHREADER_HPP
 
-#include <algorithm>
-#include <array>
-#include <cassert>
-#include <cstring>
-#include <sstream>
-#include <stdexcept>
+#include <istream>
 #include <string>
-#include <unordered_map>
 
-#include "core/Types.hpp"
-#include "io/utils/Binary.hpp"
-#include "io/utils/Gmsh.hpp"
-#include "mesh/Mesh.hpp"
+#include "mesh/exchange/gmsh/IntermediateMesh.hpp"
 
 namespace pdesolver {
 	namespace io {
 		class GmshReader {
 			public:
 				
-				static void read(mesh::Mesh& mesh, const std::string& filename, const std::unordered_map<int, Int>& physicalGroupMap = {});
+				static void read(mesh::exchange::gmsh::IntermediateMesh& mesh, const std::string& filename);
 
 			private:
 				
-				static void readMSH2(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
+				enum class Format {
+					ASCII,
+					Binary
+				}; // enum class Format
+
+				struct VersionInfo {
+					double version;
+					Format format;
+				};
+
+				static VersionInfo readMeshFormat(std::istream& is);
+
+				static void readMSH2ASCII(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh);
 				
-				static void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
-		}; // class GmashReader
+				static void readMSH2Binary(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh);
+
+				static void readMSH4ASCII(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh);
+				
+				static void readMSH4Binary(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh);
+
+		}; // class GmshReader
 	} // namespace io
 } // namespace pdesolver
 
