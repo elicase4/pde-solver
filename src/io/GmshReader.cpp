@@ -134,11 +134,150 @@ std::unordered_map<Int, Int> pdesolver::io::GmshReader::readEntities(std::istrea
 }
 
 void pdesolver::io::GmshReader::readNodes(std::stream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
-	// TODO: implement
+
+	std::size_t numBlocks, numNodes, minTag, maxTag;
+	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+		is >> numBlocks >> numNodes >> minTag >> maxTag;
+	} else {
+		numBlocks = pdesolver::io::binary::readLE<int64_t>(is);
+		numNodes = pdesolver::io::binary::readLE<int64_t>(is);
+		minTag = pdesolver::io::binary::readLE<int64_t>(is);
+		maxTag = pdesolver::io::binary::readLE<int64_t>(is);
+	}
+
+	tagToIdx.reserve(numNodes);
+	mesh.xyz.reserve(numNodes * 3);
+
+	for (std::size_t b = 0; b < numBlocks; ++b) {
+		
+		int entityDim, entityTag, parametric;
+		std::size_t blockNodes;
+		if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+			is >> entityDim >> entityTag >> parametric >> blockNodes;
+		} else {
+			entityDim = pdesolver::io::binary::readLE<int32_t>(is);
+			entityTag = pdesolver::io::binary::readLE<int32_t>(is);
+			parametric = pdesolver::io::binary::readLE<int32_t>(is);
+			blockNodes = pdesolver::io::binary::readLE<int64_t>(is);
+		}
+	
+		pdesolver::mesh::exchange::gmsh::NodeBlock nb;
+		nb.entityDim = entityDim;
+		nb.entityTag = entityTag;
+		nd.nodeIDs.resize(blockNodes);
+
+		for (std::size_t n = 0; n < blockNodes; ++n){
+			
+			Index tag;
+			
+			if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+				is >> tag;
+			} else {
+				tag = pdesolver::io::binary::readLE<int64_t>(is);
+			}
+		
+		}
+
+		for (std::size_t n = 0; n < blockNodes; ++n){
+			
+			double x, y, z;
+			
+			if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+				is >> x >> y >> z;
+			} else {
+				x = pdesolver::io::binary::readLE<double>(is);
+				y = pdesolver::io::binary::readLE<double>(is);
+				z = pdesolver::io::binary::readLE<double>(is);
+			}
+			
+			Index idx = mesh.xyz.size() / 3;
+			mesh.xyz.push_back(static_cast<Real>(x));
+			mesh.xyz.push_back(static_cast<Real>(y));
+			mesh.xyz.push_back(static_cast<Real>(z));
+
+			tagToIdx[nb.nodeIDs[n]] = idx;
+
+		}
+
+		for (auto& id : nb.nodeIDs) {
+			id = tagToIdx[id];
+		}
+
+		mesh.nodeBlocks.push_back(std::move(nb));
+
+	}
+
 }
 
 void pdesolver::io::GmshReader::readElements(std::stream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
-	// TODO: implement
+
+	std::size_t numBlocks, numElements, minTag, maxTag;
+	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+		is >> numBlocks >> numElements >> minTag >> maxTag;
+	} else {
+		numBlocks = pdesolver::io::binary::readLE<int64_t>(is);
+		numElements = pdesolver::io::binary::readLE<int64_t>(is);
+		minTag = pdesolver::io::binary::readLE<int64_t>(is);
+		maxTag = pdesolver::io::binary::readLE<int64_t>(is);
+	}
+
+	for (std::size_t b = 0; b < numBlocks; ++b){
+
+		int entityDim, entityTag, elemTypeInt;
+		std::size_t blockElems;
+		if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+			is >> entityDim >> entityTag >> elemTypeInt >> blockElems;
+		} else {
+			entityDim = pdesolver::io::binary::readLE<int32_t>(is);
+			entityTag = pdesolver::io::binary::readLE<int32_t>(is);
+			elemTypeInt = pdesolver::io::binary::readLE<int32_t>(is);
+			blockElems = pdesolver::io::binary::readLE<int64_t>(is);
+		}
+
+		pdesolver::mesh::exchange::gmsh::ElementBlock eb;
+		eb.entityDim = entityDim;
+		eb.entityTag = entityTag;
+		eb.type = pdesolver::io::gmsh::elementTypeFromGmsh(elemTypeInt);
+		eb.nodesPerElement = pdesolver::io::gmsh::nodesPerElement(eb.type);
+
+		auto it = entityPhys.find(entityTag);
+		eb.physicalTag = (it != entutyPhys.end()) ? (it->second) : (-1);
+
+		eb.elementIDs.reserve(blockElems);
+		eb.connectivity.reserve(blockElems * eb.nodesPerElement);
+
+		for (std::size_t e = 0; e < blockElems; ++e) {
+
+			Index elemTag;
+			if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+				is >> elemTag;
+			} else {
+				elemTag = pdesolver::io::binary::readLE<int64_t>(is);
+			}
+			eb.elementIDs.push_back(elemTag);
+
+			std::vector<Index> raw(eb.nodesPerElement);
+			for (Index n = 0; n < eb.nodesPerElement; ++n){
+				Index nodeTag;
+				if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+					is >> nodeTag;
+				} else {
+					nodeTag = pdesolver::io::binary::readLE<int64_t>(is);
+				}
+				raw[n] = tagToIdx.at(nodeTag);
+			}
+
+			auto reordered = pdesolver::io::gmsh::reorderToSolver(raw.data(), eb.type);
+			for (Index idx : reordered){
+				eb.connectivity.push_back(idx);
+			}
+
+		}
+
+		mesh.elementBlock.push_back(std::move(eb));
+
+	}
+
 }
 
 pdesolver::io::GmshReader::VersionInfo pdesolver::io::GmshReader::readMeshFormat(std::istream& is) {

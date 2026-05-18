@@ -196,3 +196,49 @@ std::vector<Index> pdesolver::io::gmsh::reorderToSolver(Index* conn, pdesolver::
 	}
 
 }
+
+std::vector<Index> pdesolver::io::gmsh::localFaceNodes(const Index* elemNodes, pdesolver::mesh::exchange::gmsh::ElementType type, Index face) {
+
+	switch (type) {
+
+		case ET::TriP1:
+			switch (face) {
+				case 0: return {elemNodes[0], elemNodes[1]};
+				case 1: return {elemNodes[1], elemNodes[2]};
+				case 2: return {elemNodes[0], elemNodes[2]};
+				default: return {};
+			}
+		case ET::QuadP1:
+			switch (face) {
+				case 0: return {elemNodes[0], elemNodes[1]};
+				case 1: return {elemNodes[1], elemNodes[3]};
+				case 2: return {elemNodes[2], elemNodes[3]};
+				case 3: return {elemNodes[0], elemNodes[2]};
+				default: return {};
+			}
+		case ET::TetP1:
+			return {}; // TODO: implement
+		case ET::HexP1:
+			switch (face) {
+				case 0: return {elemNodes[0], elemNodes[1], elemNodes[2], elemNodes[3]};
+				case 1: return {elemNodes[4], elemNodes[5], elemNodes[6], elemNodes[7]};
+				case 2: return {elemNodes[0], elemNodes[1], elemNodes[4], elemNodes[5]};
+				case 3: return {elemNodes[2], elemNodes[3], elemNodes[6], elemNodes[7]};
+				case 4: return {elemNodes[0], elemNodes[2], elemNodes[4], elemNodes[6]};
+				case 5: return {elemNodes[1], elemNodes[3], elemNodes[5], elemNodes[7]};
+				default: return {};
+			}
+
+		case ET::TriP2:
+			return {}; // TODO: implement
+		case ET::QuadP2:
+			return {}; // TODO: implement
+		case ET::TetP2:
+			return {}; // TODO: implement
+		case ET::HexP2:
+			return {}; // TODO: implement
+
+		default:
+			return {};
+
+}

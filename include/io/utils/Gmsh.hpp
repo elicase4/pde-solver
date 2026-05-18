@@ -9,6 +9,20 @@ namespace pdesolver {
 	namespace io {
 		namespace gmsh {
 
+			struct VecHash {
+				
+				std::size_t operator()(const std::vector<Index>& v) const noexcept {
+					
+					std::size_t seed = v.size();
+					for (auto x : v){
+						seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+					}
+					
+					return seed;
+				}
+
+			}; // struct VecHash
+
 			mesh::exchange::gmsh::ElementType elementTypeFromGmsh(int type);
 
 			Index nodesPerElement(mesh::exchange::gmsh::ElementType type);
@@ -20,6 +34,8 @@ namespace pdesolver {
 			std::vector<Index> basisOrder(mesh::exchange::gmsh::ElementType type);
 
 			std::vector<Index> reorderToSolver(Index* conn, mesh::exchange::gmsh::ElementType type);
+
+			std::vector<Index> localFaceNodes(const Index* elemNodes, Index npe, Index face);
 
 		} // namespace gmsh
 	} // namespace io
