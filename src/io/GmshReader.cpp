@@ -1,6 +1,6 @@
 #include "io/GmshReader.hpp"
 
-void pdesolver::io::GmshReader::skipToSection(std::istream& is, const std::stirng& tag) {
+void pdesolver::io::GmshReader::skipToSection(std::istream& is, const std::string& tag) {
 
 	std::string line;
 	while (std::getline(is,line)) {
@@ -15,18 +15,20 @@ void pdesolver::io::GmshReader::deduceDimensions(pdesolver::mesh::exchange::gmsh
 
 	Index maxParam = 0;
 	for (const auto& eb : mesh.elementBlocks) {
-		Index d = pdesolver::io::gmsh::parametricDimension(eb.type);
+		maxParam = std::max(maxParam, io::gmsh::parametricDimension(eb.type));
 	}
 	mesh.parametricDim = maxParam;
 
 	const std::size_t numNodes = mesh.xyz.size() / 3;
-	bool AllZZero = true;
+	
+	bool allZZero = true;
+	
 	for (std::size_t n = 0; n < numNodes && AllZZero; ++n) {
 		if (std::abs(mesh.xyz[n*3 + 2]) > 1e-14) {
-			AllZZero = false;
+			allZZero = false;
 		}
 	}
-	mesh.spatialDim = allZZeros ? 2 : 3;
+	mesh.spatialDim = allZZero ? 2 : 3;
 
 }
 
@@ -34,13 +36,26 @@ void pdesolver::io::GmshReader::readPhysicalNames(std::istream& is, std::unorder
 
 	int numGroups;
 	is >> numGroups;
+	
 	for (int i = 0; i < numGroups; ++i) {
+		
 		int dim, tag;
+		is >> dim >> tag;
+		is >> std::ws;
+
 		std::string name;
-		is >> dim >> tag >> name;
-		if (!name.empty() && name.front() = '"') name = name.substr(1);
-		if (!name.empty() && name.back() = '"') name.pop_back();
+		std::getline(is, name);
+		
+		if (!name.empty() && name.front() == '"') {
+			name = name.erase(0,1);
+		}
+
+		if (!name.empty() && name.back() == '"') {
+			name = name.pop_back();
+		}
+
 		names[tag] = name;
+	
 	}
 
 }
@@ -133,7 +148,7 @@ std::unordered_map<Int, Int> pdesolver::io::GmshReader::readEntities(std::istrea
 
 }
 
-void pdesolver::io::GmshReader::readNodes(std::stream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
+void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
 
 	std::size_t numBlocks, numNodes, minTag, maxTag;
 	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
@@ -164,7 +179,7 @@ void pdesolver::io::GmshReader::readNodes(std::stream& is, pdesolver::mesh::exch
 		pdesolver::mesh::exchange::gmsh::NodeBlock nb;
 		nb.entityDim = entityDim;
 		nb.entityTag = entityTag;
-		nd.nodeIDs.resize(blockNodes);
+		nb.nodeIDs.resize(blockNodes);
 
 		for (std::size_t n = 0; n < blockNodes; ++n){
 			
@@ -175,6 +190,8 @@ void pdesolver::io::GmshReader::readNodes(std::stream& is, pdesolver::mesh::exch
 			} else {
 				tag = pdesolver::io::binary::readLE<int64_t>(is);
 			}
+
+			nb.nodeIDs[n] = tag;
 		
 		}
 
@@ -209,7 +226,7 @@ void pdesolver::io::GmshReader::readNodes(std::stream& is, pdesolver::mesh::exch
 
 }
 
-void pdesolver::io::GmshReader::readElements(std::stream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
+void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
 
 	std::size_t numBlocks, numElements, minTag, maxTag;
 	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
@@ -241,7 +258,7 @@ void pdesolver::io::GmshReader::readElements(std::stream& is, pdesolver::mesh::e
 		eb.nodesPerElement = pdesolver::io::gmsh::nodesPerElement(eb.type);
 
 		auto it = entityPhys.find(entityTag);
-		eb.physicalTag = (it != entutyPhys.end()) ? (it->second) : (-1);
+		eb.physicalTag = (it != entityPhys.end()) ? (it->second) : (-1);
 
 		eb.elementIDs.reserve(blockElems);
 		eb.connectivity.reserve(blockElems * eb.nodesPerElement);
@@ -267,14 +284,13 @@ void pdesolver::io::GmshReader::readElements(std::stream& is, pdesolver::mesh::e
 				raw[n] = tagToIdx.at(nodeTag);
 			}
 
-			auto reordered = pdesolver::io::gmsh::reorderToSolver(raw.data(), eb.type);
-			for (Index idx : reordered){
+			for (Index idx : raw){
 				eb.connectivity.push_back(idx);
 			}
 
 		}
 
-		mesh.elementBlock.push_back(std::move(eb));
+		mesh.elementBlocks.push_back(std::move(eb));
 
 	}
 
@@ -317,7 +333,11 @@ void pdesolver::io::GmshReader::read(pdesolver::mesh::exchange::gmsh::Intermedia
 	skipToSection(file, "$MeshFormat");
 	auto vi = readMeshFormat(file);
 
-	readMSH4(file, mesh, vi.format);
+	if (vi.version >= 4.0){
+		readMSH4(file, mesh, vi.format);
+	} else {
+		throw std::runtime_error("GmshReader: only MSH4 format supported.");
+	}
 
 }
 
@@ -330,12 +350,16 @@ void pdesolver::io::GmshReader::readMSH4(std::istream& is, pdesolver::mesh::exch
 	while(std::getline(is, line)) {
 		if (line == "$PhysicalNames"){
 			readPhysicalNames(is, mesh.physicalNames);
+			std::getline(is, line);
 		} else if (line == "$Entities") {
 			entityPhys = readEntities(is, fmt);
-		} else if (line == "$Nodes" {
+			std::getline(is, line);
+		} else if (line == "$Nodes") {
 			readNodes(is, mesh, tagToIdx, fmt);
+			std::getline(is, line);
 		} else if (line == "$Elements") {
 			readElements(is, mesh, tagToIdx, entityPhys, fmt);
+			std::getline(is, line);
 		}
 	}
 

@@ -126,3 +126,33 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 	}
 
 }
+
+std::vector<Index> pdesolver::mesh::exchange::MeshConverter::reorderConnectivity(const Index* conn, pdesolver::mesh::exchange::gmsh::ElementType type){
+
+	using ET = mesh::exchange::gmsh::ElementType;
+
+	switch (type) {
+
+		case ET::QuadP1:
+			return {conn[0], conn[1], conn[3], conn[2]};
+
+
+		case ET::HexP1:
+			return {conn[0], conn[1], conn[3], conn[2],
+					conn[4], conn[5], conn[6], conn[7]};
+		
+		// TODO: impelment remaining element types
+		case ET::TriP1:
+		case ET::TetP1:
+		case ET::TriP2:
+		case ET::QuadP2:
+		case ET::TetP2:
+		case ET::HexP2:
+			return std::vector<Index>(conn, conn + nodesPerElement(type));
+
+		default:
+			return std::vector<Index>(conn, conn + nodesPerElement(type));
+	
+	}
+
+}

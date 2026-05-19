@@ -29,7 +29,11 @@ namespace pdesolver {
 
 					// physical group metadata
 					std::unordered_map<Int, std::string> physicalNames;
-
+					
+					// block accessors
+					std::vector<const ElementBlock*> cellBlocks() const;
+					std::vector<const ElementBlock*> boundaryBlocks() const;
+					
 					void clear() {
 						parametricDim = 0; spatialDim = 0; xyz.clear(); nodeBlocks.clear(); elementBlocks.clear(); physicalNames.clear();
 					}

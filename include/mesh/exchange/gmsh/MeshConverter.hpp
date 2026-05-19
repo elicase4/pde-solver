@@ -26,6 +26,8 @@ namespace pdesolver {
 
 					static void buildBoundaryTags(mesh::Mesh& mesh, const IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap);
 
+					static std::vector<Index> reorderConnectivity(const Index* conn, mesh::exchange::gmsh::ElementType type);
+
 				}; // class MeshConverter
 
 			} // namespace gmsh

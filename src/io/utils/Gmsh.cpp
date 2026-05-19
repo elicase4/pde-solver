@@ -163,41 +163,9 @@ std::vector<Index> pdesolver::io::gmsh::basisOrder(pdesolver::mesh::exchange::gm
 
 }
 
-std::vector<Index> pdesolver::io::gmsh::reorderToSolver(Index* conn, pdesolver::mesh::exchange::gmsh::ElementType type){
-
-	using ET = mesh::exchange::gmsh::ElementType;
-
-	switch (type) {
-
-		case ET::QuadP1:
-			return {conn[0], conn[1], conn[3], conn[2]};
-
-		case ET::QuadP2:
-			return {conn[0], conn[4], conn[1], conn[7], conn[8], conn[5], conn[3], conn[6], conn[2]};
-
-		case ET::HexP1:
-			return {conn[0], conn[1], conn[3], conn[2],
-					conn[4], conn[5], conn[7], conn[8]};
-
-		case ET::HexP2:
-			return {conn[0], conn[8], conn[1], conn[11], conn[20], conn[9], conn[3], conn[10], conn[2],
-			        conn[12], conn[24], conn[13], conn[22], conn[26], conn[23], conn[15], conn[25], conn[14],
-			        conn[4], conn[16], conn[5], conn[19], conn[21], conn[17], conn[7], conn[18], conn[6]};
-
-		case ET::TriP1:
-		case ET::TetP1:
-		case ET::TriP2:
-		case ET::TetP2:
-			return std::vector<Index>(conn, conn + nodesPerElement(type));
-
-		default:
-			return std::vector<Index>(conn, conn + nodesPerElement(type));
-	
-	}
-
-}
-
 std::vector<Index> pdesolver::io::gmsh::localFaceNodes(const Index* elemNodes, pdesolver::mesh::exchange::gmsh::ElementType type, Index face) {
+
+	using ET = pdesolver::mesh::exchange::gmsh::ElementType;
 
 	switch (type) {
 
@@ -212,12 +180,18 @@ std::vector<Index> pdesolver::io::gmsh::localFaceNodes(const Index* elemNodes, p
 			switch (face) {
 				case 0: return {elemNodes[0], elemNodes[1]};
 				case 1: return {elemNodes[1], elemNodes[3]};
-				case 2: return {elemNodes[2], elemNodes[3]};
-				case 3: return {elemNodes[0], elemNodes[2]};
+				case 2: return {elemNodes[3], elemNodes[2]};
+				case 3: return {elemNodes[2], elemNodes[0]};
 				default: return {};
 			}
 		case ET::TetP1:
-			return {}; // TODO: implement
+			switch (face) {
+				case 0: return {elemNodes[0], elemNodes[1], elemNodes[2]};
+				case 1: return {elemNodes[0], elemNodes[1], elemNodes[3]};
+				case 2: return {elemNodes[1], elemNodes[2], elemNodes[3]};
+				case 3: return {elemNodes[0], elemNodes[2], elemNodes[3]};
+				default: return {};
+			}
 		case ET::HexP1:
 			switch (face) {
 				case 0: return {elemNodes[0], elemNodes[1], elemNodes[2], elemNodes[3]};

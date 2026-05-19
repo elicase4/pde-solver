@@ -33,9 +33,7 @@ namespace pdesolver {
 
 			std::vector<Index> basisOrder(mesh::exchange::gmsh::ElementType type);
 
-			std::vector<Index> reorderToSolver(Index* conn, mesh::exchange::gmsh::ElementType type);
-
-			std::vector<Index> localFaceNodes(const Index* elemNodes, Index npe, Index face);
+			std::vector<Index> localFaceNodes(const Index* elemNodes, mesh::exchange::gmsh::ElementType type, Index face);
 
 		} // namespace gmsh
 	} // namespace io
