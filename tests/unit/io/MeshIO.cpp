@@ -25,7 +25,7 @@ TEST(MeshIO, BinaryWriteRead_BlockMesh2D){
 
 	ASSERT_TRUE(mesh.isValid());
 
-	const std::filesystem::path output_path = std::filesystem::path(TEST_DATA_PATH) / "test_mesh.pmsh";
+	const std::filesystem::path output_path = std::filesystem::path(TEST_OUTPUT_PATH) / "test_mesh.pmsh";
 
 	MeshIO::writeBinary(mesh, output_path);
 
@@ -65,7 +65,7 @@ TEST(MeshIO, WriteVTK_BlockMesh2D){
 
 	ASSERT_TRUE(mesh.isValid());
 
-	const std::filesystem::path output_path = std::filesystem::path(TEST_DATA_PATH) / "test_mesh.vtk";
+	const std::filesystem::path output_path = std::filesystem::path(TEST_OUTPUT_PATH) / "test_mesh.vtk";
 	MeshIO::writeVTK(mesh, output_path);
 
 	std::ifstream file(output_path);

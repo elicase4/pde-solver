@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <gtest/gtest.h>
 
 #include "core/Types.hpp"
@@ -11,7 +12,9 @@ TEST(GmshReader, QuadP1Structured) {
 
 	mesh::exchange::gmsh::IntermediateMesh mesh;
 
-	io::GmshReader::read(mesh, "tests/data/mesh/gmsh/msh/quad_p1.msh");
+	const std::filesystem::path input_mesh_path = std::filesystem::path(TEST_DATA_PATH) / "mesh/gmsh/msh/quad_p1.msh";
+
+	io::GmshReader::read(mesh, input_mesh_path);
 
 	EXPECT_EQ(mesh.parametricDim, 2);
 	EXPECT_EQ(mesh.spatialDim, 2);
@@ -34,7 +37,7 @@ TEST(GmshReader, QuadP1Structured) {
 	}
 
 	EXPECT_EQ(quadCount, 4);
-	EXPECT_EQ(lineCount, 4);
+	EXPECT_EQ(lineCount, 8);
 
 }
 
@@ -42,7 +45,9 @@ TEST(GmshReader, HexP1Structured) {
 
 	mesh::exchange::gmsh::IntermediateMesh mesh;
 
-	io::GmshReader::read(mesh, "tests/data/mesh/gmsh/msh/hex_p1.msh");
+	const std::filesystem::path input_mesh_path = std::filesystem::path(TEST_DATA_PATH) / "mesh/gmsh/msh/hex_p1.msh";
+
+	io::GmshReader::read(mesh, input_mesh_path);
 
 	EXPECT_EQ(mesh.parametricDim, 3);
 	EXPECT_EQ(mesh.spatialDim, 3);
