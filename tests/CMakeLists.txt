@@ -66,10 +66,10 @@ add_pde_test(UnitTest_IO_MeshIO
 	pde_mesh pde_io
 )
 
-#add_pde_test(UnitTest_IO_GmshReader
-#	unit/io/GmshReader.cpp
-#	pde_mesh pde_io
-#)
+add_pde_test(UnitTest_IO_GmshReader
+	unit/io/GmshReader.cpp
+	pde_mesh pde_io
+)
 
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 	integration/fem/cpu/HeatEquationMinimal.cpp

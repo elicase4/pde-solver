@@ -1,4 +1,6 @@
 add_library(pde_mesh
+	exchange/gmsh/IntermediateMesh.cpp
+	#exchange/gmsh/MeshConverter.cpp
 	generator/BlockMesh2D.cpp
 )
 

@@ -7,7 +7,7 @@ void pdesolver::io::GmshReader::skipToSection(std::istream& is, const std::strin
 		if (line == tag) return;
 	}
 	
-	throw std::runtime_error("GmshReader: section not foound: " + tag);
+	throw std::runtime_error("GmshReader: section not found: " + tag);
 
 }
 
@@ -23,7 +23,7 @@ void pdesolver::io::GmshReader::deduceDimensions(pdesolver::mesh::exchange::gmsh
 	
 	bool allZZero = true;
 	
-	for (std::size_t n = 0; n < numNodes && AllZZero; ++n) {
+	for (std::size_t n = 0; n < numNodes && allZZero; ++n) {
 		if (std::abs(mesh.xyz[n*3 + 2]) > 1e-14) {
 			allZZero = false;
 		}
@@ -51,7 +51,7 @@ void pdesolver::io::GmshReader::readPhysicalNames(std::istream& is, std::unorder
 		}
 
 		if (!name.empty() && name.back() == '"') {
-			name = name.pop_back();
+			 name.pop_back();
 		}
 
 		names[tag] = name;
@@ -60,13 +60,13 @@ void pdesolver::io::GmshReader::readPhysicalNames(std::istream& is, std::unorder
 
 }
 
-std::unordered_map<Int, Int> pdesolver::io::GmshReader::readEntities(std::istream& is, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
+std::unordered_map<Int, Int> pdesolver::io::GmshReader::readEntities(std::istream& is, pdesolver::io::GmshReader::Format fmt) {
 
 	std::unordered_map<Int, Int> entityPhys;
 
 	std::size_t nPoints, nCurves, nSurfaces, nVolumes;
 
-	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+	if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 		is >> nPoints >> nCurves >> nSurfaces >> nVolumes;
 	} else {
 		nPoints = pdesolver::io::binary::readLE<int64_t>(is);
@@ -132,26 +132,26 @@ std::unordered_map<Int, Int> pdesolver::io::GmshReader::readEntities(std::istrea
 
 	}; // readEntryBinary
 
-	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
-		for (int64_t i = 0; i < nPoints; ++i) readEntryASCII(false);
-		for (int64_t i = 0; i < nCurves; ++i) readEntryASCII(true);
-		for (int64_t i = 0; i < nSurfaces; ++i) readEntryASCII(true);
-		for (int64_t i = 0; i < nVolumes; ++i) readEntryASCII(true);
+	if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
+		for (std::size_t i = 0; i < nPoints; ++i) readEntryASCII(false);
+		for (std::size_t i = 0; i < nCurves; ++i) readEntryASCII(true);
+		for (std::size_t i = 0; i < nSurfaces; ++i) readEntryASCII(true);
+		for (std::size_t i = 0; i < nVolumes; ++i) readEntryASCII(true);
 	} else {
-		for (int64_t i = 0; i < nPoints; ++i) readEntryBinary(false);
-		for (int64_t i = 0; i < nCurves; ++i) readEntryBinary(true);
-		for (int64_t i = 0; i < nSurfaces; ++i) readEntryBinary(true);
-		for (int64_t i = 0; i < nVolumes; ++i) readEntryBinary(true);
+		for (std::size_t i = 0; i < nPoints; ++i) readEntryBinary(false);
+		for (std::size_t i = 0; i < nCurves; ++i) readEntryBinary(true);
+		for (std::size_t i = 0; i < nSurfaces; ++i) readEntryBinary(true);
+		for (std::size_t i = 0; i < nVolumes; ++i) readEntryBinary(true);
 	}
 
 	return entityPhys;
 
 }
 
-void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
+void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, pdesolver::io::GmshReader::Format fmt) {
 
 	std::size_t numBlocks, numNodes, minTag, maxTag;
-	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+	if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 		is >> numBlocks >> numNodes >> minTag >> maxTag;
 	} else {
 		numBlocks = pdesolver::io::binary::readLE<int64_t>(is);
@@ -167,7 +167,7 @@ void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exc
 		
 		int entityDim, entityTag, parametric;
 		std::size_t blockNodes;
-		if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+		if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 			is >> entityDim >> entityTag >> parametric >> blockNodes;
 		} else {
 			entityDim = pdesolver::io::binary::readLE<int32_t>(is);
@@ -185,7 +185,7 @@ void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exc
 			
 			Index tag;
 			
-			if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+			if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 				is >> tag;
 			} else {
 				tag = pdesolver::io::binary::readLE<int64_t>(is);
@@ -199,7 +199,7 @@ void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exc
 			
 			double x, y, z;
 			
-			if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+			if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 				is >> x >> y >> z;
 			} else {
 				x = pdesolver::io::binary::readLE<double>(is);
@@ -226,10 +226,10 @@ void pdesolver::io::GmshReader::readNodes(std::istream& is, pdesolver::mesh::exc
 
 }
 
-void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
+void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, pdesolver::io::GmshReader::Format fmt) {
 
 	std::size_t numBlocks, numElements, minTag, maxTag;
-	if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+	if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 		is >> numBlocks >> numElements >> minTag >> maxTag;
 	} else {
 		numBlocks = pdesolver::io::binary::readLE<int64_t>(is);
@@ -242,7 +242,7 @@ void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::
 
 		int entityDim, entityTag, elemTypeInt;
 		std::size_t blockElems;
-		if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+		if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 			is >> entityDim >> entityTag >> elemTypeInt >> blockElems;
 		} else {
 			entityDim = pdesolver::io::binary::readLE<int32_t>(is);
@@ -266,7 +266,7 @@ void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::
 		for (std::size_t e = 0; e < blockElems; ++e) {
 
 			Index elemTag;
-			if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+			if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 				is >> elemTag;
 			} else {
 				elemTag = pdesolver::io::binary::readLE<int64_t>(is);
@@ -276,7 +276,7 @@ void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::
 			std::vector<Index> raw(eb.nodesPerElement);
 			for (Index n = 0; n < eb.nodesPerElement; ++n){
 				Index nodeTag;
-				if (fmt == pdesolver::io::GmshReader::VersionInfo::Format::ASCII) {
+				if (fmt == pdesolver::io::GmshReader::Format::ASCII) {
 					is >> nodeTag;
 				} else {
 					nodeTag = pdesolver::io::binary::readLE<int64_t>(is);
@@ -341,7 +341,7 @@ void pdesolver::io::GmshReader::read(pdesolver::mesh::exchange::gmsh::Intermedia
 
 }
 
-void pdesolver::io::GmshReader::readMSH4(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, pdesolver::io::GmshReader::VersionInfo::Format fmt) {
+void pdesolver::io::GmshReader::readMSH4(std::istream& is, pdesolver::mesh::exchange::gmsh::IntermediateMesh& mesh, pdesolver::io::GmshReader::Format fmt) {
 
 	std::unordered_map<Index, Index> tagToIdx;
 	std::unordered_map<Int, Int> entityPhys;
@@ -366,7 +366,7 @@ void pdesolver::io::GmshReader::readMSH4(std::istream& is, pdesolver::mesh::exch
 	deduceDimensions(mesh);
 
 }
-void pdesolver::io::GmshReader::readMSH2(std::istream&, pdesolver::mesh::exchange::gmsh::IntermediateMesh&, pdesolver::io::GmshReader::VersionInfo::Format) {
+void pdesolver::io::GmshReader::readMSH2(std::istream&, pdesolver::mesh::exchange::gmsh::IntermediateMesh&, pdesolver::io::GmshReader::Format) {
 
 	throw std::runtime_error("GmshReader: MSH2 not implemented");
 

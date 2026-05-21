@@ -214,5 +214,6 @@ std::vector<Index> pdesolver::io::gmsh::localFaceNodes(const Index* elemNodes, p
 
 		default:
 			return {};
+	}
 
 }

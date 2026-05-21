@@ -35,9 +35,9 @@ namespace pdesolver {
 				// high level version readers
 				static VersionInfo readMeshFormat(std::istream& is);
 
-				static void readMSH4(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, VersionInfo::Format fmt);
+				static void readMSH4(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, Format fmt);
 				
-				static void readMSH2(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, VersionInfo::Format fmt);
+				static void readMSH2(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, Format fmt);
 
 				// internal helpers
 				static void skipToSection(std::istream& is, const std::string& tag);
@@ -46,11 +46,11 @@ namespace pdesolver {
 
 				static void readPhysicalNames(std::istream& is, std::unordered_map<Int, std::string>& names);
 
-				static std::unordered_map<Int, Int> readEntities(std::istream& is, VersionInfo::Format fmt);
+				static std::unordered_map<Int, Int> readEntities(std::istream& is, Format fmt);
 
-				static void readNodes(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, VersionInfo::Format fmt);
+				static void readNodes(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, Format fmt);
 				
-				static void readElements(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, VersionInfo::Format fmt);
+				static void readElements(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, Format fmt);
 
 		}; // class GmshReader
 	} // namespace io

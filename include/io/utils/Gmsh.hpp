@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "core/Types.hpp"
 #include "mesh/exchange/gmsh/ElementType.hpp"
 
 namespace pdesolver {

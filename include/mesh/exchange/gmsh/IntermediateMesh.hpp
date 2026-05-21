@@ -1,6 +1,7 @@
 #ifndef PDESOLVER_MESH_EXCHANGE_GMSH_INTERMEDIATEMESH_HPP
 #define PDESOLVER_MESH_EXCHANGE_GMSH_INTERMEDIATEMESH_HPP
 
+#include <string>
 #include <unordered_map>
 #include <vector>
 
