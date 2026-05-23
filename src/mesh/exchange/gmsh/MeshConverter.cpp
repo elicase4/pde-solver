@@ -1,6 +1,6 @@
 #include "mesh/exchange/gmsh/MeshConverter.hpp"
 
-void pdesolver::mesh::exchange::gmsh::MeshConverter::toSolverMesh(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap = {}) {
+void pdesolver::mesh::exchange::gmsh::MeshConverter::toSolverMesh(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap) {
 
 	if (input.empty()){
 		throw std::runtime_error("MeshConverter: input IntermediateMesh is empty");
@@ -10,116 +10,140 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::toSolverMesh(pdesolver::mes
 	buildConnectivity(mesh, input);
 	buildBoundaryTags(mesh, input, physicalGroupMap);
 
+	if (!mesh.isValid()){
+		throw std::runtime_error("MeshConverter: produced invalid mesh");
+	}
+
 }
 
-void pdesolver::mesh::exchange::gmsh::MeshConverter::buildConnectivity(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::IntermediateMesh& input) {
+void pdesolver::mesh::exchange::gmsh::MeshConverter::buildConnectivity(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input) {
 
-	// Check volume block element types and enforce uniformity. Determine the first volume block to extract metadata.
 	const ElementBlock* protoBlock = nullptr;
-	for (const auto& eb : input.elementBlocks) {
-		if (io::gmsh::parametricDimension(eb.type) == input.parametricDim) {
-			protoBlock = &eb;
-			break;
-		}
-	}
 	
-	if (!protoBlock) {
-		throw std::runtime_error("MeshConverter: no volume elements found");
+	Index totalElems = 0;
+	
+	// compute the total number of solver elements
+	for (const auto* eb : input.cellBlocks()) {
+	
+		// check that cell blocks are assigned and are of uniform type
+		if (!protoBlock) {
+			protoBlock = eb;
+		} else if (eb->type != protoBlock->type) {
+			throw std::runtime_error("MeshConverter: mixed cell types are not supported");
+		}
+
+		totalElems += eb->elementIDs.size():
+
 	}
 
-	// Fill mesh metadata
+	// set mesh metadata
 	mesh.data.parametricDim = input.parametricDim;
-	mesh.data.spatialDim = input.SpatialDim;
-	mesh.data.nodesPerElement = pdesolver::io::gmsh::facesPerElement(protoBlock->type);
-	mesh.data.basisOrder = pdesolver::io::gmsh::basisOrder(protoBlock->type);
+	mesh.data.spatialDim = input.spatialDim;
+	mesh.data.basisOrder = pdesolver::mesh::exchange::gmsh::basisOrder(protoBlock->type);
+	mesh.data.nodesPerElement = protoBlock->nodesPerElement;
+	mesh.data.facesPerElement = pdesolver::mesh::exchange::gmsh::facesPerElement(protoBlock->type);
 
-	// convert node coordinated from 3D input from intermediat mesh to 2D or 3D input solver mesh
-	const Index nNodes = input.xyz.size() / 3;
-	const Index sDim = input.spatialDim;
-	
-	mesh.data.numNodes = nNodes;
-	mesh.data.xyz.resize(nNodes * sDim);
-	for (Index n = 0; n < nNodes; ++n){
-		for (Index d = 0; d < sDim; ++d){
-			mesh.data.xyz[n*sDim + d] = input.xyz[n*3 + d];
+	// set coordinates
+	const Index numNodes = input.xyz.size() / 3;
+	mesh.data.numNodes = numNodes;
+	mesh.data.xyz.resize(numNodes * input.spatialDim);
+	for (Index n = 0; n < numNodes; ++n){
+		for (Index d = 0; d < input.spatialDim; ++d){
+			mesh.data.xyz[n*input.spatialDim + d] = input.xyz[n*3 + d];
 		}
 	}
 
-	// Gmsh connectivity to ien
+	// set connectivity
 	mesh.data.numElements = totalElems;
 	mesh.data.ien.resize(totalElems * protoBlock->nodesPerElement);
-
 	Index elemOffset = 0;
-	for (const auto& eb : input.elementBlocks) {
+	for (const auto* eb : input.cellBlocks()){
 
-		if (pdesolver::io::gmsh::parametricDimension(eb.type) != input.parametricDim) continue;
+		const Index nElem = eb->elementIDs.size();
+		for (Index e = 0; e < nElem; ++e){
+			
+			// get element connectivity
+			const Index* conn = &eb->connectivity[e * eb->nodesPerElement];
+			
+			// reorder connectivity to row major
+			auto reordered = reorderConnectivity(conn, eb->type);
+			
+			// store node id for each connectivity entry
+			for (Index n = 0; n < eb->nodesPerElement; ++n){
 
-		for (Index e = 0; e < eb.elementIDs.size(); ++e){
-			for (Index n = 0; n < eb.nodesPerElement; ++n){
-				mesh.data.ien[(elemOffset + e) * eb.nodesPerElement + n] = eb.connectivity[e*eb.nodesPerElement + n]
+				mesh.data.ien[(elemOffset + e)*mesh.data.nodesPerElement + n] = reordered[n];
+
 			}
-			elemOffset += eb.elementIDs.size();
+
 		}
 
-	}
+		elemOffset += nElem;
 
+	}
+	
 }
 
-void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap) {
+void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap) {
 
-	const Index npe = mesh.data.nodesPerElement;
-	const Index fpn = mesh.data.facesPerElement;
+	const Index fpe = mesh.data.facesPerElement;
 	const Index nElem = mesh.data.numElements;
 	
 	// Initialize rng to -1 before filling
-	mesh.data.rng.assign(nElem * fpn, -1);
+	mesh.data.rng.assign(nElem * fpe, -1);
 
 	// Build face-set -> (elemID, localFace) lookup from volume mesh. Key is sorted node IDs of a face
-	std::unordered_map<std::vector<Index>, std::pair<Index, Index>, pdesolver::io::gmsh::VecHash> faceMap;
-	faceMap.reserve(nElem * fpn);
+	std::unordered_map<std::vector<Index>, std::pair<Index, Index>, pdesolver::mesh::exchange::gmsh::VecHash> faceMap;
+	faceMap.reserve(nElem * fpe);
 
 	// fill in the face map
 	for (Index e = 0; e < nElem; ++e){
-		const Index* en = mesh.getElementNodes(e);
-		for (Index f = 0; f < fpn; ++f){
-			// TODO: fix this utility function
-			// std::vector<Index> faceNodes = pdesolver::io::gmsh::localFaceNodes(en, , f);
+		const Index* elemNodes = mesh.getElementNodes(e);
+		for (Index f = 0; f < fpe; ++f){
+			// TODO: fix this function
+			auto faceNodes = pdesolver::mesh::exchange::gmsh::localFaceNodes(elemNodes, mesh.data.nodesPerElement, f);
 			std::sort(faceNodes.begin(), faceNodes.end());
 			faceMap[faceNodes] = {e, f};
 		}
 	}
 
-	// iterate over the boundary (lower dimensional) element blocks
-	for (const auto& eb : input.elementBlocks) {
+	// iterate over the boundary element blocks
+	for (const auto* eb : input.boundaryBlocks()) {
 
-		if (pdesolver::io::gmsh::parametricDimension(eb.type) >= input.parametricDimension) continue;
-		if (eb.type == pdesolver::mesh::exchange::gmsh::ElementType::Unknown) continue;
-		
 		// resolve solver boundary tag with input map
-		Int solverTag = eb.physicalTag; // use raw physical tag by default
-		if (!physicalGroupMap.empty()){
-			auto it = physicalGroupMap.find(eb.physicalTag);
-			if (it != physicalGroupMap.end()){
-				solverTag = it->second;
-			}
+		Int solverTag = eb->physicalTag; // use raw physical tag by default
+		
+		// check input physicalGroupMap for solver boundary ID
+		auto mapIt = physicalGroupMap.find(eb->physicalTag);
+		if (mapIt != physicalGroupMap.end()){
+			solverTag = mapIt->second;
+		} else {
+			solverTag = eb->physicalTag;
 		}
+		
+		// loop over face elements in this block
+		const Index nFaceElem = eb->elementIDs.size();
+		for (Index fe = 0; fe < nFaceElem; ++fe){
 
-		const Index faceNpe = eb.nodesPerElement;
-		const Index nFaceElems = eb.elementIDs.size();
+			std::vector<Index> key(eb->nodesPerElement);
+			
+			// get connectivity key for each node
+			for (Index n = 0; n < eb->nodesPerElement; ++n){
 
-		for (Index fe = 0; fe < nFaceElems; ++fe) {
+				key[n] = eb->connectivity[fe*eb->nodesPerElement + n];
 
-			std::vector<Index> key(faceNpe);
-			for (Index n = 0; n < faceNpe; ++n){
-				key[n] = eb.connectivity[fe * faceNpe + n];
 			}
-			std::sort(key.begin(), key.end());
-
+			
+			// get info about face node from face map via gmsh face node id lookup
 			auto it = faceMap.find(key);
-			if (it == faceMap.end()) continue;
+
+			if (it == faceMap.end()){
+				continue;
+			}
 
 			auto [elemID, localFace] = it->second;
-			mesh.data.rng[elemID * fpn + localFace] = solverTag;
+
+			// input solver tag into rng
+			mesh.data.rng[elemID*fpe + localFace] = solverTag;
 
 		}
 
@@ -127,7 +151,7 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 
 }
 
-std::vector<Index> pdesolver::mesh::exchange::MeshConverter::reorderConnectivity(const Index* conn, pdesolver::mesh::exchange::gmsh::ElementType type){
+std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::reorderConnectivity(const Index* conn, pdesolver::mesh::exchange::gmsh::ElementType type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
 

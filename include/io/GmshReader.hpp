@@ -10,7 +10,7 @@
 
 #include "core/Types.hpp"
 #include "io/utils/Binary.hpp"
-#include "io/utils/Gmsh.hpp"
+#include "mesh/exchange/gmsh/Utils.hpp"
 #include "mesh/exchange/gmsh/IntermediateMesh.hpp"
 
 namespace pdesolver {

@@ -3,7 +3,6 @@ add_library(pde_io
 	FieldIO.cpp
 	GmshReader.cpp
 	VTKWriter.cpp
-	utils/Gmsh.cpp
 )
 
 target_include_directories(pde_io

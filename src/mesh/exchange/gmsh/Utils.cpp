@@ -1,6 +1,6 @@
-#include "io/utils/Gmsh.hpp"
+#include "mesh/exchange/gmsh/Utils.hpp"
 
-pdesolver::mesh::exchange::gmsh::ElementType pdesolver::io::gmsh::elementTypeFromGmsh(int type){
+pdesolver::mesh::exchange::gmsh::ElementType pdesolver::mesh::exchange::gmsh::elementTypeFromGmsh(int type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
 
@@ -36,7 +36,7 @@ pdesolver::mesh::exchange::gmsh::ElementType pdesolver::io::gmsh::elementTypeFro
 
 }
 
-Index pdesolver::io::gmsh::nodesPerElement(pdesolver::mesh::exchange::gmsh::ElementType type){
+Index pdesolver::mesh::exchange::gmsh::nodesPerElement(pdesolver::mesh::exchange::gmsh::ElementType type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
 
@@ -74,7 +74,7 @@ Index pdesolver::io::gmsh::nodesPerElement(pdesolver::mesh::exchange::gmsh::Elem
 
 }
 
-Index pdesolver::io::gmsh::parametricDimension(pdesolver::mesh::exchange::gmsh::ElementType type){
+Index pdesolver::mesh::exchange::gmsh::parametricDimension(pdesolver::mesh::exchange::gmsh::ElementType type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
 
@@ -103,7 +103,7 @@ Index pdesolver::io::gmsh::parametricDimension(pdesolver::mesh::exchange::gmsh::
 
 }
 
-Index pdesolver::io::gmsh::facesPerElement(pdesolver::mesh::exchange::gmsh::ElementType type){
+Index pdesolver::mesh::exchange::gmsh::facesPerElement(pdesolver::mesh::exchange::gmsh::ElementType type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
 
@@ -132,7 +132,7 @@ Index pdesolver::io::gmsh::facesPerElement(pdesolver::mesh::exchange::gmsh::Elem
 
 }
 
-std::vector<Index> pdesolver::io::gmsh::basisOrder(pdesolver::mesh::exchange::gmsh::ElementType type){
+std::vector<Index> pdesolver::mesh::exchange::gmsh::basisOrder(pdesolver::mesh::exchange::gmsh::ElementType type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
 
@@ -163,7 +163,7 @@ std::vector<Index> pdesolver::io::gmsh::basisOrder(pdesolver::mesh::exchange::gm
 
 }
 
-std::vector<Index> pdesolver::io::gmsh::localFaceNodes(const Index* elemNodes, pdesolver::mesh::exchange::gmsh::ElementType type, Index face) {
+std::vector<Index> pdesolver::mesh::exchange::gmsh::localFaceNodes(const Index* elemNodes, pdesolver::mesh::exchange::gmsh::ElementType type, Index face) {
 
 	using ET = pdesolver::mesh::exchange::gmsh::ElementType;
 

@@ -15,7 +15,7 @@ void pdesolver::io::GmshReader::deduceDimensions(pdesolver::mesh::exchange::gmsh
 
 	Index maxParam = 0;
 	for (const auto& eb : mesh.elementBlocks) {
-		maxParam = std::max(maxParam, io::gmsh::parametricDimension(eb.type));
+		maxParam = std::max(maxParam, mesh::exchange::gmsh::parametricDimension(eb.type));
 	}
 	mesh.parametricDim = maxParam;
 
@@ -254,8 +254,8 @@ void pdesolver::io::GmshReader::readElements(std::istream& is, pdesolver::mesh::
 		pdesolver::mesh::exchange::gmsh::ElementBlock eb;
 		eb.entityDim = entityDim;
 		eb.entityTag = entityTag;
-		eb.type = pdesolver::io::gmsh::elementTypeFromGmsh(elemTypeInt);
-		eb.nodesPerElement = pdesolver::io::gmsh::nodesPerElement(eb.type);
+		eb.type = pdesolver::mesh::exchange::gmsh::elementTypeFromGmsh(elemTypeInt);
+		eb.nodesPerElement = pdesolver::mesh::exchange::gmsh::nodesPerElement(eb.type);
 
 		auto it = entityPhys.find(entityTag);
 		eb.physicalTag = (it != entityPhys.end()) ? (it->second) : (-1);

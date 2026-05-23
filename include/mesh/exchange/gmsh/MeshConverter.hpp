@@ -6,9 +6,9 @@
 #include <unordered_map>
 
 #include "core/Types.hpp"
-#include "io/utils/Gmsh.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/exchange/gmsh/IntermediateMesh.hpp"
+#include "mesh/exchange/gmsh/Utils.hpp"
 
 namespace pdesolver {
 	namespace mesh {
