@@ -11,6 +11,25 @@ namespace pdesolver {
 		namespace exchange {
 			namespace gmsh {
 
+				// struct to handle non-unqiue tags between entity types
+				struct EntityKey {
+					int dim;
+					int tag;
+					
+					// dimensions and tag must be equal
+					bool operator==(const EntityKey& other) const {
+						return ((dim == other.dim) && (tag == other.tag));
+					}
+				}; // struct EntityKey
+
+				// hash for entities
+				struct EntityKeyHash {
+					std::size_t operator()(const EntityKey& k) const {
+						return (std::hash<Int>{}(k.dim)^(std::hash<Int>{}(k.tag) << 1));
+					}
+				}; // struct EntityKeyHash
+
+				// hash for index vectors
 				struct VecHash {
 					
 					std::size_t operator()(const std::vector<Index>& v) const noexcept {

@@ -31,7 +31,7 @@ namespace pdesolver {
 					double version;
 					Format format;
 				};
-				
+
 				// high level version readers
 				static VersionInfo readMeshFormat(std::istream& is);
 
@@ -46,11 +46,11 @@ namespace pdesolver {
 
 				static void readPhysicalNames(std::istream& is, std::unordered_map<Int, std::string>& names);
 
-				static std::unordered_map<Int, Int> readEntities(std::istream& is, Format fmt);
+				static std::unordered_map<mesh::exchange::gmsh::EntityKey, Int, mesh::exchange::gmsh::EntityKeyHash> readEntities(std::istream& is, Format fmt);
 
 				static void readNodes(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, Format fmt);
 				
-				static void readElements(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<Int, Int>& entityPhys, Format fmt);
+				static void readElements(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<mesh::exchange::gmsh::EntityKey, Int, mesh::exchange::gmsh::EntityKeyHash>& entityPhys, Format fmt);
 
 		}; // class GmshReader
 	} // namespace io
