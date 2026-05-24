@@ -22,9 +22,9 @@ namespace pdesolver {
 
 				private:
 
-					static void buildConnectivity(mesh::Mesh& mesh, const IntermediateMesh& input);
+					static ElementType buildConnectivity(mesh::Mesh& mesh, const IntermediateMesh& input);
 
-					static void buildBoundaryTags(mesh::Mesh& mesh, const IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap);
+					static void buildBoundaryTags(mesh::Mesh& mesh, const IntermediateMesh& input, ElementType cellType, const std::unordered_map<Int, Int>& physicalGroupMap);
 
 					static std::vector<Index> reorderConnectivity(const Index* conn, mesh::exchange::gmsh::ElementType type);
 

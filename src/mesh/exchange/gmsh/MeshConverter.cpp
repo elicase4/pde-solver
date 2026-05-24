@@ -7,8 +7,8 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::toSolverMesh(pdesolver::mes
 	}
 
 	mesh.clear();
-	buildConnectivity(mesh, input);
-	buildBoundaryTags(mesh, input, physicalGroupMap);
+	pdesolver::mesh::exchange::gmsh::ElementType cellType = buildConnectivity(mesh, input);
+	buildBoundaryTags(mesh, input, cellType, physicalGroupMap);
 
 	if (!mesh.isValid()){
 		throw std::runtime_error("MeshConverter: produced invalid mesh");
@@ -16,7 +16,7 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::toSolverMesh(pdesolver::mes
 
 }
 
-void pdesolver::mesh::exchange::gmsh::MeshConverter::buildConnectivity(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input) {
+pdesolver::mesh::exchange::gmsh::ElementType pdesolver::mesh::exchange::gmsh::MeshConverter::buildConnectivity(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input) {
 
 	const ElementBlock* protoBlock = nullptr;
 	
@@ -32,7 +32,7 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildConnectivity(pdesolver
 			throw std::runtime_error("MeshConverter: mixed cell types are not supported");
 		}
 
-		totalElems += eb->elementIDs.size():
+		totalElems += eb->elementIDs.size();
 
 	}
 
@@ -80,10 +80,12 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildConnectivity(pdesolver
 		elemOffset += nElem;
 
 	}
+
+	return protoBlock->type;
 	
 }
 
-void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap) {
+void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input, pdesolver::mesh::exchange::gmsh::ElementType cellType, const std::unordered_map<Int, Int>& physicalGroupMap) {
 
 	const Index fpe = mesh.data.facesPerElement;
 	const Index nElem = mesh.data.numElements;
@@ -99,8 +101,7 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 	for (Index e = 0; e < nElem; ++e){
 		const Index* elemNodes = mesh.getElementNodes(e);
 		for (Index f = 0; f < fpe; ++f){
-			// TODO: fix this function
-			auto faceNodes = pdesolver::mesh::exchange::gmsh::localFaceNodes(elemNodes, mesh.data.nodesPerElement, f);
+			auto faceNodes = pdesolver::mesh::exchange::gmsh::localFaceNodes(elemNodes, cellType, f);
 			std::sort(faceNodes.begin(), faceNodes.end());
 			faceMap[faceNodes] = {e, f};
 		}
