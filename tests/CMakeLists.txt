@@ -32,8 +32,13 @@ function(add_pde_test TEST_NAME SOURCE_FILE)
 
 endfunction()
 
-add_pde_test(UnitTest_Mesh_BlockMesh2D
-	unit/mesh/BlockMesh2D.cpp
+add_pde_test(UnitTest_Mesh_Generator_BlockMesh2D
+	unit/mesh/generator/BlockMesh2D.cpp
+	pde_mesh pde_io
+)
+
+add_pde_test(UnitTest_Mesh_Exchange_Gmsh_MeshConverter
+	unit/mesh/exchange/gmsh/MeshConverter.cpp
 	pde_mesh pde_io
 )
 

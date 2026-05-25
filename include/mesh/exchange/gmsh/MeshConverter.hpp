@@ -26,7 +26,9 @@ namespace pdesolver {
 
 					static void buildBoundaryTags(mesh::Mesh& mesh, const IntermediateMesh& input, ElementType cellType, const std::unordered_map<Int, Int>& physicalGroupMap);
 
-					static std::vector<Index> reorderConnectivity(const Index* conn, mesh::exchange::gmsh::ElementType type);
+					static std::vector<Index> reorderConnectivity(const Index* conn, ElementType type);
+
+					static std::vector<Index> localFaceNodesSolver(const Index* elemNodes, ElementType type, Index face);
 
 				}; // class MeshConverter
 

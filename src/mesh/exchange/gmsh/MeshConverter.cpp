@@ -101,7 +101,7 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 	for (Index e = 0; e < nElem; ++e){
 		const Index* elemNodes = mesh.getElementNodes(e);
 		for (Index f = 0; f < fpe; ++f){
-			auto faceNodes = pdesolver::mesh::exchange::gmsh::localFaceNodes(elemNodes, cellType, f);
+			auto faceNodes = pdesolver::mesh::exchange::gmsh::MeshConverter::localFaceNodesSolver(elemNodes, cellType, f);
 			std::sort(faceNodes.begin(), faceNodes.end());
 			faceMap[faceNodes] = {e, f};
 		}
@@ -133,6 +133,9 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 				key[n] = eb->connectivity[fe*eb->nodesPerElement + n];
 
 			}
+
+			// sort output
+			std::sort(key.begin(), key.end());
 			
 			// get info about face node from face map via gmsh face node id lookup
 			auto it = faceMap.find(key);
@@ -164,7 +167,7 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::reorderConnec
 
 		case ET::HexP1:
 			return {conn[0], conn[1], conn[3], conn[2],
-					conn[4], conn[5], conn[6], conn[7]};
+					conn[4], conn[5], conn[7], conn[6]};
 		
 		// TODO: impelment remaining element types
 		case ET::TriP1:
@@ -178,6 +181,59 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::reorderConnec
 		default:
 			return std::vector<Index>(conn, conn + nodesPerElement(type));
 	
+	}
+
+}
+
+std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::localFaceNodesSolver(const Index* elemNodes, pdesolver::mesh::exchange::gmsh::ElementType type, Index face) {
+
+	using ET = mesh::exchange::gmsh::ElementType;
+
+	switch (type) {
+
+		case ET::QuadP1:
+			switch (face) {
+				case 0:
+					return {elemNodes[0], elemNodes[2]};
+				case 1:
+					return {elemNodes[1], elemNodes[3]};
+				case 2:
+					return {elemNodes[0], elemNodes[1]};
+				case 3:
+					return {elemNodes[2], elemNodes[3]};
+				default:
+					return {};
+			}
+
+		case ET::HexP1:
+			switch (face) {
+				case 0:
+					return {elemNodes[0], elemNodes[2], elemNodes[4], elemNodes[6]};
+				case 1:
+					return {elemNodes[1], elemNodes[3], elemNodes[5], elemNodes[7]};
+				case 2:
+					return {elemNodes[0], elemNodes[1], elemNodes[4], elemNodes[5]};
+				case 3:
+					return {elemNodes[2], elemNodes[3], elemNodes[6], elemNodes[7]};
+				case 4:
+					return {elemNodes[0], elemNodes[1], elemNodes[2], elemNodes[3]};
+				case 5:
+					return {elemNodes[4], elemNodes[5], elemNodes[6], elemNodes[7]};
+				default:
+					return {};
+			}
+
+		// TODO: impelment remaining element types
+		case ET::TriP1:
+		case ET::TetP1:
+		case ET::TriP2:
+		case ET::QuadP2:
+		case ET::TetP2:
+		case ET::HexP2:
+			return mesh::exchange::gmsh::localFaceNodes(elemNodes, type, face);
+
+		default:
+			return mesh::exchange::gmsh::localFaceNodes(elemNodes, type, face);
 	}
 
 }
