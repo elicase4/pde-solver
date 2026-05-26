@@ -99,12 +99,15 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 
 	// fill in the face map
 	for (Index e = 0; e < nElem; ++e){
+		
 		const Index* elemNodes = mesh.getElementNodes(e);
+		
 		for (Index f = 0; f < fpe; ++f){
 			auto faceNodes = pdesolver::mesh::exchange::gmsh::MeshConverter::localFaceNodesSolver(elemNodes, cellType, f);
 			std::sort(faceNodes.begin(), faceNodes.end());
 			faceMap[faceNodes] = {e, f};
 		}
+	
 	}
 
 	// iterate over the boundary element blocks
@@ -125,14 +128,9 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 		const Index nFaceElem = eb->elementIDs.size();
 		for (Index fe = 0; fe < nFaceElem; ++fe){
 
-			std::vector<Index> key(eb->nodesPerElement);
-			
-			// get connectivity key for each node
-			for (Index n = 0; n < eb->nodesPerElement; ++n){
-
-				key[n] = eb->connectivity[fe*eb->nodesPerElement + n];
-
-			}
+			// get connectivity key for each node and reorder
+			const Index* conn = &eb->connectivity[fe*eb->nodesPerElement];
+			std::vector<Index> key = reorderConnectivity(conn, eb->type);
 
 			// sort output
 			std::sort(key.begin(), key.end());
@@ -166,8 +164,7 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::reorderConnec
 
 
 		case ET::HexP1:
-			return {conn[0], conn[1], conn[3], conn[2],
-					conn[4], conn[5], conn[7], conn[6]};
+			return {conn[0], conn[1], conn[3], conn[2], conn[4], conn[5], conn[7], conn[6]};
 		
 		// TODO: impelment remaining element types
 		case ET::TriP1:
@@ -194,13 +191,13 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::localFaceNode
 		case ET::QuadP1:
 			switch (face) {
 				case 0:
-					return {elemNodes[0], elemNodes[2]};
+					return {elemNodes[0], elemNodes[3]};
 				case 1:
-					return {elemNodes[1], elemNodes[3]};
+					return {elemNodes[1], elemNodes[2]};
 				case 2:
 					return {elemNodes[0], elemNodes[1]};
 				case 3:
-					return {elemNodes[2], elemNodes[3]};
+					return {elemNodes[3], elemNodes[2]};
 				default:
 					return {};
 			}
@@ -208,17 +205,17 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::localFaceNode
 		case ET::HexP1:
 			switch (face) {
 				case 0:
-					return {elemNodes[0], elemNodes[2], elemNodes[4], elemNodes[6]};
+					return {elemNodes[0], elemNodes[4], elemNodes[3], elemNodes[7]};
 				case 1:
-					return {elemNodes[1], elemNodes[3], elemNodes[5], elemNodes[7]};
+					return {elemNodes[1], elemNodes[5], elemNodes[2], elemNodes[6]};
 				case 2:
 					return {elemNodes[0], elemNodes[1], elemNodes[4], elemNodes[5]};
 				case 3:
-					return {elemNodes[2], elemNodes[3], elemNodes[6], elemNodes[7]};
+					return {elemNodes[2], elemNodes[3], elemNodes[7], elemNodes[6]};
 				case 4:
-					return {elemNodes[0], elemNodes[1], elemNodes[2], elemNodes[3]};
+					return {elemNodes[0], elemNodes[1], elemNodes[3], elemNodes[2]};
 				case 5:
-					return {elemNodes[4], elemNodes[5], elemNodes[6], elemNodes[7]};
+					return {elemNodes[4], elemNodes[5], elemNodes[7], elemNodes[6]};
 				default:
 					return {};
 			}
