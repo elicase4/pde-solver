@@ -22,13 +22,11 @@ namespace pdesolver {
 
 				private:
 
-					static ElementType buildConnectivity(mesh::Mesh& mesh, const IntermediateMesh& input);
+					static ElementType buildConnectivity(mesh::Mesh& mesh, const IntermediateMesh& input, std::unordered_map<Index, Index>& gmshToSolver);
 
-					static void buildBoundaryTags(mesh::Mesh& mesh, const IntermediateMesh& input, ElementType cellType, const std::unordered_map<Int, Int>& physicalGroupMap);
+					static void buildBoundaryTags(mesh::Mesh& mesh, const IntermediateMesh& input, ElementType cellType, std::unordered_map<Index, Index>& gmshToSolver, const std::unordered_map<Int, Int>& physicalGroupMap);
 
 					static std::vector<Index> reorderConnectivity(const Index* conn, ElementType type);
-
-					static std::vector<Index> localFaceNodesSolver(const Index* elemNodes, ElementType type, Index face);
 
 				}; // class MeshConverter
 
