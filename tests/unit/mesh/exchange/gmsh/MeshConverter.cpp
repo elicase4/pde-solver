@@ -85,13 +85,13 @@ TEST(MeshConverter, QuadP1Structured){
 		Real xc = 0.0;
 		Real yc = 0.0;
 
-		for (Index a = 0; a < mesh.data.facesPerElement; ++a){
+		for (Index a = 0; a < mesh.data.nodesPerElement; ++a){
 			xc += mesh.data.xyz[2*ien[a]+0];
 			yc += mesh.data.xyz[2*ien[a]+1];
 		}
 
-		xc /= 4.0;
-		yc /= 4.0;
+		xc /= mesh.data.nodesPerElement;
+		yc /= mesh.data.nodesPerElement;
 
 		Int* rng = mesh.getBoundaryTag(e);
 
@@ -107,9 +107,6 @@ TEST(MeshConverter, QuadP1Structured){
 		}
 
 	}
-
-	// print mesh
-	mesh.print();
 
 	// write mesh vtk file
 	const std::filesystem::path output_path = std::filesystem::path(TEST_OUTPUT_PATH) / "quad_p1_mesh.vtk";
@@ -204,15 +201,15 @@ TEST(MeshConverter, HexP1Structured){
 		Real yc = 0.0;
 		Real zc = 0.0;
 
-		for (Index a = 0; a < mesh.data.facesPerElement; ++a){
+		for (Index a = 0; a < mesh.data.nodesPerElement; ++a){
 			xc += mesh.data.xyz[3*ien[a]+0];
 			yc += mesh.data.xyz[3*ien[a]+1];
 			zc += mesh.data.xyz[3*ien[a]+2];
 		}
 
-		xc /= 6.0;
-		yc /= 6.0;
-		zc /= 6.0;
+		xc /= mesh.data.nodesPerElement;
+		yc /= mesh.data.nodesPerElement;
+		zc /= mesh.data.nodesPerElement;
 
 		Int* rng = mesh.getBoundaryTag(e);
 
@@ -230,9 +227,6 @@ TEST(MeshConverter, HexP1Structured){
 		}
 
 	}
-
-	// print mesh
-	mesh.print();
 
 	// write mesh vtk file
 	const std::filesystem::path output_path = std::filesystem::path(TEST_OUTPUT_PATH) / "hex_p1_mesh.vtk";

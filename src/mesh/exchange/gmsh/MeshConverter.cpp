@@ -1,7 +1,5 @@
 #include "mesh/exchange/gmsh/MeshConverter.hpp"
 
-#include <iostream>
-
 void pdesolver::mesh::exchange::gmsh::MeshConverter::toSolverMesh(pdesolver::mesh::Mesh& mesh, const pdesolver::mesh::exchange::gmsh::IntermediateMesh& input, const std::unordered_map<Int, Int>& physicalGroupMap) {
 
 	if (input.empty()){
@@ -136,13 +134,6 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 			std::sort(faceNodes.begin(), faceNodes.end());
 			faceMap[faceNodes] = {e, f};
 
-			// debug print
-			std::cout << "INSERT ";
-			for (auto n : faceNodes){
-				std::cout << n << " ";
-			}
-			std::cout << " -> " << e << "," << f << "\n";
-
 		}
 	
 	}
@@ -180,13 +171,6 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 
 			}
 			
-			// debug print
-			std::cout << "LOOKUP ";
-			for (auto n : key){
-				std::cout << n << " ";
-			}
-			std::cout << " phsyical=" << eb->physicalTag << "\n";
-
 			// sort output
 			std::sort(key.begin(), key.end());
 			
@@ -195,15 +179,10 @@ void pdesolver::mesh::exchange::gmsh::MeshConverter::buildBoundaryTags(pdesolver
 
 			if (it == faceMap.end()){
 				continue;
-				// debug print
-				std::cout << "MISS\n";
 			}
 
 			auto [elemID, localFace] = it->second;
 
-			// debug print
-			std::cout << "HIT elem=" << elemID << " face=" << localFace << "\n";
-			
 			// input solver tag into rng
 			mesh.data.rng[elemID*fpe + localFace] = solverTag;
 
@@ -224,7 +203,7 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::MeshConverter::reorderConnec
 
 
 		case ET::HexP1:
-			return {conn[0], conn[1], conn[3], conn[2], conn[4], conn[5], conn[7], conn[6]};
+			return {conn[2], conn[6], conn[3], conn[7], conn[1], conn[5], conn[0], conn[4]};
 		
 		// TODO: impelment remaining element types
 		case ET::TriP1:
