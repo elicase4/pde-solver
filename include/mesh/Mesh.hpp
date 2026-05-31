@@ -1,9 +1,13 @@
 #ifndef PDESOLVER_MESH_MESH_HPP
 #define PDESOLVER_MESH_MESH_HPP
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
 #include "core/Types.hpp"
 #include "mesh/Data.hpp"
-#include <vector>
 
 namespace pdesolver {
 	
@@ -25,9 +29,9 @@ namespace pdesolver {
 			bool isOnBoundary(Index elemID, Index faceID) const { return data.rng[elemID * data.facesPerElement + faceID] >= 0; }
 			bool isOnBoundaryTag(Index elemID, Index faceID, Int tag){ return data.rng[elemID * data.facesPerElement + faceID] == tag; }
 			
-			Index extractionMatrixSize() const;
-			Real* getExtractionOperator(Index elemID);
-			const Real* getExtractionOperator(Index elemID) const;
+			//Index extractionMatrixSize() const{};
+			//Real* getExtractionOperator(Index elemID);
+			//const Real* getExtractionOperator(Index elemID) const;
 			
 			void clear() {
 				data.parametricDim = 0; data.spatialDim = 0; data.numNodes = 0; data.numElements = 0; data.nodesPerElement = 0; data.facesPerElement = 0;
@@ -59,7 +63,8 @@ namespace pdesolver {
 				
 				return true;
 			}
-			
+
+			void print(std::ostream& os = std::cout) const;
 			
 			bool isIGA() const { return !data.C.empty(); }
 		

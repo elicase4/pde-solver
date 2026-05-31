@@ -1,33 +1,58 @@
 #ifndef PDESOLVER_IO_GMSHREADER_HPP
 #define PDESOLVER_IO_GMSHREADER_HPP
 
-#include <algorithm>
-#include <array>
-#include <cassert>
-#include <cstring>
-#include <sstream>
+#include <cstdint>
+#include <cmath>
+#include <fstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 
 #include "core/Types.hpp"
 #include "io/utils/Binary.hpp"
-#include "io/utils/Gmsh.hpp"
-#include "mesh/Mesh.hpp"
+#include "mesh/exchange/gmsh/Utils.hpp"
+#include "mesh/exchange/gmsh/IntermediateMesh.hpp"
 
 namespace pdesolver {
 	namespace io {
 		class GmshReader {
 			public:
 				
-				static void read(mesh::Mesh& mesh, const std::string& filename, const std::unordered_map<int, Int>& physicalGroupMap = {});
+				static void read(mesh::exchange::gmsh::IntermediateMesh& mesh, const std::string& filename);
 
 			private:
 				
-				static void readMSH2(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
+				enum class Format {
+					ASCII,
+					Binary
+				}; // enum class Format
+
+				struct VersionInfo {
+					double version;
+					Format format;
+				};
+
+				// high level version readers
+				static VersionInfo readMeshFormat(std::istream& is);
+
+				static void readMSH4(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, Format fmt);
 				
-				static void readMSH4(std::istream& is, mesh::Mesh& mesh, const std::unordered_map<int, Int>& pgMap);
-		}; // class GmashReader
+				static void readMSH2(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, Format fmt);
+
+				// internal helpers
+				static void skipToSection(std::istream& is, const std::string& tag);
+
+				static void deduceDimensions(mesh::exchange::gmsh::IntermediateMesh& mesh);
+
+				static void readPhysicalNames(std::istream& is, std::unordered_map<Int, std::string>& names);
+
+				static std::unordered_map<mesh::exchange::gmsh::EntityKey, Int, mesh::exchange::gmsh::EntityKeyHash> readEntities(std::istream& is, Format fmt);
+
+				static void readNodes(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, std::unordered_map<Index, Index>& tagToIdx, Format fmt);
+				
+				static void readElements(std::istream& is, mesh::exchange::gmsh::IntermediateMesh& mesh, const std::unordered_map<Index, Index>& tagToIdx, const std::unordered_map<mesh::exchange::gmsh::EntityKey, Int, mesh::exchange::gmsh::EntityKeyHash>& entityPhys, Format fmt);
+
+		}; // class GmshReader
 	} // namespace io
 } // namespace pdesolver
 

@@ -172,7 +172,7 @@ TEST_F(FieldIO, WritwVTKContainesFieldNames){
 	std::vector<Real> algField(topoDOF.numFreeDOFs(), 1.0);
 
 	// output path
-	const auto path = std::filesystem::path(TEST_DATA_PATH) / "field_test.vtk";
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "field_test.vtk";
 	
 	// write field data
 	io::FieldIO::writeVTK(mesh, topoDOF, bcRegistry, 0.0, algField.data(), {"u", "v"}, path.string());
@@ -210,7 +210,7 @@ TEST_F(FieldIO, WriteVTKDOFNameMismatchThrows) {
 	std::vector<Real> algField(topoDOF.numFreeDOFs(), 0.0);
 
 	// output path
-	const auto path = std::filesystem::path(TEST_DATA_PATH) / "bad.vtk";
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "bad.vtk";
 	
 	// write field data & expect throw for wrong label size
 	EXPECT_THROW(io::FieldIO::writeVTK(mesh, topoDOF, bcRegistry, 0.0, algField.data(), {"u"}, path.string()), std::runtime_error);

@@ -210,7 +210,7 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 	}
 
 	// write solution
-	const auto path = std::filesystem::path(TEST_DATA_PATH) / "matrixsol_output.vtk";
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "matrixsol_output.vtk";
 	io::FieldIO::writeVTK(mesh2D, *topoDOF2D, bcRegistry, t, U.data(), {"theta"}, path.string());
 
 }
@@ -284,7 +284,7 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	}
 
 	// write solution
-	const auto path = std::filesystem::path(TEST_DATA_PATH) / "matrixfreesol_output.vtk";
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "matrixfreesol_output.vtk";
 	io::FieldIO::writeVTK(mesh2D, *topoDOF2D, bcRegistry, t, U.data(), {"theta"}, path.string());
 
 }

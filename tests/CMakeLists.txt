@@ -2,10 +2,10 @@
 function(add_pde_test TEST_NAME SOURCE_FILE)
 	add_executable(${TEST_NAME} ${SOURCE_FILE})
 
-	# Data directory
-	set(TEST_DATA_DIR "${CMAKE_BINARY_DIR}/test_outputs/${TEST_NAME}")
-
-	file(MAKE_DIRECTORY "${TEST_DATA_DIR}")
+	# Data directories
+	set(TEST_DATA_DIR "${CMAKE_SOURCE_DIR}/tests/data")
+	set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/test_outputs/${TEST_NAME}")
+	file(MAKE_DIRECTORY "${TEST_OUTPUT_DIR}")
 
 	# Organize binaries
 	set_target_properties(${TEST_NAME} PROPERTIES
@@ -14,6 +14,7 @@ function(add_pde_test TEST_NAME SOURCE_FILE)
 	
 	# Cpp macro for test paths
 	target_compile_definitions(${TEST_NAME} PRIVATE
+		TEST_OUTPUT_PATH="${TEST_OUTPUT_DIR}"
 		TEST_DATA_PATH="${TEST_DATA_DIR}"
 	)
 
@@ -31,8 +32,13 @@ function(add_pde_test TEST_NAME SOURCE_FILE)
 
 endfunction()
 
-add_pde_test(UnitTest_Mesh_BlockMesh2D
-	unit/mesh/BlockMesh2D.cpp
+add_pde_test(UnitTest_Mesh_Generator_BlockMesh2D
+	unit/mesh/generator/BlockMesh2D.cpp
+	pde_mesh pde_io
+)
+
+add_pde_test(UnitTest_Mesh_Exchange_Gmsh_MeshConverter
+	unit/mesh/exchange/gmsh/MeshConverter.cpp
 	pde_mesh pde_io
 )
 
@@ -66,9 +72,10 @@ add_pde_test(UnitTest_IO_MeshIO
 	pde_mesh pde_io
 )
 
-#add_pde_test(UnitTest_IO_GmshReader
-#	unit/io/GmshReader.cpp
-#)
+add_pde_test(UnitTest_IO_GmshReader
+	unit/io/GmshReader.cpp
+	pde_mesh pde_io
+)
 
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 	integration/fem/cpu/HeatEquationMinimal.cpp
