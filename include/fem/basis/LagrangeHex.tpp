@@ -35,9 +35,9 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalGradient(const Real* xi, R
 	BasisX::eval(xi[0], Nx);
 	BasisX::evalFirstDerivative(xi[0], dNx);
 	BasisY::eval(xi[1], Ny);
-	BasisX::evalFirstDerivative(xi[1], dNy);
+	BasisY::evalFirstDerivative(xi[1], dNy);
 	BasisZ::eval(xi[2], Nz);
-	BasisX::evalFirstDerivative(xi[2], dNz);
+	BasisZ::evalFirstDerivative(xi[2], dNz);
 
 	// compute tensor product & chain rule
 	Index a = 0;
@@ -64,11 +64,11 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Re
 	BasisX::evalFirstDerivative(xi[0], dNx);
 	BasisX::evalSecondDerivative(xi[0], d2Nx);
 	BasisY::eval(xi[1], Ny);
-	BasisX::evalFirstDerivative(xi[1], dNy);
-	BasisX::evalSecondDerivative(xi[1], d2Ny);
+	BasisY::evalFirstDerivative(xi[1], dNy);
+	BasisY::evalSecondDerivative(xi[1], d2Ny);
 	BasisZ::eval(xi[2], Nz);
-	BasisX::evalFirstDerivative(xi[2], dNz);
-	BasisX::evalSecondDerivative(xi[2], d2Nz);
+	BasisZ::evalFirstDerivative(xi[2], dNz);
+	BasisZ::evalSecondDerivative(xi[2], d2Nz);
 
 	const Index NumEntries = 6;
 
@@ -82,7 +82,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalHessian(const Real* xi, Re
 				d2Nd2xi[a*NumEntries + 2] = Nx[i] * Ny[j] * d2Nz[k];
 				d2Nd2xi[a*NumEntries + 3] = dNx[i] * dNy[j] * Nz[k];
 				d2Nd2xi[a*NumEntries + 4] = dNx[i] * Ny[j] * dNz[k];
-				d2Nd2xi[a*NumEntries + 5] = Nx[i] * dNy[i] * dNz[k];
+				d2Nd2xi[a*NumEntries + 5] = Nx[i] * dNy[j] * dNz[k];
 				a++;
 			}
 		}
@@ -98,9 +98,9 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::evalLaplacian(const Real* xi, 
 	BasisX::eval(xi[0], Nx);
 	BasisX::evalSecondDerivative(xi[0], d2Nx);
 	BasisY::eval(xi[1], Ny);
-	BasisX::evalSecondDerivative(xi[1], d2Ny);
+	BasisY::evalSecondDerivative(xi[1], d2Ny);
 	BasisZ::eval(xi[2], Nz);
-	BasisX::evalSecondDerivative(xi[2], d2Nz);
+	BasisZ::evalSecondDerivative(xi[2], d2Nz);
 
 	// compute tensor product
 	Index a = 0;
@@ -185,6 +185,7 @@ PDE_HOST PDE_DEVICE void LagrangeHex<Px, Py, Pz>::getFaceNodes(const Int rngID, 
 				for (Index i = 0; i < (Py + 1); ++i)
 					nodeIDs[i + j*(Py + 1)] = (Index) i*(Px + 1) + j*(Px + 1)*(Py + 1);
 			}
+			break;
 		case 1:
 			for (Index j = 0; j < (Pz + 1); ++j) {
 				for (Index i = 0; i < (Py + 1); ++i)
