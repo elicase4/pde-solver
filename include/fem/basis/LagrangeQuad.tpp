@@ -56,7 +56,7 @@ PDE_HOST PDE_DEVICE void LagrangeQuad<Px, Py>::evalHessian(const Real* xi, Real*
 	BasisX::evalFirstDerivative(xi[0], dNx);
 	BasisX::evalSecondDerivative(xi[0], d2Nx);
 	BasisY::eval(xi[1], Ny);
-	BasisX::evalFirstDerivative(xi[1], dNy);
+	BasisY::evalFirstDerivative(xi[1], dNy);
 	BasisY::evalSecondDerivative(xi[1], d2Ny);
 
 	const Index NumEntries = 3;
