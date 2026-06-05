@@ -43,7 +43,7 @@ protected:
 	
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
-	std::unique_ptr<topology::TopologicalDOF> topoDOF2D;
+	std::unique_ptr<topology::TopologicalDOF<numDOFs>> topoDOF2D;
 
 	// boundary registry
 	fem::boundary::BoundaryRegistry bcRegistry;
@@ -100,7 +100,7 @@ protected:
 		mesh2D.generateBoundaryTags();
 		
 		// create topological DOF manager
-		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs, DOFOrdering);
+		topoDOF2D = std::make_unique<topology::TopologicalDOF<numDOFs>>(mesh2D, DOFOrdering);
 		
 		// set conductivity model parameters
 		constantConductivityModel.conductivity = 1.0;
@@ -129,8 +129,7 @@ protected:
 
 TEST_F(CPUHeatEquationMinimal, DOFHandlingCGSolve){
 
-	// Test topologicalDOF
-	EXPECT_EQ(topoDOF2D->dofsPerNode(), 1);
+	// Test TopologicalDOF
 	EXPECT_EQ(topoDOF2D->numGlobalDOFs(), 625);
 	EXPECT_EQ(topoDOF2D->numFreeDOFs(), 529);
 
@@ -147,9 +146,9 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
-	auto F = assembler.createVector(mesh2D, *topoDOF2D);
+	auto K = assembler.createMatrix<numDOFs>(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
+	auto F = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
 
 	// test matrix sizes
 	EXPECT_EQ(K.nRows(), 529);
@@ -160,13 +159,13 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 	EXPECT_EQ(F.size(), 529);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<numDOFs, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
 	// call assembly for rhs vector
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<numDOFs, EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, HeatEqDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<numDOFs, EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
 	linalg::op::CSROperator<linalg::types::CSRMatrix<Real, BackendType>> op(K);
@@ -226,8 +225,8 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
-	auto F = assembler.createVector(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
+	auto F = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
 	
 	// test vector sizes
 	EXPECT_EQ(U.size(), 529);
@@ -237,13 +236,13 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	U.zero();
 
 	// call assembly for rhs vector
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<numDOFs, EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, HeatEqDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<numDOFs, EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 
 	// define operator
-	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm);
+	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<numDOFs>, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm);
 
 	// setup solver workspace & report
 	linalg::solver::iterative::cg::Workspace<linalg::types::Vector<Real, BackendType>> W(topoDOF2D->numFreeDOFs());

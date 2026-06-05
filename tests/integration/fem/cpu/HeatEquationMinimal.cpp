@@ -37,7 +37,7 @@ protected:
 	
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
-	std::unique_ptr<topology::TopologicalDOF> topoDOF2D;
+	std::unique_ptr<topology::TopologicalDOF<numDOFs>> topoDOF2D;
 
 	// boundary registry
 	fem::boundary::BoundaryRegistry bcRegistry;
@@ -98,7 +98,7 @@ protected:
 		mesh2D.generateBoundaryTags();
 		
 		// create topological DOF manager
-		topoDOF2D = std::make_unique<topology::TopologicalDOF>(mesh2D, numDOFs, DOFOrdering);
+		topoDOF2D = std::make_unique<topology::TopologicalDOF<numDOFs>>(mesh2D, DOFOrdering);
 		
 		// set conductivity model parameters
 		constantConductivityModel.conductivity = 1.0;
@@ -128,7 +128,6 @@ protected:
 TEST_F(CPUHeatEquationMinimal, DOFHandling){
 
 	// Test topologicalDOF
-	EXPECT_EQ(topoDOF2D->dofsPerNode(), 1);
 	EXPECT_EQ(topoDOF2D->numGlobalDOFs(), 25);
 	EXPECT_EQ(topoDOF2D->numFreeDOFs(), 12);
 
@@ -193,8 +192,8 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto K = assembler.createMatrix(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	auto K = assembler.createMatrix<numDOFs>(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
 
 	// test matrix sizes
 	EXPECT_EQ(K.nRows(), 12);
@@ -204,7 +203,7 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 	EXPECT_EQ(U.size(), 12);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<numDOFs, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -267,8 +266,8 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto O = assembler.createVector(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	auto O = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
 	
 	// test vector sizes
 	EXPECT_EQ(O.size(), 12);
@@ -280,7 +279,7 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	}
 
 	// call assembly for system matrix
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
+	assembler.assembleVector<numDOFs, EvalElement, EvalQuadraturePointVolume, ConductivityModel, DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -330,8 +329,8 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	Real t = 0.0;
 	
 	// create system matrix
-	auto F = assembler.createVector(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector(mesh2D, *topoDOF2D);
+	auto F = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
+	auto U = assembler.createVector<numDOFs>(mesh2D, *topoDOF2D);
 	
 	// test vector sizes
 	EXPECT_EQ(F.size(), 12);
@@ -341,7 +340,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	const Real tol = 1e-10;
 
 	// call assembly for force vector
-	assembler.assembleVector<EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<numDOFs, EvalElement, EvalQuadraturePointVolume, DefaultModel, SourceForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
 
 	// test before bc application
 	EXPECT_NEAR(F.data()[0], 1.0/6.0, tol);
@@ -358,7 +357,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
+	bcApplicator.applyNaturalBCs<numDOFs, EvalElement, EvalQuadraturePointBoundary, FluxForm, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
 	
 	// tests after applying natural bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
@@ -375,7 +374,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 	
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType, HeatEqDirichletBC>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<numDOFs, EvalElement, EvalQuadraturePointVolume, DiffusionForm, ConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
 	
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);

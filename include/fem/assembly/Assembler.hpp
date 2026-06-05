@@ -36,18 +36,20 @@ namespace pdesolver {
 			public:
 			
 				// allocation function
-				static linalg::types::CSRMatrix<Real, Backend> createMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
+				template<Index numDOFs>
+				static linalg::types::CSRMatrix<Real, Backend> createMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF);
 				
 				// allocation function
-				static linalg::types::Vector<Real, Backend> createVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF);
+				template<Index numDOFs>
+				static linalg::types::Vector<Real, Backend> createVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF);
 				
 				// matrix assembly
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
 				
 				// vector assembly
-				template<eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler
 

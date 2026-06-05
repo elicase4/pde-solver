@@ -20,15 +20,15 @@ namespace pdesolver {
 	namespace linalg {
 		namespace op {
 
-			template<typename Assembler, fem::eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
+			template<typename Assembler, typename TopologicalDOF, fem::eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
 			class FEMOperator {
 			public:
 				
-				FEMOperator(const Assembler& assembler_, const mesh::Mesh& mesh_, const topology::TopologicalDOF& topoDOF_, const Real time_, const Model& model_, const Form& form_) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), form(form_) {}
+				FEMOperator(const Assembler& assembler_, const mesh::Mesh& mesh_, const TopologicalDOF& topoDOF_, const Real time_, const Model& model_, const Form& form_) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), form(form_) {}
 
 				template<typename VectorType>
 				void apply(const VectorType& x, VectorType& y) const {
-					assembler.template assembleVector<EvalEle, EvalQP, Model, Form, Quadrature>(mesh, topoDOF, time, model, form, x, y);
+					assembler.template assembleVector<TopologicalDOF::dofsPerNode, EvalEle, EvalQP, Model, Form, Quadrature>(mesh, topoDOF, time, model, form, x, y);
 				}
 
 				Index size() const {
@@ -38,7 +38,7 @@ namespace pdesolver {
 			private:
 				const Assembler& assembler;
 				const mesh::Mesh& mesh;
-				const topology::TopologicalDOF& topoDOF;
+				const TopologicalDOF& topoDOF;
 				const Real time;
 				const Model model;
 				const Form form;

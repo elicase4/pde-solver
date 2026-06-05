@@ -14,14 +14,16 @@
 namespace pdesolver {
 	namespace topology {
 
+		template<Index numDOFs>
 		class TopologicalDOF {
 		public:
-			inline TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering);
+			
+			inline TopologicalDOF(const mesh::Mesh& mesh, fem::dof::DOFOrdering ordering);
 			
 			// size
+			static constexpr Index dofsPerNode = numDOFs;
 			Index numGlobalDOFs() const { return numGlobalDOFs_; }
 			Index numFreeDOFs() const { return numFreeDOFs_; }
-			Index dofsPerNode() const { return dofsPerNode_; }
 			Index numFreeDOFsPerField() const { return numFreeDOFsPerField_; }
 			fem::dof::DOFOrdering ordering() const { return ordering_; }
 			Index fieldOffset(Index component) const { return component * numFreeDOFsPerField_; }
@@ -30,8 +32,8 @@ namespace pdesolver {
 			//Index fieldOffset(Index component) { return std::acculumate(numFreeDOFsPerField_.begin(), numFreeDOFsPerField_.begin() + component, (Index) 0); }			
 
 			// node mappings
-			Index getNodeDOF(Index nodeId, Index component) const { return (nodeId * dofsPerNode_ + component); }
-			Index getDOFNode(Index topoDOF) const { return (topoDOF / dofsPerNode_); }
+			Index getNodeDOF(Index nodeId, Index component) const { return (nodeId * dofsPerNode + component); }
+			Index getDOFNode(Index topoDOF) const { return (topoDOF / dofsPerNode); }
 			
 			// element mappings
 			inline void getElementDOFs(Index elemId, Index* dofs) const;
@@ -53,7 +55,6 @@ namespace pdesolver {
 			const mesh::Mesh& mesh_;
 			
 			// dof counts
-			Index dofsPerNode_;
 			Index numGlobalDOFs_;
 			Index numFreeDOFs_;
 			fem::dof::DOFOrdering ordering_;
