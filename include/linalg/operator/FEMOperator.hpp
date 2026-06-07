@@ -32,7 +32,7 @@ namespace pdesolver {
 				}
 
 				Index size() const {
-					return TopologicalDOF::dofsPerNode;
+					return topoDOF.numFreeDOFs();
 				}
 
 			private:
