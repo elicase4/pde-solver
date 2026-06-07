@@ -43,11 +43,11 @@ protected:
 
 };
 
-TEST_F(FieldIO, ReconstructNodalFieldInterleaved){
+TEST_F(FieldIO, reconstructNodalFieldInterleaved){
 
 	constexpr Index dofsPerNode = 2;
 
-	topology::TopologicalDOF topoDOF{mesh, dofsPerNode, fem::dof::DOFOrdering::Interleaved};
+	topology::TopologicalDOF<dofsPerNode> topoDOF{mesh, fem::dof::DOFOrdering::Interleaved};
 
 	fem::boundary::BoundaryRegistry bcRegistry;
 
@@ -67,7 +67,7 @@ TEST_F(FieldIO, ReconstructNodalFieldInterleaved){
 		algField[i] = 10.0 + static_cast<Real>(i);
 	}
 
-	const auto nodalField = io::FieldIO::reconstructNodalField(mesh, topoDOF, bcRegistry, 0.0, algField.data());
+	const auto nodalField = io::FieldIO::reconstructNodalField<dofsPerNode>(mesh, topoDOF, bcRegistry, 0.0, algField.data());
 
 	ASSERT_EQ(nodalField.size(), mesh.data.numNodes * dofsPerNode);
 
@@ -97,11 +97,11 @@ TEST_F(FieldIO, ReconstructNodalFieldInterleaved){
 
 }
 
-TEST_F(FieldIO, ReconstructNodalFieldBlock){
+TEST_F(FieldIO, reconstructNodalFieldBlock){
 
 	constexpr Index dofsPerNode = 2;
 
-	topology::TopologicalDOF topoDOF{mesh, dofsPerNode, fem::dof::DOFOrdering::Block};
+	topology::TopologicalDOF<dofsPerNode> topoDOF{mesh, fem::dof::DOFOrdering::Block};
 
 	fem::boundary::BoundaryRegistry bcRegistry;
 
@@ -121,7 +121,7 @@ TEST_F(FieldIO, ReconstructNodalFieldBlock){
 		algField[i] = 500.0 + static_cast<Real>(i);
 	}
 
-	const auto nodalField = io::FieldIO::reconstructNodalField(mesh, topoDOF, bcRegistry, 0.0, algField.data());
+	const auto nodalField = io::FieldIO::reconstructNodalField<dofsPerNode>(mesh, topoDOF, bcRegistry, 0.0, algField.data());
 
 	ASSERT_EQ(nodalField.size(), mesh.data.numNodes * dofsPerNode);
 
@@ -155,7 +155,7 @@ TEST_F(FieldIO, WritwVTKContainesFieldNames){
 
 	constexpr Index dofsPerNode = 2;
 
-	topology::TopologicalDOF topoDOF{mesh, dofsPerNode, fem::dof::DOFOrdering::Block};
+	topology::TopologicalDOF<dofsPerNode> topoDOF{mesh, fem::dof::DOFOrdering::Block};
 
 	fem::boundary::BoundaryRegistry bcRegistry;
 
@@ -175,7 +175,7 @@ TEST_F(FieldIO, WritwVTKContainesFieldNames){
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "field_test.vtk";
 	
 	// write field data
-	io::FieldIO::writeVTK(mesh, topoDOF, bcRegistry, 0.0, algField.data(), {"u", "v"}, path.string());
+	io::FieldIO::writeVTK<dofsPerNode>(mesh, topoDOF, bcRegistry, 0.0, algField.data(), {"u", "v"}, path.string());
 
 	std::ifstream file(path);
 
@@ -189,11 +189,11 @@ TEST_F(FieldIO, WritwVTKContainesFieldNames){
 
 }
 
-TEST_F(FieldIO, WriteVTKDOFNameMismatchThrows) {
+TEST_F(FieldIO, writeVTKDOFNameMismatchThrows) {
 
 	constexpr Index dofsPerNode = 2;
 
-	topology::TopologicalDOF topoDOF{mesh, dofsPerNode, fem::dof::DOFOrdering::Block};
+	topology::TopologicalDOF<dofsPerNode> topoDOF{mesh, fem::dof::DOFOrdering::Block};
 
 	fem::boundary::BoundaryRegistry bcRegistry;
 
@@ -213,6 +213,6 @@ TEST_F(FieldIO, WriteVTKDOFNameMismatchThrows) {
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "bad.vtk";
 	
 	// write field data & expect throw for wrong label size
-	EXPECT_THROW(io::FieldIO::writeVTK(mesh, topoDOF, bcRegistry, 0.0, algField.data(), {"u"}, path.string()), std::runtime_error);
+	EXPECT_THROW(io::FieldIO::writeVTK<dofsPerNode>(mesh, topoDOF, bcRegistry, 0.0, algField.data(), {"u"}, path.string()), std::runtime_error);
 
 }

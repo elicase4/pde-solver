@@ -1,8 +1,9 @@
 namespace pdesolver::topology {
 
-TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::dof::DOFOrdering ordering) : mesh_(mesh), dofsPerNode_(dofsPerNode), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
+template<Index numDOFs>
+TopologicalDOF<numDOFs>::TopologicalDOF(const mesh::Mesh& mesh, fem::dof::DOFOrdering ordering) : mesh_(mesh), ordering_(ordering), numFreeDOFsPerField_(dofsPerNode) {
 	
-	numGlobalDOFs_ = mesh_.data.numNodes * dofsPerNode_;
+	numGlobalDOFs_ = mesh_.data.numNodes * dofsPerNode;
 	numFreeDOFs_ = numGlobalDOFs_;
 	
 	// initialize mapping
@@ -13,22 +14,24 @@ TopologicalDOF::TopologicalDOF(const mesh::Mesh& mesh, Index dofsPerNode, fem::d
 
 }
 
-void TopologicalDOF::getElementDOFs(Index elemId, Index* dofs) const {
+template<Index numDOFs>
+void TopologicalDOF<numDOFs>::getElementDOFs(Index elemId, Index* dofs) const {
 
 	const Index* nodes = mesh_.getElementNodes(elemId);
 	const Index npe = mesh_.data.nodesPerElement;
 
 	Index k = 0;
 	for (Index a = 0; a < npe; ++a) {
-		for (Index c = 0; c < dofsPerNode_; ++c) {
-			dofs[k++] = nodes[a] * dofsPerNode_ + c;
+		for (Index c = 0; c < dofsPerNode; ++c) {
+			dofs[k++] = nodes[a] * dofsPerNode + c;
 		}
 	}
 
 }
 
+template<Index numDOFs>
 template<typename Element>
-void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry){
+void TopologicalDOF<numDOFs>::buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry){
 
 	std::set<Index> constrainedSet;
 	Index faceNodes[Element::NodesPerElement];
@@ -56,7 +59,7 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 				
 				Index globalNode = elemNodes[faceNodes[i]];
 				
-				for (Index c = 0; c < dofsPerNode_; ++c){
+				for (Index c = 0; c < dofsPerNode; ++c){
 					
 					if (!bcRegistry.isEssential(tag,c)) continue;
 
@@ -89,7 +92,7 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 
 	} else {
 
-		for (Index c = 0; c < dofsPerNode_; ++c) {
+		for (Index c = 0; c < dofsPerNode; ++c) {
 			for (Index node = 0; node < mesh_.data.numNodes; ++node) {
 				Index topoDOF = getNodeDOF(node, c);
 				if (constrainedSet.count(topoDOF)) continue;
@@ -103,11 +106,12 @@ void TopologicalDOF::buildConstraints(const fem::boundary::BoundaryRegistry& bcR
 
 	// set num of free dofs to final tally
 	numFreeDOFs_ = algIndex;
-	numFreeDOFsPerField_ = (dofsPerNode_ > 0) ? (numFreeDOFs_ / dofsPerNode_ ) : 0; // extension later to mixed order elements
+	numFreeDOFsPerField_ = (dofsPerNode > 0) ? (numFreeDOFs_ / dofsPerNode ) : 0; // extension later to mixed order elements
 
 }
 
-Int TopologicalDOF::getConstraintTag(Index topoDOF) const {
+template<Index numDOFs>
+Int TopologicalDOF<numDOFs>::getConstraintTag(Index topoDOF) const {
 	auto it = constraintTags_.find(topoDOF);
 	return (it != constraintTags_.end()) ? it->second : -1;
 }

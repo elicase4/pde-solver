@@ -19,13 +19,17 @@ namespace pdesolver {
 		class FieldIO {
 		public:
 
-			static void writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
+			template<Index numDOFs>
+			static void writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
 		
-			static std::vector<Real> reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField);
+			template<Index numDOFs>
+			static std::vector<Real> reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField);
 
 		}; // class FieldIO
 
 	} // namespace io
 } // namespace pdesolver
+
+#include "FieldIO.tpp"
 
 #endif

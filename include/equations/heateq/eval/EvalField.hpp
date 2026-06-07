@@ -1,5 +1,5 @@
-#ifndef POISSON_EVALFIELD_HPP
-#define POISSON_EVALFIELD_HPP
+#ifndef HEATEQUATION_EVALFIELD_HPP
+#define HEATEQUATION_EVALFIELD_HPP
 
 #include "fem/eval/EvalField.hpp"
 
