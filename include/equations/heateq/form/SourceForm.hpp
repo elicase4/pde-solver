@@ -1,5 +1,5 @@
-#ifndef POISSON_SOURCEFORM_HPP
-#define POISSON_SOURCEFORM_HPP
+#ifndef HEATEQUATION_SOURCEFORM_HPP
+#define HEATEQUATION_SOURCEFORM_HPP
 
 #include "fem/form/LinearForm.hpp"
 #include "equations/heateq/eval/SourceFunction.hpp"

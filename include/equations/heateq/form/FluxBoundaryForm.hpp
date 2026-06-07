@@ -1,5 +1,5 @@
-#ifndef POISSON_FLUXBOUNDARYFORM_HPP
-#define POISSON_FLUXBOUNDARYFORM_HPP
+#ifndef HEATEQUATION_FLUXBOUNDARYFORM_HPP
+#define HEATEQUATION_FLUXBOUNDARYFORM_HPP
 
 #include "fem/boundary/BoundaryCondition.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
