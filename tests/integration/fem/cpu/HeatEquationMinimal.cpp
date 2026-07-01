@@ -2,6 +2,7 @@
 #include <memory.h>
 
 #include "core/Config.hpp"
+#include "core/FEM.hpp"
 #include "core/Mesh.hpp"
 #include "core/Topology.hpp"
 #include "core/Types.hpp"
@@ -168,6 +169,7 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 
 	// form
 	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
 
 	// arbitrary time
 	Real t = 0.0;
@@ -184,7 +186,7 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 	EXPECT_EQ(U.size(), 12);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, HeatEqBundle::DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, U, K);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -242,6 +244,7 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	
 	// form
 	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
 
 	// arbitrary time
 	Real t = 0.0;
@@ -260,7 +263,7 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	}
 
 	// call assembly for system matrix
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, HeatEqBundle::DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, O);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, U, O);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -298,13 +301,16 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	// source form
 	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
 	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
+	fem::form::FormRegistry<HeatEqBundle::SourceForm<decltype(f)>> rhsForms(sorurceForm);
 
 	// flux form
 	HeatEqBundle::FluxBC<decltype(h)> fluxFunction(h);
 	HeatEqBundle::FluxForm<decltype(h)> fluxForm(fluxFunction);
+	fem::form::FormRegistry<HeatEqBundle::FluxForm<decltype(h)>> naturalBCForms(fluxForm);
 
 	// diffusion form
 	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
 	
 	// arbitrary time
 	Real t = 0.0;
@@ -321,7 +327,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	const Real tol = 1e-10;
 
 	// call assembly for force vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, HeatEqBundle::SourceForm<decltype(f)>, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
 
 	// test before bc application
 	EXPECT_NEAR(F.data()[0], 1.0/6.0, tol);
@@ -338,7 +344,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, HeatEqBundle::FluxForm<decltype(h)>, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, fluxForm, F);
+	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, decltype(naturalBCForms), QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, naturalBCForms, F);
 	
 	// tests after applying natural bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
@@ -355,7 +361,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 	
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DiffusionForm, HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, operatorForms, F);
 	
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);

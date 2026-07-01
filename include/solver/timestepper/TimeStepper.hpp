@@ -11,7 +11,7 @@ namespace pdesolver {
 		template<typename T, typename VectorType>
 		concept TimeStepper = requires(T& ts, VectorType& U, const VectorType& U_prev) {
 			
-			{ ts.finished() } -> std::same_as<void>;
+			{ ts.finished() } -> std::same_as<bool>;
 
 			{ ts.advance(U, U_prev) } -> std::same_as<void>;
 

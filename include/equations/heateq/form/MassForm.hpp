@@ -13,7 +13,7 @@ namespace pdesolver::equations::heateq {
 			// qpent matrix assembly contribution
 			for (Index a = 0; a < qp.NodesPerElement; ++a){
 				for (Index b = 0; b < qp.NodesPerElement; ++b){
-					Me[a * qp.NodesPerElement + b] += qp.N[a] * ap.N[b] * qp.measure * qp.w;
+					Me[a * qp.NodesPerElement + b] += qp.N[a] * qp.N[b] * qp.measure * qp.w;
 				}
 			}
 		}

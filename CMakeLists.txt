@@ -26,7 +26,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
 # Build Options
-option(BUILD_TESTS "Build unit tests" ON)
+option(BUILD_TESTS "Build unit and integration tests" ON)
+option(BUILD_APPLICATIONS "Build CLI application executables" ON)
 
 # Default compiler options
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -40,7 +41,12 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 add_subdirectory(src/mesh)
 add_subdirectory(src/io)
 
-# build commands
+# build CLI applications
+if(BUILD_APPLICATIONS)
+	add_subdirectory(src/application)
+endif()
+
+# build tests
 if(BUILD_TESTS)
 	enable_testing()
 	find_package(GTest REQUIRED)
@@ -51,11 +57,12 @@ endif()
 # Summary
 message(STATUS "")
 message(STATUS "========================================")
-message(STATUS "  PDE Solver Configuration Summary")
+message(STATUS "  PHASE Solver Configuration Summary")
 message(STATUS "========================================")
-message(STATUS "  Version: ${PROJECT_VERSION}")
-message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "  Version:      ${PROJECT_VERSION}")
+message(STATUS "  Build type:   ${CMAKE_BUILD_TYPE}")
 message(STATUS "  Options:")
-message(STATUS "    Tests:      ${BUILD_TESTS}")
+message(STATUS "    Tests:        ${BUILD_TESTS}")
+message(STATUS "    Applications: ${BUILD_APPLICATIONS}")
 message(STATUS "========================================")
 message(STATUS "")

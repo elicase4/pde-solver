@@ -4,23 +4,23 @@ template<>
 class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 	
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Model, typename Quadrature>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename FormRegistry, typename Model, typename Quadrature>
+	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
-		// allocate local space for Fe
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Fe on the stack
+		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
-		// allocate local space for Ge
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Ge( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Ge on the stack
+		Real Ge[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 		
 			// zero-out Fe
-			Fe.zero();
-			
+			std::memset(Fe, 0.0, sizeof(Fe));
+
 			// zero-out Ge
-			Ge.zero();
+			std::memset(Ge, 0.0, sizeof(Ge));
 			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
@@ -70,7 +70,7 @@ public:
 					}
 
 					if (bcRegistry.isEssential(rngTag, j)){
-						Ge.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = bcVal[j];
+						Ge[i*topology::TopologicalDOF<numDOFs>::dofsPerNode+j] = bcVal[j];
 					}
 
 				}
@@ -82,7 +82,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevelVector(qp, Ge.data(), Fe.data());
+				forms.computeElementLevelVector(qp, Ge, Fe);
 			}
 			
 			// scatter Fe into F
@@ -93,7 +93,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] -= Fe.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
+					F.data()[AdofIDi] -= Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
 
 				}
 			}
@@ -102,11 +102,11 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
-	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename FormRegistry, typename Quadrature>
+	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
@@ -133,7 +133,7 @@ public:
 			for (Index f = 0; f < mesh.data.facesPerElement; ++f){
 				
 				// zero-out Fe
-				Fe.zero();
+				std::memset(Fe, 0.0, sizeof(Fe));
 
 				// get face rng tag
 				Int rngTag = rngTags[f];
@@ -172,7 +172,7 @@ public:
 				// quadrature loop
 				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
-					form.computeElementLevelVector(qp, nullptr, Fe.data());
+					forms.computeElementLevelVector(qp, nullptr, Fe);
 				}
 
 				// scatter Fe into F
@@ -185,7 +185,7 @@ public:
 						if (topoDOF.isConstrained(TdofIDi)) continue;
 						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 						
-						F.data()[AdofIDi] += Fe.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
+						F.data()[AdofIDi] += Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
 
 					}
 				}

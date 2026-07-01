@@ -17,6 +17,7 @@
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
+#include "fem/form/FormRegistry.hpp"
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
 #include "fem/form/NonlinearForm.hpp"

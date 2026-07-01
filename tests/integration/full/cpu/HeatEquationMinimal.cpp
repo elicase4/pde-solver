@@ -124,8 +124,11 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 
 	// forms
 	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
+
 	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
 	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
+	fem::form::FormRegistry<HeatEqBundle::SourceForm<decltype(f)>> rhsForms(sourceForm);
 
 	// arbitrary time
 	Real t = 0.0;
@@ -144,13 +147,13 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 	EXPECT_EQ(F.size(), 529);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, HeatEqBundle::DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, U, K);
 
 	// call assembly for rhs vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, HeatEqBundle::SourceForm<decltype(f)>, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DiffusionForm, HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, operatorForms, F);
 
 	// define operator
 	linalg::op::CSROperator<linalg::types::CSRMatrix<Real, BackendType>> op(K);
@@ -203,8 +206,11 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	
 	// form
 	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
+
 	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
 	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
+	fem::form::FormRegistry<HeatEqBundle::SourceForm<decltype(f)>> rhsForms(sourceForm);
 
 	// arbitrary time
 	Real t = 0.0;
@@ -221,13 +227,13 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	U.zero();
 
 	// call assembly for rhs vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, HeatEqBundle::SourceForm<decltype(f)>, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DiffusionForm, HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, operatorForms, F);
 
 	// define operator
-	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, HeatEqBundle::DiffusionForm, QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm);
+	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForm), QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForm);
 
 	// setup solver workspace & report
 	linalg::solver::iterative::cg::Workspace<linalg::types::Vector<Real, BackendType>> W(topoDOF2D->numFreeDOFs());

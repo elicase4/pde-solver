@@ -81,14 +81,14 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
+	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 		
-		// allocate local space for Ke
-		linalg::types::Matrix<Real, linalg::types::backend::CPU> Ke( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode), (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Ke on the stack
+		Real Ke[(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) * (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
-		// allocate local space for Ue
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Ue( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Ue on the stack
+		Ue[(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// zero-out data in K
 		K.zero();
@@ -97,10 +97,10 @@ public:
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
 			// zero-out Ke
-			Ke.zero();
+			std::memset(Ke, 0.0, sizeof(Ke));
 			
 			// zero-out Ue
-			Ue.zero();
+			std::memset(Ue, 0.0, sizeof(Ue));
 			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
@@ -124,7 +124,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
+					Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -145,7 +145,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevelMatrix(qp, Ue.data(), Ke.data());
+				forms.computeElementLevelMatrix(qp, Ue, Ke);
 			}
 			
 			// scatter Ke into K
@@ -164,7 +164,7 @@ public:
 							Index AdofIDk = topoDOF.toAlgebraic(TdofIDk);
 							Index p = K.getDataIndex(AdofIDi, AdofIDk);
 							
-							K.data()[p] += Ke.data()[(i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j)*(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) + (k*topology::TopologicalDOF<numDOFs>::dofsPerNode + l)];
+							K.data()[p] += Ke[(i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j)*(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) + (k*topology::TopologicalDOF<numDOFs>::dofsPerNode + l)];
 
 						}
 					}
@@ -176,14 +176,14 @@ public:
 
 	}
 	
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename Form, typename Quadrature>
-	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const Form& form, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
+	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
-		// allocate local space for Fe
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Fe on the stack
+		Real Fe[EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode];
 
-		// allocate local space for Ue
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Ue( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Ue on the stack
+		Real Ue[EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode];
 
 		// zero-out data in F
 		F.zero();
@@ -191,11 +191,11 @@ public:
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 			
-			// zero-out Ke
-			Fe.zero();
+			// zero-out Fe
+			std::memset(Fe, 0.0, sizeof(Fe));
 			
 			// zero-out Ue
-			Ue.zero();
+			std::memset(Ue, 0.0, sizeof(Ue));
 			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
@@ -219,7 +219,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					Ue.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
+					Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
 
 				}
 			}
@@ -240,7 +240,7 @@ public:
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevelVector(qp, Ue.data(), Fe.data());
+				forms.computeElementLevelVector(qp, Ue, Fe);
 			}
 			
 			// scatter Fe into F
@@ -251,7 +251,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] += Fe.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
+					F.data()[AdofIDi] += Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
 
 				}
 			}

@@ -1,0 +1,44 @@
+#include "solver/config/TimeStepperConfigParser.hpp"
+#include "solver/config/NonlinearConfigParser.hpp"
+#include "solver/config/LinearConfigParser.hpp"
+#include "solver/config/LinearConfigParser.hpp"
+#include "io/YAMLReader.hpp"
+
+pdesolver::solver::config::TimeStepperConfig::Type pdesolver::solver::parser::TimeStepperConfigParser::parseTimeStepperType(const std::string& str) {
+
+	if (str == "forward_euler")
+		return TimeStepperConfig::Type::ForwardEuler;
+	if (str == "backward_euler")
+		return TimeStepperConfig::Type::BackwardEuler;
+	if (str == "generalized_alpha") 
+		return TimeStepperConfig::Type::GeneralizedAlpha;
+	if (str == "rk4")
+		return TimeStepperConfig::Type::RK4;
+
+	throw std::runtime_error("Unknown time stepper type: '" + str + "'. Valid options: forward_euler, backward_euler, generalized_alpha, rk4");
+
+}
+
+pdesolver::solver::config::TimeStepperConfig pdesolver::solver::parser::TimeStepperConfigParser::parse(const YAML::Node& node) {
+
+	using io::YAMLReader;
+
+	TimeStepperConfig cfg;
+
+	cfg.type = parseTimeStepperType(YAMLReader::required<std::string>(node, "type"));
+	cfg.t0 = YAMLReader::optional<Real>(node, "t0", 0.0);
+	cfg.tf = YAMLReader::optional<Real>(node, "tf", 0.0);
+	cfg.dt = YAMLReader::optional<Real>(node, "dt", 0.0);
+	cfg.rhoInf = YAMLReader::optional<Real>(node, "rho_inf", 0.5);
+
+	if (node["nonlinear_solver"]) {
+		cfg.nonlinearSolver = NonlinearSolverConfigParser::parse(node["nonlinear_solver"]);
+	}
+
+	if (node["linear_solver"]) {
+		cfg.linearSolver = LinearSolverConfigParser::parse(node["linear_solver"]);
+	}
+
+	return cfg;
+
+}

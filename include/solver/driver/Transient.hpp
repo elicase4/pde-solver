@@ -8,25 +8,27 @@ namespace pdesolver {
 	namespace solver {
 		namespace driver {
 
-			template<stage::Stage StageType, typename TimeStepperType>
+			template<stage::Stage StageType, typename TimeStepperType, typename VectorType>
 			class Transient {
 			public:
 
-				bool solve(StageType& stage, TimeStepperType& stepper) {
-
-					bool converged = true;
+				bool solve(StageType& stage, TimeStepperType& stepper, VectorType& U, VectorType& U_prev) {
 
 					while (!stepper.finished()) {
 						
 						stage.initialize();
 						stage.assemble();
-						converged = stage.solve();
-						stepper.advance();
+
+						if (!stage.solve()) {
+							return false;
+						}
+
+						stepper.advance(U, U_prev);
 						stage.finalize();
 
 					}
 
-					return converged;
+					return true;
 				}
 
 			}; // class Transient
