@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_HEATCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_HEATCONFIG_HPP
+#ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_HEATCONFIG_HPP
+#define PDESOLVER_APPLICATION_HEATEQ_CONFIG_HEATCONFIG_HPP
 
 #include <string>
 #include <vector>
@@ -8,6 +8,7 @@
 #include "application/heateq/config/ConductivityConfig.hpp"
 #include "application/heateq/config/SourceConfig.hpp"
 
+#include "solver/config/MeshConfig.hpp"
 #include "solver/config/DiscretizationConfig.hpp"
 #include "solver/config/LinearSolverConfig.hpp"
 #include "solver/config/NonlinearSolverConfig.hpp"
@@ -17,27 +18,27 @@
 namespace pdesolver {
 	namespace application {
 		namespace heateq {
+			namespace config {
 
-			struct HeatConfig {
+				struct HeatConfig {
 
-				std::string meshFile;
+					solver::config::mesh mesh;
 
-				solver::config::DiscretizationConfig discretization;
+					solver::config::DiscretizationConfig discretization;
 
-				solver::config::LinearSolverConfig linearSolver;
-				
-				solver::config::TimeStepperConfig transient;
+					solver::config::SolverConfig solver;
+					
+					solver::config::OutputConfig output;
 
-				solver::config::OutputConfig output;
+					std::vector<BoundaryConditionConfig> boundaryConditions;
 
-				ConductivityConfig conductivity;
+					ConductivityConfig conductivity;
+					
+					SourceConfig source;
 
-				SourceConfig source;
+				}; // struct HeatConfig
 
-				std::vector<BoundaryConditionConfig> boundaryConditions;
-
-			}; // struct HeatConfig
-
+			} // namespace config
 		} // namespace heateq
 	} // namespace application
 } // namespace pdesolver

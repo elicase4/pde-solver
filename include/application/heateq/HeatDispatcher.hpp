@@ -10,17 +10,12 @@ namespace pdesolver {
 			class HeatDispatcher {
 			public:
 
-				static bool runSteady(const HeatConfig& config);
-
-				static bool runTransient(const HeatConfig& config);
+				static bool run(const HeatConfig& config);
 
 			private:
 
-				static bool dispatchSteady2D(const HeatConfig& config);
-				static bool dispatchSteady3D(const HeatConfig& config);
-
-				static bool dispatchTransient2D(const HeatConfig& config);
-				static bool dispatchTransient3D(const HeatConfig& config);
+				static bool dispatch2D(const HeatConfig& config);
+				static bool dispatch3D(const HeatConfig& config);
 
 			}; // class HeatDispatcher
 

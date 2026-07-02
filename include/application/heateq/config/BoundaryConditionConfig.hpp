@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_BOUNDARYCONDITIONCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_BOUNDARYCONDITIONCONFIG_HPP
+#ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_BOUNDARYCONDITIONCONFIG_HPP
+#define PDESOLVER_APPLICATION_HEATEQ_CONFIG_BOUNDARYCONDITIONCONFIG_HPP
 
 #include <string>
 
@@ -8,22 +8,24 @@
 namespace pdesolver {
 	namespace application {
 		namespace heateq {
+			namespace config {
 
-			struct BoundaryConditionConfig {
+				struct BoundaryConditionConfig {
 
-				enum class Type {
-					Value,
-					Flux
-				}; // enum class Type
+					enum class Type {
+						Value,
+						Flux
+					}; // enum class Type
 
-				Int boundaryID;
+					Int boundaryID;
 
-				Type type;
+					Type type;
 
-				std::string expression;
+					std::string expression;
 
-			}; // struct BoundaryConditionConfig
+				}; // struct BoundaryConditionConfig
 
+			} // namespace config
 		} // namespace heateq
 	} // namespace application
 } // namespace pdesolver

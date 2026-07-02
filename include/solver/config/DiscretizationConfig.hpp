@@ -9,15 +9,16 @@ namespace pdesolver {
 
 			struct DiscretizationConfig {
 
-				Index quadraturePointXi;
+				Index quadraturePointXi = 2;
 
-				Index quadraturePointEta;
+				Index quadraturePointEta = 2;
 
-				Index quadraturePointZeta;
+				Index quadraturePointZeta = 2;
 
-				bool blockDOFOrdering;
+				bool blockDOFOrdering = true;
 
 			}; // struct DiscretizationConfig
+
 		} // namespace config
 	} // namespace solver
 } // namespace pdesolver

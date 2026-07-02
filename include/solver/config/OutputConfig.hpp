@@ -15,6 +15,8 @@ namespace pdesolver {
 
 				Index writeFrequency = 1;
 
+				std::string prefix = "solution";
+
 			}; // struct OutputConfig
 
 		} // namespace config

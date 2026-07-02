@@ -1,6 +1,6 @@
 #include "application/heateq/HeatApplication.hpp"
-#include "application/heateq/parser/HeatConfigParser.hpp"
 #include "application/heateq/HeatDispatcher.hpp"
+#include "application/heateq/parser/HeatConfigParser.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -14,40 +14,30 @@ int main(int argc, char** argv) {
 	}
 
 	try {
-		const auto cfg = pdesolver::application::heateq::HeatConfigReader::read(argv[1]);
+		
+		const pdesolver::application::heateq::config::HeatConfig cfg = pdesolver::application::heateq::parser::HeatConfigParser::read(argv[1]);
 		pdesolver::application::heateq::HeatApplication app(cfg);
+		
 		return app.run();
-	}
-	catch (const std::exception& e) {
+	
+	} catch (const std::exception& e) {
+		
 		std::cerr << "[heateq] fatal error: " << e.what() << "\n";
+		
 		return EXIT_FAILURE;
+	
 	}
+
 }
 
-namespace pdesolver {
-	namespace application {
-		namespace heateq {
+pdesolver::application::heateq::HeatApplication::HeatApplication(const HeatConfig& config) : config_(config) {}
 
-			HeatApplication::HeatApplication(const HeatConfig& config) : config_(config) {}
+int pdesolver::application::heateq::HeatApplication::run() {
 
-			int HeatApplication::run() {
+	bool success = false;
 
-				bool success = false;
+	success = HeatDispatcher::run(config_);
 
-				if (isTransient()) {
-					success = HeatDispatcher::runTransient(config_);
-				}
-				else {
-					success = HeatDispatcher::runSteady(config_);
-				}
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 
-				return success ? EXIT_SUCCESS : EXIT_FAILURE;
-			}
-
-			bool HeatApplication::isTransient() const {
-				return config_.transient.tf > config_.transient.t0;
-			}
-
-		} // namespace heateq
-	} // namespace application
-} // namespace pdesolver
+}

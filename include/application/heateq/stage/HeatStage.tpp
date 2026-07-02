@@ -1,4 +1,4 @@
-namespace pdesolver::application::heateq {
+namespace pdesolver::application::heateq::stage {
 
 	template<typename BackendType, typename BasisType, typename QuadratureVolumeType, typename QuadratureBoundaryType>
 	HeatStage<BackendType, BasisType, QuadratureVolumeType, QuadratureBoundaryType>::HeatStage(const HeatConfig& config) : config_(config) {}
@@ -182,4 +182,4 @@ namespace pdesolver::application::heateq {
 		io::FieldIO::writeVTK(mesh_, *topoDOF_, bcRegistry_, t, U_.data(), {"T"}, path.string());
 	}
 
-} // namespace pdesolver::application::heateq
+} // namespace pdesolver::application::heateq::stage

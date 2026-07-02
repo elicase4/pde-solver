@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_CONDUCTIVITYCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_CONDUCTIVITYCONFIG_HPP
+#ifndef PDESOLVER_APPLICATION_HEATEQ_PARSER_CONDUCTIVITYCONFIG_HPP
+#define PDESOLVER_APPLICATION_HEATEQ_PARSER_CONDUCTIVITYCONFIG_HPP
 
 #include <vector>
 
@@ -8,22 +8,24 @@
 namespace pdesolver {
 	namespace application {
 		namespace heateq {
+			namespace config {
 
-			struct ConductivityConfig {
+				struct ConductivityConfig {
 
-				enum class Type {
-					Constant,
-					Anisotropic
-				}; // enum class Type
+					enum class Type {
+						Constant,
+						Anisotropic
+					}; // enum class Type
 
-				Type type;
+					Type type;
 
-				Real value;
+					Real value;
 
-				std::vector<Real> tensor;
+					std::vector<Real> tensor;
 
-			}; // struct ConductivityConfig
+				}; // struct ConductivityConfig
 
+			} // namespace config
 		} // namespace heateq
 	} // namespace application
 } // namespace pdesolver

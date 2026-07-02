@@ -16,8 +16,6 @@ namespace pdesolver {
 
 			private:
 
-				bool isTransient() const;
-
 				HeatConfig config_;
 
 			}; // class HeatApplication

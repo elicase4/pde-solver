@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_SOURCECONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_SOURCECONFIG_HPP
+#ifndef PDESOLVER_APPLICATION_HEATEQ_PARSER_SOURCECONFIG_HPP
+#define PDESOLVER_APPLICATION_HEATEQ_PARSER_SOURCECONFIG_HPP
 
 #include <string>
 
@@ -8,13 +8,21 @@
 namespace pdesolver {
 	namespace application {
 		namespace heateq {
+			namespace config {
 
-			struct SourceConfig {
+				struct SourceConfig {
 
-				std::string expression;
+					std::string expression;
 
-			}; // struct SourceConfig
+					enum class Type {
+						VolumetricHeatSource
+					}; // enum class Type
+	
+					Type type;
 
+				}; // struct SourceConfig
+
+			} // namespace config
 		} // namespace heateq
 	} // namespace application
 } // namespace pdesolver

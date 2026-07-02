@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_HEATCONFIGPARSER_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_HEATCONFIGPARSER_HPP
+#ifndef PDESOLVER_APPLICATION_HEATEQ_PARSER_HEATCONFIGPARSER_HPP
+#define PDESOLVER_APPLICATION_HEATEQ_PARSER_HEATCONFIGPARSER_HPP
 
 #include <string>
 
@@ -8,6 +8,7 @@
 namespace pdesolver {
 	namespace application {
 		namespace heateq {
+			namespace parser {
 
 			class HeatConfigParser {
 			public:
@@ -16,6 +17,7 @@ namespace pdesolver {
 
 			}; // HeatConfigParser
 
+			} // namespace parser
 		} // namespace heateq
 	} // namespace application
 } // namespace pdesolver
