@@ -4,8 +4,8 @@ template<>
 class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 	
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename FormRegistry, typename Model, typename Quadrature>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
+	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate Fe on the stack
 		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
@@ -79,10 +79,15 @@ public:
 
 			// quadrature loop
 			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+				
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
-				model.eval(qp);
-				model.evalGradient(qp);
-				forms.computeElementLevelVector(qp, Ge, Fe);
+				
+				for (auto& entry: bcRegistry.entries()){
+					if (entry->tag() != rngTag) continue;
+					if (entry->componentType(j) != BCCategory::Essential) continue;
+					entry->evalElementLevelVector<EvalQP>(qp, Ge, Fe);
+				}
+			
 			}
 			
 			// scatter Fe into F
@@ -102,8 +107,8 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename FormRegistry, typename Quadrature>
-	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
+	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
 		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
@@ -171,8 +176,15 @@ public:
 
 				// quadrature loop
 				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+					
 					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
-					forms.computeElementLevelVector(qp, nullptr, Fe);
+					
+					for (auto& entry: bcRegistry.entries()){
+						if (entry->tag() != rngTag) continue;
+						if (entry->componentType(j) != BCCategory::Natural) continue;
+						entry->evalElementLevelVector<EvalQP>(qp, nullptr, Fe);
+					}
+				
 				}
 
 				// scatter Fe into F

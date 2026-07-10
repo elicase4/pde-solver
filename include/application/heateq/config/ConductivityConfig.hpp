@@ -13,6 +13,7 @@ namespace pdesolver {
 				struct ConductivityConfig {
 
 					enum class Type {
+						Default,
 						Constant,
 						Anisotropic
 					}; // enum class Type

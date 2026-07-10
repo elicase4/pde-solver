@@ -16,6 +16,8 @@ namespace pdesolver {
 
 					static BoundaryConditionConfig::Type parseBoundaryConditionType(const std::string& str);
 					
+					static BoundaryConditionConfig::Type parseBoundaryConditionForm(const std::string& str);
+					
 					static BoundaryConditionConfig parse(const YAML::Node& node);
 					
 				}; // class BoundaryConditionConfigParser

@@ -26,11 +26,11 @@ namespace pdesolver {
 			class BoundaryApplicator {
 			public:
 				
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename FormRegistry, typename Model, typename Quadrature>
-				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, linalg::types::Vector<Real, Backend>& F);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
+				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
 				
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename FormRegistry, typename Quadrature>
-				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const FormRegistry& forms, linalg::types::Vector<Real, Backend>& F);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
+				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 

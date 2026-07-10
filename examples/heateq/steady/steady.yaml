@@ -21,18 +21,26 @@ boundary_conditions:
   - boundary: 0
     type: value
     expression: "(1-x)*(1-y)"
+    form: value_bc
+    model: constant
 
   - boundary: 1
     type: value
     expression: "(1-x)*(1-y)"
+    form: value_bc
+    model: constant
 
   - boundary: 2
     type: value
     expression: "(1-x)*(1-y)"
+    form: value_bc
+    model: constant
 
   - boundary: 3
     type: value
     expression: "(1-x)*(1-y)"
+    form: value_bc
+    model: constant
 
 solver:
 

@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_BOUNDARYCONDITION_HPP
-#define PDESOLVER_BOUNDARYCONDITION_HPP
+#ifndef PDESOLVER_FEM_BOUNDARYCONDITION_HPP
+#define PDESOLVER_FEM_BOUNDARYCONDITION_HPP
 
 #include <utility>
 
@@ -23,7 +23,7 @@ namespace pdesolver {
 
 			}; // concept BoundaryFunction
 
-			template<typename Function>
+			template<typename Function, typename FormRegistry, typename Model>
 			struct BoundaryCondition {
 				
 				static constexpr Index NumComponents = Function::NumComponents;
@@ -31,6 +31,8 @@ namespace pdesolver {
 				Int tag;
 				BCCategory componentType[Function::NumComponents];
 				Function f;
+				FormRegistry& forms;
+				Model& model;
 
 			}; // struct BoundaryCondition
 

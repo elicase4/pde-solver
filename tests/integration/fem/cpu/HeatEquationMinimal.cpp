@@ -64,11 +64,25 @@ protected:
 	HeatEqBundle::DefaultModel defaultModel;
 	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
 
+	// operator form
+	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
+	
+	// source form
+	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
+	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
+	fem::form::FormRegistry<HeatEqBundle::SourceForm<decltype(f)>> rhsForms(sorurceForm);
+
+	// flux form
+	HeatEqBundle::FluxBC<decltype(h)> fluxFunction(h);
+	HeatEqBundle::FluxForm<decltype(h)> fluxForm(fluxFunction);
+	fem::form::FormRegistry<HeatEqBundle::FluxForm<decltype(h)>> naturalBCForms(fluxForm);
+	
 	// declare bcs
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc0;
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc1;
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>> bc2;
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc3;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>>bc0;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>>bc1;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModel>>bc2;
+	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>>bc3;
 
 	// SetUp method
 	void SetUp() override {
@@ -86,20 +100,20 @@ protected:
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc0);
+		bc0 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}, operatorForms, constantConductivityModel});
+		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>(*bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc1);
+		bc1 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}, operatorForms, constantConductivityModel});
+		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>(*bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>{2, {fem::boundary::BCCategory::Natural}, HeatEqBundle::FluxBC<decltype(h)>{h}});
-		bcRegistry.registerBC<HeatEqBundle::FluxBC<decltype(h)>>(*bc2);
+		bc2 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>{2, {fem::boundary::BCCategory::Natural}, HeatEqBundle::FluxBC<decltype(h)>{h}, naturalBCForms, defaultModel});
+		bcRegistry.registerBC<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModel>(*bc2);
 		
 		// Set and register boundary 3
-		bc3 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc3);
+		bc3 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}, operatorForms, constantConductivityModel});
+		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>(*bc1);
 
 		// build algrebraic dofs after all boundaries are registered
 		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
@@ -166,10 +180,6 @@ TEST_F(CPUHeatEquationMinimal, DOFHandling){
 }
 
 TEST_F(CPUHeatEquationMinimal, KMatrix){
-
-	// form
-	HeatEqBundle::DiffusionForm diffusionForm;
-	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
 
 	// arbitrary time
 	Real t = 0.0;
@@ -242,16 +252,8 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 
 TEST_F(CPUHeatEquationMinimal, OVector){
 	
-	// form
-	HeatEqBundle::DiffusionForm diffusionForm;
-	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
-
 	// arbitrary time
 	Real t = 0.0;
-	
-	// create system matrix
-	auto O = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
-	auto U = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
 	
 	// test vector sizes
 	EXPECT_EQ(O.size(), 12);
@@ -298,20 +300,6 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 
 TEST_F(CPUHeatEquationMinimal, FVector){
 	
-	// source form
-	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
-	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
-	fem::form::FormRegistry<HeatEqBundle::SourceForm<decltype(f)>> rhsForms(sorurceForm);
-
-	// flux form
-	HeatEqBundle::FluxBC<decltype(h)> fluxFunction(h);
-	HeatEqBundle::FluxForm<decltype(h)> fluxForm(fluxFunction);
-	fem::form::FormRegistry<HeatEqBundle::FluxForm<decltype(h)>> naturalBCForms(fluxForm);
-
-	// diffusion form
-	HeatEqBundle::DiffusionForm diffusionForm;
-	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms(diffusionForm);
-	
 	// arbitrary time
 	Real t = 0.0;
 	
@@ -327,7 +315,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	const Real tol = 1e-10;
 
 	// call assembly for force vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
 
 	// test before bc application
 	EXPECT_NEAR(F.data()[0], 1.0/6.0, tol);
@@ -344,7 +332,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, decltype(naturalBCForms), QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, naturalBCForms, F);
+	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, F);
 	
 	// tests after applying natural bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
@@ -361,7 +349,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 	
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, operatorForms, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, F);
 	
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);

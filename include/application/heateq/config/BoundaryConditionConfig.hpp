@@ -17,11 +17,20 @@ namespace pdesolver {
 						Flux
 					}; // enum class Type
 
+					enum class Form {
+						FluxBC,
+						ValueBC
+					}; // enum class Form
+
 					Int boundaryID;
 
 					Type type;
 
 					std::string expression;
+
+					std::vector<Form> forms;
+					
+					Model model;
 
 				}; // struct BoundaryConditionConfig
 
