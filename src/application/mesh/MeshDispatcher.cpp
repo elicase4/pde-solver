@@ -49,10 +49,13 @@ namespace pdesolver {
 						}
 
 						io::GmshReader reader;
-						auto intermediateMesh = reader.read(config.inputFile);
+						pdesolver::mesh::exchange::gmsh::IntermediateMesh intermediateMesh; 
+						reader.read(intermediateMesh, config.inputFile);
 
-						mesh::exchange::gmsh::MeshConverter converter;
-						mesh = converter.convert(intermediateMesh);
+						// TODO: add physical group mapping argmuent
+
+						pdesolver::mesh::exchange::gmsh::MeshConverter converter;
+						converter.toSolverMesh(mesh, intermediateMesh);
 
 						std::cout << "[mesh] Gmsh import: " << config.inputFile << " → " << mesh.data.numElements << " elements\n";
 						break;

@@ -15,7 +15,7 @@ namespace pdesolver {
 			class SolverConfigParser {
 			public:
 
-				static SolverConfig parse(const YAML::Node& node);
+				static config::SolverConfig parse(const YAML::Node& node);
 
 			}; // class SolverConfigParser
 

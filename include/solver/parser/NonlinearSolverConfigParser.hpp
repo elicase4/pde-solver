@@ -15,9 +15,9 @@ namespace pdesolver {
 			class NonlinearSolverConfigParser {
 			public:
 
-				static NonlinearSolverConfig::Type parseNonlinearSolverType(const std::string& str);
+				static config::NonlinearSolverConfig::Type parseNonlinearSolverType(const std::string& str);
 
-				static NonlinearSolverConfig parse(const YAML::Node& node);
+				static config::NonlinearSolverConfig parse(const YAML::Node& node);
 
 			}; // class NonlinearSolverConfigParser
 

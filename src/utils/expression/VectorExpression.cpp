@@ -13,7 +13,7 @@ pdesolver::utils::expression::VectorExpression::VectorExpression(const std::vect
 
 	for (Index i = 0; i < expressions.size(); ++i) {
 		
-		expressions[i]_.register_symbol_table(symbolTable_);
+		expressions_[i].register_symbol_table(symbolTable_);
 
 		if (!parser_.compile(expressions[i], expressions_[i])) {
 			throw std::runtime_error("Failed to compile vector expression:\n" + expressions[i] + "\n" + parser_.error());

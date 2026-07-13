@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <yaml-cpp/yaml.h>
 
 #include "application/heateq/config/BoundaryConditionConfig.hpp"
 
@@ -14,11 +15,11 @@ namespace pdesolver {
 				class BoundaryConditionConfigParser {
 				public:
 
-					static BoundaryConditionConfig::Type parseBoundaryConditionType(const std::string& str);
+					static config::BoundaryConditionConfig::Type parseBoundaryConditionType(const std::string& str);
 					
-					static BoundaryConditionConfig::Type parseBoundaryConditionForm(const std::string& str);
+					static config::BoundaryConditionConfig::Form parseBoundaryConditionForm(const std::string& str);
 					
-					static BoundaryConditionConfig parse(const YAML::Node& node);
+					static config::BoundaryConditionConfig parse(const YAML::Node& node);
 					
 				}; // class BoundaryConditionConfigParser
 

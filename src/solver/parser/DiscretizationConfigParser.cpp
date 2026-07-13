@@ -1,11 +1,11 @@
-#include "solver/config/DiscretizationConfigParser.hpp"
-#include "io/YAML/Reader.hpp"
+#include "solver/parser/DiscretizationConfigParser.hpp"
+#include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::DiscretizationConfig pdesolver::solver::parser::DiscretizationConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	DiscretizationConfig cfg;
+	config::DiscretizationConfig cfg;
 
 	cfg.quadraturePointXi = YAMLReader::optional<Index>(node, "quadrature_points_xi", 2);
 	cfg.quadraturePointEta = YAMLReader::optional<Index>(node, "quadrature_points_eta", 2);

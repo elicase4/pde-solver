@@ -3,6 +3,11 @@
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "application/heateq/parser/SourceConfigParser.hpp"
 
+#include "solver/parser/DiscretizationConfigParser.hpp"
+#include "solver/parser/MeshConfigParser.hpp"
+#include "solver/parser/SolverConfigParser.hpp"
+#include "solver/parser/OutputConfigParser.hpp"
+
 #include "io/YAMLReader.hpp"
 
 pdesolver::application::heateq::config::HeatConfig pdesolver::application::heateq::parser::HeatConfigParser::read(const std::string& filename) {
@@ -11,7 +16,7 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 
 	const YAML::Node root = YAMLReader::loadFile(filename);
 
-	HeatConfig cfg;
+	pdesolver::application::heateq::config::HeatConfig cfg;
 
 	const YAML::Node& mesh = root["mesh"];
 	if (!mesh) {
@@ -25,7 +30,7 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	}
 	cfg.discretization = pdesolver::solver::parser::DiscretizationConfigParser::parse(disc);
 
-	const YAML::Node& solver = root["solver"]
+	const YAML::Node& solver = root["solver"];
 	if (!solver) {
 		throw std::runtime_error("HeatConfigParser: missing required 'solver' section in " + filename);
 	}

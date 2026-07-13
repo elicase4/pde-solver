@@ -1,12 +1,12 @@
-#include "solver/config/DriverConfigParser.hpp"
-#include "io/YAML/Reader.hpp"
+#include "solver/parser/DriverConfigParser.hpp"
+#include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::DriverConfig::Type pdesolver::solver::parser::DriverConfigParser::parseDriverType(const std::string& str) {
 
 	if (str == "steady")
-		return DriverConfig::Type::Steady;
+		return config::DriverConfig::Type::Steady;
 	if (str == "transient")
-		return DriverConfig::Type::Transient;
+		return config::DriverConfig::Type::Transient;
 
 	throw std::runtime_error("Unknown driver type: '" + str + "'. Valid options: steady, transient");
 
@@ -16,9 +16,9 @@ pdesolver::solver::config::DriverConfig pdesolver::solver::parser::DriverConfigP
 
 	using io::YAMLReader;
 
-	SolverConfig cfg;
+	config::DriverConfig cfg;
 
-	cfg.driver = parseDriverType(YAMLReader::required<std::string>(node, "driver"));
+	cfg.type = pdesolver::solver::parser::DriverConfigParser::parseDriverType(YAMLReader::required<std::string>(node, "driver"));
 
 	return cfg;
 

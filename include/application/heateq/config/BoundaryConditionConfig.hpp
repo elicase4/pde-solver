@@ -4,6 +4,7 @@
 #include <string>
 
 #include "core/Types.hpp"
+#include "application/heateq/config/ConductivityConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -30,7 +31,7 @@ namespace pdesolver {
 
 					std::vector<Form> forms;
 					
-					Model model;
+					ConductivityConfig::Type model;
 
 				}; // struct BoundaryConditionConfig
 

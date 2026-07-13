@@ -1,5 +1,5 @@
-#include "solver/config/LinearSolverConfigParser.hpp"
-#include "io/YAML/Reader.hpp"
+#include "solver/parser/LinearSolverConfigParser.hpp"
+#include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::LinearSolverConfig::Type pdesolver::solver::parser::LinearSolverConfigParser::parseLinearSolverType(const std::string& str) {
 
@@ -12,7 +12,7 @@ pdesolver::solver::config::LinearSolverConfig::Type pdesolver::solver::parser::L
     if (str == "lu")
         return pdesolver::solver::config::LinearSolverConfig::Type::LU;
 
-    throw std::runtime_error("Unknown linear solver type: " + str "'. Valid options: cg, gmres, bicgstab, lu");
+    throw std::runtime_error("Unknown linear solver type: " + str + ". Valid options: cg, gmres, bicgstab, lu");
 
 }
 
@@ -20,7 +20,7 @@ pdesolver::solver::config::LinearSolverConfig pdesolver::solver::parser::LinearS
 
 	using io::YAMLReader;
 
-	LinearSolverConfig cfg;
+	pdesolver::solver::config::LinearSolverConfig cfg;
 
 	cfg.type = parseLinearSolverType(YAMLReader::required<std::string>(node, "type"));
 	cfg.tolerance = YAMLReader::optional<Real>(node, "tolerance", 1e-10);

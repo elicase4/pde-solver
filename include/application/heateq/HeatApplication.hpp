@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_APPLICATION_HEATEQ_HEATAPPLICATION_HPP
 #define PDESOLVER_APPLICATION_HEATEQ_HEATAPPLICATION_HPP
 
-#include "application/heateq/HeatConfig.hpp"
+#include "application/heateq/config/HeatConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -10,13 +10,13 @@ namespace pdesolver {
 			class HeatApplication {
 			public:
 
-				explicit HeatApplication(const HeatConfig& config);
+				explicit HeatApplication(const config::HeatConfig& config);
 
 				int run();
 
 			private:
 
-				HeatConfig config_;
+				config::HeatConfig config_;
 
 			}; // class HeatApplication
 

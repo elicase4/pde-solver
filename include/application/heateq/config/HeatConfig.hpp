@@ -10,6 +10,7 @@
 
 #include "solver/config/MeshConfig.hpp"
 #include "solver/config/DiscretizationConfig.hpp"
+#include "solver/config/SolverConfig.hpp"
 #include "solver/config/LinearSolverConfig.hpp"
 #include "solver/config/NonlinearSolverConfig.hpp"
 #include "solver/config/OutputConfig.hpp"
@@ -22,7 +23,7 @@ namespace pdesolver {
 
 				struct HeatConfig {
 
-					solver::config::mesh mesh;
+					solver::config::MeshConfig mesh;
 
 					solver::config::DiscretizationConfig discretization;
 

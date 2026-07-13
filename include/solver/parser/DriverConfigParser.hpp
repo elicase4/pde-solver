@@ -15,9 +15,9 @@ namespace pdesolver {
 			class DriverConfigParser {
 			public:
 
-				static DriverConfig::Type parseDriverType(const std::string& str);
+				static config::DriverConfig::Type parseDriverType(const std::string& str);
 
-				static DriverConfig parse(const YAML::Node& node);
+				static config::DriverConfig parse(const YAML::Node& node);
 
 			}; // class DriverConfigParser
 

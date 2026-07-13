@@ -15,7 +15,7 @@ namespace pdesolver {
 			class OutputConfigParser {
 			public:
 
-				static OutputConfig parse(const YAML::Node& node);
+				static config::OutputConfig parse(const YAML::Node& node);
 
 			}; // class OutputConfigParser
 

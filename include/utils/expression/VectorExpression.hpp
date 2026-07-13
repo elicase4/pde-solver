@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <vector>
 
-
 #include "core/Types.hpp"
 
 namespace pdesolver {

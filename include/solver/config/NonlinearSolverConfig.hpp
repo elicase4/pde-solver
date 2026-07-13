@@ -2,6 +2,7 @@
 #define PDESOLVER_SOLVER_CONFIG_NONLINEARSOLVERCONFIG_HPP
 
 #include "core/Types.hpp"
+#include "solver/config/LinearSolverConfig.hpp"
 
 namespace pdesolver {
 	namespace solver {
@@ -21,6 +22,8 @@ namespace pdesolver {
 				Real relativeTolerance = 1e-8;
 
 				Index maxIterations = 50;
+
+				LinearSolverConfig linearSolver;
 
 			}; // struct NonlinearSolverConfig
 

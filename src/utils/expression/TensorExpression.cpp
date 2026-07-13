@@ -24,7 +24,7 @@ pdesolver::utils::expression::TensorExpression::TensorExpression(const std::vect
 	
 		for (Index j = 0; j < cols_; ++j) {
 
-			expressions[k]_.register_symbol_table(symbolTable_);
+			expressions_[k].register_symbol_table(symbolTable_);
 
 			if (!parser_.compile(expressions[i][j], expressions_[k])) {
 				throw std::runtime_error("Failed to compile vector expression:\n" + expressions[i][j] + "\n" + parser_.error());

@@ -40,10 +40,13 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 # subdirectories
 add_subdirectory(src/mesh)
 add_subdirectory(src/io)
+add_subdirectory(src/solver)
+add_subdirectory(src/utils)
 
 # build CLI applications
 if(BUILD_APPLICATIONS)
-	add_subdirectory(src/application)
+	add_subdirectory(src/application/mesh)
+	add_subdirectory(src/application/heateq)
 endif()
 
 # build tests

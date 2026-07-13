@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <yaml-cpp/yaml.h>
 
 #include "application/heateq/config/ConductivityConfig.hpp"
 
@@ -15,9 +16,9 @@ namespace pdesolver {
 				class ConductivityConfigParser {
 				public:
 
-					static ConductivityConfig::Type parseConductivityType(const std::string& str);
+					static config::ConductivityConfig::Type parseConductivityType(const std::string& str);
 
-					static ConductivityConfig parse(const YAML::Node& node);
+					static config::ConductivityConfig parse(const YAML::Node& node);
 				
 				}; // class ConductivityConfigParser
 

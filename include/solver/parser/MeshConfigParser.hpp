@@ -15,7 +15,7 @@ namespace pdesolver {
 			class MeshConfigParser {
 			public:
 
-				static MeshConfig parse(const YAML::Node& node);
+				static config::MeshConfig parse(const YAML::Node& node);
 
 			}; // class MeshConfigParser
 

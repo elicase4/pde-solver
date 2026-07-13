@@ -1,20 +1,20 @@
-#include "solver/config/SolverConfigParser.hpp"
-#include "solver/config/DriverConfigParser.hpp"
-#include "solver/config/TimeStepperConfigParser.hpp"
-#include "solver/config/LinearConfigParser.hpp"
-#include "solver/config/NonlinearConfigParser.hpp"
-#include "io/YAML/Reader.hpp"
+#include "solver/parser/SolverConfigParser.hpp"
+#include "solver/parser/DriverConfigParser.hpp"
+#include "solver/parser/TimeStepperConfigParser.hpp"
+#include "solver/parser/LinearSolverConfigParser.hpp"
+#include "solver/parser/NonlinearSolverConfigParser.hpp"
+#include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::SolverConfig pdesolver::solver::parser::SolverConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	SolverConfig cfg;
+	pdesolver::solver::config::SolverConfig cfg;
 
-	cfg.driver = DriverConfigParser::parse(YAMLReader::required<std::string>(node, "driver"));
-	cfg.timestepper = TimeStepperConfigParser::parse(YAMLReader::optional<std::string>(node, "timestepper", "backward_euler"));
-	cfg.nonlinear = NonlinearConfigParser::parse(YAMLReader::optional<std::string>(node, "nonlinear", "newton"));
-	cfg.linear = LinearConfigParser::parse(YAMLReader::optional<std::string>(node, "linear", "cg"));
+	cfg.driver = pdesolver::solver::parser::DriverConfigParser::parse(node);
+	cfg.timestepper = pdesolver::solver::parser::TimeStepperConfigParser::parse(node);
+	cfg.nonlinear = pdesolver::solver::parser::NonlinearSolverConfigParser::parse(node);
+	cfg.linear = pdesolver::solver::parser::LinearSolverConfigParser::parse(node);
 
 	return cfg;
 

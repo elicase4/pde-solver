@@ -1,14 +1,14 @@
-#include "application/heateq/ConductivityConfigParser.hpp"
+#include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 
 pdesolver::application::heateq::config::ConductivityConfig::Type pdesolver::application::heateq::parser::ConductivityConfigParser::parseConductivityType(const std::string& str) {
 
 	if (str == "constant") {
-		return pdesolver::application::heateq::ConductivityConfig::Type::Constant;
+		return pdesolver::application::heateq::config::ConductivityConfig::Type::Constant;
 	}
 
 	if (str == "anisotropic") {
-		return pdesolver::application::heateq::ConductivityConfig::Type::Anisotropic;
+		return pdesolver::application::heateq::config::ConductivityConfig::Type::Anisotropic;
 	}
 
 	throw std::runtime_error("Unknown conductivity type: " + str);
@@ -19,14 +19,14 @@ pdesolver::application::heateq::config::ConductivityConfig pdesolver::applicatio
 
 	using io::YAMLReader;
 
-	ConductivityConfig cfg;
+	pdesolver::application::heateq::config::ConductivityConfig cfg;
 
-	cfg.conductivity.type = ConductivityConfigParser::parseConductivityType(YAMLReader::required<std::string>(cond, "type"));
+	cfg.type = pdesolver::application::heateq::parser::ConductivityConfigParser::parseConductivityType(YAMLReader::required<std::string>(node, "type"));
 
-	if (cfg.conductivity.type == ConductivityConfig::Type::Constant) {
-		cfg.conductivity.value = YAMLReader::required<Real>(cond, "value");
-	} else if (cfg.conductivity.type == ConductivityConfig::Type::Anisotropic) {
-		cfg.conductivity.tensor = YAMLReader::required<std::vector<std::vector<Real>>>(cond, "tensor");
+	if (cfg.type == pdesolver::application::heateq::config::ConductivityConfig::Type::Constant) {
+		cfg.value = YAMLReader::required<Real>(node, "value");
+	} else if (cfg.type == pdesolver::application::heateq::config::ConductivityConfig::Type::Anisotropic) {
+		cfg.tensor = YAMLReader::required<std::vector<std::vector<Real>>>(node, "tensor");
 	}
 
 	return cfg;

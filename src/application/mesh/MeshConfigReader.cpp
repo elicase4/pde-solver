@@ -3,11 +3,6 @@
 
 #include "io/YAMLReader.hpp"
 
-#include "application/mesh/MeshConfigReader.hpp"
-#include "application/mesh/MeshConfigParser.hpp"
-
-#include "io/YAMLReader.hpp"
-
 namespace pdesolver {
 	namespace application {
 		namespace mesh {

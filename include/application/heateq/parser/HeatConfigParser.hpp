@@ -13,7 +13,7 @@ namespace pdesolver {
 			class HeatConfigParser {
 			public:
 
-				static HeatConfig read(const std::string& filename);
+				static config::HeatConfig read(const std::string& filename);
 
 			}; // HeatConfigParser
 

@@ -1,19 +1,18 @@
-#include "solver/config/TimeStepperConfigParser.hpp"
-#include "solver/config/NonlinearConfigParser.hpp"
-#include "solver/config/LinearConfigParser.hpp"
-#include "solver/config/LinearConfigParser.hpp"
+#include "solver/parser/TimeStepperConfigParser.hpp"
+#include "solver/parser/NonlinearSolverConfigParser.hpp"
+#include "solver/parser/LinearSolverConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::TimeStepperConfig::Type pdesolver::solver::parser::TimeStepperConfigParser::parseTimeStepperType(const std::string& str) {
 
 	if (str == "forward_euler")
-		return TimeStepperConfig::Type::ForwardEuler;
+		return pdesolver::solver::config::TimeStepperConfig::Type::ForwardEuler;
 	if (str == "backward_euler")
-		return TimeStepperConfig::Type::BackwardEuler;
+		return pdesolver::solver::config::TimeStepperConfig::Type::BackwardEuler;
 	if (str == "generalized_alpha") 
-		return TimeStepperConfig::Type::GeneralizedAlpha;
+		return pdesolver::solver::config::TimeStepperConfig::Type::GeneralizedAlpha;
 	if (str == "rk4")
-		return TimeStepperConfig::Type::RK4;
+		return pdesolver::solver::config::TimeStepperConfig::Type::RK4;
 
 	throw std::runtime_error("Unknown time stepper type: '" + str + "'. Valid options: forward_euler, backward_euler, generalized_alpha, rk4");
 
@@ -23,7 +22,7 @@ pdesolver::solver::config::TimeStepperConfig pdesolver::solver::parser::TimeStep
 
 	using io::YAMLReader;
 
-	TimeStepperConfig cfg;
+	pdesolver::solver::config::TimeStepperConfig cfg;
 
 	cfg.type = parseTimeStepperType(YAMLReader::required<std::string>(node, "type"));
 	cfg.t0 = YAMLReader::optional<Real>(node, "t0", 0.0);

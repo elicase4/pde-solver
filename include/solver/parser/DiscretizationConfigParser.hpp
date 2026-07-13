@@ -15,7 +15,7 @@ namespace pdesolver {
 			class DiscretizationConfigParser {
 			public:
 
-				static DiscretizationConfig parse(const YAML::Node& node);
+				static config::DiscretizationConfig parse(const YAML::Node& node);
 
 			}; // class DiscretizationConfigParser
 

@@ -22,7 +22,7 @@ namespace pdesolver {
 
 					Real value;
 
-					std::vector<Real> tensor;
+					std::vector<std::vector<Real>> tensor;
 
 				}; // struct ConductivityConfig
 

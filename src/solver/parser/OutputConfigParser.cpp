@@ -1,11 +1,11 @@
-#include "solver/config/OutputConfigParser.hpp"
-#include "io/YAML/Reader.hpp"
+#include "solver/parser/OutputConfigParser.hpp"
+#include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::OutputConfig pdesolver::solver::parser::OutputConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	OutputConfig cfg;
+	pdesolver::solver::config::OutputConfig cfg;
 
 	cfg.directory = YAMLReader::optional<std::string>(node, "directory", "output");
 	cfg.vtk = YAMLReader::optional<bool>(node, "vtk", true);

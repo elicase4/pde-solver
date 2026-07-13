@@ -30,13 +30,13 @@ int main(int argc, char** argv) {
 
 }
 
-pdesolver::application::heateq::HeatApplication::HeatApplication(const HeatConfig& config) : config_(config) {}
+pdesolver::application::heateq::HeatApplication::HeatApplication(const pdesolver::application::heateq::config::HeatConfig& config) : config_(config) {}
 
 int pdesolver::application::heateq::HeatApplication::run() {
 
 	bool success = false;
 
-	success = HeatDispatcher::run(config_);
+	success = pdesolver::application::heateq::HeatDispatcher::run(config_);
 
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 

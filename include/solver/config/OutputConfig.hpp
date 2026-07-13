@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "core/Types.hpp"
+
 namespace pdesolver {
 	namespace solver {
 		namespace config {

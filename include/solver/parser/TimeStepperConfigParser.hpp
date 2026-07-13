@@ -15,9 +15,9 @@ namespace pdesolver {
 			class TimeStepperConfigParser {
 			public:
 
-				static TimeStepperConfig::Type parseTimeStepperType(const std::string& str);
+				static config::TimeStepperConfig::Type parseTimeStepperType(const std::string& str);
 
-				static TimeStepperConfig parse(const YAML::Node& node);
+				static config::TimeStepperConfig parse(const YAML::Node& node);
 
 			}; // class TimeStepperConfigParser
 

@@ -14,12 +14,43 @@ namespace pdesolver {
 			class BoundaryRegistry {
 			public:
 				
+				struct BCEntryBase {
+
+					BoundaryCondition bc;
+
+					BCEntry(const BoundaryCondition<Function, FormRegistry, Model>& bcIn) : bc(bcIn) {}
+
+					Int tag() const {
+						return bc.tag;
+					}
+
+					Index numComponents() const {
+						return bc.NumComponents;
+					}
+
+					BCCategory componentType(Index c) const {
+						return bc.componentType[c];
+					}
+
+					void eval(Real time, const Real* x, Real* out) const {
+						bc.f.eval(time, x, out);
+					}
+					
+					template<typename EvalQP>
+					void evalElementLevelVector(EvalQP qp, const Real* Ue, Real* Fe) {
+						bc.model->eval(qp);
+						bc.model->evalGradient(qp);
+						bc.forms->computeElementLevelVector(qp, Ue, Fe);
+					}
+
+				}; // struct BCEntryBase
+				
 				template<typename Function, typename FormRegistry, typename Model>
 				struct BCEntry {
 
-					BoundaryCondition<Function> bc;
+					BoundaryCondition<Function, FormRegistry, Model> bc;
 
-					BCEntry(const BoundaryCondition<Function>& bcIn) : bc(bcIn) {}
+					BCEntry(const BoundaryCondition<Function, FormRegistry, Model>& bcIn) : bc(bcIn) {}
 
 					Int tag() const {
 						return bc.tag;
@@ -47,7 +78,7 @@ namespace pdesolver {
 				}; // struct BCEntry
 
 				template<typename Function, typename FormRegistry, typename Model>
-				void registerBC(const BoundaryCondition<Function>& bc){
+				void registerBC(const BoundaryCondition<Function, FormRegistry, Model>& bc){
 					entries_.push_back(std::make_unique<BCEntry<Function, FormRegistry, Model>>(bc));
 				}
 

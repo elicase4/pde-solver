@@ -2,6 +2,7 @@
 #define PDESOLVER_APPLICATION_MESH_MESHCONFIGPARSER_HPP
 
 #include <string>
+#include <stdexcept>
 
 #include "application/mesh/MeshConfig.hpp"
 

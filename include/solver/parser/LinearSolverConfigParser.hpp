@@ -15,9 +15,9 @@ namespace pdesolver {
 			class LinearSolverConfigParser {
 			public:
 
-				static LinearSolverConfig::Type parseLinearSolverType(const std::string& str);
+				static config::LinearSolverConfig::Type parseLinearSolverType(const std::string& str);
 
-				static LinearSolverConfig parse(const YAML::Node& node);
+				static config::LinearSolverConfig parse(const YAML::Node& node);
 
 			}; // class LinearSolverConfigParser
 

@@ -1,11 +1,11 @@
-#include "solver/config/MeshConfigParser.hpp"
-#include "io/YAML/Reader.hpp"
+#include "solver/parser/MeshConfigParser.hpp"
+#include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::MeshConfig pdesolver::solver::parser::MeshConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	MeshConfig cfg;
+	pdesolver::solver::config::MeshConfig cfg;
 
 	cfg.file = YAMLReader::required<Index>(node, "file");
 

@@ -31,7 +31,7 @@ namespace pdesolver {
 				mutable Real z_ = 0.0;
 
 				exprtk::symbol_table<Real> symbolTable_;
-				std::vector<exprtk::expression<Real>> expression_;
+				std::vector<exprtk::expression<Real>> expressions_;
 				exprtk::parser<Real> parser_;
 
 				Index rows_;

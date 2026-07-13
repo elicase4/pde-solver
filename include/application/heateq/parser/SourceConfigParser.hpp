@@ -3,8 +3,9 @@
 
 #include <string>
 #include <stdexcept>
+#include <yaml-cpp/yaml.h>
 
-#include "application/heateq/config/ConductivityConfig.hpp"
+#include "application/heateq/config/SourceConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -14,9 +15,9 @@ namespace pdesolver {
 				class SourceConfigParser {
 				public:
 
-					static SourceConfig::Type parseSourceType(const std::string& str);
+					static config::SourceConfig::Type parseSourceType(const std::string& str);
 
-					static SourceConfig parse(const YAML::Node& node);
+					static config::SourceConfig parse(const YAML::Node& node);
 				
 				}; // class SourceConfigParser
 
