@@ -88,7 +88,7 @@ public:
 		Real Ke[(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) * (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// allocate Ue on the stack
-		Ue[(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode)];
+		Real Ue[(EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// zero-out data in K
 		K.zero();

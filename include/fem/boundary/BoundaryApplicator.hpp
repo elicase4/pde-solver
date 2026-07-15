@@ -2,6 +2,7 @@
 #define PDESOLVER_BOUNDARYAPPLICATOR_HPP
 
 #include <cstring>
+#include <unordered_set>
 
 #include "fem/boundary/BoundaryCondition.hpp"
 #include "fem/boundary/BoundaryRegistry.hpp"
@@ -26,11 +27,11 @@ namespace pdesolver {
 			class BoundaryApplicator {
 			public:
 				
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
-				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature, typename Registry>
+				static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Registry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
 				
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
-				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature, typename Registry>
+				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Registry& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 

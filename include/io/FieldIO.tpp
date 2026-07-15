@@ -1,7 +1,7 @@
 namespace pdesolver::io {
 
-	template<Index numDOFs>
-	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt) {
+	template<Index numDOFs, typename Registry>
+	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Registry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt) {
 
 		if (!mesh.isValid()){
 			throw std::runtime_error("FieldIO::writeVTK: mesh is invalid");
@@ -58,8 +58,8 @@ namespace pdesolver::io {
 
 	}
 
-	template<Index numDOFs>
-	std::vector<Real> FieldIO::reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField) {
+	template<Index numDOFs, typename Registry>
+	std::vector<Real> FieldIO::reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Registry& bcRegistry, Real time, const Real* algField) {
 
 		// initialize containers for eval
 		std::vector<Real> nodalField(mesh.data.numNodes * topology::TopologicalDOF<numDOFs>::dofsPerNode, Real(0.0));
@@ -86,19 +86,23 @@ namespace pdesolver::io {
 			const Int tag = topoDOF.getConstraintTag(topoDOFIdx);
 			const Real* xyz = mesh.getNodeCoord(nodeId);
 
+			const auto* entries = bcRegistry.getEntries(tag);
+
 			bool bcEntryFound = false;
 
-			for (const auto& entry : bcRegistry.entries()) {
+			if (entries) {
 				
-				if (entry->tag() != tag) continue;
-				if (entry->componentType(component) != fem::boundary::BCCategory::Essential) continue;
+				for (const auto& entry : *entries) {
 
-				entry->eval(time, xyz, bcVal.data());
-				nodalField[nodeId * topology::TopologicalDOF<numDOFs>::dofsPerNode + component] = bcVal[component];
-				bcEntryFound = true;
+					if (entry->componentType(component) != fem::boundary::BCCategory::Essential) continue;
 
-				break;
+					entry->eval(time, xyz, bcVal.data());
+					nodalField[nodeId * topology::TopologicalDOF<numDOFs>::dofsPerNode + component] = bcVal[component];
+					bcEntryFound = true;
 
+					break;
+
+				}
 			}
 
 			if (!bcEntryFound) {

@@ -39,8 +39,8 @@ namespace pdesolver {
 			inline void getElementDOFs(Index elemId, Index* dofs) const;
 			
 			// constraints
-			template<typename Element>
-			void buildConstraints(const fem::boundary::BoundaryRegistry& bcRegistry);
+			template<typename Element, typename Registry>
+			void buildConstraints(const Registry& bcRegistry);
 			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
 			inline Int getConstraintTag(Index topoDOF) const;
 

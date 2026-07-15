@@ -17,7 +17,7 @@ namespace pdesolver {
 
 				constexpr FormRegistry() = default;
 
-				constexpr explicit FormRegistry(Forms&&... forms) : forms_(std::forward<Forms>(forms)) {}
+				constexpr explicit FormRegistry(Forms... forms) : forms_(std::forward<Forms>(forms)...) {}
 
 				template<typename QuadraturePoint>
 				PDE_HOST PDE_DEVICE
@@ -35,7 +35,7 @@ namespace pdesolver {
 					}, forms_);
 				}
 				
-				static constexpr Index numForms() { return sizeof...(forms_); }
+				static constexpr Index numForms() { return sizeof...(Forms); }
 
 				template<std::size_t I>
 				constexpr const auto& get() const {
