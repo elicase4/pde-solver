@@ -30,8 +30,8 @@ void TopologicalDOF<numDOFs>::getElementDOFs(Index elemId, Index* dofs) const {
 }
 
 template<Index numDOFs>
-template<typename Element, typename Registry>
-void TopologicalDOF<numDOFs>::buildConstraints(const Registry& bcRegistry){
+template<typename Element>
+void TopologicalDOF<numDOFs>::buildConstraints(const fem::boundary::EssentialBoundaryRegistry& bcRegistry){
 
 	std::set<Index> constrainedSet;
 	Index faceNodes[Element::NodesPerElement];
@@ -61,7 +61,7 @@ void TopologicalDOF<numDOFs>::buildConstraints(const Registry& bcRegistry){
 				
 				for (Index c = 0; c < dofsPerNode; ++c){
 					
-					if (!bcRegistry.isEssential(tag,c)) continue;
+					if (!bcRegistry.isEssential(tag, c)) continue;
 
 					Index dof = getNodeDOF(globalNode, c);
 					

@@ -7,7 +7,7 @@
 #include <set>
 
 #include "core/Types.hpp"
-#include "fem/boundary/BoundaryRegistry.hpp"
+#include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/dof/DOFOrdering.hpp"
 #include "mesh/Mesh.hpp"
 
@@ -39,8 +39,8 @@ namespace pdesolver {
 			inline void getElementDOFs(Index elemId, Index* dofs) const;
 			
 			// constraints
-			template<typename Element, typename Registry>
-			void buildConstraints(const Registry& bcRegistry);
+			template<typename Element>
+			void buildConstraints(const fem::boundary::EssentialBoundaryRegistry& bcRegistry);
 			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
 			inline Int getConstraintTag(Index topoDOF) const;
 

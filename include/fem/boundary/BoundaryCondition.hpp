@@ -1,39 +1,29 @@
-#ifndef PDESOLVER_FEM_BOUNDARYCONDITION_HPP
-#define PDESOLVER_FEM_BOUNDARYCONDITION_HPP
+#ifndef PDESOLVER_FEM_BOUNDARY_BOUNDARYCONDITION_HPP
+#define PDESOLVER_FEM_BOUNDARY_BOUNDARYCONDITION_HPP
 
-#include <utility>
+#include <concepts>
 
 #include "core/Types.hpp"
+#include "BoundaryCategory.hpp"
 
 namespace pdesolver {
 	namespace fem {
 		namespace boundary {
 
-			enum class BCCategory {
-				None,
-				Essential,
-				Natural
-			}; // enum class BCCategory
-
 			template<typename Function>
-			concept BoundaryFunction = requires (const Function f, const Real time, const Real* x, Real* outValue) {
-				
+			concept BoundaryFunction = requires(const Function f, Real time, const Real* x, Real* value) {
 				{ Function::NumComponents } -> std::convertible_to<Index>;
-				{ f.eval(time, x, outValue) } -> std::same_as<void>;
-
+				{ f.eval(time, x, value) } -> std::same_as<void>;
 			}; // concept BoundaryFunction
 
-			template<typename Function, typename FormRegistry, typename Model>
+			template<typename Function>
 			struct BoundaryCondition {
-				
-				static constexpr Index NumComponents = Function::NumComponents;
-				
-				Int tag;
-				BCCategory componentType[Function::NumComponents];
-				Function f;
-				FormRegistry& forms;
-				Model& model;
 
+				static constexpr Index NumComponents = Function::NumComponents;
+				Int tag;
+				BCCategory componentType[NumComponents];
+				Function function;
+			
 			}; // struct BoundaryCondition
 
 		} // namespace boundary

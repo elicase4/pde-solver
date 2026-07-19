@@ -4,8 +4,8 @@ template<>
 class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 	
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature, typename Registry>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Registry& bcRegistry, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
+	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate Fe on the stack
 		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
@@ -26,7 +26,6 @@ public:
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
 
-			// extract node coordinates
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
@@ -49,8 +48,6 @@ public:
 			Quadrature::getWeights(w);
 			
 			// fill Ge
-			std::unordered_set<Int> activeTags;
-			
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 
 				Real bcVal[topology::TopologicalDOF<numDOFs>::dofsPerNode];
@@ -63,22 +60,16 @@ public:
 					}
 					
 					Int rngTag = topoDOF.getConstraintTag(TdofIDi);
-					activeTags.insert(rngTag);
 
 					const auto* entries = bcRegistry.getEntries(rngTag);
 
 					if (entries) {
 						for (const auto& entry : *entries) {
-							if (entry->componentType(j) != BCCategory::Essential) {
-								continue;
-							}
 							entry->eval(time, &nodeCoords[EvalEle::SpatialDim*i], bcVal);
 						}
 					}
 
-					if (bcRegistry.isEssential(rngTag, j)){
-						Ge[i*topology::TopologicalDOF<numDOFs>::dofsPerNode+j] = bcVal[j];
-					}
+					Ge[i*topology::TopologicalDOF<numDOFs>::dofsPerNode+j] = bcVal[j];
 
 				}
 
@@ -87,15 +78,10 @@ public:
 
 			// quadrature loop
 			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
-				
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
-				
-				typename Registry::template BoundaryEvalQP<EvalQP> ctx{qp, Ge, Fe};
-
-				for (auto tag : activeTags) {
-					bcRegistry.applyBoundaryContributions(tag, ctx);
-				}
-
+				model.eval(qp);
+				model.evalGradient(qp);
+				forms.computeElementLevelVector(qp, Ge, Fe);
 			}
 
 			// scatter Fe into F
@@ -115,8 +101,8 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature, typename Registry>
-	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Registry& bcRegistry, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
+	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const NaturalBoundaryRegistry<EvalQP>& bcRegistry, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
 		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
@@ -181,15 +167,13 @@ public:
 				Real w[Quadrature::NumPointsTotal];
 				Quadrature::getPoints(xi);
 				Quadrature::getWeights(w);
+				Real bcVal[numDOFs];
 
 				// quadrature loop
 				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 					
 					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
-					
-					typename Registry::template BoundaryEvalQP<EvalQP> ctx{qp, nullptr, Fe};
-
-					bcRegistry.applyBoundaryContributions(rngTag, ctx);
+					bcRegistry.apply(rngTag, qp, time, faceNodeCoords, bcVal, Fe);
 				
 				}
 
@@ -198,7 +182,6 @@ public:
 					
 					for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
 						
-						if (!bcRegistry.isNatural(rngTag, j)) continue;
 						Index TdofIDi = topoDOF.getNodeDOF(elemNodeGlobalIDs[faceNodeLocalIDs[i]], j);
 						if (topoDOF.isConstrained(TdofIDi)) continue;
 						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);

@@ -45,7 +45,8 @@ protected:
 	std::unique_ptr<topology::TopologicalDOF<HeatEqBundle::NumDOFs>> topoDOF2D;
 
 	// boundary registry
-	fem::boundary::BoundaryRegistry<HeatEqBundle::EvalQPVol, HeatEqBundle::EvalQPBdy> bcRegistry;
+	fem::boundary::EssentialBoundaryRegistry EssentialBCRegistry;
+	fem::boundary::NaturalBoundaryRegistry<HeatEqBundle::EvalQPBdy> NaturalBCRegistry;
 
 	// rhs source functions
 	static constexpr auto f = [](Real, const Real* x, Real* out){ out[0] = x[0]*x[1]; };
@@ -62,6 +63,7 @@ protected:
 
 	// declare models
 	HeatEqBundle::DefaultModel defaultModel;
+	HeatEqBundle::DefaultModelBdy defaultModelBdy;
 	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
 
 	// operator form
@@ -79,10 +81,10 @@ protected:
 	fem::form::FormRegistry<HeatEqBundle::FluxForm<decltype(h)>> naturalBCForms{fluxForm};
 	
 	// declare bcs
-	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>> bc0;
-	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>> bc1;
-	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModel>> bc2;
-	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>> bc3;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc0;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc1;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>> bc2;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc3;
 
 	// SetUp method
 	void SetUp() override {
@@ -100,23 +102,23 @@ protected:
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}, operatorForms, constantConductivityModel});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>(bc0);
+		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}, operatorForms, constantConductivityModel});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>(bc1);
+		bc1 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModel>>(fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModel>{2, {fem::boundary::BCCategory::Natural}, HeatEqBundle::FluxBC<decltype(h)>{h}, naturalBCForms, defaultModel});
-		bcRegistry.registerBC<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModel>(bc2);
+		bc2 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>{2, {fem::boundary::BCCategory::Natural}, HeatEqBundle::FluxBC<decltype(h)>{h}});
+		NaturalBCRegistry.registerBC<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModelBdy>(bc2, naturalBCForms, defaultModelBdy);
 		
 		// Set and register boundary 3
-		bc3 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}, operatorForms, constantConductivityModel});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>, decltype(operatorForms), HeatEqBundle::ConstantConductivityModel>(bc3);
+		bc3 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc3);
 
 		// build algrebraic dofs after all boundaries are registered
-		topoDOF2D->buildConstraints<BasisType, fem::boundary::BoundaryRegistry<HeatEqBundle::EvalQPVol, HeatEqBundle::EvalQPBdy>>(bcRegistry);
+		topoDOF2D->buildConstraints<BasisType>(EssentialBCRegistry);
 
 	}
 };
@@ -335,7 +337,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, QuadratureBoundaryType>(mesh2D, *topoDOF2D, bcRegistry, t, F);
+	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, QuadratureBoundaryType>(mesh2D, *topoDOF2D, NaturalBCRegistry, t, F);
 	
 	// tests after applying natural bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
@@ -352,7 +354,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 	
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, F);
 	
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
