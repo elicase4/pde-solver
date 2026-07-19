@@ -4,8 +4,12 @@
 #include "fem/assembly/Assembler.hpp"
 
 #include "fem/boundary/BoundaryApplicator.hpp"
+#include "fem/boundary/BoundaryCategory.hpp"
 #include "fem/boundary/BoundaryCondition.hpp"
-#include "fem/boundary/BoundaryRegistry.hpp"
+#include "fem/boundary/EssentialBoundaryCondition.hpp"
+#include "fem/boundary/NaturalBoundaryOperator.hpp"
+#include "fem/boundary/EssentialBoundaryRegistry.hpp"
+#include "fem/boundary/NaturalBoundaryRegistry.hpp"
 
 #include "fem/dof/AlgebraicDOF.hpp"
 #include "fem/dof/DOFOrdering.hpp"
@@ -17,6 +21,7 @@
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
+#include "fem/form/FormRegistry.hpp"
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/LinearForm.hpp"
 #include "fem/form/NonlinearForm.hpp"

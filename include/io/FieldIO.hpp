@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/Types.hpp"
-#include "fem/boundary/BoundaryRegistry.hpp"
+#include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "io/VTKWriter.hpp"
 #include "io/utils/Binary.hpp"
 #include "mesh/Mesh.hpp"
@@ -20,10 +20,10 @@ namespace pdesolver {
 		public:
 
 			template<Index numDOFs>
-			static void writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
+			static void writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
 		
 			template<Index numDOFs>
-			static std::vector<Real> reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField);
+			static std::vector<Real> reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField);
 
 		}; // class FieldIO
 

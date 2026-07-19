@@ -4,29 +4,28 @@ template<>
 class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 	
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Model, typename Quadrature>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Model& model, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
+	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
-		// allocate local space for Fe
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Fe on the stack
+		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
-		// allocate local space for Ge
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Ge( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		// allocate Ge on the stack
+		Real Ge[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 		
 			// zero-out Fe
-			Fe.zero();
-			
+			std::memset(Fe, 0.0, sizeof(Fe));
+
 			// zero-out Ge
-			Ge.zero();
+			std::memset(Ge, 0.0, sizeof(Ge));
 			
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
 
-			// extract node coordinates
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
@@ -52,39 +51,39 @@ public:
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 
 				Real bcVal[topology::TopologicalDOF<numDOFs>::dofsPerNode];
-				Int rngTag;
 
 				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
+					
 					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) {
-						rngTag = topoDOF.getConstraintTag(TdofIDi);
-					} else {
+					if (!topoDOF.isConstrained(TdofIDi)) {
 						continue;
 					}
 					
-					for (auto& entry: bcRegistry.entries()){
-						if (entry->tag() != rngTag) continue;
-						if (entry->componentType(j) != BCCategory::Essential) continue;
-						entry->eval(time, &nodeCoords[EvalEle::SpatialDim*i], bcVal);
+					Int rngTag = topoDOF.getConstraintTag(TdofIDi);
+
+					const auto* entries = bcRegistry.getEntries(rngTag);
+
+					if (entries) {
+						for (const auto& entry : *entries) {
+							entry->eval(time, &nodeCoords[EvalEle::SpatialDim*i], bcVal);
+						}
 					}
 
-					if (bcRegistry.isEssential(rngTag, j)){
-						Ge.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = bcVal[j];
-					}
+					Ge[i*topology::TopologicalDOF<numDOFs>::dofsPerNode+j] = bcVal[j];
 
 				}
 
 			}
+
 
 			// quadrature loop
 			for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
-				form.computeElementLevelVector(qp, Ge.data(), Fe.data());
+				forms.computeElementLevelVector(qp, Ge, Fe);
 			}
-			
+
 			// scatter Fe into F
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
 				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
@@ -93,7 +92,7 @@ public:
 					if (topoDOF.isConstrained(TdofIDi)) continue;
 					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 					
-					F.data()[AdofIDi] -= Fe.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
+					F.data()[AdofIDi] -= Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
 
 				}
 			}
@@ -102,18 +101,18 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Form, typename Quadrature>
-	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const BoundaryRegistry& bcRegistry, const Real time, const Form& form, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
+	void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const NaturalBoundaryRegistry<EvalQP>& bcRegistry, const Real time, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
-		linalg::types::Vector<Real, linalg::types::backend::CPU> Fe( (EvalEle::NodesPerElement * topology::TopologicalDOF<numDOFs>::dofsPerNode) );
+		Real Fe[(EvalEle::NodesPerElement*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// element loop
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 				
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim * EvalEle::NodesPerElement];
+			Real nodeCoords[EvalEle::SpatialDim*EvalEle::NodesPerElement];
 
 			// extract node coordinates
 			for (Index i = 0; i < EvalEle::NodesPerElement; ++i){
@@ -133,7 +132,7 @@ public:
 			for (Index f = 0; f < mesh.data.facesPerElement; ++f){
 				
 				// zero-out Fe
-				Fe.zero();
+				std::memset(Fe, 0.0, sizeof(Fe));
 
 				// get face rng tag
 				Int rngTag = rngTags[f];
@@ -141,7 +140,7 @@ public:
 				if (!bcRegistry.hasAny(rngTag)) continue;
 				const Index nodesPerFace = EvalQP::NodesPerFace(rngTag);
 
-				Real faceNodeCoords[EvalEle::SpatialDim * EvalQP::NodesPerElement] = {0};
+				Real faceNodeCoords[EvalEle::SpatialDim*EvalQP::NodesPerElement] = {0};
 				Index faceNodeLocalIDs[EvalQP::NodesPerElement];
 				EvalQP::getFaceNodes(rngTag, faceNodeLocalIDs);
 				const Index* elemNodeGlobalIDs = mesh.getElementNodes(e);
@@ -168,11 +167,14 @@ public:
 				Real w[Quadrature::NumPointsTotal];
 				Quadrature::getPoints(xi);
 				Quadrature::getWeights(w);
+				Real bcVal[numDOFs];
 
 				// quadrature loop
 				for (Index q = 0; q < Quadrature::NumPointsTotal; ++q){
+					
 					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
-					form.computeElementLevelVector(qp, nullptr, Fe.data());
+					bcRegistry.apply(rngTag, qp, time, faceNodeCoords, bcVal, Fe);
+				
 				}
 
 				// scatter Fe into F
@@ -180,14 +182,14 @@ public:
 					
 					for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
 						
-						if (!bcRegistry.isNatural(rngTag, j)) continue;
 						Index TdofIDi = topoDOF.getNodeDOF(elemNodeGlobalIDs[faceNodeLocalIDs[i]], j);
 						if (topoDOF.isConstrained(TdofIDi)) continue;
 						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
 						
-						F.data()[AdofIDi] += Fe.data()[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
+						F.data()[AdofIDi] += Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
 
 					}
+				
 				}
 			
 			}

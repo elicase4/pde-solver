@@ -1,7 +1,7 @@
 namespace pdesolver::io {
 
 	template<Index numDOFs>
-	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt) {
+	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt) {
 
 		if (!mesh.isValid()){
 			throw std::runtime_error("FieldIO::writeVTK: mesh is invalid");
@@ -59,7 +59,7 @@ namespace pdesolver::io {
 	}
 
 	template<Index numDOFs>
-	std::vector<Real> FieldIO::reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::BoundaryRegistry& bcRegistry, Real time, const Real* algField) {
+	std::vector<Real> FieldIO::reconstructNodalField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField) {
 
 		// initialize containers for eval
 		std::vector<Real> nodalField(mesh.data.numNodes * topology::TopologicalDOF<numDOFs>::dofsPerNode, Real(0.0));
@@ -87,22 +87,17 @@ namespace pdesolver::io {
 			const Real* xyz = mesh.getNodeCoord(nodeId);
 
 			bool bcEntryFound = false;
+			
+			auto entries = bcRegistry.getEntries(tag);
 
-			for (const auto& entry : bcRegistry.entries()) {
-				
-				if (entry->tag() != tag) continue;
-				if (entry->componentType(component) != fem::boundary::BCCategory::Essential) continue;
-
+			for (auto& entry : *entries) {
 				entry->eval(time, xyz, bcVal.data());
 				nodalField[nodeId * topology::TopologicalDOF<numDOFs>::dofsPerNode + component] = bcVal[component];
 				bcEntryFound = true;
-
-				break;
-
 			}
 
 			if (!bcEntryFound) {
-				throw std::runtime_error("FieldIO::recosntructNodelField: constrained DOF could not be reconstructed");
+				throw std::runtime_error("FieldIO::reconstructNodalField: failed to reconstruct constrained DOF.");
 			}
 
 		}

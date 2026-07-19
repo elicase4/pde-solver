@@ -28,7 +28,7 @@ PDE_HOST PDE_DEVICE void GaussQuadratureHex<NumPointsX, NumPointsY, NumPointsZ>:
 
 // implementation weights
 template<Index NumPointsX, Index NumPointsY, Index NumPointsZ>
-PDE_HOST PDE_DEVICE void GaussQuadratureQuad<NumPointsX, NumPointsY, NumPointsZ>::getWeights(Real* w){
+PDE_HOST PDE_DEVICE void GaussQuadratureHex<NumPointsX, NumPointsY, NumPointsZ>::getWeights(Real* w){
 	
 	Real w_xi[NumPointsX];
 	Real w_eta[NumPointsY];

@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_NULLLOGGER_HPP
 #define PDESOLVER_NULLLOGGER_HPP
 
+#include <vector>
+
 #include "core/Types.hpp"
 
 namespace pdesolver {
@@ -11,6 +13,9 @@ namespace pdesolver {
 
 				template<typename DataType>
 				inline void log(Index, DataType, DataType = DataType(-1), const std::vector<DataType>& = {}) const {}
+
+				template<typename DataType>
+				inline std::vector<DataType> computePerDOFNorms(const DataType*, Index) const { return{}; }
 
 				template<typename Args>
 				inline void event(Args&&) const {}

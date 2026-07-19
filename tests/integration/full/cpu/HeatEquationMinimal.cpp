@@ -51,7 +51,7 @@ protected:
 	std::unique_ptr<topology::TopologicalDOF<HeatEqBundle::NumDOFs>> topoDOF2D;
 
 	// boundary registry
-	fem::boundary::BoundaryRegistry bcRegistry;
+	fem::boundary::EssentialBoundaryRegistry EssentialBCRegistry;
 
 	// rhs source functions
 	static constexpr auto f = [](Real, const Real*, Real* out){ out[0] = 0.0; };
@@ -69,11 +69,20 @@ protected:
 	HeatEqBundle::DefaultModel defaultModel;
 	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
 
+	// operator form
+	HeatEqBundle::DiffusionForm diffusionForm;
+	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms{diffusionForm};
+	
+	// source form
+	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction{f};
+	HeatEqBundle::SourceForm<decltype(f)> sourceForm{sourceFunction};
+	fem::form::FormRegistry<HeatEqBundle::SourceForm<decltype(f)>> rhsForms{sourceForm};
+
 	// declare bcs
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc0;
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc1;
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc2;
-	std::unique_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc3;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc0;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc1;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc2;
+	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc3;
 
 	// SetUp method
 	void SetUp() override {
@@ -91,23 +100,23 @@ protected:
 		constantConductivityModel.conductivity = 1.0;
 		
 		// Set and register boundary 0
-		bc0 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc0);
+		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc0);
 		
 		// Set and register boundary 1
-		bc1 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc1);
+		bc1 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc1);
 		
 		// Set and register boundary 2
-		bc2 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{2, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc2);
+		bc2 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{2, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc2);
 		
 		// Set and register boundary 3
-		bc3 = std::make_unique<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
-		bcRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(*bc3);
+		bc3 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
+		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc3);
 
 		// build algrebraic dofs after all boundaries are registered
-		topoDOF2D->buildConstraints<BasisType>(bcRegistry);
+		topoDOF2D->buildConstraints<BasisType>(EssentialBCRegistry);
 
 	}
 };
@@ -121,11 +130,6 @@ TEST_F(CPUHeatEquationMinimal, DOFHandlingCGSolve){
 }
 
 TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
-
-	// forms
-	HeatEqBundle::DiffusionForm diffusionForm;
-	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
-	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
 
 	// arbitrary time
 	Real t = 0.0;
@@ -144,13 +148,13 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 	EXPECT_EQ(F.size(), 529);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, HeatEqBundle::DiffusionForm, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, U, K);
 
 	// call assembly for rhs vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, HeatEqBundle::SourceForm<decltype(f)>, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DiffusionForm, HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, F);
 
 	// define operator
 	linalg::op::CSROperator<linalg::types::CSRMatrix<Real, BackendType>> op(K);
@@ -195,17 +199,12 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 
 	// write solution
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "matrixsol_output.vtk";
-	io::FieldIO::writeVTK(mesh2D, *topoDOF2D, bcRegistry, t, U.data(), {"theta"}, path.string());
+	io::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, U.data(), {"theta"}, path.string());
 
 }
 
 TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	
-	// form
-	HeatEqBundle::DiffusionForm diffusionForm;
-	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction(f);
-	HeatEqBundle::SourceForm<decltype(f)> sourceForm(sourceFunction);
-
 	// arbitrary time
 	Real t = 0.0;
 	
@@ -221,13 +220,13 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 	U.zero();
 
 	// call assembly for rhs vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, HeatEqBundle::SourceForm<decltype(f)>, QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, sourceForm, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DiffusionForm, HeatEqBundle::ConstantConductivityModel, QuadratureVolumeType>(mesh2D, *topoDOF2D, bcRegistry, t, constantConductivityModel, diffusionForm, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, F);
 
 	// define operator
-	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, HeatEqBundle::DiffusionForm, QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, diffusionForm);
+	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType> op(assembler, mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms);
 
 	// setup solver workspace & report
 	linalg::solver::iterative::cg::Workspace<linalg::types::Vector<Real, BackendType>> W(topoDOF2D->numFreeDOFs());
@@ -269,6 +268,6 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 
 	// write solution
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "matrixfreesol_output.vtk";
-	io::FieldIO::writeVTK(mesh2D, *topoDOF2D, bcRegistry, t, U.data(), {"theta"}, path.string());
+	io::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, U.data(), {"theta"}, path.string());
 
 }

@@ -41,6 +41,8 @@ namespace pdesolver {
 			// Constitutive Models
 			using DefaultModel = heateq::DefaultModel<EvalQPVol>;
 			using ConstantConductivityModel = heateq::ConstantConductivityModel<EvalQPVol>;
+			using DefaultModelBdy = heateq::DefaultModel<EvalQPBdy>;
+			using ConstantConductivityModelBdy = heateq::ConstantConductivityModel<EvalQPBdy>;
 			
 			// Diffusion Form
 			using DiffusionForm = heateq::DiffusionForm<EvalQPVol>;
