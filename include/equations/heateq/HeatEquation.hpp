@@ -29,7 +29,13 @@ namespace pdesolver {
 			static constexpr Index NumDOFs = 1;
 			static constexpr Index NPD = BasisType::ParametricDim;
 			static constexpr Index NumNodes = BasisType::NodesPerElement;
-			
+			static constexpr Index SpatialDim = NSD;
+
+			// Discretization Info
+			using Basis = BasisType;
+			using QuadratureVolumeType = QuadratureVolType;
+			using QuadratureBoundaryType = QuadratureBdyType;
+
 			// Geometry
 			using Transform = fem::geometry::JacobianTransform<NSD, NPD, NumNodes>;
 
@@ -42,8 +48,7 @@ namespace pdesolver {
 			using DefaultModel = heateq::DefaultModel<EvalQPVol>;
 			using ConstantConductivityModel = heateq::ConstantConductivityModel<EvalQPVol>;
 			using DefaultModelBdy = heateq::DefaultModel<EvalQPBdy>;
-			using ConstantConductivityModelBdy = heateq::ConstantConductivityModel<EvalQPBdy>;
-			
+
 			// Diffusion Form
 			using DiffusionForm = heateq::DiffusionForm<EvalQPVol>;
 

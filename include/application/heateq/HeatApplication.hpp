@@ -20,8 +20,8 @@ namespace pdesolver {
 
 			}; // class HeatApplication
 
-		}
-	}
-}
+		} // namespace heateq
+	} // namespace application
+} // namespace pdesolver
 
 #endif

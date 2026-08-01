@@ -12,11 +12,6 @@ namespace pdesolver {
 
 				static bool run(const config::HeatConfig& config);
 
-			private:
-
-				static bool dispatch2D(const config::HeatConfig& config);
-				static bool dispatch3D(const config::HeatConfig& config);
-
 			}; // class HeatDispatcher
 
 		} // namespace heateq

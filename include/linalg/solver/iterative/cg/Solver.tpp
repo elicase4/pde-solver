@@ -11,7 +11,7 @@
 namespace pdesolver::linalg::solver::iterative::cg {
 
 	template<typename OperatorType, typename VectorType, typename PreconditionerType, typename LoggerType>
-	bool Solver<OperatorType, VectorType, PreconditionerType, LoggerType>::solve(solver::SolverReport<VectorType>& report, LoggerType& logger, Workspace<VectorType>& W, PreconditionerType& M, const OperatorType& A, const VectorType& b, VectorType& x){
+	bool Solver<OperatorType, VectorType, PreconditionerType, LoggerType>::solve(solver::SolverReport<VectorType>& report, LoggerType& logger, Workspace& W, PreconditionerType& M, const OperatorType& A, const VectorType& b, VectorType& x){
 
 		// get config info
 		using DataType = typename VectorType::value_type;

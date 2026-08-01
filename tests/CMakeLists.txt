@@ -62,6 +62,14 @@ add_pde_test(UnitTest_Linalg_Cpu_CG
 	unit/linalg/cpu/CG.cpp
 )
 
+add_pde_test(UnitTest_Linalg_Cpu_CGRunner
+	unit/linalg/cpu/CGRunner.cpp
+)
+
+add_pde_test(UnitTest_Solver_Linear_LinearSolverFactory
+	unit/solver/linear/LinearSolverFactory.cpp
+)
+
 add_pde_test(UnitTest_IO_FieldIO
 	unit/io/FieldIO.cpp
 	pde_mesh pde_io

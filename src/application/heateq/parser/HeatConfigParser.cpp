@@ -55,15 +55,26 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 		throw std::runtime_error("HeatConfigReader: missing required 'physics' section in " + filename);
 	}
 
-	const YAML::Node& cond = physics["conductivity"];
+	const YAML::Node& models = physics["models"];
+	if (!models) {
+		throw std::runtime_error("HeatConfigReader: missing required 'physics.models' section in " + filename);
+	}
+
+	const YAML::Node& cond = models["conductivity"];
 	if (!cond) {
-		throw std::runtime_error("HeatConfigReader: missing required 'physics.conductivity' section in " + filename);
+		throw std::runtime_error("HeatConfigReader: missing required 'physics.models.conductivity' section in " + filename);
 	}
 	cfg.conductivity = pdesolver::application::heateq::parser::ConductivityConfigParser::parse(cond);
-	
-	const YAML::Node& src = physics["source"];
+
+	const YAML::Node& src = models["source"];
 	if (!src) {
-		throw std::runtime_error("HeatConfigReader: missing required 'source' section in " + filename);
+		throw std::runtime_error("HeatConfigReader: missing required 'physics.models.source' section in " + filename);
+	}
+	cfg.source = pdesolver::application::heateq::parser::SourceConfigParser::parse(src);
+	
+	const YAML::Node& backend = root["source"];
+	if (!src) {
+		throw std::runtime_error("HeatConfigReader: missing required 'physics.models.source' section in " + filename);
 	}
 	cfg.source = pdesolver::application::heateq::parser::SourceConfigParser::parse(src);
 

@@ -26,7 +26,7 @@ namespace pdesolver {
 				
 				// constants
 				static constexpr Index NodesPerElement = (Px + 1)*(Py + 1)*(Pz + 1);
-				static constexpr Index ParamtericDim = 3;
+				static constexpr Index ParametricDim = 3;
 
 			}; // class LagrangeHex
 			

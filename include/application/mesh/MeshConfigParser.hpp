@@ -15,6 +15,8 @@ namespace pdesolver {
 
 				static MeshConfig::Type parseMeshType(const std::string& str);
 
+				static MeshConfig read(const std::string& filename);
+			
 			}; // class MeshConfigReader
 
 		} // namespace mesh

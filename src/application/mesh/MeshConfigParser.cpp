@@ -1,5 +1,7 @@
 #include "application/mesh/MeshConfigParser.hpp"
 
+#include "io/YAMLReader.hpp"
+
 pdesolver::application::mesh::MeshConfig::Type pdesolver::application::mesh::MeshConfigParser::parseMeshType(const std::string& str) {
 
 	if (str == "block2d") {
@@ -15,5 +17,58 @@ pdesolver::application::mesh::MeshConfig::Type pdesolver::application::mesh::Mes
 	}
 
 	throw std::runtime_error("Unknown mesh type: " + str);
+
+}
+
+pdesolver::application::mesh::MeshConfig pdesolver::application::mesh::MeshConfigParser::read(const std::string& filename) {
+
+	using io::YAMLReader;
+
+	const YAML::Node root = YAMLReader::loadFile(filename);
+
+	pdesolver::application::mesh::MeshConfig cfg;
+
+	const YAML::Node& meshNode = root["mesh"];
+	if (!meshNode) {
+		throw std::runtime_error("MeshConfigReader: missing required 'mesh' section in " + filename);
+	}
+
+	cfg.type = pdesolver::application::mesh::MeshConfigParser::parseMeshType(YAMLReader::required<std::string>(meshNode, "type"));
+
+	if (cfg.type == pdesolver::application::mesh::MeshConfig::Type::Block2D) {
+
+		cfg.block2D.nx   = YAMLReader::required<Index>(meshNode, "nx");
+		cfg.block2D.ny   = YAMLReader::required<Index>(meshNode, "ny");
+		cfg.block2D.xmin = YAMLReader::required<Real>(meshNode, "xmin");
+		cfg.block2D.xmax = YAMLReader::required<Real>(meshNode, "xmax");
+		cfg.block2D.ymin = YAMLReader::required<Real>(meshNode, "ymin");
+		cfg.block2D.ymax = YAMLReader::required<Real>(meshNode, "ymax");
+	
+	} else if (cfg.type == MeshConfig::Type::Block3D) {
+
+		cfg.block3D.nx   = YAMLReader::required<Index>(meshNode, "nx");
+		cfg.block3D.ny   = YAMLReader::required<Index>(meshNode, "ny");
+		cfg.block3D.nz   = YAMLReader::required<Index>(meshNode, "nz");
+		cfg.block3D.xmin = YAMLReader::required<Real>(meshNode, "xmin");
+		cfg.block3D.xmax = YAMLReader::required<Real>(meshNode, "xmax");
+		cfg.block3D.ymin = YAMLReader::required<Real>(meshNode, "ymin");
+		cfg.block3D.ymax = YAMLReader::required<Real>(meshNode, "ymax");
+		cfg.block3D.zmin = YAMLReader::required<Real>(meshNode, "zmin");
+		cfg.block3D.zmax = YAMLReader::required<Real>(meshNode, "zmax");
+	
+	} else if (cfg.type == pdesolver::application::mesh::MeshConfig::Type::Gmsh) {
+
+		cfg.inputFile = YAMLReader::required<std::string>(meshNode, "file");
+	
+	}
+
+	const YAML::Node& outNode = root["output"];
+	if (!outNode) {
+		throw std::runtime_error("MeshConfigReader: missing required 'output' section in " + filename);
+	}
+	
+	cfg.outputFile = YAMLReader::required<std::string>(outNode, "output_file");
+
+	return cfg;
 
 }

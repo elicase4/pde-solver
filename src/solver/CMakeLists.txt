@@ -1,4 +1,5 @@
 add_library(pde_solver
+	parser/BackendConfigParser.cpp
 	parser/DriverConfigParser.cpp
 	parser/DiscretizationConfigParser.cpp
 	parser/MeshConfigParser.cpp

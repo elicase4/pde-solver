@@ -13,10 +13,13 @@
 #include "linalg/types/Vector.hpp"
 
 #include "linalg/solver/base/SolverReport.hpp"
+#include "linalg/solver/base/LinearSolverAlgorithm.hpp"
+#include "linalg/solver/base/LinearSolverRunner.hpp"
 
 #include "linalg/solver/iterative/cg/Config.hpp"
 #include "linalg/solver/iterative/cg/Solver.hpp"
 #include "linalg/solver/iterative/cg/Workspace.hpp"
+#include "linalg/solver/iterative/cg/CGRunner.hpp"
 
 #include "linalg/solver/preconditioner/Identity.hpp"
 

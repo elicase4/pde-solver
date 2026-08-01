@@ -20,12 +20,16 @@ namespace pdesolver {
 					template<typename OperatorType, typename VectorType, typename PreconditionerType, typename LoggerType>
 					class Solver {
 					public:
-						Solver(const Config<VectorType>& cfg) : config(cfg) {}
 
-						bool solve(solver::SolverReport<VectorType>& report, LoggerType& logger, Workspace<VectorType>& W, PreconditionerType& M, const OperatorType& A, const VectorType& b, VectorType& x);
+						using Config = pdesolver::linalg::solver::iterative::cg::Config<VectorType>;
+						using Workspace = pdesolver::linalg::solver::iterative::cg::Workspace<VectorType>;
+
+						Solver(const Config& cfg) : config(cfg) {}
+
+						bool solve(solver::SolverReport<VectorType>& report, LoggerType& logger, Workspace& W, PreconditionerType& M, const OperatorType& A, const VectorType& b, VectorType& x);
 
 					private:
-						Config<VectorType> config;
+						Config config;
 
 					}; // class Solver
 

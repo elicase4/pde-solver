@@ -3,7 +3,7 @@
 
 pdesolver::application::heateq::config::SourceConfig::Type pdesolver::application::heateq::parser::SourceConfigParser::parseSourceType(const std::string& str) {
 
-	if (str == "volumetric_heat_source") {
+	if (str == "volumetric") {
 		return pdesolver::application::heateq::config::SourceConfig::Type::VolumetricHeatSource;
 	}
 
@@ -17,8 +17,9 @@ pdesolver::application::heateq::config::SourceConfig pdesolver::application::hea
 
 	pdesolver::application::heateq::config::SourceConfig cfg;
 
+	cfg.type = pdesolver::application::heateq::parser::SourceConfigParser::parseSourceType(YAMLReader::required<std::string>(node, "type"));
 	cfg.expression = YAMLReader::required<std::string>(node, "expression");
-	
+
 	return cfg;
 
 }

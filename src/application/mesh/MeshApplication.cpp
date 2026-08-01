@@ -1,5 +1,5 @@
 #include "application/mesh/MeshApplication.hpp"
-#include "application/mesh/MeshConfigReader.hpp"
+#include "application/mesh/MeshConfigParser.hpp"
 #include "application/mesh/MeshDispatcher.hpp"
 
 #include <cstdlib>
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
 	try {
 		
-		const auto cfg = pdesolver::application::mesh::MeshConfigReader::read(argv[1]);
+		const auto cfg = pdesolver::application::mesh::MeshConfigParser::read(argv[1]);
 		pdesolver::application::mesh::MeshApplication app(cfg);
 		return app.run();
 	

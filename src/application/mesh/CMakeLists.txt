@@ -4,7 +4,6 @@ find_package(yaml-cpp REQUIRED)
 
 # Mesh application library
 add_library(pde_mesh_app
-    MeshConfigReader.cpp
     MeshConfigParser.cpp
     MeshDispatcher.cpp
 )

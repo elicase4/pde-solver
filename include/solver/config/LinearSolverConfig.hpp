@@ -7,6 +7,16 @@ namespace pdesolver {
 	namespace solver {
 		namespace config {
 
+			struct PreconditionerConfig {
+
+				enum class Type {
+					Identity
+				};
+
+				Type type = Type::Identity;
+
+			}; // struct PreconditionerConfig
+
 			struct LinearSolverConfig {
 
 				enum class Type {
@@ -16,13 +26,20 @@ namespace pdesolver {
 					LU
 				};
 
+				enum class OperatorType {
+					CSR,
+					FEM
+				};
+
 				Type type = Type::CG;
+
+				OperatorType operatorType = OperatorType::CSR;
+
+				PreconditionerConfig preconditioner;
 
 				Real tolerance = 1e-10;
 
 				Index maxIterations = 1000;
-				
-				bool matrixFree = false;
 
 				Index krylovDim = 50;
 
