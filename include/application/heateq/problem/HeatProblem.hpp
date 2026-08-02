@@ -8,6 +8,8 @@
 
 #include "core/Types.hpp"
 
+#include "io/FieldIO.hpp"
+
 #include "fem/assembly/Assembler.hpp"
 #include "fem/boundary/BoundaryApplicator.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"

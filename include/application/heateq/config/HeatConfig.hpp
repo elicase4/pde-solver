@@ -8,6 +8,7 @@
 #include "application/heateq/config/ConductivityConfig.hpp"
 #include "application/heateq/config/SourceConfig.hpp"
 
+#include "solver/config/BackendConfig.hpp"
 #include "solver/config/MeshConfig.hpp"
 #include "solver/config/DiscretizationConfig.hpp"
 #include "solver/config/SolverConfig.hpp"
@@ -22,6 +23,8 @@ namespace pdesolver {
 			namespace config {
 
 				struct HeatConfig {
+
+					solver::config::BackendConfig backend;
 
 					solver::config::MeshConfig mesh;
 

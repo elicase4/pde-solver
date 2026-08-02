@@ -1,77 +1,34 @@
 #ifndef PDESOLVER_APPLICATION_HEATEQ_STAGE_HEATSTAGE_HPP
 #define PDESOLVER_APPLICATION_HEATEQ_STAGE_HEATSTAGE_HPP
 
-#include <memory>
-#include <string>
-#include <filesystem>
-#include <stdexcept>
-
-#include "application/heateq/HeatConfig.hpp"
-
-#include "fem/assembly/Assembler.hpp"
-#include "fem/boundary/BoundaryApplicator.hpp"
-#include "fem/dof/DOFOrdering.hpp"
-#include "fem/form/FormRegistry.hpp"
-
-#include "io/MeshIO.hpp"
-#include "io/FieldIO.hpp"
-
-#include "linalg/types/CSRMatrix.hpp"
-#include "linalg/types/Vector.hpp"
-
-#include "mesh/Mesh.hpp"
-
-#include "topology/TopologicalDOF.hpp"
-
-#include "utils/logging/solver/ConsoleLogger.hpp"
-#include "utils/expression/ScalarExpression.hpp"
-#include "utils/expression/VectorExpression.hpp"
-#include "utils/expression/TensorExpression.hpp"
+#include "core/Types.hpp"
 
 namespace pdesolver {
 	namespace application {
 		namespace heateq {
 			namespace stage {
 
-				template<typename BackendType, typename BasisType, typename QuadratureVolumeType, typename QuadratureBoundaryType>
+				template<typename ProblemT>
 				class HeatStage {
 				public:
 
-					using HeatEqBundle = equations::HeatEquation<BasisType::SpatialDim, BasisType, QuadratureVolumeType, QuadratureBoundaryType>;
+					explicit HeatStage(ProblemT& problem) : problem_(problem) {}
 
-					using VectorT = linalg::types::Vector<Real, BackendType>;
-					using MatrixT = linalg::types::CSRMatrix<Real, BackendType>;
+					void initialize() {}
 
-					explicit HeatStage(const HeatConfig& config);
+					void assemble() { problem_.assembleSystem(currentTime_); }
 
-					void initialize();
-					
-					void assemble();
-					
-					bool solve();
-					
-					void finalize();
+					bool solve() { return problem_.solveLinear(); }
 
-					const VectorT& solution() const { return U_; }
+					void finalize() {}
+
+					decltype(auto) solution() const { return problem_.solution(); }
 
 				private:
 
-					HeatConfig config_;
-					
-					mesh::Mesh mesh_;
-					std::unique_ptr<topology::TopologicalDOF<HeatEqBundle::NumDOFs>> topoDOF_;
+					ProblemT& problem_;
 
-					fem::boundary::BoundaryRegistry bcRegistry_;
-
-					fem::assembly::Assembler<BackendType> assembler_;
-					fem::assembly::BoundaryApplicator<BackendType> bcApplicator_;
-
-					MatrixT K_;
-					VectorT F_;
-					VectorT U_;
-
-					typename HeatEqBundle::ConstantConductivityModel conductivityModel_;
-					typename HeatEqBundle::DefaultModel defaultModel_;
+					Real currentTime_ = 0.0;
 
 				}; // class HeatStage
 
@@ -79,7 +36,5 @@ namespace pdesolver {
 		} // namespace heateq
 	} // namespace application
 } // namespace pdesolver
-
-#include "application/heateq/stage/HeatStage.tpp"
 
 #endif

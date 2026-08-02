@@ -3,6 +3,7 @@
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "application/heateq/parser/SourceConfigParser.hpp"
 
+#include "solver/parser/BackendConfigParser.hpp"
 #include "solver/parser/DiscretizationConfigParser.hpp"
 #include "solver/parser/MeshConfigParser.hpp"
 #include "solver/parser/SolverConfigParser.hpp"
@@ -71,12 +72,8 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 		throw std::runtime_error("HeatConfigReader: missing required 'physics.models.source' section in " + filename);
 	}
 	cfg.source = pdesolver::application::heateq::parser::SourceConfigParser::parse(src);
-	
-	const YAML::Node& backend = root["source"];
-	if (!src) {
-		throw std::runtime_error("HeatConfigReader: missing required 'physics.models.source' section in " + filename);
-	}
-	cfg.source = pdesolver::application::heateq::parser::SourceConfigParser::parse(src);
+
+	cfg.backend = pdesolver::solver::parser::BackendConfigParser::parse(root);
 
 	return cfg;
 
