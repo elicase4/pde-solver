@@ -1,6 +1,9 @@
 #ifndef HEATEQUATION_SOURCEFORM_HPP
 #define HEATEQUATION_SOURCEFORM_HPP
 
+#include <type_traits>
+#include <utility>
+
 #include "fem/form/LinearForm.hpp"
 #include "equations/heateq/eval/SourceFunction.hpp"
 
@@ -11,7 +14,10 @@ namespace pdesolver::equations::heateq {
 	struct SourceForm {
 		
 		SourceFunction sourceFunction;
-		constexpr SourceForm(SourceFunction src) : sourceFunction(std::move(src)) {}
+		
+		template<typename... Args>
+		requires (!(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, SourceForm> && ...)))
+		constexpr SourceForm(Args&&... args) : sourceFunction(std::forward<Args>(args)...) {}
 
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointVolume& qp, const Real*, Real* Fe) const {
 			

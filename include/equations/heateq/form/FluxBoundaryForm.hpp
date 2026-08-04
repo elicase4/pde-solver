@@ -1,6 +1,9 @@
 #ifndef HEATEQUATION_FLUXBOUNDARYFORM_HPP
 #define HEATEQUATION_FLUXBOUNDARYFORM_HPP
 
+#include <type_traits>
+#include <utility>
+
 #include "fem/boundary/BoundaryCondition.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 #include "fem/form/LinearForm.hpp"
@@ -11,7 +14,10 @@ namespace pdesolver::equations::heateq {
 	struct FluxBoundaryForm {
 
 		FluxFunction fluxFunction;
-		constexpr FluxBoundaryForm(FluxFunction src) : fluxFunction(std::move(src)) {}
+		
+		template<typename... Args>
+		requires (!(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, FluxBoundaryForm> && ...)))
+		constexpr FluxBoundaryForm(Args&&... args) : fluxFunction(std::forward<Args>(args)...) {}
 		
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointBoundary& qp, const Real*, Real* Fe) const {
 		

@@ -2,6 +2,7 @@
 #define HEATEQUATION_BOUNDARYVALUEFUNCTION_HPP
 
 #include <cmath>
+#include <type_traits>
 #include <utility>
 
 #include "fem/eval/EvalFunction.hpp"
@@ -15,8 +16,10 @@ namespace pdesolver::equations::heateq {
 		static constexpr Index SpatialDim = SpatialDimension;
 
 		Callable f;
-
-		constexpr BoundaryValueFunction(Callable func) : f(std::move(func)) {}
+		
+		template<typename... Args>
+		requires (!(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, BoundaryValueFunction> && ...)))
+		constexpr BoundaryValueFunction(Args&&... args) : f(std::forward<Args>(args)...) {}
 
 		void eval(const Real time, const Real* x, Real* outValue) const {
 			f(time, x, outValue);

@@ -85,6 +85,16 @@ add_pde_test(UnitTest_IO_GmshReader
 	pde_mesh pde_io
 )
 
+add_pde_test(UnitTest_Fem_Form_FormRegistry
+	unit/fem/form/FormRegistry.cpp
+	pde_expression
+)
+
+add_pde_test(UnitTest_Equations_Heateq_ScalarExpressionWrappers
+	unit/equations/heateq/ScalarExpressionWrappers.cpp
+	pde_expression
+)
+
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 	integration/fem/cpu/HeatEquationMinimal.cpp
 	pde_mesh

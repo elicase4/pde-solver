@@ -2,6 +2,7 @@
 #define PDESOLVER_FEM_FORM_FORMREGISTRY_HPP
 
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 #include "core/Types.hpp"
@@ -19,6 +20,10 @@ namespace pdesolver {
 
 				constexpr explicit FormRegistry(Forms... forms) : forms_(std::forward<Forms>(forms)...) {}
 
+				template<typename... Args>
+				requires (sizeof...(Forms) == 1 && !(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, FormRegistry> && ...)))
+				constexpr explicit FormRegistry(Args&&... args) : forms_(std::forward<Args>(args)...) {}
+
 				template<typename QuadraturePoint>
 				PDE_HOST PDE_DEVICE
 				void computeElementLevelVector(const QuadraturePoint& qp, Real* Ue, Real* Fe) const {
@@ -34,7 +39,7 @@ namespace pdesolver {
 						(form.computeElementLevelMatrix(qp, Ue, Ke), ...);
 					}, forms_);
 				}
-				
+
 				static constexpr Index numForms() { return sizeof...(Forms); }
 
 				template<std::size_t I>

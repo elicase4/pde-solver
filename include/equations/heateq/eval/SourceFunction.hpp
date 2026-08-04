@@ -2,6 +2,7 @@
 #define POISSON_SOURCETERM_HPP
 
 #include <cmath>
+#include <type_traits>
 #include <utility>
 
 #include "fem/eval/EvalFunction.hpp"
@@ -16,7 +17,9 @@ namespace pdesolver::equations::heateq {
 
 		Callable f;
 
-		constexpr SourceFunction(Callable func) : f(std::move(func)) {}
+		template<typename... Args>
+		requires (!(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, SourceFunction> && ...)))
+		constexpr SourceFunction(Args&&... args) : f(std::forward<Args>(args)...) {}
 
 		void eval(const Real time, const Real* x, Real* outValue) const {
 			f(time, x, outValue);

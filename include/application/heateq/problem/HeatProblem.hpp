@@ -24,6 +24,8 @@
 
 #include "mesh/Mesh.hpp"
 
+#include "solver/linear/LinearSolverFactory.hpp"
+
 #include "topology/TopologicalDOF.hpp"
 
 #include "utils/expression/ScalarExpression.hpp"
@@ -55,7 +57,7 @@ namespace pdesolver {
 
 					void writeLog() const;
 
-					const VectorT& solution() const { return U_; }
+					const VectorT& solution() const { return *U_; }
 
 					Index numDOFs() const { return topoDOF_.numFreeDOFs(); }
 
@@ -90,11 +92,11 @@ namespace pdesolver {
 					MatrixFormsT matrixForms_;
 					SourceFormsT sourceForms_;
 
-					std::vector<FluxFormsT> fluxForms_;
+					std::vector<std::unique_ptr<FluxFormsT>> fluxForms_;
 
-					MatrixT K_;
-					VectorT F_;
-					VectorT U_;
+					std::unique_ptr<MatrixT> K_;
+					std::unique_ptr<VectorT> F_;
+					std::unique_ptr<VectorT> U_;
 
 					std::unique_ptr<linalg::solver::LinearSolverRunner<VectorT>> linearSolverRunner_;
 
