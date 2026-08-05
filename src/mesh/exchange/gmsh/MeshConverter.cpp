@@ -41,6 +41,8 @@ pdesolver::mesh::exchange::gmsh::ElementType pdesolver::mesh::exchange::gmsh::Me
 	mesh.data.parametricDim = input.parametricDim;
 	mesh.data.spatialDim = input.spatialDim;
 	mesh.data.basisOrder = pdesolver::mesh::exchange::gmsh::basisOrder(protoBlock->type);
+	mesh.data.elementFamily = pdesolver::mesh::exchange::gmsh::elementFamily(protoBlock->type);
+	mesh.data.basisType = pdesolver::mesh::exchange::gmsh::basisType(protoBlock->type);
 	mesh.data.nodesPerElement = protoBlock->nodesPerElement;
 	mesh.data.facesPerElement = pdesolver::mesh::exchange::gmsh::facesPerElement(protoBlock->type);
 

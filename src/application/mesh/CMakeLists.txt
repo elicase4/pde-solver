@@ -6,6 +6,7 @@ find_package(yaml-cpp REQUIRED)
 add_library(pde_mesh_app
     MeshConfigParser.cpp
     MeshDispatcher.cpp
+    GmshMeshGenerator.cpp
 )
 
 target_include_directories(pde_mesh_app

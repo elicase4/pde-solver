@@ -19,6 +19,8 @@
   version:       uint32  = 1
   parametricDim: uint32
   spatialDim:    uint32
+  elementFamily: uint32  (mesh::ElementFamily)
+  basisType:     uint32  (mesh::BasisType)
   numNodes:      uint64
   numElements:   uint64
   nodesPerElem:  uint32

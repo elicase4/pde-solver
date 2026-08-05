@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "core/Types.hpp"
+#include "mesh/BasisType.hpp"
+#include "mesh/ElementFamily.hpp"
 #include "mesh/exchange/gmsh/ElementType.hpp"
 
 namespace pdesolver {
@@ -53,6 +55,10 @@ namespace pdesolver {
 				Index facesPerElement(mesh::exchange::gmsh::ElementType type);
 
 				std::vector<Index> basisOrder(mesh::exchange::gmsh::ElementType type);
+
+				mesh::ElementFamily elementFamily(mesh::exchange::gmsh::ElementType type);
+
+				mesh::BasisType basisType(mesh::exchange::gmsh::ElementType type);
 
 				std::vector<Index> localFaceNodes(const Index* elemNodes, mesh::exchange::gmsh::ElementType type, Index face);
 

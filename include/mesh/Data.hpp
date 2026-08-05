@@ -2,21 +2,27 @@
 #define PDESOLVER_MESH_DATA_HPP
 
 #include "core/Types.hpp"
+#include "mesh/BasisType.hpp"
+#include "mesh/ElementFamily.hpp"
 #include <vector>
 
 namespace pdesolver {
-	
+
 	namespace mesh {
 
 		struct Data {
-			
+
 			// dimension
 			Index parametricDim;
 			Index spatialDim;
-			
+
+			// element/basis type
+			ElementFamily elementFamily = ElementFamily::Quad;
+			BasisType basisType = BasisType::Lagrange;
+
 			// order
 			std::vector<Index> basisOrder;
-			
+
 			// count
 			Index numNodes;
 			Index numElements;

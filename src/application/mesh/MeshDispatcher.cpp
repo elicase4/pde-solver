@@ -1,10 +1,9 @@
 #include "application/mesh/MeshDispatcher.hpp"
 #include "application/mesh/MeshConfig.hpp"
 
+#include "application/mesh/GmshMeshGenerator.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
-#include "mesh/exchange/gmsh/MeshConverter.hpp"
-#include "io/GmshReader.hpp"
 #include "io/MeshIO.hpp"
 
 #include <iostream>
@@ -25,15 +24,9 @@ namespace pdesolver {
 						const auto& b = config.block2D;
 
 						pdesolver::mesh::generator::BlockMesh2D gen{b.nx, b.ny, b.xmin, b.xmax, b.ymin, b.ymax, b.Px, b.Py};
+						mesh = gen.generate();
 
-						gen.initializeData();
-						gen.generateNodes();
-						gen.generateElements();
-						gen.generateBoundaryTags();
-
-						mesh = static_cast<pdesolver::mesh::Mesh>(gen);
-
-						std::cout << "[mesh] Block2D: " << b.nx << "x" << b.ny << " element generated\n";
+						std::cout << "[mesh] Block2D: " << b.nx << "x" << b.ny << " elements generated\n";
 						break;
 					}
 
@@ -48,14 +41,9 @@ namespace pdesolver {
 							throw std::runtime_error("MeshDispatcher: Gmsh type requires 'file' field in config");
 						}
 
-						io::GmshReader reader;
-						pdesolver::mesh::exchange::gmsh::IntermediateMesh intermediateMesh; 
-						reader.read(intermediateMesh, config.inputFile);
-
-						// TODO: add physical group mapping argmuent
-
-						pdesolver::mesh::exchange::gmsh::MeshConverter converter;
-						converter.toSolverMesh(mesh, intermediateMesh);
+						// TODO: add physical group mapping argument
+						pdesolver::application::mesh::GmshMeshGenerator gen{config.inputFile};
+						mesh = gen.generate();
 
 						std::cout << "[mesh] Gmsh import: " << config.inputFile << " → " << mesh.data.numElements << " elements\n";
 						break;

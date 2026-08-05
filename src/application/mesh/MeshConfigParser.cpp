@@ -39,23 +39,28 @@ pdesolver::application::mesh::MeshConfig pdesolver::application::mesh::MeshConfi
 
 		cfg.block2D.nx   = YAMLReader::required<Index>(meshNode, "nx");
 		cfg.block2D.ny   = YAMLReader::required<Index>(meshNode, "ny");
+		cfg.block2D.Px   = YAMLReader::required<Index>(meshNode, "px");
+		cfg.block2D.Py   = YAMLReader::required<Index>(meshNode, "py");
 		cfg.block2D.xmin = YAMLReader::required<Real>(meshNode, "xmin");
 		cfg.block2D.xmax = YAMLReader::required<Real>(meshNode, "xmax");
 		cfg.block2D.ymin = YAMLReader::required<Real>(meshNode, "ymin");
 		cfg.block2D.ymax = YAMLReader::required<Real>(meshNode, "ymax");
-	
+
 	} else if (cfg.type == MeshConfig::Type::Block3D) {
 
 		cfg.block3D.nx   = YAMLReader::required<Index>(meshNode, "nx");
 		cfg.block3D.ny   = YAMLReader::required<Index>(meshNode, "ny");
 		cfg.block3D.nz   = YAMLReader::required<Index>(meshNode, "nz");
+		cfg.block3D.Px   = YAMLReader::required<Index>(meshNode, "px");
+		cfg.block3D.Py   = YAMLReader::required<Index>(meshNode, "py");
+		cfg.block3D.Pz   = YAMLReader::required<Index>(meshNode, "pz");
 		cfg.block3D.xmin = YAMLReader::required<Real>(meshNode, "xmin");
 		cfg.block3D.xmax = YAMLReader::required<Real>(meshNode, "xmax");
 		cfg.block3D.ymin = YAMLReader::required<Real>(meshNode, "ymin");
 		cfg.block3D.ymax = YAMLReader::required<Real>(meshNode, "ymax");
 		cfg.block3D.zmin = YAMLReader::required<Real>(meshNode, "zmin");
 		cfg.block3D.zmax = YAMLReader::required<Real>(meshNode, "zmax");
-	
+
 	} else if (cfg.type == pdesolver::application::mesh::MeshConfig::Type::Gmsh) {
 
 		cfg.inputFile = YAMLReader::required<std::string>(meshNode, "file");

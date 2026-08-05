@@ -47,7 +47,8 @@ protected:
 	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Interleaved;
 	
 	// initialize mesh and topology
-	mesh::generator::BlockMesh2D mesh2D{nx, ny, x0, x1, y0, y1, Px, Py};
+	mesh::generator::BlockMesh2D gen{nx, ny, x0, x1, y0, y1, Px, Py};
+	mesh::Mesh mesh2D;
 	std::unique_ptr<topology::TopologicalDOF<HeatEqBundle::NumDOFs>> topoDOF2D;
 
 	// boundary registry
@@ -88,10 +89,7 @@ protected:
 	void SetUp() override {
 		
 		// build 2D block mesh
-		mesh2D.initializeData();
-		mesh2D.generateNodes();
-		mesh2D.generateElements();
-		mesh2D.generateBoundaryTags();
+		mesh2D = gen.generate();
 		
 		// create topological DOF manager
 		topoDOF2D = std::make_unique<topology::TopologicalDOF<HeatEqBundle::NumDOFs>>(mesh2D, DOFOrdering);

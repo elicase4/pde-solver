@@ -46,6 +46,8 @@ void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::strin
 	binary::writeLE<uint32_t>(ofs, PMSH_VERSION);
 	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.parametricDim));
 	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.spatialDim));
+	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.elementFamily));
+	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.basisType));
 	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.numNodes));
 	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.numElements));
 	binary::writeLE<uint32_t>(ofs, static_cast<uint32_t>(mesh.data.nodesPerElement));
@@ -103,6 +105,8 @@ void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& file
 	// Header
 	mesh.data.parametricDim = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 	mesh.data.spatialDim = static_cast<Index>(binary::readLE<uint32_t>(ifs));
+	mesh.data.elementFamily = static_cast<mesh::ElementFamily>(binary::readLE<uint32_t>(ifs));
+	mesh.data.basisType = static_cast<mesh::BasisType>(binary::readLE<uint32_t>(ifs));
 	mesh.data.numNodes = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 	mesh.data.numElements = static_cast<Index>(binary::readLE<uint32_t>(ifs));
 	mesh.data.nodesPerElement = static_cast<Index>(binary::readLE<uint32_t>(ifs));

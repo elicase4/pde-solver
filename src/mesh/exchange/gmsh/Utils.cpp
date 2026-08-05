@@ -1,5 +1,7 @@
 #include "mesh/exchange/gmsh/Utils.hpp"
 
+#include <stdexcept>
+
 pdesolver::mesh::exchange::gmsh::ElementType pdesolver::mesh::exchange::gmsh::elementTypeFromGmsh(int type){
 
 	using ET = mesh::exchange::gmsh::ElementType;
@@ -159,6 +161,64 @@ std::vector<Index> pdesolver::mesh::exchange::gmsh::basisOrder(pdesolver::mesh::
 		default:
 			return {};
 	
+	}
+
+}
+
+pdesolver::mesh::ElementFamily pdesolver::mesh::exchange::gmsh::elementFamily(pdesolver::mesh::exchange::gmsh::ElementType type){
+
+	using ET = mesh::exchange::gmsh::ElementType;
+
+	switch (type) {
+
+		case ET::TriP1:
+		case ET::TriP2:
+			return mesh::ElementFamily::Tri;
+
+		case ET::QuadP1:
+		case ET::QuadP2:
+			return mesh::ElementFamily::Quad;
+
+		case ET::TetP1:
+		case ET::TetP2:
+			return mesh::ElementFamily::Tet;
+
+		case ET::HexP1:
+		case ET::HexP2:
+			return mesh::ElementFamily::Hex;
+
+		default:
+			throw std::runtime_error("gmsh::elementFamily: unsupported or unimplemented element type");
+
+	}
+
+}
+
+pdesolver::mesh::BasisType pdesolver::mesh::exchange::gmsh::basisType(pdesolver::mesh::exchange::gmsh::ElementType type){
+
+	using ET = mesh::exchange::gmsh::ElementType;
+
+	switch (type) {
+
+		case ET::LineP1:
+		case ET::LineP2:
+		case ET::TriP1:
+		case ET::TriP2:
+		case ET::QuadP1:
+		case ET::QuadP2:
+		case ET::TetP1:
+		case ET::TetP2:
+		case ET::HexP1:
+		case ET::HexP2:
+			return mesh::BasisType::Lagrange;
+
+		case ET::BSplinePatch:
+		case ET::NURBSPatch:
+			return mesh::BasisType::Spline;
+
+		default:
+			throw std::runtime_error("gmsh::basisType: unsupported or unimplemented element type");
+
 	}
 
 }

@@ -12,6 +12,7 @@
 #include "fem/quadrature/GaussQuadratureQuad.hpp"
 #include "fem/quadrature/GaussQuadrature1D.hpp"
 #include "io/FieldIO.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
 #include "topology/TopologicalDOF.hpp"
 
@@ -38,7 +39,8 @@ protected:
 	using BasisType = fem::basis::LagrangeQuad<Px, Py>;
 	using HeatEqBundle = equations::HeatEquation<nsd, BasisType, QuadratureVolumeType, QuadratureBoundaryType>;
 
-	mesh::generator::BlockMesh2D mesh{nx, ny, x0, x1, y0, y1, Px, Py};
+	mesh::generator::BlockMesh2D gen{nx, ny, x0, x1, y0, y1, Px, Py};
+	mesh::Mesh mesh;
 
 	std::unique_ptr<topology::TopologicalDOF<dofsPerNode>> topoDOF;
 	
@@ -55,10 +57,7 @@ protected:
 	
 	void SetUp() override {
 
-		mesh.initializeData();
-		mesh.generateNodes();
-		mesh.generateElements();
-		mesh.generateBoundaryTags();
+		mesh = gen.generate();
 
 		constantConductivityModel.conductivity = 1.0;
 	
