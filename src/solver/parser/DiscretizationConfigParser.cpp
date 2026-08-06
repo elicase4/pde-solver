@@ -3,16 +3,6 @@
 
 namespace {
 
-	pdesolver::solver::config::DiscretizationConfig::BasisType parseBasisType(const std::string& str) {
-
-		if (str == "lagrange") {
-			return pdesolver::solver::config::DiscretizationConfig::BasisType::Lagrange;
-		}
-
-		throw std::runtime_error("Unknown basis type: " + str);
-
-	}
-
 	pdesolver::fem::dof::DOFOrdering parseDOFOrdering(const std::string& str) {
 
 		if (str == "interleaved") {
@@ -35,15 +25,6 @@ pdesolver::solver::config::DiscretizationConfig pdesolver::solver::parser::Discr
 
 	config::DiscretizationConfig cfg;
 
-	const YAML::Node& basis = node["basis"];
-	if (!basis) {
-		throw std::runtime_error("DiscretizationConfigParser: missing required 'basis' section");
-	}
-	cfg.basis.type = parseBasisType(YAMLReader::required<std::string>(basis, "type"));
-	cfg.basis.px = YAMLReader::required<Index>(basis, "px");
-	cfg.basis.py = YAMLReader::required<Index>(basis, "py");
-	cfg.basis.pz = YAMLReader::optional<Index>(basis, "pz", 1);
-
 	const YAML::Node& quadrature = node["quadrature"];
 	if (!quadrature) {
 		throw std::runtime_error("DiscretizationConfigParser: missing required 'quadrature' section");
@@ -53,9 +34,7 @@ pdesolver::solver::config::DiscretizationConfig pdesolver::solver::parser::Discr
 	cfg.quadrature.zeta = YAMLReader::optional<Index>(quadrature, "zeta", 2);
 
 	const YAML::Node& dofOrdering = node["dof_ordering"];
-	cfg.dofOrdering = dofOrdering
-		? parseDOFOrdering(YAMLReader::required<std::string>(dofOrdering, "type"))
-		: fem::dof::DOFOrdering::Interleaved;
+	cfg.dofOrdering = dofOrdering ? parseDOFOrdering(YAMLReader::required<std::string>(dofOrdering, "type")) : fem::dof::DOFOrdering::Interleaved;
 
 	return cfg;
 

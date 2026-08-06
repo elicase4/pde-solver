@@ -18,7 +18,7 @@ pdesolver::solver::config::DriverConfig pdesolver::solver::parser::DriverConfigP
 
 	config::DriverConfig cfg;
 
-	cfg.type = pdesolver::solver::parser::DriverConfigParser::parseDriverType(YAMLReader::required<std::string>(node, "driver"));
+	cfg.type = pdesolver::solver::parser::DriverConfigParser::parseDriverType(YAMLReader::required<std::string>(node, "type"));
 
 	return cfg;
 

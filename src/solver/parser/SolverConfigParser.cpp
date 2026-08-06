@@ -11,10 +11,26 @@ pdesolver::solver::config::SolverConfig pdesolver::solver::parser::SolverConfigP
 
 	pdesolver::solver::config::SolverConfig cfg;
 
-	cfg.driver = pdesolver::solver::parser::DriverConfigParser::parse(node);
-	cfg.timestepper = pdesolver::solver::parser::TimeStepperConfigParser::parse(node);
-	cfg.nonlinear = pdesolver::solver::parser::NonlinearSolverConfigParser::parse(node);
-	cfg.linear = pdesolver::solver::parser::LinearSolverConfigParser::parse(node);
+	const YAML::Node& driver = node["driver"];
+	if (!driver) {
+		throw std::runtime_error("SolverConfigParser: missing required 'driver' section");
+	}
+	cfg.driver = pdesolver::solver::parser::DriverConfigParser::parse(driver);
+
+	const YAML::Node& timestepper = node["timestepper"];
+	if (timestepper) {
+		cfg.timestepper = pdesolver::solver::parser::TimeStepperConfigParser::parse(timestepper);
+	}
+
+	const YAML::Node& nonlinear = node["nonlinear"];
+	if (nonlinear) {
+		cfg.nonlinear = pdesolver::solver::parser::NonlinearSolverConfigParser::parse(nonlinear);
+	}
+
+	const YAML::Node& linear = node["linear"];
+	if (linear) {
+		cfg.linear = pdesolver::solver::parser::LinearSolverConfigParser::parse(linear);
+	}
 
 	return cfg;
 

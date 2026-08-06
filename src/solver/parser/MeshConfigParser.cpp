@@ -7,7 +7,7 @@ pdesolver::solver::config::MeshConfig pdesolver::solver::parser::MeshConfigParse
 
 	pdesolver::solver::config::MeshConfig cfg;
 
-	cfg.file = YAMLReader::required<Index>(node, "file");
+	cfg.file = YAMLReader::required<std::string>(node, "file");
 
 	return cfg;
 

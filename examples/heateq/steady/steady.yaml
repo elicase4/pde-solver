@@ -1,13 +1,8 @@
 mesh:
   
-  file: square.pmsh
+  file: ../../mesh/square.pmsh
 
 discretization:
-  
-  basis:
-    type: lagrange
-    px: 1
-    py: 1
   
   quadrature: 
     xi: 2

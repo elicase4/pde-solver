@@ -1,3 +1,7 @@
 # Directories
 ref/
 build/
+
+# Example outputs
+/examples/heateq/steady/output
+/examples/mesh/square.pmsh
