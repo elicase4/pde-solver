@@ -13,22 +13,11 @@
 #include "fem/quadrature/GaussQuadratureQuad.hpp"
 #include "fem/quadrature/GaussQuadratureHex.hpp"
 
+#include "mesh/ElementFamily.hpp"
+
 namespace pdesolver {
 	namespace fem {
 		namespace dispatch {
-
-			enum class ElementFamily {
-				Quad,
-				Tri,
-				Hex,
-				Tet,
-				Wedge
-			};
-
-			// TODO: add element tag in mesh to match the element family types
-			inline ElementFamily inferElementFamily(Index npd) {
-				return (npd == 2) ? ElementFamily::Quad : ElementFamily::Hex;
-			}
 
 			template<Index... Candidates, typename Cont>
 			bool selectValue(Index value, Cont&& cont) {
@@ -102,9 +91,9 @@ namespace pdesolver {
 			}
 
 			template<Index NSD, typename Visitor>
-			bool dispatchNPD2(ElementFamily family, Index px, Index py, Index xi, Index eta, Visitor&& visitor) {
+			bool dispatchNPD2(mesh::ElementFamily family, Index px, Index py, Index xi, Index eta, Visitor&& visitor) {
 
-				if (family == ElementFamily::Quad) {
+				if (family == mesh::ElementFamily::Quad) {
 					return dispatchQuad<NSD>(px, py, xi, eta, std::forward<Visitor>(visitor));
 				}
 
@@ -113,9 +102,9 @@ namespace pdesolver {
 			}
 
 			template<Index NSD, typename Visitor>
-			bool dispatchNPD3(ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
+			bool dispatchNPD3(mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
 
-				if (family == ElementFamily::Hex) {
+				if (family == mesh::ElementFamily::Hex) {
 					return dispatchHex<NSD>(px, py, pz, xi, eta, zeta, std::forward<Visitor>(visitor));
 				}
 
@@ -124,7 +113,7 @@ namespace pdesolver {
 			}
 
 			template<typename Visitor>
-			bool dispatch(Index nsd, Index npd, ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
+			bool dispatch(Index nsd, Index npd, mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
 
 				if (npd == 2) {
 

@@ -45,7 +45,7 @@ Run an application against one of the example configs:
 
 ```bash
 ./build/bin/mesh   examples/mesh/mesh.yaml
-./build/bin/heateq examples/heateq/steady/steady.yaml
+./build/bin/heateq examples/heateq/steady/steady_constant_conductivity.yaml
 ```
 
 ## Testing
@@ -123,7 +123,7 @@ together. Adding a new PDE means adding a sibling directory here plus a new `app
 
 ### `solver` — config, drivers, time integration
 
-`solver/config` holds one struct per YAML section (mirrors `steady.yaml`'s top-level keys:
+`solver/config` holds one struct per YAML section (mirrors `steady_constant_conductivity.yaml`'s top-level keys:
 mesh/discretization/physics/boundary_conditions/solver/output/logging); `solver/parser` (in
 `src/solver`) turns YAML nodes into those structs. `solver/driver` provides the top-level solve
 strategies (`Steady`, `Transient`, `Multiphysics`, base `Driver`), `solver/linear` /

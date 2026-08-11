@@ -2,6 +2,8 @@
 #define PDESOLVER_APPLICATION_HEATEQ_PROBLEM_HEATPROBLEM_HPP
 
 #include <memory>
+#include <type_traits>
+#include <variant>
 #include <vector>
 
 #include "application/heateq/config/HeatConfig.hpp"
@@ -24,6 +26,7 @@
 
 #include "mesh/Mesh.hpp"
 
+#include "solver/SolverInstance.hpp"
 #include "solver/linear/LinearSolverFactory.hpp"
 
 #include "topology/TopologicalDOF.hpp"
@@ -53,13 +56,19 @@ namespace pdesolver {
 
 					bool solveLinear();
 
-					void writeOutput(Index step) const;
+					bool solveLinearStep();
 
-					void writeLog() const;
+					const solver::SolverInstance& solverInstance() const { return solverInstance_; }
 
 					const VectorT& solution() const { return *U_; }
 
 					Index numDOFs() const { return topoDOF_.numFreeDOFs(); }
+					
+					Real residualNorm() const;
+
+					void writeOutput(Index step) const;
+
+					void writeLog() const;
 
 				private:
 
@@ -71,9 +80,20 @@ namespace pdesolver {
 					using FluxFormsT = fem::form::FormRegistry<typename HeatEqBundle::template FluxForm<FluxCallableT>>;
 
 					using CSROperatorT = linalg::op::CSROperator<MatrixT>;
-					using FEMOperatorT = linalg::op::FEMOperator<fem::assembly::Assembler<Backend>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::ConstantConductivityModel, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>;
+
+					// Templated on the conductivity model, not fixed to ConstantConductivityModel:
+					// the concrete FEMOperator type depends on which alternative of
+					// HeatEqBundle::ConductivityModelVariant is active, resolved once per
+					// construction/assembly via std::visit in the .tpp -- not a fem::dispatch axis,
+					// since this stays entirely inside one HeatEqBundle instantiation (see the
+					// conductivity-model extensibility discussion: this is what keeps the ~2000
+					// compile-time dispatch instantiations from multiplying per model).
+					template<typename ConductivityModelT>
+					using FEMOperatorFor = linalg::op::FEMOperator<fem::assembly::Assembler<Backend>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ConductivityModelT, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>;
 
 					config::HeatConfig config_;
+
+					solver::SolverInstance solverInstance_;
 
 					mesh::Mesh mesh_;
 					topology::TopologicalDOF<HeatEqBundle::NumDOFs> topoDOF_;
@@ -81,10 +101,11 @@ namespace pdesolver {
 					fem::assembly::Assembler<Backend> assembler_;
 
 					fem::boundary::BoundaryApplicator<Backend> bcApplicator_;
+					
 					fem::boundary::EssentialBoundaryRegistry essentialBCs_;
 					fem::boundary::NaturalBoundaryRegistry<typename HeatEqBundle::EvalQPBdy> naturalBCs_;
 
-					typename HeatEqBundle::ConstantConductivityModel conductivityModel_;
+					typename HeatEqBundle::ConductivityModelVariant conductivityModel_;
 
 					typename HeatEqBundle::DefaultModel defaultModel_;
 					typename HeatEqBundle::DefaultModelBdy defaultModelBdy_;

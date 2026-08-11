@@ -1,6 +1,8 @@
 #ifndef HEATEQUATION
 #define HEATEQUATION
 
+#include <variant>
+
 #include "core/Types.hpp"
 #include "core/FEM.hpp"
 
@@ -47,6 +49,8 @@ namespace pdesolver {
 			// Constitutive Models
 			using DefaultModel = heateq::DefaultModel<EvalQPVol>;
 			using ConstantConductivityModel = heateq::ConstantConductivityModel<EvalQPVol>;
+			using AnisotropicConductivityModel = heateq::AnisotropicConductivityModel<EvalQPVol>;
+			using ConductivityModelVariant = std::variant<ConstantConductivityModel, AnisotropicConductivityModel>;
 			using DefaultModelBdy = heateq::DefaultModel<EvalQPBdy>;
 
 			// Diffusion Form

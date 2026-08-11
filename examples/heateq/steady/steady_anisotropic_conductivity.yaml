@@ -1,0 +1,102 @@
+mesh:
+
+  file: ../../mesh/square.pmsh
+
+discretization:
+
+  quadrature:
+    xi: 2
+    eta: 2
+
+  dof_ordering:
+    type: interleaved
+
+physics:
+
+  models:
+
+    conductivity:
+      type: anisotropic
+      tensor:
+        - [2.0, 0.5]
+        - [0.5, 1.0]
+
+    source:
+      type: volumetric
+      expression: "0.0"
+
+boundary_conditions:
+
+  - boundary: 0
+    type: value
+    expression: "(1-x)*(1-y)"
+    forms: [value_bc]
+    model: anisotropic
+
+  - boundary: 1
+    type: value
+    expression: "(1-x)*(1-y)"
+    forms: [value_bc]
+    model: anisotropic
+
+  - boundary: 2
+    type: value
+    expression: "(1-x)*(1-y)"
+    forms: [value_bc]
+    model: anisotropic
+
+  - boundary: 3
+    type: value
+    expression: "(1-x)*(1-y)"
+    forms: [value_bc]
+    model: anisotropic
+
+solver:
+
+  driver:
+    type: steady
+
+  linear:
+
+    type: cg
+
+    operator:
+      type: fem
+
+    preconditioner:
+      type: identity
+
+    tolerance: 1.0e-12
+    max_iterations: 10000
+    # krylov_dim: 50
+
+  # nonlinear:
+    # type: newton
+    # tolerance: 1e-8
+    # max_iterations: 30
+
+  # driver:
+    # type: transient
+    #
+  # timestepper:
+    # type: backward_euler
+    # t0: 0.0
+    # tf: 1.0
+    # dt: 0.01
+
+output:
+  directory: output
+  vtk: true
+  write_frequency: 1
+  prefix: solution
+
+logging:
+
+  solver:
+    type: console
+
+  driver:
+    type: console
+
+  output:
+    file: log.txt

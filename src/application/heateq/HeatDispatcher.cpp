@@ -37,9 +37,17 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 	pdesolver::mesh::Mesh mesh;
 	pdesolver::io::MeshIO::readBinary(mesh, config.mesh.file);
 
+	if (mesh.data.basisType != pdesolver::mesh::BasisType::Lagrange) {
+		throw std::runtime_error("HeatDispatcher: only the Lagrange basis is supported so far");
+	}
+
 	const Index nsd = mesh.data.spatialDim;
 	const Index npd = mesh.data.parametricDim;
-	const auto family = pdesolver::fem::dispatch::inferElementFamily(npd);
+	const auto family = mesh.data.elementFamily;
+
+	const Index basisOrderX = mesh.data.basisOrder.size() > 0 ? mesh.data.basisOrder[0] : 1;
+	const Index basisOrderY = mesh.data.basisOrder.size() > 1 ? mesh.data.basisOrder[1] : 1;
+	const Index basisOrderZ = mesh.data.basisOrder.size() > 2 ? mesh.data.basisOrder[2] : 1;
 
 	std::cout << "[heateq] mesh: " << mesh.data.numElements << " elements, nsd=" << nsd << " npd=" << npd << "\n";
 
@@ -67,7 +75,7 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 	};
 
 	const auto& d = config.discretization;
-	const bool matched = pdesolver::fem::dispatch::dispatch(nsd, npd, family, d.basis.px, d.basis.py, d.basis.pz, d.quadrature.xi, d.quadrature.eta, d.quadrature.zeta, visitor);
+	const bool matched = pdesolver::fem::dispatch::dispatch(nsd, npd, family, basisOrderX, basisOrderY, basisOrderZ, d.quadrature.xi, d.quadrature.eta, d.quadrature.zeta, visitor);
 
 	if (!matched) {
 		throw std::runtime_error("HeatDispatcher: unsupported (nsd, npd, basis order, quadrature order) combination for this mesh/config");
