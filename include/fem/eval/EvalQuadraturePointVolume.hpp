@@ -13,8 +13,8 @@ namespace pdesolver {
 
 				{ QuadraturePointVolume::SpatialDim } -> std::convertible_to<Index>;
 				{ QuadraturePointVolume::ParametricDim } -> std::convertible_to<Index>;
-				{ QuadraturePointVolume::NodesPerElement } -> std::convertible_to<Index>;
 
+				{ qp.nodesPerElement() } -> std::convertible_to<Index>;
 				{ qp.evaluate(xi, w) } -> std::same_as<void>;
 
 			}; // concept EvalQuadraturePointVolume

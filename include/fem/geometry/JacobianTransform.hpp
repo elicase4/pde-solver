@@ -10,25 +10,24 @@ namespace pdesolver {
 	namespace fem {
 		namespace geometry {
 			
-			template<Int SpatialDimension, Int ParametricDimension, Int NodesPerElement>
+			template<Int SpatialDimension, Int ParametricDimension>
 			class JacobianTransform {
 			public:
-				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x);
+				PDE_HOST PDE_DEVICE static void mapToPhysical(const Real* nodeCoords, const Real* N, Real* x, const Index nodesPerElement);
 				
-				PDE_HOST PDE_DEVICE static void computeJacobian(const Real* nodeCoords, const Real* dNdxi, Real* J);
+				PDE_HOST PDE_DEVICE static void computeJacobian(const Real* nodeCoords, const Real* dNdxi, Real* J, const Index nodesPerElement);
 
 				PDE_HOST PDE_DEVICE static Real computeMeasure(const Real* g);
 
 				PDE_HOST PDE_DEVICE static void computeMetric(const Real* J, Real* g);
 
-				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* g, const Real* dNdxi, Real* dNdx);
+				PDE_HOST PDE_DEVICE static void transformGradient(const Real* J, const Real* g, const Real* dNdxi, Real* dNdx, const Index nodesPerElement);
 
 				PDE_HOST PDE_DEVICE static void computeBoundaryNormal(const Real* J, const Real* nRef, Real* n);
 
 				static constexpr Index SpatialDim = SpatialDimension;
 				static constexpr Index ParametricDim = ParametricDimension;
-				static constexpr Index NumNodes = NodesPerElement;
-			
+
 			private:
 				PDE_HOST PDE_DEVICE static void invertMatrix(const Real* A, const Real detA, Real* invA);
 				

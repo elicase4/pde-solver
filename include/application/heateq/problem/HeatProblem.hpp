@@ -45,7 +45,13 @@ namespace pdesolver {
 					using VectorT = linalg::types::Vector<Real, Backend>;
 					using MatrixT = linalg::types::CSRMatrix<Real, Backend>;
 
-					HeatProblem(const config::HeatConfig& config, mesh::Mesh mesh);
+					// basis/quadratureVolume/quadratureBoundary are the runtime instances
+					// resolved once by fem::dispatch::dispatch() from the mesh's basis
+					// order and the config's quadrature-point counts (see the
+					// runtime-dispatch refactor) -- HeatProblem holds them for the
+					// lifetime of the problem and forwards them, unchanged, into every
+					// Assembler/BoundaryApplicator/FEMOperator call.
+					HeatProblem(const config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary);
 
 					HeatProblem(const HeatProblem&) = delete;
 					HeatProblem& operator=(const HeatProblem&) = delete;
@@ -97,6 +103,13 @@ namespace pdesolver {
 
 					mesh::Mesh mesh_;
 					topology::TopologicalDOF<HeatEqBundle::NumDOFs> topoDOF_;
+
+					// evalEleTemplate_ holds the resolved Basis (order fixed for this
+					// problem's lifetime); copied and rebound per-element inside
+					// Assembler/BoundaryApplicator, never mutated here.
+					typename HeatEqBundle::EvalEle evalEleTemplate_;
+					typename HeatEqBundle::QuadratureVolumeType quadratureVolume_;
+					typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary_;
 
 					fem::assembly::Assembler<Backend> assembler_;
 

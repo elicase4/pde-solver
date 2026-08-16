@@ -7,6 +7,7 @@
 #include "core/Topology.hpp"
 #include "core/Types.hpp"
 
+#include "mesh/ElementFamily.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
 
 #include "equations/heateq/HeatEquation.hpp"
@@ -15,7 +16,7 @@ using namespace pdesolver;
 
 class CPUHeatEquationMinimal : public ::testing::Test {
 protected:
-	
+
 	// block mesh parameters
 	const Real x0 = 0.0;
 	const Real x1 = 4.0;
@@ -30,16 +31,19 @@ protected:
 	static constexpr Index Py = 1;
 	static constexpr Index numQuadPoint = 2;
 
-	// basis, quadrature, and equation type
+	// specify backend and equation bundle
 	using BackendType = linalg::types::backend::CPU;
-	using QuadratureVolumeType = fem::quadrature::GaussQuadratureQuad<numQuadPoint, numQuadPoint>;
-	using QuadratureBoundaryType = fem::quadrature::GaussQuadrature1D<numQuadPoint>;
-	using BasisType = fem::basis::LagrangeQuad<Px, Py>;
-	using HeatEqBundle = equations::HeatEquation<nsd, BasisType, QuadratureVolumeType, QuadratureBoundaryType>; 
+	using HeatEqBundle = equations::HeatEquation<nsd, 2, mesh::ElementFamily::Quad>;
+
+	// specify basis, quadratures, and element evalaution
+	HeatEqBundle::Basis basis{Px, Py};
+	HeatEqBundle::QuadratureVolumeType quadVol{numQuadPoint, numQuadPoint};
+	HeatEqBundle::QuadratureBoundaryType quadBdy{numQuadPoint};
+	HeatEqBundle::EvalEle evalEle{basis};
 
 	// dof parameters
 	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Interleaved;
-	
+
 	// initialize mesh and topology
 	mesh::generator::BlockMesh2D gen{nx, ny, x0, x1, y0, y1, Px, Py};
 	mesh::Mesh mesh2D;
@@ -55,7 +59,7 @@ protected:
 	// specify bc functions
 	static constexpr auto g = [](Real, const Real* x, Real* out){ out[0] = x[0]; };
 	static constexpr auto h = [](Real, const Real* x, Real* out){ out[0] = 0.0; out[1] = x[0]; };
-	
+
 	// declare assembler
 	fem::assembly::Assembler<BackendType> assembler;
 
@@ -70,7 +74,7 @@ protected:
 	// operator form
 	HeatEqBundle::DiffusionForm diffusionForm;
 	fem::form::FormRegistry<HeatEqBundle::DiffusionForm> operatorForms{diffusionForm};
-	
+
 	// source form
 	HeatEqBundle::SourceFunction<decltype(f)> sourceFunction{f};
 	HeatEqBundle::SourceForm<decltype(f)> sourceForm{sourceFunction};
@@ -80,7 +84,7 @@ protected:
 	HeatEqBundle::FluxBC<decltype(h)> fluxFunction{h};
 	HeatEqBundle::FluxForm<decltype(h)> fluxForm{fluxFunction};
 	fem::form::FormRegistry<HeatEqBundle::FluxForm<decltype(h)>> naturalBCForms{fluxForm};
-	
+
 	// declare bcs
 	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc0;
 	std::shared_ptr<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>> bc1;
@@ -89,34 +93,34 @@ protected:
 
 	// SetUp method
 	void SetUp() override {
-		
+
 		// build 2D block mesh
 		mesh2D = gen.generate();
-		
+
 		// create topological DOF manager
 		topoDOF2D = std::make_unique<topology::TopologicalDOF<HeatEqBundle::NumDOFs>>(mesh2D, DOFOrdering);
-		
+
 		// set conductivity model parameters
 		constantConductivityModel.conductivity = 1.0;
-		
+
 		// Set and register boundary 0
 		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
 		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc0);
-		
+
 		// Set and register boundary 1
 		bc1 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{1, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
 		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc1);
-		
+
 		// Set and register boundary 2
 		bc2 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::FluxBC<decltype(h)>>{2, {fem::boundary::BCCategory::Natural}, HeatEqBundle::FluxBC<decltype(h)>{h}});
 		NaturalBCRegistry.registerBC<HeatEqBundle::FluxBC<decltype(h)>, decltype(naturalBCForms), HeatEqBundle::DefaultModelBdy>(bc2, naturalBCForms, defaultModelBdy);
-		
+
 		// Set and register boundary 3
 		bc3 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{3, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
 		EssentialBCRegistry.registerBC<HeatEqBundle::DirichletBC<decltype(g)>>(bc3);
 
 		// build algrebraic dofs after all boundaries are registered
-		topoDOF2D->buildConstraints<BasisType>(EssentialBCRegistry);
+		topoDOF2D->buildConstraints(basis, EssentialBCRegistry);
 
 	}
 };
@@ -183,7 +187,7 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 
 	// arbitrary time
 	Real t = 0.0;
-	
+
 	// create system matrix
 	auto K = assembler.createMatrix<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
 	auto U = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
@@ -196,23 +200,23 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 	EXPECT_EQ(U.size(), 12);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
 
 	// test tolerance
 	const Real tol = 1e-10;
 
 	// tests for system matrix
-	
+
 	// diagonal: bottom-free nodes (touching 2 elements)
 	for (Index i = 0; i < 3; ++i){
 		EXPECT_NEAR(K.data()[K.getDataIndex(i,i)], 4.0/3.0, tol);
 	}
-	
+
 	// diagonal: interior-free nodes (touching 2 elements)
 	for (Index i = 3; i < 12; ++i){
 		EXPECT_NEAR(K.data()[K.getDataIndex(i,i)], 8.0/3.0, tol);
 	}
-	
+
 	// off-diagonal: same-row adjacent (share one element edge - x-adjacent with no upper shared element)
 	for (Index i = 0; i < 2; ++i){
 		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+1)], -1.0/6.0, tol);
@@ -238,26 +242,17 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 		EXPECT_NEAR(K.data()[K.getDataIndex(i,i+3)], -1.0/3.0, tol);
 		EXPECT_NEAR(K.data()[K.getDataIndex(i+3,i)], -1.0/3.0, tol);
 	}
-	
-	/*
-	// symmetry of K
-	for (Index i = 0; i < 12; ++i){
-		for (Index j = 0; j < 12; ++j){
-			EXPECT_NEAR(K.data()[K.getDataIndex(i,j)], K.data()[K.getDataIndex(j,i)], tol);
-		}
-	}
-	  */
 
 }
 
 TEST_F(CPUHeatEquationMinimal, OVector){
-	
+
 	// arbitrary time
 	Real t = 0.0;
-	
+
 	auto O = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
 	auto U = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
-	
+
 	// test vector sizes
 	EXPECT_EQ(O.size(), 12);
 	EXPECT_EQ(U.size(), 12);
@@ -268,17 +263,17 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	}
 
 	// call assembly for system matrix
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, U, O);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, O);
 
 	// test tolerance
 	const Real tol = 1e-10;
 
 	// tests for system operator
-	
+
 	// bottom-row corner nodes
 	EXPECT_NEAR(O.data()[0], 0.5,     tol); // row_sum = 4/3 - 1/6 - 1/3 - 1/3 = 1/2
 	EXPECT_NEAR(O.data()[2], 0.5,     tol); // row_sum = 4/3 - 1/6 - 1/3 - 1/3 = 1/2
-	
+
 	// bottom-row mid node
 	EXPECT_NEAR(O.data()[1], 0.0,     tol); // row_sum = 0
 
@@ -295,21 +290,21 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	// bottom-row corner nodes
 	EXPECT_NEAR(O.data()[9], 5.0/3.0,  tol); // row_sum = 8/3 - 1/3 - 1/3 - 1/3 = 5/3
 	EXPECT_NEAR(O.data()[11], 5.0/3.0,  tol); // row_sum = 8/3 - 1/3 - 1/3 - 1/3 = 5/3
-	
+
 	// top-row mid node
 	EXPECT_NEAR(O.data()[10], 1.0,     tol); // row_sum = 8/3 - 1/3 - 1/3 = 1
 
 }
 
 TEST_F(CPUHeatEquationMinimal, FVector){
-	
+
 	// arbitrary time
 	Real t = 0.0;
-	
+
 	// create system matrix
 	auto F = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
 	auto U = assembler.createVector<HeatEqBundle::NumDOFs>(mesh2D, *topoDOF2D);
-	
+
 	// test vector sizes
 	EXPECT_EQ(F.size(), 12);
 	EXPECT_EQ(U.size(), 12);
@@ -318,7 +313,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	const Real tol = 1e-10;
 
 	// call assembly for force vector
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, U, F);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, defaultModel, rhsForms, evalEle, quadVol, U, F);
 
 	// test before bc application
 	EXPECT_NEAR(F.data()[0], 1.0/6.0, tol);
@@ -335,8 +330,8 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply natural bcs
-	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, QuadratureBoundaryType>(mesh2D, *topoDOF2D, NaturalBCRegistry, t, F);
-	
+	bcApplicator.applyNaturalBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPBdy, HeatEqBundle::QuadratureBoundaryType>(mesh2D, *topoDOF2D, NaturalBCRegistry, t, evalEle, quadBdy, F);
+
 	// tests after applying natural bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
 	EXPECT_NEAR(F.data()[1], 1.0/3.0 - 2.0, tol);
@@ -350,10 +345,10 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[9], 3.0, tol);
 	EXPECT_NEAR(F.data()[10], 6.0, tol);
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
-	
+
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, F);
-	
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
+
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);
 	EXPECT_NEAR(F.data()[1], 1.0/3.0 - 2.0, tol);

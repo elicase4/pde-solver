@@ -24,11 +24,11 @@ namespace pdesolver {
 			class FEMOperator {
 			public:
 				
-				FEMOperator(const Assembler& assembler_, const mesh::Mesh& mesh_, const TopologicalDOF& topoDOF_, const Real time_, const Model& model_, const FormRegistry& forms_) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), forms(forms_) {}
+				FEMOperator(const Assembler& assembler_, const mesh::Mesh& mesh_, const TopologicalDOF& topoDOF_, const Real time_, const Model& model_, const FormRegistry& forms_, const EvalEle& evalEle_, const Quadrature& quadrature_) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), forms(forms_), quadrature(quadrature_), evalEle(evalEle_) {}
 
 				template<typename VectorType>
 				void apply(const VectorType& x, VectorType& y) const {
-					assembler.template assembleVector<TopologicalDOF::dofsPerNode, EvalEle, EvalQP, Model, FormRegistry, Quadrature>(mesh, topoDOF, time, model, forms, x, y);
+					assembler.template assembleVector<TopologicalDOF::dofsPerNode, EvalEle, EvalQP, Model, FormRegistry, Quadrature>(mesh, topoDOF, time, model, forms, evalEle, quadrature, x, y);
 				}
 
 				Index size() const {
@@ -42,6 +42,8 @@ namespace pdesolver {
 				const Real time;
 				const Model& model;
 				const FormRegistry& forms;
+				const Quadrature& quadrature;
+				const EvalEle& evalEle;
 
 			}; // class FEMOperator
 

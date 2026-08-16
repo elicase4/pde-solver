@@ -5,13 +5,11 @@
 
 #include "core/Types.hpp"
 #include "equations/heateq/HeatEquation.hpp"
-#include "fem/basis/LagrangeQuad.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/boundary/BoundaryCondition.hpp"
 #include "fem/dof/DOFOrdering.hpp"
-#include "fem/quadrature/GaussQuadratureQuad.hpp"
-#include "fem/quadrature/GaussQuadrature1D.hpp"
 #include "io/FieldIO.hpp"
+#include "mesh/ElementFamily.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
 #include "topology/TopologicalDOF.hpp"
@@ -34,10 +32,11 @@ protected:
 	static constexpr Index numQuadPoint = 2;
 	static constexpr Index dofsPerNode = 2;
 
-	using QuadratureVolumeType = fem::quadrature::GaussQuadratureQuad<numQuadPoint, numQuadPoint>;
-	using QuadratureBoundaryType = fem::quadrature::GaussQuadrature1D<numQuadPoint>;
-	using BasisType = fem::basis::LagrangeQuad<Px, Py>;
-	using HeatEqBundle = equations::HeatEquation<nsd, BasisType, QuadratureVolumeType, QuadratureBoundaryType>;
+	using HeatEqBundle = equations::HeatEquation<nsd, 2, mesh::ElementFamily::Quad>;
+
+	// basis order is a runtime field on Basis now (see the runtime-dispatch
+	// refactor) -- buildConstraints() below takes an instance, not a type.
+	HeatEqBundle::Basis basis{Px, Py};
 
 	mesh::generator::BlockMesh2D gen{nx, ny, x0, x1, y0, y1, Px, Py};
 	mesh::Mesh mesh;
@@ -77,7 +76,7 @@ TEST_F(FieldIOTest, reconstructNodalFieldInterleaved){
 	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
 	
 	// build constraints
-	topoDOF->buildConstraints<BasisType>(EssentialBCRegistry);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
 
 	// build free DOF vector
 	std::vector<Real> algField(topoDOF->numFreeDOFs());
@@ -121,7 +120,7 @@ TEST_F(FieldIOTest, reconstructNodalFieldBlock){
 	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
 	
 	// build constraints
-	topoDOF->buildConstraints<BasisType>(EssentialBCRegistry);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
 
 	std::vector<Real> algField(topoDOF->numFreeDOFs());
 
@@ -164,7 +163,7 @@ TEST_F(FieldIOTest, WritwVTKContainsFieldNames){
 	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
 	
 	// build constraints
-	topoDOF->buildConstraints<BasisType>(EssentialBCRegistry);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
 
 	std::vector<Real> algField(topoDOF->numFreeDOFs(), 1.0);
 
@@ -189,7 +188,7 @@ TEST_F(FieldIOTest, writeVTKDOFNameMismatchThrows) {
 	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
 	
 	// build constraints
-	topoDOF->buildConstraints<BasisType>(EssentialBCRegistry);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
 
 	std::vector<Real> algField(topoDOF->numFreeDOFs(), 0.0);
 

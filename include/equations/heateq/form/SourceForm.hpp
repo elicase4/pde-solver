@@ -24,8 +24,7 @@ namespace pdesolver::equations::heateq {
 			Real val[SourceFunction::NumComponents];
 			sourceFunction.eval(qp.time, qp.x, val);
 
-			// element vector assembly contribution
-			for (Index a = 0; a < qp.NodesPerElement; ++a){
+			for (Index a = 0; a < qp.nodesPerElement(); ++a){
 				for (Index i = 0; i < SourceFunction::NumComponents; ++i) {
 					Fe[a + i] += (val[i] * qp.N[a]) * qp.measure * qp.w;
 				}

@@ -1,31 +1,43 @@
 #ifndef HEATEQUATION_EVALELEMENT_HPP
 #define HEATEQUATION_EVALELEMENT_HPP
 
+#include <utility>
+
 #include "fem/eval/EvalElement.hpp"
 
 namespace pdesolver::equations::heateq {
 
+	// Basis is now an instance (holds runtime order), not a pure static-method
+	// type -- constructed once per HeatProblem from the resolved discretization
+	// config and never changes per-element. See the runtime-dispatch refactor.
 	template<typename Basis, Index SD>
 	class EvalElement {
 	public:
-		
+
 		static constexpr Index SpatialDim = SD;
 		static constexpr Index ParametricDim = Basis::ParametricDim;
-		static constexpr Index NodesPerElement = Basis::NodesPerElement;
+
+		explicit EvalElement(Basis basis) : basis_(std::move(basis)) {}
+
+		Index nodesPerElement() const { return basis_.nodesPerElement(); }
+		const Basis& basis() const { return basis_; }
 
 		// node coordinates
 		const Real* nodeCoords;
-		
+
 		// time coordinate
 		Real t;
 
 		PDE_HOST PDE_DEVICE void bindElement(const Real* coords, const Real time){
-			
+
 			nodeCoords = coords;
 			t = time;
 
 		}
-		
+
+	private:
+		Basis basis_;
+
 	}; // class EvalElement
 
 } // namespace pdesolver::equations::heateq

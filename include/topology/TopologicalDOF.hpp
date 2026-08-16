@@ -7,6 +7,7 @@
 #include <set>
 
 #include "core/Types.hpp"
+#include "fem/DiscretizationLimits.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/dof/DOFOrdering.hpp"
 #include "mesh/Mesh.hpp"
@@ -39,8 +40,11 @@ namespace pdesolver {
 			inline void getElementDOFs(Index elemId, Index* dofs) const;
 			
 			// constraints
-			template<typename Element>
-			void buildConstraints(const fem::boundary::EssentialBoundaryRegistry& bcRegistry);
+			// basis is a runtime instance (order is a runtime field now, see the
+			// runtime-dispatch refactor), not a pure-static-method type -- only its
+			// nodesPerFace()/getFaceNodes() instance methods are used here.
+			template<typename Basis>
+			void buildConstraints(const Basis& basis, const fem::boundary::EssentialBoundaryRegistry& bcRegistry);
 			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
 			inline Int getConstraintTag(Index topoDOF) const;
 

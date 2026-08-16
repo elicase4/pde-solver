@@ -53,13 +53,13 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 
 	bool converged = false;
 
-	auto visitor = [&]<Index NSD, typename BasisT, typename QuadVolT, typename QuadBdyT>() -> bool {
+	auto visitor = [&]<Index NSD, Index NPD, pdesolver::mesh::ElementFamily Family>(auto basis, auto quadVol, auto quadBdy) -> bool {
 
-		using HeatEqBundle = pdesolver::equations::HeatEquation<NSD, BasisT, QuadVolT, QuadBdyT>;
+		using HeatEqBundle = pdesolver::equations::HeatEquation<NSD, NPD, Family>;
 		using ProblemT = pdesolver::application::heateq::problem::HeatProblem<pdesolver::linalg::types::backend::CPU, HeatEqBundle>;
 		using StageT = pdesolver::application::heateq::stage::HeatStage<ProblemT>;
 
-		ProblemT heatProblem(config, std::move(mesh));
+		ProblemT heatProblem(config, std::move(mesh), std::move(basis), std::move(quadVol), std::move(quadBdy));
 		StageT stage(heatProblem);
 
 		pdesolver::solver::driver::Steady<StageT> driver;

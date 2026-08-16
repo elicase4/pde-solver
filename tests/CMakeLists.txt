@@ -50,6 +50,10 @@ add_pde_test(UnitTest_Fem_Jacobian
 	unit/fem/Jacobian.cpp
 )
 
+add_pde_test(UnitTest_Fem_GaussQuadrature
+	unit/fem/GaussQuadrature.cpp
+)
+
 add_pde_test(UnitTest_Linalg_Cpu_VectorOperations
 	unit/linalg/cpu/VectorOperations.cpp
 )

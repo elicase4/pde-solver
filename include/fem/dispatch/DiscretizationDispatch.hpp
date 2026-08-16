@@ -1,7 +1,6 @@
 #ifndef PDESOLVER_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
 #define PDESOLVER_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
 
-#include <initializer_list>
 #include <utility>
 
 #include "core/Types.hpp"
@@ -19,74 +18,59 @@ namespace pdesolver {
 	namespace fem {
 		namespace dispatch {
 
-			template<Index... Candidates, typename Cont>
-			bool selectValue(Index value, Cont&& cont) {
+			// Maps a compile-time mesh::ElementFamily to the concrete fem::basis /
+			// fem::quadrature types for that family. General-purpose (not
+			// equation-specific) -- shared by dispatch() below and by
+			// equations::HeatEquation<NSD, NPD, Family> (and future PDE modules),
+			// so the family -> type mapping is defined exactly once. Basis order
+			// and quadrature point counts are runtime fields on these types now
+			// (see the runtime-dispatch refactor), so this only fixes which
+			// *classes* apply to a family, not their order/point-count.
+			template<mesh::ElementFamily Family> struct ElementTypeTraits;
 
-				bool matched = false;
+			template<> struct ElementTypeTraits<mesh::ElementFamily::Quad> {
+				using BasisType = basis::LagrangeQuad;
+				using QuadratureVolumeType = quadrature::GaussQuadratureQuad;
+				using QuadratureBoundaryType = quadrature::GaussQuadrature1D;
+			};
 
-				(void) std::initializer_list<int>{(Candidates == value ? (cont.template operator()<Candidates>(), matched = true, 0) : 0)...};
-
-				return matched;
-
-			}
-
-			template<typename Cont>
-			bool selectOrder(Index p, Cont&& cont) {
-				return selectValue<1, 2, 3>(p, std::forward<Cont>(cont));
-			}
-
-			template<typename Cont>
-			bool selectQuadraturePoints(Index n, Cont&& cont) {
-				return selectValue<1, 2, 3, 4>(n, std::forward<Cont>(cont));
-			}
+			template<> struct ElementTypeTraits<mesh::ElementFamily::Hex> {
+				using BasisType = basis::LagrangeHex;
+				using QuadratureVolumeType = quadrature::GaussQuadratureHex;
+				using QuadratureBoundaryType = quadrature::GaussQuadratureQuad;
+			};
 
 			template<Index NSD, typename Visitor>
 			bool dispatchQuad(Index px, Index py, Index xi, Index eta, Visitor&& visitor) {
 
-				return selectOrder(px, [&]<Index Px>() {
-					return selectOrder(py, [&]<Index Py>() {
-						return selectQuadraturePoints(xi, [&]<Index Xi>() {
-							return selectQuadraturePoints(eta, [&]<Index Eta>() {
+				using Traits = ElementTypeTraits<mesh::ElementFamily::Quad>;
 
-								using BasisT = basis::LagrangeQuad<Px, Py>;
-								using QuadVolT = quadrature::GaussQuadratureQuad<Xi, Eta>;
+				typename Traits::BasisType basisInst(px, py);
+				typename Traits::QuadratureVolumeType quadVolInst(xi, eta);
 
-								constexpr Index NBdy = (Xi > Eta) ? Xi : Eta;
-								using QuadBdyT = quadrature::GaussQuadrature1D<NBdy>;
+				const Index nBdy = (xi > eta) ? xi : eta;
+				typename Traits::QuadratureBoundaryType quadBdyInst(nBdy);
 
-								return visitor.template operator()<NSD, BasisT, QuadVolT, QuadBdyT>();
-
-							});
-						});
-					});
-				});
+				// propagate the visitor's own return value, matching the pre-refactor
+				// dispatch() contract (the caller's "matched" bool doubles as the
+				// visitor's result, e.g. whether the driver converged)
+				return visitor.template operator()<NSD, 2, mesh::ElementFamily::Quad>(basisInst, quadVolInst, quadBdyInst);
 
 			}
 
 			template<Index NSD, typename Visitor>
 			bool dispatchHex(Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
 
-				return selectOrder(px, [&]<Index Px>() {
-					return selectOrder(py, [&]<Index Py>() {
-						return selectOrder(pz, [&]<Index Pz>() {
-							return selectQuadraturePoints(xi, [&]<Index Xi>() {
-								return selectQuadraturePoints(eta, [&]<Index Eta>() {
-									return selectQuadraturePoints(zeta, [&]<Index Zeta>() {
+				using Traits = ElementTypeTraits<mesh::ElementFamily::Hex>;
 
-										using BasisT = basis::LagrangeHex<Px, Py, Pz>;
-										using QuadVolT = quadrature::GaussQuadratureHex<Xi, Eta, Zeta>;
+				typename Traits::BasisType basisInst(px, py, pz);
+				typename Traits::QuadratureVolumeType quadVolInst(xi, eta, zeta);
 
-										constexpr Index NBdy = (Xi > Eta) ? ((Xi > Zeta) ? Xi : Zeta) : ((Eta > Zeta) ? Eta : Zeta);
-										using QuadBdyT = quadrature::GaussQuadratureQuad<NBdy, NBdy>;
+				const Index nBdy = (xi > eta) ? ((xi > zeta) ? xi : zeta) : ((eta > zeta) ? eta : zeta);
+				typename Traits::QuadratureBoundaryType quadBdyInst(nBdy, nBdy);
 
-										return visitor.template operator()<NSD, BasisT, QuadVolT, QuadBdyT>();
-
-									});
-								});
-							});
-						});
-					});
-				});
+				// propagate the visitor's own return value -- see dispatchQuad() above
+				return visitor.template operator()<NSD, 3, mesh::ElementFamily::Hex>(basisInst, quadVolInst, quadBdyInst);
 
 			}
 
@@ -112,6 +96,13 @@ namespace pdesolver {
 
 			}
 
+			// Resolves only (nsd, npd, family) at compile time -- a handful of
+			// instantiations instead of the ~2000 the old order/quadrature-point
+			// compile-time enumeration produced (see the runtime-dispatch
+			// refactor). px/py/pz/xi/eta/zeta are passed straight through as
+			// runtime constructor arguments to the resolved Basis/Quadrature
+			// types; visitor receives the constructed instances directly, so it
+			// never needs to know their concrete types.
 			template<typename Visitor>
 			bool dispatch(Index nsd, Index npd, mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
 

@@ -13,8 +13,8 @@ namespace pdesolver {
 
 				{ Element::SpatialDim } -> std::convertible_to<Index>;
 				{ Element::ParametricDim } -> std::convertible_to<Index>;
-				{ Element::NodesPerElement } -> std::convertible_to<Index>;
-				
+
+				{ elem.nodesPerElement() } -> std::convertible_to<Index>;
 				{ elem.bindElement(nodeCoords, time) } -> std::same_as<void>;
 
 			}; // concept EvalElement

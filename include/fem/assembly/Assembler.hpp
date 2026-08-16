@@ -8,6 +8,7 @@
 
 #include "core/Types.hpp"
 
+#include "fem/DiscretizationLimits.hpp"
 #include "fem/eval/EvalElement.hpp"
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 #include "fem/eval/EvalModel.hpp"
@@ -46,11 +47,11 @@ namespace pdesolver {
 				
 				// matrix assembly
 				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
-				
+				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
+
 				// vector assembly
 				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
+				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class Assembler
 

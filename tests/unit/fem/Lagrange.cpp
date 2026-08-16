@@ -15,27 +15,30 @@ TEST(Lagrange1D, PartitionOfUnity) {
 	Real testPoints[numTestPoints] = {-1.0, -0.5, 0.0, 0.5, 1.0};
 	Real sum;
 
+	Lagrange1D linear(1);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[2];
-		Lagrange1D<1>::eval(testPoints[q], N);
+		linear.eval(testPoints[q], N);
 		sum = N[0] + N[1];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = " << 1 << " at xi = " << testPoints[q];
 	}
-	
+
+	Lagrange1D quadratic(2);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[3];
-		Lagrange1D<2>::eval(testPoints[q], N);
+		quadratic.eval(testPoints[q], N);
 		sum = N[0] + N[1] + N[2];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = " << 2 << " at xi = " << testPoints[q];
 	}
-	
+
+	Lagrange1D cubic(3);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[4];
-		Lagrange1D<3>::eval(testPoints[q], N);
+		cubic.eval(testPoints[q], N);
 		sum = N[0] + N[1] + N[2] + N[3];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = " << 3 << " at xi = " << testPoints[q];
 	}
-	
+
 }
 
 TEST(Lagrange1D, PartitionOfUnityDeriv) {
@@ -43,64 +46,70 @@ TEST(Lagrange1D, PartitionOfUnityDeriv) {
 	Real testPoints[numTestPoints] = {-1.0, -0.5, 0.0, 0.5, 1.0};
 	Real sum;
 
+	Lagrange1D linear(1);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[2];
-		Lagrange1D<1>::evalFirstDerivative(testPoints[q], N);
+		linear.evalFirstDerivative(testPoints[q], N);
 		sum = N[0] + N[1];
 		EXPECT_NEAR(sum, 0.0, 1e-14) << "evalFirstDerivative() p = " << 1 << " at xi = " << testPoints[q];
-		Lagrange1D<1>::evalSecondDerivative(testPoints[q], N);
+		linear.evalSecondDerivative(testPoints[q], N);
 		sum = N[0] + N[1];
 		EXPECT_NEAR(sum, 0.0, 1e-14) << "evalSecondDerivative() p = " << 1 << " at xi = " << testPoints[q];
 	}
-	
+
+	Lagrange1D quadratic(2);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[3];
-		Lagrange1D<2>::evalFirstDerivative(testPoints[q], N);
+		quadratic.evalFirstDerivative(testPoints[q], N);
 		sum = N[0] + N[1] + N[2];
 		EXPECT_NEAR(sum, 0.0, 1e-14) << "evalFirstDerivative() p = " << 2 << " at xi = " << testPoints[q];
-		Lagrange1D<2>::evalSecondDerivative(testPoints[q], N);
+		quadratic.evalSecondDerivative(testPoints[q], N);
 		sum = N[0] + N[1] + N[2];
 		EXPECT_NEAR(sum, 0.0, 1e-14) << "evalSecondDerivative() p = " << 2 << " at xi = " << testPoints[q];
 	}
-	
+
+	Lagrange1D cubic(3);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[4];
-		Lagrange1D<3>::evalFirstDerivative(testPoints[q], N);
+		cubic.evalFirstDerivative(testPoints[q], N);
 		sum = N[0] + N[1] + N[2] + N[3];
 		EXPECT_NEAR(sum, 0.0, 1e-14) << "evalFirstDerivative() p = " << 3 << " at xi = " << testPoints[q];
-		Lagrange1D<3>::evalSecondDerivative(testPoints[q], N);
+		cubic.evalSecondDerivative(testPoints[q], N);
 		sum = N[0] + N[1] + N[2] + N[3];
 		EXPECT_NEAR(sum, 0.0, 1e-14) << "evalSecondDerivative() p = " << 3 << " at xi = " << testPoints[q];
 	}
-	
+
 }
 
 TEST(Lagrange1D, KroneckerDeltaProperty) {
-	
+
+	Lagrange1D linear(1);
 	Real nodes_linear[2] = {-1.0, 1.0};
 	for (int i = 0; i < 2; ++i){
 		Real N[2];
-		Lagrange1D<1>::eval(nodes_linear[i], N);
+		linear.eval(nodes_linear[i], N);
 		for (int j = 0; j < 2; ++j){
 			Real expected = (i == j) ? 1.0 : 0.0;
 			EXPECT_NEAR(N[j], expected, 1e-14) << "p = 1: N [" << j << "] at node " << i;
 		}
 	}
 
+	Lagrange1D quadratic(2);
 	Real nodes_quadratic[3] = {-1.0, 0.0, 1.0};
 	for (int i = 0; i < 3; ++i){
 		Real N[3];
-		Lagrange1D<2>::eval(nodes_quadratic[i], N);
+		quadratic.eval(nodes_quadratic[i], N);
 		for (int j = 0; j < 3; ++j){
 			Real expected = (i == j) ? 1.0 : 0.0;
 			EXPECT_NEAR(N[j], expected, 1e-14) << "p = 2: N [" << j << "] at node " << i;
 		}
 	}
 
+	Lagrange1D cubic(3);
 	Real nodes_cubic[4] = {-1.0, (-1.0/3.0), (1.0/3.0), 1.0};
 	for (int i = 0; i < 4; ++i){
 		Real N[4];
-		Lagrange1D<3>::eval(nodes_cubic[i], N);
+		cubic.eval(nodes_cubic[i], N);
 		for (int j = 0; j < 4; ++j){
 			Real expected = (i == j) ? 1.0 : 0.0;
 			EXPECT_NEAR(N[j], expected, 1e-14) << "p = 3: N [" << j << "] at node " << i;
@@ -118,41 +127,45 @@ TEST(LagrangeQuad, PartitionOfUnity) {
 	Real testPoints[numTestPoints][2] = {{-0.9,-0.8}, {0.0, -1.0}, {0.75, 0.6}, {0.5, -0.3}, {-0.7, 0.8}};
 	Real sum;
 
+	LagrangeQuad bilinear(1, 1);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[4];
-		BilinearQuad::eval(testPoints[q], N);
+		bilinear.eval(testPoints[q], N);
 		sum = 0.0;
 		for (int i = 0; i < 4; ++i) sum += N[i];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
 	}
-	
+
+	LagrangeQuad biquadratic(2, 2);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[9];
-		BiquadraticQuad::eval(testPoints[q], N);
+		biquadratic.eval(testPoints[q], N);
 		sum = 0.0;
 		for (int i = 0; i < 9; ++i) sum += N[i];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
 	}
-	
+
+	LagrangeQuad bicubic(3, 3);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[16];
-		BicubicQuad::eval(testPoints[q], N);
+		bicubic.eval(testPoints[q], N);
 		sum = 0.0;
 		for (int i = 0; i < 16; ++i) sum += N[i];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
 	}
-	
+
 }
 
 TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 	constexpr int numTestPoints = 5;
 	Real testPoints[numTestPoints][2] = {{-0.9,-0.8}, {0.0, -1.0}, {0.75, 0.6}, {0.5, -0.3}, {-0.7, 0.8}};
 
+	LagrangeQuad bilinear(1, 1);
 	for (int q = 0; q < numTestPoints; ++q){
-		
+
 		// Gradient
         Real dNdxi[8];
-        BilinearQuad::evalGradient(testPoints[q], dNdxi);
+        bilinear.evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
         Real sum_deta = 0.0;
 		for (int i = 0; i < 4; ++i){
@@ -161,14 +174,14 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
-        
+
         // Hessian
         Real d2Nd2xi[12];
-        BilinearQuad::evalHessian(testPoints[q], d2Nd2xi);
+        bilinear.evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
         Real sum_d2eta = 0.0;
         Real sum_dxideta = 0.0;
-		for (int i = 0; i < 4; ++i){ 
+		for (int i = 0; i < 4; ++i){
 			sum_d2xi += d2Nd2xi[3*i];
 			sum_d2eta += d2Nd2xi[3*i+1];
 			sum_dxideta += d2Nd2xi[3*i+2];
@@ -176,20 +189,21 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_dxideta, 0.0, 1e-14) << "evalHessian().xieta p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
-        
+
         // Laplacian
         Real lapN[4];
-        BilinearQuad::evalLaplacian(testPoints[q], lapN);
+        bilinear.evalLaplacian(testPoints[q], lapN);
         Real sum_lapN = 0.0;
 		for (int i = 0; i < 4; ++i) sum_lapN += lapN[i];
         EXPECT_NEAR(sum_lapN, 0.0, 1e-14) << "evalLaplacian() p = (" << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
 	}
-	
+
+	LagrangeQuad biquadratic(2, 2);
 	for (int q = 0; q < numTestPoints; ++q){
-		
+
 		// Gradient
         Real dNdxi[18];
-        BiquadraticQuad::evalGradient(testPoints[q], dNdxi);
+        biquadratic.evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
         Real sum_deta = 0.0;
 		for (int i = 0; i < 9; ++i){
@@ -198,14 +212,14 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
-        
+
         // Hessian
         Real d2Nd2xi[27];
-        BiquadraticQuad::evalHessian(testPoints[q], d2Nd2xi);
+        biquadratic.evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
         Real sum_d2eta = 0.0;
         Real sum_dxideta = 0.0;
-		for (int i = 0; i < 9; ++i){ 
+		for (int i = 0; i < 9; ++i){
 			sum_d2xi += d2Nd2xi[3*i];
 			sum_d2eta += d2Nd2xi[3*i+1];
 			sum_dxideta += d2Nd2xi[3*i+2];
@@ -213,20 +227,21 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_dxideta, 0.0, 1e-14) << "evalHessian().xieta p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
-        
+
         // Laplacian
         Real lapN[9];
-        BiquadraticQuad::evalLaplacian(testPoints[q], lapN);
+        biquadratic.evalLaplacian(testPoints[q], lapN);
         Real sum_lapN = 0.0;
 		for (int i = 0; i < 9; ++i) sum_lapN += lapN[i];
         EXPECT_NEAR(sum_lapN, 0.0, 1e-14) << "evalLaplacian() p = (" << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
 	}
 
+	LagrangeQuad bicubic(3, 3);
 	for (int q = 0; q < numTestPoints; ++q){
-		
+
 		// Gradient
         Real dNdxi[32];
-        BicubicQuad::evalGradient(testPoints[q], dNdxi);
+        bicubic.evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
         Real sum_deta = 0.0;
 		for (int i = 0; i < 16; ++i){
@@ -235,14 +250,14 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
 		}
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
-        
+
         // Hessian
         Real d2Nd2xi[48];
-        BicubicQuad::evalHessian(testPoints[q], d2Nd2xi);
+        bicubic.evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
         Real sum_d2eta = 0.0;
         Real sum_dxideta = 0.0;
-		for (int i = 0; i < 16; ++i){ 
+		for (int i = 0; i < 16; ++i){
 			sum_d2xi += d2Nd2xi[3*i];
 			sum_d2eta += d2Nd2xi[3*i+1];
 			sum_dxideta += d2Nd2xi[3*i+2];
@@ -250,10 +265,10 @@ TEST(LagrangeQuad, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalHessian().xi2 p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_d2eta, 0.0, 1e-14) << "evalHessian().eta2 p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
         EXPECT_NEAR(sum_dxideta, 0.0, 1e-14) << "evalHessian().xieta p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
-        
+
         // Laplacian
         Real lapN[16];
-        BicubicQuad::evalLaplacian(testPoints[q], lapN);
+        bicubic.evalLaplacian(testPoints[q], lapN);
         Real sum_lapN = 0.0;
 		for (int i = 0; i < 16; ++i) sum_lapN += lapN[i];
         EXPECT_NEAR(sum_lapN, 0.0, 1e-14) << "evalLaplacian() p = (" << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << ")";
@@ -270,41 +285,45 @@ TEST(LagrangeHex, PartitionOfUnity) {
 	Real testPoints[numTestPoints][3] = {{-0.9,-0.8,-0.6}, {0.0, -1.0, 0.25}, {0.75, 0.6, 0.9}, {0.5, -0.3, -0.6}, {-0.7, 0.8, 0.0}};
 	Real sum;
 
+	LagrangeHex trilinear(1, 1, 1);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[8];
-		TrilinearHex::eval(testPoints[q], N);
+		trilinear.eval(testPoints[q], N);
 		sum = 0.0;
 		for (int i = 0; i < 8; ++i) sum += N[i];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = (" << 1 << "," << 1 << ","<< 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][1] << ")";
 	}
-	
+
+	LagrangeHex triquadratic(2, 2, 2);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[27];
-		TriquadraticHex::eval(testPoints[q], N);
+		triquadratic.eval(testPoints[q], N);
 		sum = 0.0;
 		for (int i = 0; i < 27; ++i) sum += N[i];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = (" << 2 << "," << 2 << ","<< 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][1] << ")";
 	}
-	
+
+	LagrangeHex tricubic(3, 3, 3);
 	for (int q = 0; q < numTestPoints; ++q){
 		Real N[64];
-		TricubicHex::eval(testPoints[q], N);
+		tricubic.eval(testPoints[q], N);
 		sum = 0.0;
 		for (int i = 0; i < 64; ++i) sum += N[i];
 		EXPECT_NEAR(sum, 1.0, 1e-14) << "eval() p = (" << 3 << "," << 3 << ","<< 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][1] << ")";
 	}
-	
+
 }
 
 TEST(LagrangeHex, PartitionOfUnityDeriv) {
 	constexpr int numTestPoints = 5;
 	Real testPoints[numTestPoints][3] = {{-0.9,-0.8,-0.6}, {0.0, -1.0, 0.25}, {0.75, 0.6, 0.9}, {0.5, -0.3, -0.6}, {-0.7, 0.8, 0.0}};
 
+	LagrangeHex trilinear(1, 1, 1);
 	for (int q = 0; q < numTestPoints; ++q){
-		
+
 		// Gradient
         Real dNdxi[24];
-        TrilinearHex::evalGradient(testPoints[q], dNdxi);
+        trilinear.evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
         Real sum_deta = 0.0;
         Real sum_dzeta = 0.0;
@@ -316,17 +335,17 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dzeta, 0.0, 1e-14) << "evalGradient().zeta p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
-        
+
         // Hessian
         Real d2Nd2xi[48];
-        TrilinearHex::evalHessian(testPoints[q], d2Nd2xi);
+        trilinear.evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
         Real sum_d2eta = 0.0;
         Real sum_d2zeta = 0.0;
         Real sum_detadxi = 0.0;
         Real sum_detadzeta = 0.0;
         Real sum_dxidzeta = 0.0;
-		for (int i = 0; i < 8; ++i){ 
+		for (int i = 0; i < 8; ++i){
 			sum_d2xi += d2Nd2xi[6*i];
 			sum_d2eta += d2Nd2xi[6*i+1];
 			sum_d2zeta += d2Nd2xi[6*i+2];
@@ -340,20 +359,21 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_detadxi, 0.0, 1e-14) << "evalHessian().etaxi p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_detadzeta, 0.0, 1e-14) << "evalHessian().etazeta p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dxidzeta, 0.0, 1e-14) << "evalHessian().xizeta p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
-        
+
         // Laplacian
         Real lapN[8];
-        TrilinearHex::evalLaplacian(testPoints[q], lapN);
+        trilinear.evalLaplacian(testPoints[q], lapN);
         Real sum_lapN = 0.0;
 		for (int i = 0; i < 8; ++i) sum_lapN += lapN[i];
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalLaplacian() p = (" << 1 << "," << 1 << "," << 1 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
 	}
 
+	LagrangeHex triquadratic(2, 2, 2);
 	for (int q = 0; q < numTestPoints; ++q){
-		
+
 		// Gradient
         Real dNdxi[81];
-        TriquadraticHex::evalGradient(testPoints[q], dNdxi);
+        triquadratic.evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
         Real sum_deta = 0.0;
         Real sum_dzeta = 0.0;
@@ -365,17 +385,17 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dzeta, 0.0, 1e-14) << "evalGradient().zeta p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
-        
+
         // Hessian
         Real d2Nd2xi[162];
-        TriquadraticHex::evalHessian(testPoints[q], d2Nd2xi);
+        triquadratic.evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
         Real sum_d2eta = 0.0;
         Real sum_d2zeta = 0.0;
         Real sum_detadxi = 0.0;
         Real sum_detadzeta = 0.0;
         Real sum_dxidzeta = 0.0;
-		for (int i = 0; i < 27; ++i){ 
+		for (int i = 0; i < 27; ++i){
 			sum_d2xi += d2Nd2xi[6*i];
 			sum_d2eta += d2Nd2xi[6*i+1];
 			sum_d2zeta += d2Nd2xi[6*i+2];
@@ -389,20 +409,21 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_detadxi, 0.0, 1e-14) << "evalHessian().etaxi p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_detadzeta, 0.0, 1e-14) << "evalHessian().etazeta p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dxidzeta, 0.0, 1e-14) << "evalHessian().xizeta p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
-        
+
         // Laplacian
         Real lapN[27];
-        TriquadraticHex::evalLaplacian(testPoints[q], lapN);
+        triquadratic.evalLaplacian(testPoints[q], lapN);
         Real sum_lapN = 0.0;
 		for (int i = 0; i < 27; ++i) sum_lapN += lapN[i];
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalLaplacian() p = (" << 2 << "," << 2 << "," << 2 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
 	}
 
+	LagrangeHex tricubic(3, 3, 3);
 	for (int q = 0; q < numTestPoints; ++q){
-		
+
 		// Gradient
         Real dNdxi[192];
-        TricubicHex::evalGradient(testPoints[q], dNdxi);
+        tricubic.evalGradient(testPoints[q], dNdxi);
         Real sum_dxi = 0.0;
         Real sum_deta = 0.0;
         Real sum_dzeta = 0.0;
@@ -414,17 +435,17 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_dxi, 0.0, 1e-14) << "evalGradient().xi p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_deta, 0.0, 1e-14) << "evalGradient().eta p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dzeta, 0.0, 1e-14) << "evalGradient().zeta p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
-        
+
         // Hessian
         Real d2Nd2xi[384];
-        TricubicHex::evalHessian(testPoints[q], d2Nd2xi);
+        tricubic.evalHessian(testPoints[q], d2Nd2xi);
         Real sum_d2xi = 0.0;
         Real sum_d2eta = 0.0;
         Real sum_d2zeta = 0.0;
         Real sum_detadxi = 0.0;
         Real sum_detadzeta = 0.0;
         Real sum_dxidzeta = 0.0;
-		for (int i = 0; i < 64; ++i){ 
+		for (int i = 0; i < 64; ++i){
 			sum_d2xi += d2Nd2xi[6*i];
 			sum_d2eta += d2Nd2xi[6*i+1];
 			sum_d2zeta += d2Nd2xi[6*i+2];
@@ -438,10 +459,10 @@ TEST(LagrangeHex, PartitionOfUnityDeriv) {
         EXPECT_NEAR(sum_detadxi, 0.0, 1e-14) << "evalHessian().etaxi p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_detadzeta, 0.0, 1e-14) << "evalHessian().etazeta p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
         EXPECT_NEAR(sum_dxidzeta, 0.0, 1e-14) << "evalHessian().xizeta p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";
-        
+
         // Laplacian
         Real lapN[64];
-        TricubicHex::evalLaplacian(testPoints[q], lapN);
+        tricubic.evalLaplacian(testPoints[q], lapN);
         Real sum_lapN = 0.0;
 		for (int i = 0; i < 64; ++i) sum_lapN += lapN[i];
         EXPECT_NEAR(sum_d2xi, 0.0, 1e-14) << "evalLaplacian() p = (" << 3 << "," << 3 << "," << 3 << ") at xi = (" << testPoints[q][0] << "," << testPoints[q][1] << "," << testPoints[q][2] << ")";

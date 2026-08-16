@@ -24,8 +24,7 @@ namespace pdesolver::equations::heateq {
 			Real val[FluxFunction::SpatialDim * FluxFunction::NumComponents];
 			fluxFunction.eval(qp.time, qp.x_face, val);
 
-			// element vector assembly contribution
-			for (Index a = 0; a < QuadraturePointBoundary::NodesPerFace(qp.faceID); ++a){
+			for (Index a = 0; a < qp.nodesPerFace(); ++a){
 				for (Index i = 0; i < FluxFunction::NumComponents; ++i) {
 					for (Index sD = 0; sD < FluxFunction::SpatialDim; ++sD){
 						Fe[a*FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.N[a]) * qp.normal[sD] * qp.w;

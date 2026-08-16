@@ -12,9 +12,8 @@ namespace pdesolver::equations::heateq {
 			
 			Real integrand, matvecprod;
 			
-			// qpent matrix assembly contribution
-			for (Index a = 0; a < qp.NodesPerElement; ++a){
-				for (Index b = 0; b < qp.NodesPerElement; ++b){
+			for (Index a = 0; a < qp.nodesPerElement(); ++a){
+				for (Index b = 0; b < qp.nodesPerElement(); ++b){
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < qp.SpatialDim; ++sDi){
@@ -25,7 +24,7 @@ namespace pdesolver::equations::heateq {
 						integrand += qp.dNdx[a*qp.SpatialDim + sDi] * matvecprod;
 					}
 
-					Ke[a * qp.NodesPerElement + b] += integrand * qp.measure * qp.w;
+					Ke[a * qp.nodesPerElement() + b] += integrand * qp.measure * qp.w;
 				}
 			}
 		}
@@ -34,9 +33,8 @@ namespace pdesolver::equations::heateq {
 			
 			Real integrand, matvecprod;
 
-			// qpent matrix assembly contribution
-			for (Index a = 0; a < qp.NodesPerElement; ++a){
-				for (Index b = 0; b < qp.NodesPerElement; ++b){
+			for (Index a = 0; a < qp.nodesPerElement(); ++a){
+				for (Index b = 0; b < qp.nodesPerElement(); ++b){
 					
 					integrand = 0.0;
 					for (Index sDi = 0; sDi < qp.SpatialDim; ++sDi){

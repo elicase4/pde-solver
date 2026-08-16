@@ -8,9 +8,7 @@
 #include "fem/form/FormRegistry.hpp"
 
 #include "equations/heateq/HeatEquation.hpp"
-#include "fem/basis/LagrangeQuad.hpp"
-#include "fem/quadrature/GaussQuadratureQuad.hpp"
-#include "fem/quadrature/GaussQuadrature1D.hpp"
+#include "mesh/ElementFamily.hpp"
 #include "utils/expression/ScalarExpression.hpp"
 
 using namespace pdesolver;
@@ -120,10 +118,7 @@ TEST(FormRegistry, MultiFormByValueConstructorStillWorks) {
 TEST(FormRegistry, SingleFormForwardingConstructorBuildsRealScalarExpressionSourceFormInPlace) {
 
 	using Callable = utils::expression::ScalarExpression;
-	using Basis = fem::basis::LagrangeQuad<1,1>;
-	using QuadVol = fem::quadrature::GaussQuadratureQuad<2,2>;
-	using QuadBdy = fem::quadrature::GaussQuadrature1D<2>;
-	using Bundle = equations::HeatEquation<2, Basis, QuadVol, QuadBdy>;
+	using Bundle = equations::HeatEquation<2, 2, mesh::ElementFamily::Quad>;
 	using SourceFormT = Bundle::SourceForm<Callable>;
 	using SourceFormsT = fem::form::FormRegistry<SourceFormT>;
 

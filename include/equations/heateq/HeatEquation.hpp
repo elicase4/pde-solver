@@ -6,6 +6,9 @@
 #include "core/Types.hpp"
 #include "core/FEM.hpp"
 
+#include "fem/dispatch/DiscretizationDispatch.hpp"
+#include "mesh/ElementFamily.hpp"
+
 #include "equations/heateq/boundary/BoundaryFluxFunction.hpp"
 #include "equations/heateq/boundary/BoundaryValueFunction.hpp"
 
@@ -24,27 +27,37 @@
 namespace pdesolver {
 	namespace equations {
 
-		template<Index NSD, typename BasisType, typename QuadratureVolType, typename QuadratureBdyType>
+		// NSD/NPD/Family are the only compile-time discretization axes now (per
+		// the runtime-dispatch refactor) -- basis order and quadrature-point
+		// counts are runtime fields on Basis/QuadratureVolumeType/
+		// QuadratureBoundaryType, resolved once per HeatProblem construction via
+		// fem::dispatch::dispatch(), not per (order, quadrature) combination.
+		// NPD stays an explicit template parameter alongside NSD (matching
+		// fem::dispatch's own npd/nsd/family resolution order) even though it's
+		// structurally implied by Family, rather than deriving it.
+		template<Index NSD, Index NPD, mesh::ElementFamily Family>
 		struct HeatEquation {
 
 			// Primary traits
 			static constexpr Index NumDOFs = 1;
-			static constexpr Index NPD = BasisType::ParametricDim;
-			static constexpr Index NumNodes = BasisType::NodesPerElement;
 			static constexpr Index SpatialDim = NSD;
 
-			// Discretization Info
-			using Basis = BasisType;
-			using QuadratureVolumeType = QuadratureVolType;
-			using QuadratureBoundaryType = QuadratureBdyType;
+			// Discretization Info -- concrete types for this family, resolved via
+			// the same trait fem::dispatch::dispatch() uses to construct instances.
+			using ElementTraits = fem::dispatch::ElementTypeTraits<Family>;
+			using Basis = typename ElementTraits::BasisType;
+			using QuadratureVolumeType = typename ElementTraits::QuadratureVolumeType;
+			using QuadratureBoundaryType = typename ElementTraits::QuadratureBoundaryType;
 
-			// Geometry
-			using Transform = fem::geometry::JacobianTransform<NSD, NPD, NumNodes>;
+			// Geometry -- NodesPerElement dropped from JacobianTransform's
+			// template (see task #59); it's a runtime arg on the three methods
+			// that need it now.
+			using Transform = fem::geometry::JacobianTransform<NSD, NPD>;
 
 			// Eval types
-			using EvalEle = heateq::EvalElement<BasisType, NSD>;
-			using EvalQPVol = heateq::EvalQuadraturePointVolume<EvalEle, BasisType, Transform>;
-			using EvalQPBdy = heateq::EvalQuadraturePointBoundary<EvalEle, BasisType, Transform>;
+			using EvalEle = heateq::EvalElement<Basis, NSD>;
+			using EvalQPVol = heateq::EvalQuadraturePointVolume<EvalEle, Basis, Transform>;
+			using EvalQPBdy = heateq::EvalQuadraturePointBoundary<EvalEle, Basis, Transform>;
 
 			// Constitutive Models
 			using DefaultModel = heateq::DefaultModel<EvalQPVol>;

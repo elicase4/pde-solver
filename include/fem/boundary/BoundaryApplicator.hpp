@@ -4,6 +4,7 @@
 #include <cstring>
 #include <unordered_set>
 
+#include "fem/DiscretizationLimits.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/boundary/NaturalBoundaryRegistry.hpp"
 
@@ -28,10 +29,10 @@ namespace pdesolver {
 			public:
 				
 				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-				void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, linalg::types::Vector<Real, linalg::types::backend::CPU>& F);
-				
+				void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F);
+
 				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
-				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const NaturalBoundaryRegistry<EvalQP>& bcRegistry, const Real time, linalg::types::Vector<Real, Backend>& F);
+				static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const NaturalBoundaryRegistry<EvalQP>& bcRegistry, const Real time, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, Backend>& F);
 
 			}; // class BoundaryApplicator
 

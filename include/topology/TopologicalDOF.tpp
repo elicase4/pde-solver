@@ -30,11 +30,11 @@ void TopologicalDOF<numDOFs>::getElementDOFs(Index elemId, Index* dofs) const {
 }
 
 template<Index numDOFs>
-template<typename Element>
-void TopologicalDOF<numDOFs>::buildConstraints(const fem::boundary::EssentialBoundaryRegistry& bcRegistry){
+template<typename Basis>
+void TopologicalDOF<numDOFs>::buildConstraints(const Basis& basis, const fem::boundary::EssentialBoundaryRegistry& bcRegistry){
 
 	std::set<Index> constrainedSet;
-	Index faceNodes[Element::NodesPerElement];
+	Index faceNodes[fem::kMaxNodesPerElement<Basis::ParametricDim>];
 
 	// loop over elements and faces to mark constrained dofs
 	for (Index e = 0; e < mesh_.data.numElements; ++e) {
@@ -48,8 +48,8 @@ void TopologicalDOF<numDOFs>::buildConstraints(const fem::boundary::EssentialBou
 			Int tag = tagPtr[f];
 
 			// get face nodes
-			Index npf = Element::nodesPerFace(f);
-			Element::getFaceNodes(f, faceNodes);
+			Index npf = basis.nodesPerFace(f);
+			basis.getFaceNodes(f, faceNodes);
 
 			// get element nodes
 			const Index* elemNodes = mesh_.getElementNodes(e);
