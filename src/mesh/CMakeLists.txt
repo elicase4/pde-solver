@@ -4,6 +4,7 @@ add_library(pde_mesh
 	exchange/gmsh/Utils.cpp
 	exchange/gmsh/MeshConverter.cpp
 	generator/BlockMesh2D.cpp
+	generator/BlockMesh3D.cpp
 )
 
 target_include_directories(pde_mesh

@@ -18,14 +18,6 @@ namespace pdesolver {
 	namespace fem {
 		namespace dispatch {
 
-			// Maps a compile-time mesh::ElementFamily to the concrete fem::basis /
-			// fem::quadrature types for that family. General-purpose (not
-			// equation-specific) -- shared by dispatch() below and by
-			// equations::HeatEquation<NSD, NPD, Family> (and future PDE modules),
-			// so the family -> type mapping is defined exactly once. Basis order
-			// and quadrature point counts are runtime fields on these types now
-			// (see the runtime-dispatch refactor), so this only fixes which
-			// *classes* apply to a family, not their order/point-count.
 			template<mesh::ElementFamily Family> struct ElementTypeTraits;
 
 			template<> struct ElementTypeTraits<mesh::ElementFamily::Quad> {
@@ -51,9 +43,6 @@ namespace pdesolver {
 				const Index nBdy = (xi > eta) ? xi : eta;
 				typename Traits::QuadratureBoundaryType quadBdyInst(nBdy);
 
-				// propagate the visitor's own return value, matching the pre-refactor
-				// dispatch() contract (the caller's "matched" bool doubles as the
-				// visitor's result, e.g. whether the driver converged)
 				return visitor.template operator()<NSD, 2, mesh::ElementFamily::Quad>(basisInst, quadVolInst, quadBdyInst);
 
 			}
@@ -96,13 +85,6 @@ namespace pdesolver {
 
 			}
 
-			// Resolves only (nsd, npd, family) at compile time -- a handful of
-			// instantiations instead of the ~2000 the old order/quadrature-point
-			// compile-time enumeration produced (see the runtime-dispatch
-			// refactor). px/py/pz/xi/eta/zeta are passed straight through as
-			// runtime constructor arguments to the resolved Basis/Quadrature
-			// types; visitor receives the constructed instances directly, so it
-			// never needs to know their concrete types.
 			template<typename Visitor>
 			bool dispatch(Index nsd, Index npd, mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
 

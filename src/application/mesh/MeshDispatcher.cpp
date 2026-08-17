@@ -4,6 +4,7 @@
 #include "application/mesh/GmshMeshGenerator.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
+#include "mesh/generator/BlockMesh3D.hpp"
 #include "io/MeshIO.hpp"
 
 #include <iostream>
@@ -31,8 +32,14 @@ namespace pdesolver {
 					}
 
 					case MeshConfig::Type::Block3D: {
-						// TODO: add BlockMesh3D generator and wire up here.
-						throw std::runtime_error("MeshDispatcher: Block3D generator not yet implemented");
+
+						const auto& b = config.block3D;
+
+						pdesolver::mesh::generator::BlockMesh3D gen{b.nx, b.ny, b.nz, b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax, b.Px, b.Py, b.Pz};
+						mesh = gen.generate();
+
+						std::cout << "[mesh] Block3D: " << b.nx << "x" << b.ny << "x" << b.nz << " elements generated\n";
+						break;
 					}
 
 					case MeshConfig::Type::Gmsh: {

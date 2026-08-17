@@ -7,7 +7,7 @@ public:
 	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
 	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
-		// allocate Fe on the stack -- capped, see fem::assembly::Assembler
+		// allocate Fe on the stack
 		Real Fe[(fem::kMaxNodesPerElement<EvalEle::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// allocate Ge on the stack
@@ -175,7 +175,7 @@ public:
 				}
 
 				// qp data
-				EvalQP qp(localEle, f, faceNodeCoords);
+				EvalQP qp(localEle, f);
 				Real bcVal[numDOFs*EvalEle::SpatialDim];
 
 				// quadrature loop

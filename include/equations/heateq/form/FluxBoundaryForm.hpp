@@ -22,12 +22,12 @@ namespace pdesolver::equations::heateq {
 		PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointBoundary& qp, const Real*, Real* Fe) const {
 		
 			Real val[FluxFunction::SpatialDim * FluxFunction::NumComponents];
-			fluxFunction.eval(qp.time, qp.x_face, val);
+			fluxFunction.eval(qp.time, qp.x, val);
 
 			for (Index a = 0; a < qp.nodesPerFace(); ++a){
 				for (Index i = 0; i < FluxFunction::NumComponents; ++i) {
 					for (Index sD = 0; sD < FluxFunction::SpatialDim; ++sD){
-						Fe[a*FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.N[a]) * qp.normal[sD] * qp.w;
+						Fe[a*FluxFunction::NumComponents + i] += (val[i*FluxFunction::SpatialDim + sD] * qp.Nface[a]) * qp.normal[sD] * qp.w;
 					}
 				}
 			}

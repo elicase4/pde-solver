@@ -33,8 +33,7 @@ void pdesolver::mesh::generator::BlockMesh2D::initializeData(Data& data) const {
 	data.basisOrder = {px, py};
 	data.nodesPerElement = (px + 1)*(py + 1);
 
-	// mesh size info -- node grid is (nx*px+1) x (ny*py+1): nx*ny elements, each spanning
-	// px*py sub-intervals per direction, sharing nodes with neighboring elements.
+	// mesh size info
 	data.numNodes = (nx*px + 1) * (ny*py + 1);
 	data.numElements = nx * ny;
 
@@ -50,8 +49,6 @@ void pdesolver::mesh::generator::BlockMesh2D::initializeData(Data& data) const {
 
 void pdesolver::mesh::generator::BlockMesh2D::generateNodes(Data& data) const {
 
-	// full node grid resolution, scaled by basis order -- must match the node indexing
-	// generateElements() uses (node_x/node_y range over [0, nx*px]/[0, ny*py]).
 	const Index NX = nx * px + 1;
 	const Index NY = ny * py + 1;
 

@@ -16,20 +16,11 @@ namespace pdesolver::equations::heateq {
 		Element element;
 		Int faceID;
 
-		Real faceCoords[SpatialDim*fem::kMaxNodesPerElement<ParametricDim>];
+		Index faceNodeLocalIDs[fem::kMaxNodesPerElementBoundary<ParametricDim>];
 
-		Index faceNodeLocalIDs[fem::kMaxNodesPerElement<ParametricDim>];
-
-		EvalQuadraturePointBoundary(const Element& elem, const Int fID, const Real* faceNodeCoords) : element(elem), faceID(fID) {
+		EvalQuadraturePointBoundary(const Element& elem, const Int fID) : element(elem), faceID(fID) {
 
 			element.basis().getFaceNodes(faceID, faceNodeLocalIDs);
-
-			// set face coordinates
-			for (Index a = 0; a < element.basis().nodesPerFace(faceID); ++a){
-				for (Index sD = 0; sD < SpatialDim; ++sD){
-					faceCoords[a*SpatialDim + sD] = faceNodeCoords[a*SpatialDim + sD];
-				}
-			}
 
 		}
 
@@ -43,7 +34,6 @@ namespace pdesolver::equations::heateq {
 
 		// physical coordinates
 		Real x[SpatialDim];
-		Real x_face[SpatialDim];
 
 		// reference coordinate
 		Real xi[ParametricDim];
@@ -52,8 +42,9 @@ namespace pdesolver::equations::heateq {
 		Real xi_face[ParametricDim-1];
 		Real w;
 
-		// ref basis values -- capped, see faceCoords above.
 		Real N[fem::kMaxNodesPerElement<ParametricDim>];
+
+		Real Nface[fem::kMaxNodesPerElementBoundary<ParametricDim>];
 
 		// ref gradients
 		Real dNdxi[ParametricDim*fem::kMaxNodesPerElement<ParametricDim>];
@@ -79,9 +70,13 @@ namespace pdesolver::equations::heateq {
 			element.basis().evalGradient(xi, dNdxi);
 			element.basis().getFaceTopology(faceID, normalRef);
 
+			// gather N onto face-local indices
+			for (Index a = 0; a < nodesPerFace(); ++a){
+				Nface[a] = N[faceNodeLocalIDs[a]];
+			}
+
 			// geometry
 			Geometry::mapToPhysical(coords, N, x, nodesPerElement());
-			Geometry::mapToPhysical(faceCoords, N, x_face, nodesPerElement());
 			Geometry::computeJacobian(coords, dNdxi, J, nodesPerElement());
 			Geometry::computeBoundaryNormal(J, normalRef, normal);
 

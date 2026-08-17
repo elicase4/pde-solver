@@ -37,6 +37,11 @@ add_pde_test(UnitTest_Mesh_Generator_BlockMesh2D
 	pde_mesh pde_io
 )
 
+add_pde_test(UnitTest_Mesh_Generator_BlockMesh3D
+	unit/mesh/generator/BlockMesh3D.cpp
+	pde_mesh pde_io
+)
+
 add_pde_test(UnitTest_Mesh_Exchange_Gmsh_MeshConverter
 	unit/mesh/exchange/gmsh/MeshConverter.cpp
 	pde_mesh pde_io
@@ -100,11 +105,21 @@ add_pde_test(UnitTest_Equations_Heateq_ScalarExpressionWrappers
 )
 
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
-	integration/fem/cpu/HeatEquationMinimal.cpp
+	integration/fem/cpu/HeatEquationMinimal3D.cpp
+	pde_mesh
+)
+
+add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal3D
+	integration/fem/cpu/HeatEquationMinimal3D.cpp
 	pde_mesh
 )
 
 add_pde_test(IntegrationTest_Full_Cpu_HeatEquationMinimal
-	integration/full/cpu/HeatEquationMinimal.cpp
+	integration/full/cpu/HeatEquationMinimal2D.cpp
+	pde_mesh pde_io
+)
+
+add_pde_test(IntegrationTest_Full_Cpu_HeatEquationMinimal3D
+	integration/full/cpu/HeatEquationMinimal3D.cpp
 	pde_mesh pde_io
 )
