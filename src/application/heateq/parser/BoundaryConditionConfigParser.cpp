@@ -38,7 +38,15 @@ pdesolver::application::heateq::config::BoundaryConditionConfig pdesolver::appli
 
 	cfg.boundaryID = YAMLReader::required<Int>(node, "boundary");
 	cfg.type = BoundaryConditionConfigParser::parseBoundaryConditionType(YAMLReader::required<std::string>(node, "type"));
-	cfg.expression = YAMLReader::required<std::string>(node, "expression");
+
+	// Value BCs take a single scalar expression; Flux BCs take one expression
+	// per spatial component (a YAML sequence), since BoundaryFluxFunction
+	// evaluates a full vector, not a scalar.
+	if (cfg.type == pdesolver::application::heateq::config::BoundaryConditionConfig::Type::Flux) {
+		cfg.fluxExpression = YAMLReader::required<std::vector<std::string>>(node, "expression");
+	} else {
+		cfg.expression = YAMLReader::required<std::string>(node, "expression");
+	}
 	for (auto& form : YAMLReader::required<std::vector<std::string>>(node, "forms")) {
 		cfg.forms.push_back(BoundaryConditionConfigParser::parseBoundaryConditionForm(form));
 	}

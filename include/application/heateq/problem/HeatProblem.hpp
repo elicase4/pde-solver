@@ -32,6 +32,7 @@
 #include "topology/TopologicalDOF.hpp"
 
 #include "utils/expression/ScalarExpression.hpp"
+#include "utils/expression/VectorExpression.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -79,7 +80,7 @@ namespace pdesolver {
 				private:
 
 					using SourceCallableT = utils::expression::ScalarExpression;
-					using FluxCallableT = utils::expression::ScalarExpression;
+					using FluxCallableT = utils::expression::VectorExpression;
 
 					using MatrixFormsT = fem::form::FormRegistry<typename HeatEqBundle::DiffusionForm>;
 					using SourceFormsT = fem::form::FormRegistry<typename HeatEqBundle::template SourceForm<SourceCallableT>>;

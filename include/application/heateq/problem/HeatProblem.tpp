@@ -36,9 +36,13 @@ namespace pdesolver::application::heateq::problem {
 
 					using FluxFunctionT = typename HeatEqBundle::template FluxBC<FluxCallableT>;
 
-					fluxForms_.push_back(std::make_unique<FluxFormsT>(bcCfg.expression));
+					if (bcCfg.fluxExpression.size() != HeatEqBundle::SpatialDim) {
+						throw std::runtime_error("HeatProblem: flux boundary 'expression' must have SpatialDim components");
+					}
 
-					auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionT>>(new fem::boundary::BoundaryCondition<FluxFunctionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionT{bcCfg.expression}});
+					fluxForms_.push_back(std::make_unique<FluxFormsT>(bcCfg.fluxExpression));
+
+					auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionT>>(new fem::boundary::BoundaryCondition<FluxFunctionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionT{bcCfg.fluxExpression}});
 
 					naturalBCs_.template registerBC<FluxFunctionT>(bc, *fluxForms_.back(), defaultModelBdy_);
 				

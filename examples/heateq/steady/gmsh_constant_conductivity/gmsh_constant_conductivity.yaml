@@ -1,0 +1,83 @@
+mesh:
+
+  file: ../../../mesh/ubend/quarter_ubend.pmsh
+
+discretization:
+
+  quadrature:
+    xi: 2
+    eta: 2
+    zeta: 2
+
+  dof_ordering:
+    type: interleaved
+
+physics:
+
+  models:
+
+    conductivity:
+      type: constant
+      value: 1.0
+
+    source:
+      type: volumetric
+      expression: "0.0"
+
+boundary_conditions:
+
+  # hot inlet
+  - boundary: 1
+    type: value
+    expression: "100.0"
+    forms: [value_bc]
+    model: constant
+
+  # cold outlet
+  - boundary: 2
+    type: value
+    expression: "0.0"
+    forms: [value_bc]
+    model: constant
+
+  # insulated duct walls
+  - boundary: 3
+    type: flux
+    expression: ["0.0", "0.0", "0.0"]
+    forms: [flux_bc]
+    model: constant
+
+solver:
+
+  driver:
+    type: steady
+
+  linear:
+
+    type: cg
+
+    operator:
+      type: fem
+
+    preconditioner:
+      type: identity
+
+    tolerance: 1.0e-10
+    max_iterations: 10000
+
+output:
+  directory: output
+  vtk: true
+  write_frequency: 1
+  prefix: gmsh_constant_conductivity_solution
+
+logging:
+
+  solver:
+    type: console
+
+  driver:
+    type: console
+
+  output:
+    file: log.txt

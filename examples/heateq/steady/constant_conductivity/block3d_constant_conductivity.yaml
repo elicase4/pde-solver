@@ -1,12 +1,13 @@
 mesh:
-  
-  file: ../../mesh/square.pmsh
+
+  file: ../../../mesh/cube/cube.pmsh
 
 discretization:
-  
-  quadrature: 
+
+  quadrature:
     xi: 2
     eta: 2
+    zeta: 2
 
   dof_ordering:
     type: interleaved
@@ -24,28 +25,40 @@ physics:
       expression: "0.0"
 
 boundary_conditions:
- 
+
   - boundary: 0
     type: value
-    expression: "(1-x)*(1-y)"
+    expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: constant
 
   - boundary: 1
     type: value
-    expression: "(1-x)*(1-y)"
+    expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: constant
 
   - boundary: 2
     type: value
-    expression: "(1-x)*(1-y)"
+    expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: constant
 
   - boundary: 3
     type: value
-    expression: "(1-x)*(1-y)"
+    expression: "(1-x)*(1-y)*(1-z)"
+    forms: [value_bc]
+    model: constant
+
+  - boundary: 4
+    type: value
+    expression: "(1-x)*(1-y)*(1-z)"
+    forms: [value_bc]
+    model: constant
+
+  - boundary: 5
+    type: value
+    expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: constant
 
@@ -57,39 +70,24 @@ solver:
   linear:
 
     type: cg
-    
+
     operator:
       type: fem
 
     preconditioner:
       type: identity
-    
+
     tolerance: 1.0e-12
     max_iterations: 10000
-    # krylov_dim: 50
-
-  # nonlinear:
-    # type: newton
-    # tolerance: 1e-8
-    # max_iterations: 30
-
-  # driver:
-    # type: transient
-    #
-  # timestepper:
-    # type: backward_euler
-    # t0: 0.0
-    # tf: 1.0
-    # dt: 0.01
 
 output:
   directory: output
   vtk: true
   write_frequency: 1
-  prefix: solution
+  prefix: block3d_constant_conductivity_solution
 
 logging:
-  
+
   solver:
     type: console
 
