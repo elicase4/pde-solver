@@ -1,7 +1,7 @@
 namespace pdesolver::application::heateq::problem {
 
 	template<typename Backend, typename HeatEqBundle>
-	HeatProblem<Backend, HeatEqBundle>::HeatProblem(const application::heateq::config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary) : config_(config), solverInstance_(solver::resolveSolverInstance(config_.solver)), mesh_(std::move(mesh)), topoDOF_(mesh_, config_.discretization.dofOrdering), evalEleTemplate_(std::move(basis)), quadratureVolume_(std::move(quadratureVolume)), quadratureBoundary_(std::move(quadratureBoundary)), sourceForms_(config_.source.expression) {
+	HeatProblem<Backend, HeatEqBundle>::HeatProblem(const application::heateq::config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary) : config_(config), solverInstance_(solver::resolveSolverInstance(config_.solver)), mesh_(std::move(mesh)), topoDOF_(mesh_, config_.discretization.dofOrdering), driverLogger_(solver::logging::makeDriverLogger(config_.logging.driver, "heateq")), evalEleTemplate_(std::move(basis)), quadratureVolume_(std::move(quadratureVolume)), quadratureBoundary_(std::move(quadratureBoundary)), sourceForms_(config_.source.expression) {
 
 		// solver instance
 		if (solver::isTransient(solverInstance_.mode)) {
@@ -66,7 +66,7 @@ namespace pdesolver::application::heateq::problem {
 		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
 		    
 			CSROperatorT op(*K_);
-			linearSolverRunner_ = solver::linear::makeLinearSolverRunner<CSROperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, "heateq");
+			linearSolverRunner_ = solver::linear::makeLinearSolverRunner<CSROperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, "Heat Equation", std::vector<std::string>{"T"});
 		
 		} else if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::FEM) {
 
@@ -76,7 +76,7 @@ namespace pdesolver::application::heateq::problem {
 				using FEMOperatorT = FEMOperatorFor<ConductivityModelT>;
 
 				FEMOperatorT op(assembler_, mesh_, topoDOF_, Real(0), model, matrixForms_, evalEleTemplate_, quadratureVolume_);
-				linearSolverRunner_ = solver::linear::makeLinearSolverRunner<FEMOperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, "heateq");
+				linearSolverRunner_ = solver::linear::makeLinearSolverRunner<FEMOperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, "Heat Equation", std::vector<std::string>{"T"});
 
 			}, conductivityModel_);
 
@@ -165,10 +165,13 @@ namespace pdesolver::application::heateq::problem {
 	void HeatProblem<Backend, HeatEqBundle>::writeOutput(Index step) const {
 
 		if (!config_.output.vtk || (step % config_.output.writeFrequency != 0)) return;
-		
+
 		const std::string filename = config_.output.directory + "/" + config_.output.prefix + "_" + std::to_string(step) + ".vtk";
 		io::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T"}, filename);
-		
+
+		const char* ordStr = (topoDOF_.ordering() == fem::dof::DOFOrdering::Interleaved) ? "Interleaved" : "Block";
+		driverLogger_.event("wrote '" + filename + "' - " + std::to_string(HeatEqBundle::NumDOFs) + " field(s), " + std::to_string(mesh_.data.numNodes) + " nodes, " + ordStr + " ordering");
+
 	}
 
 	template<typename Backend, typename HeatEqBundle>

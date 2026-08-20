@@ -52,10 +52,6 @@ namespace pdesolver::io {
 
 		w.endPointData();
 
-		const char* ordStr = (topoDOF.ordering() == fem::dof::DOFOrdering::Interleaved) ? "Interleaved" : "Block";
-
-		std::cout << "FieldIO: '" << filename << "' written - " << topology::TopologicalDOF<numDOFs>::dofsPerNode << " field(s), " << mesh.data.numNodes << " nodes, " << ordStr << " ordering\n";
-
 	}
 
 	template<Index numDOFs>

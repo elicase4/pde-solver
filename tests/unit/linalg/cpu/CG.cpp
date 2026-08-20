@@ -48,7 +48,7 @@ TEST(CGSolver, Solve2x2SPD) {
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<Vec> M;
-	utils::logging::ConsoleLogger logger("PCG", "x");
+	utils::logging::ConsoleLogger logger("Linear System", "PCG", "Identity", {"x"});
 
 	// setup solver config
 	const Real solverTol = 1e-12;

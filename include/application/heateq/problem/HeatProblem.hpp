@@ -28,11 +28,13 @@
 
 #include "solver/SolverInstance.hpp"
 #include "solver/linear/LinearSolverFactory.hpp"
+#include "solver/logging/LoggerFactory.hpp"
 
 #include "topology/TopologicalDOF.hpp"
 
 #include "utils/expression/ScalarExpression.hpp"
 #include "utils/expression/VectorExpression.hpp"
+#include "utils/logging/driver/Logger.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -104,6 +106,8 @@ namespace pdesolver {
 
 					mesh::Mesh mesh_;
 					topology::TopologicalDOF<HeatEqBundle::NumDOFs> topoDOF_;
+
+					utils::logging::driver::Logger driverLogger_;
 
 					// evalEleTemplate_ holds the resolved Basis (order fixed for this
 					// problem's lifetime); copied and rebound per-element inside

@@ -26,8 +26,6 @@ void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filena
 	w.writeCells(ienCCW.data(), mesh.data.numElements, mesh.data.nodesPerElement);
 	w.writeCellTypes(cellType, mesh.data.numElements);
 
-	std::cout << "MeshIO: mesh was written to '" << filename << "'\n";
-
 }
 
 void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::string& filename){
@@ -77,7 +75,6 @@ void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::strin
 	}
 
 	ofs.close();
-	std::cout << "MeshIO: binary mesh written to '" << filename << "'\n";
 
 }
 
@@ -150,7 +147,5 @@ void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& file
 	if (!mesh.isValid()){
 		throw std::runtime_error("MeshIO:readBindary: mesh from '" + filename + "' failed validation");
 	}
-
-	std::cout << "MeshIO: binary mesh read from '" << filename << "'\n";
 
 }

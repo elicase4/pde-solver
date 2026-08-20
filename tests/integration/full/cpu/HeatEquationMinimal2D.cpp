@@ -172,7 +172,7 @@ TEST_F(CPUHeatEquationMinimal, MatrixCGSolverBilinearSolP1){
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<linalg::types::Vector<Real, BackendType>> M;
-	utils::logging::ConsoleLogger logger("PCG", "theta");
+	utils::logging::ConsoleLogger logger("Heat Equation", "PCG", "Identity", {"T"});
 
 	// setup solver config
 	const Real solverTol = 1e-12;
@@ -241,7 +241,7 @@ TEST_F(CPUHeatEquationMinimal, MatrixFreeCGSolver){
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<linalg::types::Vector<Real, BackendType>> M;
-	utils::logging::ConsoleLogger logger("PCG", "theta");
+	utils::logging::ConsoleLogger logger("Heat Equation", "PCG", "Identity", {"T"});
 
 	// setup solver config
 	const Real solverTol = 1e-12;

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "core/Types.hpp"
+#include "solver/config/LoggingConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -63,6 +64,8 @@ namespace pdesolver {
 				BlockMesh2DConfig block2D;
 
 				BlockMesh3DConfig block3D;
+
+				solver::config::LoggingConfig logging;
 
 			};
 

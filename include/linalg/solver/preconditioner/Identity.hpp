@@ -16,6 +16,10 @@ namespace pdesolver {
 						operations::copy(r, z); // z = r
 					}
 
+					Index flopsPerApply() const {
+						return 0;
+					}
+
 				}; // class Identity
 
 			} // namespaace preconditioner

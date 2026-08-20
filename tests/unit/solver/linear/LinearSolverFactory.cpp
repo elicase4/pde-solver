@@ -50,7 +50,7 @@ TEST(LinearSolverFactory, CGConfigProducesConvergedSolution) {
 	cfg.tolerance = 1e-12;
 	cfg.maxIterations = 1000;
 
-	auto runner = solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, "test");
+	auto runner = solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, solver::config::LoggerConfig{solver::config::LoggerConfig::Type::None}, "Test", {"x"});
 
 	linalg::solver::SolverReport<Vec> report;
 	bool converged = runner->solve(b, x, report);
@@ -72,7 +72,7 @@ TEST(LinearSolverFactory, UnimplementedSolverTypesThrow) {
 		solver::config::LinearSolverConfig cfg;
 		cfg.type = type;
 
-		EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, "test")), std::runtime_error);
+		EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, solver::config::LoggerConfig{solver::config::LoggerConfig::Type::None}, "Test", {"x"})), std::runtime_error);
 
 	}
 
@@ -87,6 +87,6 @@ TEST(LinearSolverFactory, NonIdentityPreconditionerThrows) {
 	cfg.type = solver::config::LinearSolverConfig::Type::CG;
 	cfg.preconditioner.type = static_cast<solver::config::PreconditionerConfig::Type>(-1); // not Identity
 
-	EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, "test")), std::runtime_error);
+	EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, solver::config::LoggerConfig{solver::config::LoggerConfig::Type::None}, "Test", {"x"})), std::runtime_error);
 
 }

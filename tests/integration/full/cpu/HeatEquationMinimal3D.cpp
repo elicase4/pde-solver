@@ -166,7 +166,7 @@ TEST_F(CPUHeatEquationMinimal3D, MatrixCGSolverTrilinearSolP1){
 	linalg::solver::SolverReport<linalg::types::Vector<Real, BackendType>> report;
 
 	linalg::solver::preconditioner::Identity<linalg::types::Vector<Real, BackendType>> M;
-	utils::logging::ConsoleLogger logger("PCG", "theta");
+	utils::logging::ConsoleLogger logger("Heat Equation", "PCG", "Identity", {"T"});
 
 	const Real solverTol = 1e-12;
 	const Index MaxIter = 10000;
@@ -222,7 +222,7 @@ TEST_F(CPUHeatEquationMinimal3D, MatrixFreeCGSolver){
 	linalg::solver::SolverReport<linalg::types::Vector<Real, BackendType>> report;
 
 	linalg::solver::preconditioner::Identity<linalg::types::Vector<Real, BackendType>> M;
-	utils::logging::ConsoleLogger logger("PCG", "theta");
+	utils::logging::ConsoleLogger logger("Heat Equation", "PCG", "Identity", {"T"});
 
 	const Real solverTol = 1e-12;
 	const Index MaxIter = 10000;

@@ -27,6 +27,11 @@ namespace pdesolver {
 					return A.nRows();
 				}
 
+				// SpMV: one multiply + one add per nonzero
+				Index flopsPerApply() const {
+					return 2 * A.rowPtr()[A.nRows()];
+				}
+
 			}; // class CSROperator
 
 		} // namespace op

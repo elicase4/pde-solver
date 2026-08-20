@@ -18,8 +18,6 @@ namespace pdesolver {
 						ToleranceType tolType = ToleranceType::Relative;
 						Index maxIters = 1000;
 
-						Index reportInterval = 1;
-
 						Index dofsPerNode = 1;
 
 					}; // struct Config

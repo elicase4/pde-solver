@@ -1,4 +1,3 @@
-#include <iostream>
 #include <stdexcept>
 #include <utility>
 
@@ -17,6 +16,7 @@
 #include "mesh/Mesh.hpp"
 
 #include "solver/driver/Steady.hpp"
+#include "solver/logging/LoggerFactory.hpp"
 
 bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::application::heateq::config::HeatConfig& config) {
 
@@ -49,7 +49,9 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 	const Index basisOrderY = mesh.data.basisOrder.size() > 1 ? mesh.data.basisOrder[1] : 1;
 	const Index basisOrderZ = mesh.data.basisOrder.size() > 2 ? mesh.data.basisOrder[2] : 1;
 
-	std::cout << "[heateq] mesh: " << mesh.data.numElements << " elements, nsd=" << nsd << " npd=" << npd << "\n";
+	const auto logger = pdesolver::solver::logging::makeDriverLogger(config.logging.driver, "heateq");
+
+	logger.event("mesh: " + config.mesh.file + " -> " + std::to_string(mesh.data.numElements) + " elements, nsd=" + std::to_string(nsd) + " npd=" + std::to_string(npd));
 
 	bool converged = false;
 
@@ -68,7 +70,11 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 		heatProblem.writeOutput(0);
 		heatProblem.writeLog();
 
-		std::cout << "[heateq] " << (converged ? "converged" : "did not converge") << "\n";
+		if (converged) {
+			logger.event("converged");
+		} else {
+			logger.warn("did not converge");
+		}
 
 		return converged;
 

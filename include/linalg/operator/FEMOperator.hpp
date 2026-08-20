@@ -35,6 +35,12 @@ namespace pdesolver {
 					return topoDOF.numFreeDOFs();
 				}
 
+				// Approximation: dominant local dense-matvec term only (numElements * 2*nodesPerElement^2),
+				// excludes basis-evaluation/quadrature overhead.
+				Index flopsPerApply() const {
+					return 2 * mesh.data.numElements * mesh.data.nodesPerElement * mesh.data.nodesPerElement;
+				}
+
 			private:
 				const Assembler& assembler;
 				const mesh::Mesh& mesh;

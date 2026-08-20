@@ -9,6 +9,7 @@ add_library(pde_solver
 	parser/NonlinearSolverConfigParser.cpp
 	parser/TimeStepperConfigParser.cpp
 	parser/OutputConfigParser.cpp
+	parser/LoggingConfigParser.cpp
 )
 
 target_include_directories(pde_solver

@@ -1,10 +1,12 @@
 #ifndef PDESOLVER_CONSOLELOGGER_HPP
 #define PDESOLVER_CONSOLELOGGER_HPP
 
+#include <chrono>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "core/Types.hpp"
@@ -15,11 +17,13 @@ namespace pdesolver {
 		namespace logging {
 
 			struct ConsoleLogger {
-				
+
 				// config
-				std::string solverName;
-				std::string label;
-				std::vector<std::string> dofNames; // one name per field component
+				std::string equationName;    // banner headline, e.g. "Heat Equation"
+				std::string solverName;      // banner headline + [tag] bracket, e.g. "PCG"
+				std::string preconditionerName;
+				std::vector<std::string> dofNames; // one name per field component, e.g. {"T"}
+				std::vector<std::pair<std::string, std::string>> extraParams; // extra banner lines
 				Index interval; // print every N iterations
 				bool printHeader;
 
@@ -27,30 +31,37 @@ namespace pdesolver {
 				Index freeDOFsPerField;
 				fem::dof::DOFOrdering dofOrdering;
 
-				// single-field constructor
-				explicit ConsoleLogger(std::string solverNameIn, std::string equationLabel, Index reportInterval = 1) : solverName(std::move(solverNameIn)), label(std::move(equationLabel)), dofNames({label}), interval(reportInterval), printHeader(true), freeDOFsPerField(0), dofOrdering(fem::dof::DOFOrdering::Interleaved) {}
+				explicit ConsoleLogger(std::string equationNameIn, std::string solverNameIn, std::string preconditionerNameIn, std::vector<std::string> dofNamesIn, std::vector<std::pair<std::string, std::string>> extraParamsIn = {}, Index freeDOFsPerFieldIn = 0, fem::dof::DOFOrdering ordering = fem::dof::DOFOrdering::Interleaved, Index reportInterval = 1) : equationName(std::move(equationNameIn)), solverName(std::move(solverNameIn)), preconditionerName(std::move(preconditionerNameIn)), dofNames(std::move(dofNamesIn)), extraParams(std::move(extraParamsIn)), interval(reportInterval), printHeader(true), freeDOFsPerField(freeDOFsPerFieldIn), dofOrdering(ordering) {}
 
-				// multi-field constructor
-				explicit ConsoleLogger(std::string solverNameIn, std::string equationLabel, std::vector<std::string> componentNames, Index freeDOFsPerFieldIn, fem::dof::DOFOrdering ordering, Index reportInterval = 1) : solverName(std::move(solverNameIn)), label(std::move(equationLabel)), dofNames(std::move(componentNames)), interval(reportInterval), printHeader(true), freeDOFsPerField(freeDOFsPerFieldIn), dofOrdering(ordering) {}
-
-				// log()
+				// log() -- perDOFAbs are absolute per-DOF residual norms; the logger tracks the
+				// iteration-0 baseline internally and prints relative values. flopsThisIter is
+				// the (usually precomputed, constant) flop cost attributable to this iteration.
 				template<typename DataType>
-				void log(Index iter, DataType absRes, DataType relRes = DataType(-1), const std::vector<DataType>& perDOF = {}) const;
+				void log(Index iter, const std::vector<DataType>& perDOFAbs, DataType flopsThisIter = DataType(0)) const;
 
-				// computePerDOFNorms() helper
+				// computePerDOFNorms() helper -- absolute, not relative
 				template<typename DataType>
 				std::vector<DataType> computePerDOFNorms(const DataType* r, Index totalSize) const;
-					
+
+				// one-line closing statement -- call once after the solve loop ends
+				void summary(bool converged) const;
+
 				template<typename Args>
 				void event(Args&& msg) const {
-					std::cout << "[" << label << "]" << msg << "\n";
+					std::cout << "[" << solverName << "] " << msg << "\n";
 				}
 
 			private:
-				
-				void printBanner(std::string solverName) const;
 
-				void printColumnHeader(Index numPerDOF) const;
+				void printBanner() const;
+				void printColumnHeader() const;
+
+				mutable bool baselineCaptured_ = false;
+				mutable std::vector<Real> initialPerDOFNorms_;
+				mutable std::vector<Real> lastRelPerDOF_;
+				mutable std::chrono::steady_clock::time_point startTime_;
+				mutable double totalFlops_ = 0.0;
+				mutable Index lastIter_ = 0;
 
 			}; // struct ConsoleLogger
 

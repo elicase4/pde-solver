@@ -18,6 +18,7 @@ target_link_libraries(pde_mesh_app
     PUBLIC
         pde_mesh
         pde_io
+        pde_solver
         yaml-cpp
 )
 

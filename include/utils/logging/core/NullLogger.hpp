@@ -12,13 +12,21 @@ namespace pdesolver {
 			struct NullLogger {
 
 				template<typename DataType>
-				inline void log(Index, DataType, DataType = DataType(-1), const std::vector<DataType>& = {}) const {}
+				inline void log(Index, const std::vector<DataType>&, DataType = DataType(0)) const {}
 
 				template<typename DataType>
-				inline std::vector<DataType> computePerDOFNorms(const DataType*, Index) const { return{}; }
+				inline std::vector<DataType> computePerDOFNorms(const DataType*, Index) const { return {}; }
+
+				inline void summary(bool) const {}
 
 				template<typename Args>
 				inline void event(Args&&) const {}
+
+				template<typename Args>
+				inline void warn(Args&&) const {}
+
+				template<typename Args>
+				inline void error(Args&&) const {}
 
 			}; // struct NullLogger
 

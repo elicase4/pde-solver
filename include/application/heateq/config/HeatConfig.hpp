@@ -13,6 +13,7 @@
 #include "solver/config/DiscretizationConfig.hpp"
 #include "solver/config/SolverConfig.hpp"
 #include "solver/config/LinearSolverConfig.hpp"
+#include "solver/config/LoggingConfig.hpp"
 #include "solver/config/NonlinearSolverConfig.hpp"
 #include "solver/config/OutputConfig.hpp"
 #include "solver/config/TimeStepperConfig.hpp"
@@ -33,6 +34,8 @@ namespace pdesolver {
 					solver::config::SolverConfig solver;
 					
 					solver::config::OutputConfig output;
+
+					solver::config::LoggingConfig logging;
 
 					std::vector<BoundaryConditionConfig> boundaryConditions;
 

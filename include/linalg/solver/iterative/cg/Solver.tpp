@@ -17,18 +17,22 @@ namespace pdesolver::linalg::solver::iterative::cg {
 		using DataType = typename VectorType::value_type;
 		const bool relMode = (config.tolType == ToleranceType::Relative);
 
+		// per-iteration flop cost is constant for CG (same op sequence every iteration) --
+		// computed once here, not measured at runtime.
+		const DataType flopsPerIter = static_cast<DataType>(A.flopsPerApply()) + static_cast<DataType>(M.flopsPerApply()) + DataType(10) * static_cast<DataType>(x.size());
+
 		// compute intial residual
 		A.apply(x, W.Ap); // Ap = A*x
 		operations::copy(b, W.r); // r = b
 		operations::axpy(DataType(-1.0), W.Ap, W.r); // r = b - Ap
-		
+
 		// compute absolute & relative residual magnitude
 		const DataType res0 = operations::norm(W.r); // ||r||
 		report.initialResidual = res0;
 
-		// log iteration
+		// log iteration 0 -- setup phase, not a full CG iteration, so no flop cost attributed
 		auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
-		logger.log(Index(0), res0, DataType(1), perDOF);
+		logger.log(Index(0), perDOF, DataType(0));
 
 		// convergence lambda
 		auto converged = [&](DataType res) -> bool {
@@ -42,6 +46,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 			report.finalResidual = res0;
 			report.finalResidualRel = DataType(1);
 			report.iterations = 0;
+			logger.summary(true);
 			return true;
 		}
 
@@ -66,24 +71,18 @@ namespace pdesolver::linalg::solver::iterative::cg {
 			DataType res = operations::norm(W.r); // res = ||r||
 			DataType rel = res / (res0 + DataType(1e-50));
 
-			// log iteration
-			if ((config.reportInterval > 0) && (k % config.reportInterval == 0)) {
-				auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
-				logger.log(k, res, rel, perDOF);
-			}
+			// log iteration -- always called; the logger's own interval decides whether to print
+			auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
+			logger.log(k, perDOF, flopsPerIter);
 
 			// check convergence
 			if (converged(res)){
-				auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
 				report.converged = true;
 				report.finalResidual = res;
 				report.finalResidualRel = rel;
 				report.iterations = k;
 				report.perFieldResidual = std::vector<DataType>(perDOF.begin(), perDOF.end());
-				// print convergence line
-				if (config.reportInterval > 0 && k % config.reportInterval != 0){
-					logger.log(k, res, rel, perDOF);
-				}
+				logger.summary(true);
 				return true;
 			}
 
@@ -107,6 +106,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 		report.finalResidual = res_final;
 		report.finalResidualRel = res_final / (res0 + DataType(1e-50));
 		report.iterations = config.maxIters;
+		logger.summary(false);
 		return false;
 
 	}

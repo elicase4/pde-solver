@@ -2,6 +2,8 @@
 #include "application/mesh/MeshConfigParser.hpp"
 #include "application/mesh/MeshDispatcher.hpp"
 
+#include "solver/logging/LoggerFactory.hpp"
+
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -13,17 +15,29 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
+	// no LoggingConfig exists until the config actually parses -- plain cerr here is the
+	// honest boundary, not an oversight.
+	pdesolver::application::mesh::MeshConfig cfg;
+
 	try {
-		
-		const auto cfg = pdesolver::application::mesh::MeshConfigParser::read(argv[1]);
-		pdesolver::application::mesh::MeshApplication app(cfg);
-		return app.run();
-	
+		cfg = pdesolver::application::mesh::MeshConfigParser::read(argv[1]);
 	} catch (const std::exception& e) {
-		
 		std::cerr << "[mesh] fatal error: " << e.what() << "\n";
 		return EXIT_FAILURE;
-	
+	}
+
+	const auto logger = pdesolver::solver::logging::makeDriverLogger(cfg.logging.driver, "mesh");
+
+	try {
+
+		pdesolver::application::mesh::MeshApplication app(cfg);
+		return app.run();
+
+	} catch (const std::exception& e) {
+
+		logger.error(e.what());
+		return EXIT_FAILURE;
+
 	}
 
 }

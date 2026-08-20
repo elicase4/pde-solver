@@ -8,6 +8,7 @@
 #include "solver/parser/MeshConfigParser.hpp"
 #include "solver/parser/SolverConfigParser.hpp"
 #include "solver/parser/OutputConfigParser.hpp"
+#include "solver/parser/LoggingConfigParser.hpp"
 
 #include "io/YAMLReader.hpp"
 
@@ -42,7 +43,10 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 		throw std::runtime_error("HeatConfigParser: missing required 'output' section in " + filename);
 	}
 	cfg.output = pdesolver::solver::parser::OutputConfigParser::parse(output);
-	
+
+	// 'logging:' is optional -- absent means console logging with no file mirror
+	cfg.logging = pdesolver::solver::parser::LoggingConfigParser::parse(root["logging"]);
+
 	const YAML::Node& bcs = root["boundary_conditions"];
 	if (!bcs) {
 		throw std::runtime_error("HeatConfigReader: missing required 'boundary_conditions' section in " + filename);

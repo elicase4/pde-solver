@@ -1,6 +1,7 @@
 #include "application/mesh/MeshConfigParser.hpp"
 
 #include "io/YAMLReader.hpp"
+#include "solver/parser/LoggingConfigParser.hpp"
 
 pdesolver::application::mesh::MeshConfig::Type pdesolver::application::mesh::MeshConfigParser::parseMeshType(const std::string& str) {
 
@@ -73,6 +74,9 @@ pdesolver::application::mesh::MeshConfig pdesolver::application::mesh::MeshConfi
 	}
 	
 	cfg.outputFile = YAMLReader::required<std::string>(outNode, "output_file");
+
+	// 'logging:' is optional -- absent means console logging with no file mirror
+	cfg.logging = pdesolver::solver::parser::LoggingConfigParser::parse(root["logging"]);
 
 	return cfg;
 
