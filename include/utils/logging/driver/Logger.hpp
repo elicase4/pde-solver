@@ -12,9 +12,6 @@ namespace pdesolver {
 		namespace logging {
 			namespace driver {
 
-				// Runtime choice between driver::ConsoleLogger and NullLogger (mirrors the
-				// ConductivityModelVariant pattern) -- call sites just say event()/warn()/error(),
-				// unaware a variant exists underneath.
 				class Logger {
 				public:
 

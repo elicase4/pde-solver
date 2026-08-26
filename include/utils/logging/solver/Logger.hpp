@@ -13,9 +13,6 @@ namespace pdesolver {
 	namespace utils {
 		namespace logging {
 
-			// Runtime choice between ConsoleLogger and NullLogger for the per-solve
-			// iteration/residual channel -- mirrors driver::Logger's variant pattern so
-			// LinearSolverFactory can honor LoggingConfig.solver.type.
 			class SolverLogger {
 			public:
 

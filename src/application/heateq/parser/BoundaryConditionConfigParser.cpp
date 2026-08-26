@@ -16,6 +16,20 @@ pdesolver::application::heateq::config::BoundaryConditionConfig::Type pdesolver:
 
 }
 
+pdesolver::application::heateq::config::BoundaryConditionConfig::Mode pdesolver::application::heateq::parser::BoundaryConditionConfigParser::parseBoundaryConditionMode(const std::string& str) {
+
+	if (str == "expression") {
+		return pdesolver::application::heateq::config::BoundaryConditionConfig::Mode::Expression;
+	}
+
+	if (str == "file") {
+		return pdesolver::application::heateq::config::BoundaryConditionConfig::Mode::File;
+	}
+
+	throw std::runtime_error("Unknown boundary mode: " + str);
+
+}
+
 pdesolver::application::heateq::config::BoundaryConditionConfig::Form pdesolver::application::heateq::parser::BoundaryConditionConfigParser::parseBoundaryConditionForm(const std::string& str) {
 
 	if (str == "flux_bc") {
@@ -38,11 +52,14 @@ pdesolver::application::heateq::config::BoundaryConditionConfig pdesolver::appli
 
 	cfg.boundaryID = YAMLReader::required<Int>(node, "boundary");
 	cfg.type = BoundaryConditionConfigParser::parseBoundaryConditionType(YAMLReader::required<std::string>(node, "type"));
+	cfg.mode = BoundaryConditionConfigParser::parseBoundaryConditionMode(YAMLReader::optional<std::string>(node, "mode", "expression"));
 
-	// Value BCs take a single scalar expression; Flux BCs take one expression
-	// per spatial component (a YAML sequence), since BoundaryFluxFunction
-	// evaluates a full vector, not a scalar.
-	if (cfg.type == pdesolver::application::heateq::config::BoundaryConditionConfig::Type::Flux) {
+	// Mode::File: a path instead, regardless of Type. Mode::Expression: Value BCs take
+	// a single scalar expression; Flux BCs take one expression per spatial component
+	// (a YAML sequence), since BoundaryFluxFunction evaluates a full vector, not a scalar.
+	if (cfg.mode == pdesolver::application::heateq::config::BoundaryConditionConfig::Mode::File) {
+		cfg.file = YAMLReader::required<std::string>(node, "file");
+	} else if (cfg.type == pdesolver::application::heateq::config::BoundaryConditionConfig::Type::Flux) {
 		cfg.fluxExpression = YAMLReader::required<std::vector<std::string>>(node, "expression");
 	} else {
 		cfg.expression = YAMLReader::required<std::string>(node, "expression");

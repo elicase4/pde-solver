@@ -182,7 +182,7 @@ public:
 	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
 	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
-		// allocate Fe on the stack -- capped, see assembleMatrix() above
+		// allocate Fe on the stack
 		Real Fe[fem::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
 
 		// allocate Ue on the stack

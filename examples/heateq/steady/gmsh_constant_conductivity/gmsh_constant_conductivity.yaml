@@ -47,6 +47,10 @@ boundary_conditions:
     forms: [flux_bc]
     model: constant
 
+initial_condition:
+  type: expression
+  expression: "0.0"
+
 solver:
 
   driver:

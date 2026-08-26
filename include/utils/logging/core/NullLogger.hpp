@@ -14,6 +14,7 @@ namespace pdesolver {
 				template<typename DataType>
 				inline void log(Index, const std::vector<DataType>&, DataType = DataType(0)) const {}
 
+				// TODO: move to solver logger
 				template<typename DataType>
 				inline std::vector<DataType> computePerDOFNorms(const DataType*, Index) const { return {}; }
 

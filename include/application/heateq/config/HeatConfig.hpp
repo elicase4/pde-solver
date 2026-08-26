@@ -6,6 +6,7 @@
 
 #include "application/heateq/config/BoundaryConditionConfig.hpp"
 #include "application/heateq/config/ConductivityConfig.hpp"
+#include "application/heateq/config/InitialConditionConfig.hpp"
 #include "application/heateq/config/SourceConfig.hpp"
 
 #include "solver/config/BackendConfig.hpp"
@@ -40,8 +41,10 @@ namespace pdesolver {
 					std::vector<BoundaryConditionConfig> boundaryConditions;
 
 					ConductivityConfig conductivity;
-					
+
 					SourceConfig source;
+
+					InitialConditionConfig initialCondition;
 
 				}; // struct HeatConfig
 

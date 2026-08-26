@@ -18,8 +18,6 @@ namespace pdesolver {
 				Bold
 			};
 
-			// auto-detected once, from whether stdout is an actual terminal -- avoids
-			// garbling redirected/piped output (files, `| tee`, etc.) with escape codes.
 			inline bool colorEnabled() {
 				static const bool enabled = (isatty(fileno(stdout)) != 0);
 				return enabled;

@@ -23,8 +23,6 @@ namespace pdesolver {
 					explicit HeatStage(ProblemT& problem) : problem_(problem) {
 
 						if (solver::isNonlinear(problem_.solverInstance().mode)) {
-							// VectorType isn't deducible from any parameter here (only StageT is,
-							// from the stage argument) -- both must be given explicitly.
 							nonlinearSolverRunner_ = solver::nonlinear::makeNonlinearSolverRunner<HeatStage, typename ProblemT::VectorT>(
 								*this, *problem_.solverInstance().nonlinear, "heateq");
 						}
@@ -48,8 +46,6 @@ namespace pdesolver {
 
 					void finalize() {}
 
-					// NonlinearCapableStage forwarding -- only ever called by
-					// nonlinearSolverRunner_'s (still unimplemented) internal loop.
 					Real residualNorm() const { return problem_.residualNorm(); }
 
 					bool solveLinearStep() { return problem_.solveLinearStep(); }

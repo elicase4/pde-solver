@@ -14,10 +14,17 @@ namespace pdesolver {
 
 				struct BoundaryConditionConfig {
 
+					// Essential (Dirichlet) vs natural (flux)
 					enum class Type {
 						Value,
 						Flux
 					}; // enum class Type
+
+					// Expression vs file
+					enum class Mode {
+						Expression,
+						File
+					}; // enum class Mode
 
 					enum class Form {
 						FluxBC,
@@ -27,11 +34,14 @@ namespace pdesolver {
 					Int boundaryID;
 
 					Type type;
+					Mode mode = Mode::Expression;
 
-					// Value BCs: single scalar expression. Flux BCs: one expression per
-					// spatial component (BoundaryFluxFunction expects a full vector).
+					// Mode::Expression: Value BCs take a single scalar expression; Flux BCs take one expression per spatial component
 					std::string expression;
 					std::vector<std::string> fluxExpression;
+
+					// Mode::File: not yet implemented
+					std::string file;
 
 					std::vector<Form> forms;
 					

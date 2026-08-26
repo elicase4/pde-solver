@@ -1,6 +1,5 @@
 namespace pdesolver::utils::logging {
 
-	// log()
 	template<typename DataType>
 	void ConsoleLogger::log(Index iter, const std::vector<DataType>& perDOFAbs, DataType flopsThisIter) const {
 
@@ -11,7 +10,7 @@ namespace pdesolver::utils::logging {
 			startTime_ = std::chrono::steady_clock::now();
 		}
 
-		// lifetime accounting, used only by summary() -- independent of print interval
+		// lifetime accounting, used only by summary()
 		totalFlops_ += static_cast<double>(flopsThisIter);
 		lastIter_ = iter;
 
@@ -98,16 +97,14 @@ namespace pdesolver::utils::logging {
 		const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 		const double avgFlopsPerIter = (lastIter_ > 0) ? (totalFlops_ / static_cast<double>(lastIter_)) : 0.0;
 
-		std::cout << "  [" << solverName << "] " << (converged ? "converged" : "did not converge") << ": "
-				  << lastIter_ << " iterations, ";
+		std::cout << "  [" << solverName << "] " << (converged ? "converged" : "did not converge") << ": " << lastIter_ << " iterations, ";
 
 		for (Index i = 0; i < lastRelPerDOF_.size(); ++i) {
 			std::cout << "res[" << dofNames[i] << "] " << std::scientific << std::setprecision(4) << lastRelPerDOF_[i];
 			if (i + 1 < lastRelPerDOF_.size()) std::cout << ", ";
 		}
 
-		std::cout << ", avg " << std::scientific << std::setprecision(2) << avgFlopsPerIter << " flops/iter, "
-				  << std::fixed << std::setprecision(3) << elapsed << "s\n";
+		std::cout << ", avg " << std::scientific << std::setprecision(2) << avgFlopsPerIter << " flops/iter, " << std::fixed << std::setprecision(3) << elapsed << "s\n";
 
 	}
 
@@ -128,11 +125,7 @@ namespace pdesolver::utils::logging {
 			std::cout << "  Components:";
 			for (const auto& n : dofNames) std::cout << "  " << n;
 			std::cout << "\n";
-			std::cout << "  DOF ordering: "
-					  << (dofOrdering == fem::dof::DOFOrdering::Interleaved
-						  ? "Interleaved (node-major)"
-						  : "Block (field-major)")
-					  << "\n";
+			std::cout << "  DOF ordering: " << (dofOrdering == fem::dof::DOFOrdering::Interleaved ? "Interleaved (node-major)" : "Block (field-major)") << "\n";
 		}
 
 		std::cout << "  " << std::string(width, '=') << "\n";

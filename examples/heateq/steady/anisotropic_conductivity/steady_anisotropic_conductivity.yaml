@@ -51,6 +51,10 @@ boundary_conditions:
     forms: [value_bc]
     model: anisotropic
 
+initial_condition:
+  type: expression
+  expression: "0.0"
+
 solver:
 
   driver:

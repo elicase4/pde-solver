@@ -23,16 +23,24 @@ namespace pdesolver::application::heateq::problem {
 		
 		for (const auto& bcCfg : config_.boundaryConditions) {
 			for (auto form : bcCfg.forms) {
-				
+
 				if (form == application::heateq::config::BoundaryConditionConfig::Form::ValueBC) {
-					
+
+					if (bcCfg.mode == config::BoundaryConditionConfig::Mode::File) {
+						throw std::runtime_error("HeatProblem: file-based boundary conditions are not yet implemented");
+					}
+
 					using DirichletT = typename HeatEqBundle::template DirichletBC<SourceCallableT>;
 
 					auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletT>>(new fem::boundary::BoundaryCondition<DirichletT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletT{bcCfg.expression}});
-					
+
 					essentialBCs_.registerBC<DirichletT>(bc);
-				
+
 				} else if (form == config::BoundaryConditionConfig::Form::FluxBC) {
+
+					if (bcCfg.mode == config::BoundaryConditionConfig::Mode::File) {
+						throw std::runtime_error("HeatProblem: file-based boundary conditions are not yet implemented");
+					}
 
 					using FluxFunctionT = typename HeatEqBundle::template FluxBC<FluxCallableT>;
 
@@ -45,9 +53,9 @@ namespace pdesolver::application::heateq::problem {
 					auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionT>>(new fem::boundary::BoundaryCondition<FluxFunctionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionT{bcCfg.fluxExpression}});
 
 					naturalBCs_.template registerBC<FluxFunctionT>(bc, *fluxForms_.back(), defaultModelBdy_);
-				
+
 				}
-			
+
 			}
 		}
 
@@ -62,6 +70,36 @@ namespace pdesolver::application::heateq::problem {
 
 		U_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
 		U_->zero();
+
+		// parse intital condition
+		if (config_.initialCondition.type == config::InitialConditionConfig::Type::Expression) {
+
+			utils::expression::ScalarExpression icExpr(config_.initialCondition.expression);
+
+			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
+
+				Real coords[3] = {Real(0), Real(0), Real(0)};
+				const Real* nodeCoordPtr = mesh_.getNodeCoord(nodeID);
+				for (Index d = 0; d < HeatEqBundle::SpatialDim; ++d) coords[d] = nodeCoordPtr[d];
+
+				Real icVal[HeatEqBundle::NumDOFs];
+				icExpr(Real(0), coords, icVal);
+
+				for (Index c = 0; c < HeatEqBundle::NumDOFs; ++c) {
+
+					Index tdof = topoDOF_.getNodeDOF(nodeID, c);
+					if (topoDOF_.isConstrained(tdof)) continue;
+
+					Index adof = topoDOF_.toAlgebraic(tdof);
+					U_->data()[adof] = icVal[c];
+
+				}
+
+			}
+
+		} else {
+			throw std::runtime_error("HeatProblem: file-based initial conditions are not yet implemented");
+		}
 
 		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
 		    

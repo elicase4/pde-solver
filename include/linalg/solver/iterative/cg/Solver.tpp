@@ -17,8 +17,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 		using DataType = typename VectorType::value_type;
 		const bool relMode = (config.tolType == ToleranceType::Relative);
 
-		// per-iteration flop cost is constant for CG (same op sequence every iteration) --
-		// computed once here, not measured at runtime.
+		// per-iteration flop cost is constant for CG
 		const DataType flopsPerIter = static_cast<DataType>(A.flopsPerApply()) + static_cast<DataType>(M.flopsPerApply()) + DataType(10) * static_cast<DataType>(x.size());
 
 		// compute intial residual
@@ -30,7 +29,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 		const DataType res0 = operations::norm(W.r); // ||r||
 		report.initialResidual = res0;
 
-		// log iteration 0 -- setup phase, not a full CG iteration, so no flop cost attributed
+		// log iteration 0
 		auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
 		logger.log(Index(0), perDOF, DataType(0));
 
@@ -71,7 +70,7 @@ namespace pdesolver::linalg::solver::iterative::cg {
 			DataType res = operations::norm(W.r); // res = ||r||
 			DataType rel = res / (res0 + DataType(1e-50));
 
-			// log iteration -- always called; the logger's own interval decides whether to print
+			// log iteration
 			auto perDOF = logger.template computePerDOFNorms<DataType>(W.r.data(), W.r.size());
 			logger.log(k, perDOF, flopsPerIter);
 

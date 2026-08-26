@@ -19,12 +19,12 @@ namespace pdesolver {
 			struct ConsoleLogger {
 
 				// config
-				std::string equationName;    // banner headline, e.g. "Heat Equation"
-				std::string solverName;      // banner headline + [tag] bracket, e.g. "PCG"
+				std::string equationName;
+				std::string solverName;
 				std::string preconditionerName;
-				std::vector<std::string> dofNames; // one name per field component, e.g. {"T"}
-				std::vector<std::pair<std::string, std::string>> extraParams; // extra banner lines
-				Index interval; // print every N iterations
+				std::vector<std::string> dofNames;
+				std::vector<std::pair<std::string, std::string>> extraParams;
+				Index interval;
 				bool printHeader;
 
 				// Fields needed for per-DOF residual computation
@@ -33,17 +33,12 @@ namespace pdesolver {
 
 				explicit ConsoleLogger(std::string equationNameIn, std::string solverNameIn, std::string preconditionerNameIn, std::vector<std::string> dofNamesIn, std::vector<std::pair<std::string, std::string>> extraParamsIn = {}, Index freeDOFsPerFieldIn = 0, fem::dof::DOFOrdering ordering = fem::dof::DOFOrdering::Interleaved, Index reportInterval = 1) : equationName(std::move(equationNameIn)), solverName(std::move(solverNameIn)), preconditionerName(std::move(preconditionerNameIn)), dofNames(std::move(dofNamesIn)), extraParams(std::move(extraParamsIn)), interval(reportInterval), printHeader(true), freeDOFsPerField(freeDOFsPerFieldIn), dofOrdering(ordering) {}
 
-				// log() -- perDOFAbs are absolute per-DOF residual norms; the logger tracks the
-				// iteration-0 baseline internally and prints relative values. flopsThisIter is
-				// the (usually precomputed, constant) flop cost attributable to this iteration.
 				template<typename DataType>
 				void log(Index iter, const std::vector<DataType>& perDOFAbs, DataType flopsThisIter = DataType(0)) const;
 
-				// computePerDOFNorms() helper -- absolute, not relative
 				template<typename DataType>
 				std::vector<DataType> computePerDOFNorms(const DataType* r, Index totalSize) const;
 
-				// one-line closing statement -- call once after the solve loop ends
 				void summary(bool converged) const;
 
 				template<typename Args>

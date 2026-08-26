@@ -1,6 +1,7 @@
 #include "application/heateq/parser/HeatConfigParser.hpp"
 #include "application/heateq/parser/BoundaryConditionConfigParser.hpp"
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
+#include "application/heateq/parser/InitialConditionConfigParser.hpp"
 #include "application/heateq/parser/SourceConfigParser.hpp"
 
 #include "solver/parser/BackendConfigParser.hpp"
@@ -44,8 +45,13 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	}
 	cfg.output = pdesolver::solver::parser::OutputConfigParser::parse(output);
 
-	// 'logging:' is optional -- absent means console logging with no file mirror
 	cfg.logging = pdesolver::solver::parser::LoggingConfigParser::parse(root["logging"]);
+
+	const YAML::Node& initialCondition = root["initial_condition"];
+	if (!initialCondition) {
+		throw std::runtime_error("HeatConfigReader: missing required 'initial_condition' section in " + filename);
+	}
+	cfg.initialCondition = pdesolver::application::heateq::parser::InitialConditionConfigParser::parse(initialCondition);
 
 	const YAML::Node& bcs = root["boundary_conditions"];
 	if (!bcs) {

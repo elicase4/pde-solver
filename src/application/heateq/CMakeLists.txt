@@ -9,6 +9,7 @@ add_library(pde_heateq_app
 	parser/BoundaryConditionConfigParser.cpp
 	parser/ConductivityConfigParser.cpp
 	parser/HeatConfigParser.cpp
+	parser/InitialConditionConfigParser.cpp
 	parser/SourceConfigParser.cpp
 )
 

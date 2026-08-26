@@ -13,9 +13,6 @@ namespace pdesolver {
 		namespace logging {
 			namespace driver {
 
-				// Lightweight narrative-event logger shared by app dispatchers (mesh, heateq)
-				// and solver::driver::{Steady,Transient} -- "[tag] message", not the
-				// iteration/residual reporting that utils::logging::ConsoleLogger does.
 				struct ConsoleLogger {
 
 					std::string tag;
