@@ -4,7 +4,7 @@
 #include <cstring>
 #include <unordered_set>
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/boundary/NaturalBoundaryRegistry.hpp"
 

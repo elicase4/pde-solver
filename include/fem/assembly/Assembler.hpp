@@ -8,7 +8,7 @@
 
 #include "core/Types.hpp"
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/eval/EvalElement.hpp"
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 #include "fem/eval/EvalModel.hpp"

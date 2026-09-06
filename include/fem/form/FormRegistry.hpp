@@ -7,6 +7,7 @@
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
+#include "fem/form/GathersElementData.hpp"
 
 namespace pdesolver {
 	namespace fem {
@@ -24,17 +25,25 @@ namespace pdesolver {
 				requires (sizeof...(Forms) == 1 && !(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, FormRegistry> && ...)))
 				constexpr explicit FormRegistry(Args&&... args) : forms_(std::forward<Args>(args)...) {}
 
+				PDE_HOST PDE_DEVICE void gatherElementData(const Index* nodeIDs, Index nodesPerElement) const {
+					std::apply([&](const auto&... form) {
+						([&]{
+							if constexpr (GathersElementData<std::decay_t<decltype(form)>>) {
+								form.gatherElementData(nodeIDs, nodesPerElement);
+							}
+						}(), ...);
+					}, forms_);
+				}
+
 				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE
-				void computeElementLevelVector(const QuadraturePoint& qp, Real* Ue, Real* Fe) const {
+				PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePoint& qp, Real* Ue, Real* Fe) const {
 					std::apply([&](const auto&... form) {
 						(form.computeElementLevelVector(qp, Ue, Fe), ...);
 					}, forms_);
 				}
 
 				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE
-				void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ue, Real* Ke) const {
+				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ue, Real* Ke) const {
 					std::apply([&](const auto&... form) {
 						(form.computeElementLevelMatrix(qp, Ue, Ke), ...);
 					}, forms_);

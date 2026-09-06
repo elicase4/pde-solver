@@ -196,7 +196,7 @@ TEST_F(CPUHeatEquationMinimal3D, MatrixCGSolverTrilinearSolP1){
 	}
 
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "matrixsol3d_output.vtk";
-	io::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, U.data(), {"theta"}, path.string());
+	io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, U.data(), {"theta"}, path.string());
 
 }
 
@@ -252,6 +252,6 @@ TEST_F(CPUHeatEquationMinimal3D, MatrixFreeCGSolver){
 	}
 
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "matrixfreesol3d_output.vtk";
-	io::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, U.data(), {"theta"}, path.string());
+	io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, U.data(), {"theta"}, path.string());
 
 }

@@ -29,27 +29,34 @@ boundary_conditions:
   # hot inlet
   - boundary: 1
     type: value
-    expression: "100.0"
+    read:
+      mode: expression
+      expression: "100.0"
     forms: [value_bc]
     model: constant
 
   # cold outlet
   - boundary: 2
     type: value
-    expression: "0.0"
+    read:
+      mode: expression
+      expression: "0.0"
     forms: [value_bc]
     model: constant
 
   # insulated duct walls
   - boundary: 3
     type: flux
-    expression: ["0.0", "0.0", "0.0"]
+    read:
+      mode: expression
+      expression: ["0.0", "0.0", "0.0"]
     forms: [flux_bc]
     model: constant
 
 initial_condition:
-  type: expression
-  expression: "0.0"
+  read:
+    mode: expression
+    expression: "0.0"
 
 solver:
 

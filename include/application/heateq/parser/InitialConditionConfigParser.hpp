@@ -15,8 +15,6 @@ namespace pdesolver {
 				class InitialConditionConfigParser {
 				public:
 
-					static config::InitialConditionConfig::Type parseType(const std::string& str);
-
 					static config::InitialConditionConfig parse(const YAML::Node& node);
 
 				}; // class InitialConditionConfigParser

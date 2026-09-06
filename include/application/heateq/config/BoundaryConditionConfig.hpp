@@ -6,6 +6,8 @@
 
 #include "core/Types.hpp"
 #include "application/heateq/config/ConductivityConfig.hpp"
+#include "solver/config/NodalFieldReadConfig.hpp"
+#include "solver/config/NodalFieldWriteConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -20,12 +22,6 @@ namespace pdesolver {
 						Flux
 					}; // enum class Type
 
-					// Expression vs file
-					enum class Mode {
-						Expression,
-						File
-					}; // enum class Mode
-
 					enum class Form {
 						FluxBC,
 						ValueBC
@@ -34,17 +30,24 @@ namespace pdesolver {
 					Int boundaryID;
 
 					Type type;
-					Mode mode = Mode::Expression;
 
-					// Mode::Expression: Value BCs take a single scalar expression; Flux BCs take one expression per spatial component
+					// reuses solver::config::NodalFieldReadConfig::Mode for consistency with
+					// IC/source, but not the struct itself -- Flux needs a per-component vector
+					// expression, which doesn't fit NodalFieldReadConfig's scalar shape.
+					solver::config::NodalFieldReadConfig::Mode mode = solver::config::NodalFieldReadConfig::Mode::Expression;
+
+					// mode == Expression: Value takes a single scalar expression, Flux takes
+					// one expression per spatial component. mode == File: file, regardless of type.
 					std::string expression;
 					std::vector<std::string> fluxExpression;
-
-					// Mode::File: not yet implemented
 					std::string file;
 
+					// optional one-shot export of the resolved BC value -- Value only; Flux is a
+					// shape mismatch (SpatialDim-wide, not NumDOFs-wide), see HeatProblem.tpp.
+					solver::config::NodalFieldWriteConfig write;
+
 					std::vector<Form> forms;
-					
+
 					ConductivityConfig::Type model;
 
 				}; // struct BoundaryConditionConfig

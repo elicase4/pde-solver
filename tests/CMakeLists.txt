@@ -84,6 +84,11 @@ add_pde_test(UnitTest_IO_FieldIO
 	pde_mesh pde_io
 )
 
+add_pde_test(UnitTest_IO_TimeSeriesValueSource
+	unit/io/TimeSeriesValueSource.cpp
+	pde_mesh pde_io
+)
+
 add_pde_test(UnitTest_IO_MeshIO
 	unit/io/MeshIO.cpp
 	pde_mesh pde_io

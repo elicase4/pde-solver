@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_GAUSSQUADRATUREQUAD_HPP
 #define PDESOLVER_GAUSSQUADRATUREQUAD_HPP
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/quadrature/GaussQuadrature1D.hpp"
 
 namespace pdesolver {

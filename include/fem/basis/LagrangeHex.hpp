@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_LAGRANGEHEX_HPP
 #define PDESOLVER_LAGRANGEHEX_HPP
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/basis/Lagrange1D.hpp"
 
 namespace pdesolver {

@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/quadrature/GaussQuadrature1D.hpp"
 #include "fem/quadrature/GaussQuadratureQuad.hpp"
 #include "fem/quadrature/GaussQuadratureHex.hpp"
 
 using namespace pdesolver::fem;
+using namespace pdesolver::fem::dispatch;
 using namespace pdesolver::fem::quadrature;
 
 namespace {

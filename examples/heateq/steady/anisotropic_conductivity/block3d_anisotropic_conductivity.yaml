@@ -31,43 +31,56 @@ boundary_conditions:
 
   - boundary: 0
     type: value
-    expression: "(1-x)*(1-y)*(1-z)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: anisotropic
 
   - boundary: 1
     type: value
-    expression: "(1-x)*(1-y)*(1-z)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: anisotropic
 
   - boundary: 2
     type: value
-    expression: "(1-x)*(1-y)*(1-z)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: anisotropic
 
   - boundary: 3
     type: value
-    expression: "(1-x)*(1-y)*(1-z)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: anisotropic
 
   - boundary: 4
     type: value
-    expression: "(1-x)*(1-y)*(1-z)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: anisotropic
 
   - boundary: 5
     type: value
-    expression: "(1-x)*(1-y)*(1-z)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
     forms: [value_bc]
     model: anisotropic
 
 initial_condition:
-  type: expression
-  expression: "0.0"
+  read:
+    mode: expression
+    expression: "0.0"
 
 solver:
 

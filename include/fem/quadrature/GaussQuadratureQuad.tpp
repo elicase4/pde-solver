@@ -3,8 +3,8 @@ namespace pdesolver::fem::quadrature {
 // implementation Points
 PDE_HOST PDE_DEVICE PDE_INLINE void GaussQuadratureQuad::getPoints(Real* xi) const {
 
-	Real xi_xi[fem::kMaxQuadraturePoints1D];
-	Real xi_eta[fem::kMaxQuadraturePoints1D];
+	Real xi_xi[fem::dispatch::kMaxQuadraturePoints1D];
+	Real xi_eta[fem::dispatch::kMaxQuadraturePoints1D];
 
 	quadX_.getPoints(xi_xi);
 	quadY_.getPoints(xi_eta);
@@ -23,8 +23,8 @@ PDE_HOST PDE_DEVICE PDE_INLINE void GaussQuadratureQuad::getPoints(Real* xi) con
 // implementation weights
 PDE_HOST PDE_DEVICE PDE_INLINE void GaussQuadratureQuad::getWeights(Real* w) const {
 
-	Real w_xi[fem::kMaxQuadraturePoints1D];
-	Real w_eta[fem::kMaxQuadraturePoints1D];
+	Real w_xi[fem::dispatch::kMaxQuadraturePoints1D];
+	Real w_eta[fem::dispatch::kMaxQuadraturePoints1D];
 
 	quadX_.getWeights(w_xi);
 	quadY_.getWeights(w_eta);

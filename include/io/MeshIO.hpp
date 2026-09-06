@@ -13,7 +13,7 @@
 #include "io/utils/Binary.hpp"
 #include "mesh/Mesh.hpp"
 
-/* Binary Mesh Format Description
+/* Binary Mesh Format Description (PMSH)
 [HEADER]
   magic:         uint32  = 0x504D5348  ("PMSH")
   version:       uint32  = 1

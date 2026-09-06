@@ -7,7 +7,7 @@
 #include <set>
 
 #include "core/Types.hpp"
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/dof/DOFOrdering.hpp"
 #include "mesh/Mesh.hpp"

@@ -1,7 +1,7 @@
 #ifndef PDESOLVER_LAGRANGEQUAD_HPP
 #define PDESOLVER_LAGRANGEQUAD_HPP
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/basis/Lagrange1D.hpp"
 
 namespace pdesolver {

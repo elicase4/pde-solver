@@ -1,7 +1,7 @@
 #ifndef HEATEQUATION_EVALQUADRATUREPOINTBOUNDARY_HPP
 #define HEATEQUATION_EVALQUADRATUREPOINTBOUNDARY_HPP
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
 namespace pdesolver::equations::heateq {
@@ -16,7 +16,7 @@ namespace pdesolver::equations::heateq {
 		Element element;
 		Int faceID;
 
-		Index faceNodeLocalIDs[fem::kMaxNodesPerElementBoundary<ParametricDim>];
+		Index faceNodeLocalIDs[fem::dispatch::kMaxNodesPerElementBoundary<ParametricDim>];
 
 		EvalQuadraturePointBoundary(const Element& elem, const Int fID) : element(elem), faceID(fID) {
 
@@ -42,12 +42,12 @@ namespace pdesolver::equations::heateq {
 		Real xi_face[ParametricDim-1];
 		Real w;
 
-		Real N[fem::kMaxNodesPerElement<ParametricDim>];
+		Real N[fem::dispatch::kMaxNodesPerElement<ParametricDim>];
 
-		Real Nface[fem::kMaxNodesPerElementBoundary<ParametricDim>];
+		Real Nface[fem::dispatch::kMaxNodesPerElementBoundary<ParametricDim>];
 
 		// ref gradients
-		Real dNdxi[ParametricDim*fem::kMaxNodesPerElement<ParametricDim>];
+		Real dNdxi[ParametricDim*fem::dispatch::kMaxNodesPerElement<ParametricDim>];
 
 		// normal vectors
 		Real normal[SpatialDim];

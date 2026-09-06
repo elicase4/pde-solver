@@ -85,10 +85,10 @@ public:
 	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
 
 		// allocate Ke on the stack
-		Real Ke[(fem::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs) * (fem::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
+		Real Ke[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs) * (fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
 
 		// allocate Ue on the stack
-		Real Ue[(fem::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
+		Real Ue[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
 
 		// zero-out data in K
 		K.zero();
@@ -96,8 +96,8 @@ public:
 		EvalEle localEle = evalEle;
 
 		// setup quadrature points and weights
-		Real xi[fem::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
-		Real w[fem::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
+		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
+		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
 		quadrature.getPoints(xi);
 		quadrature.getWeights(w);
 
@@ -112,7 +112,7 @@ public:
 
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim * fem::kMaxNodesPerElement<EvalEle::ParametricDim>];
+			Real nodeCoords[EvalEle::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
 
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
@@ -136,6 +136,9 @@ public:
 
 				}
 			}
+
+			// gather any form-specific element data
+			forms.gatherElementData(nodeIDs, localEle.nodesPerElement());
 
 			// bind element data
 			localEle.bindElement(nodeCoords, time);
@@ -183,10 +186,10 @@ public:
 	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate Fe on the stack
-		Real Fe[fem::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+		Real Fe[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
 
 		// allocate Ue on the stack
-		Real Ue[fem::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+		Real Ue[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
 
 		// zero-out data in F
 		F.zero();
@@ -195,8 +198,8 @@ public:
 		EvalEle localEle = evalEle;
 
 		// quadrature points/weights
-		Real xi[fem::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
-		Real w[fem::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
+		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
+		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
 		quadrature.getPoints(xi);
 		quadrature.getWeights(w);
 
@@ -211,7 +214,7 @@ public:
 
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim * fem::kMaxNodesPerElement<EvalEle::ParametricDim>];
+			Real nodeCoords[EvalEle::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
 
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
@@ -235,6 +238,9 @@ public:
 
 				}
 			}
+
+			// gather any form-specific element data (no-op unless a registered form implements it)
+			forms.gatherElementData(nodeIDs, localEle.nodesPerElement());
 
 			// bind element data
 			localEle.bindElement(nodeCoords, time);

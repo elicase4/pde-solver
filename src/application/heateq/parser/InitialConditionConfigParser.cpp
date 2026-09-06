@@ -1,33 +1,21 @@
 #include "application/heateq/parser/InitialConditionConfigParser.hpp"
-#include "io/YAMLReader.hpp"
 
-pdesolver::application::heateq::config::InitialConditionConfig::Type pdesolver::application::heateq::parser::InitialConditionConfigParser::parseType(const std::string& str) {
+#include <stdexcept>
 
-	if (str == "expression") {
-		return pdesolver::application::heateq::config::InitialConditionConfig::Type::Expression;
-	}
-
-	if (str == "file") {
-		return pdesolver::application::heateq::config::InitialConditionConfig::Type::File;
-	}
-
-	throw std::runtime_error("Unknown initial_condition type: " + str);
-
-}
+#include "solver/parser/NodalFieldReadConfigParser.hpp"
+#include "solver/parser/NodalFieldWriteConfigParser.hpp"
 
 pdesolver::application::heateq::config::InitialConditionConfig pdesolver::application::heateq::parser::InitialConditionConfigParser::parse(const YAML::Node& node) {
 
-	using io::YAMLReader;
-
 	pdesolver::application::heateq::config::InitialConditionConfig cfg;
 
-	cfg.type = pdesolver::application::heateq::parser::InitialConditionConfigParser::parseType(YAMLReader::required<std::string>(node, "type"));
-
-	if (cfg.type == pdesolver::application::heateq::config::InitialConditionConfig::Type::Expression) {
-		cfg.expression = YAMLReader::required<std::string>(node, "expression");
-	} else {
-		cfg.file = YAMLReader::required<std::string>(node, "file");
+	const YAML::Node& readNode = node["read"];
+	if (!readNode) {
+		throw std::runtime_error("InitialConditionConfigReader: missing required 'read' section in 'initial_condition'");
 	}
+
+	cfg.read = pdesolver::solver::parser::NodalFieldReadConfigParser::parse(readNode);
+	cfg.write = pdesolver::solver::parser::NodalFieldWriteConfigParser::parse(node);
 
 	return cfg;
 

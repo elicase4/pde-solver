@@ -34,7 +34,7 @@ template<typename Basis>
 void TopologicalDOF<numDOFs>::buildConstraints(const Basis& basis, const fem::boundary::EssentialBoundaryRegistry& bcRegistry){
 
 	std::set<Index> constrainedSet;
-	Index faceNodes[fem::kMaxNodesPerElement<Basis::ParametricDim>];
+	Index faceNodes[fem::dispatch::kMaxNodesPerElement<Basis::ParametricDim>];
 
 	// loop over elements and faces to mark constrained dofs
 	for (Index e = 0; e < mesh_.data.numElements; ++e) {

@@ -1,7 +1,7 @@
 #ifndef HEATEQUATION_EVALQUADRATUREPOINTVOLUME_HPP
 #define HEATEQUATION_EVALQUADRATUREPOINTVOLUME_HPP
 
-#include "fem/DiscretizationLimits.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 
 namespace pdesolver::equations::heateq {
@@ -30,13 +30,13 @@ namespace pdesolver::equations::heateq {
 		Real xi[ParametricDim];
 		Real w;
 
-		Real N[fem::kMaxNodesPerElement<ParametricDim>];
+		Real N[fem::dispatch::kMaxNodesPerElement<ParametricDim>];
 
 		// ref gradients
-		Real dNdxi[ParametricDim*fem::kMaxNodesPerElement<ParametricDim>];
+		Real dNdxi[ParametricDim*fem::dispatch::kMaxNodesPerElement<ParametricDim>];
 
 		// physical gradients
-		Real dNdx[SpatialDim*fem::kMaxNodesPerElement<ParametricDim>];
+		Real dNdx[SpatialDim*fem::dispatch::kMaxNodesPerElement<ParametricDim>];
 
 		// geometry
 		Real J[SpatialDim*ParametricDim];

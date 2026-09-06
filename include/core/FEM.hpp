@@ -18,6 +18,7 @@
 #include "fem/eval/EvalField.hpp"
 #include "fem/eval/EvalFunction.hpp"
 #include "fem/eval/EvalModel.hpp"
+#include "fem/eval/EvalNodalData.hpp"
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 

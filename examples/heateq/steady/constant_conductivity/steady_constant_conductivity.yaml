@@ -24,34 +24,43 @@ physics:
       expression: "0.0"
 
 boundary_conditions:
- 
+
   - boundary: 0
     type: value
-    expression: "(1-x)*(1-y)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)"
     forms: [value_bc]
     model: constant
 
   - boundary: 1
     type: value
-    expression: "(1-x)*(1-y)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)"
     forms: [value_bc]
     model: constant
 
   - boundary: 2
     type: value
-    expression: "(1-x)*(1-y)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)"
     forms: [value_bc]
     model: constant
 
   - boundary: 3
     type: value
-    expression: "(1-x)*(1-y)"
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)"
     forms: [value_bc]
     model: constant
 
 initial_condition:
-  type: expression
-  expression: "0.0"
+  read:
+    mode: expression
+    expression: "0.0"
 
 solver:
 

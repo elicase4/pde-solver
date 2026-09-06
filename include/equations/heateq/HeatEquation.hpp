@@ -23,6 +23,7 @@
 #include "equations/heateq/form/DiffusionForm.hpp"
 #include "equations/heateq/form/SourceForm.hpp"
 #include "equations/heateq/form/FluxBoundaryForm.hpp"
+#include "equations/heateq/form/NodalFluxForm.hpp"
 
 namespace pdesolver {
 	namespace equations {
@@ -80,6 +81,12 @@ namespace pdesolver {
 			using FluxBC = heateq::BoundaryFluxFunction<NSD, NumDOFs, Callable>;
 			template<typename Callable>
 			using FluxForm = heateq::FluxBoundaryForm<EvalQPBdy, FluxBC<Callable>>;
+
+			// Data-driven (file-backed) Boundary Flux Form -- Source satisfies
+			// fem::eval::EvalNodalData directly, no FluxBC wrapper (that wrapper's
+			// eval(time,x,out) shape doesn't fit a node-indexed source)
+			template<typename Source>
+			using NodalFluxForm = heateq::NodalFluxForm<EvalQPBdy, Source, NumDOFs, SpatialDim>;
 
 			// Boundary Value Function
 			template<typename Callable>

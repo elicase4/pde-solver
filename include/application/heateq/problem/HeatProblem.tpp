@@ -19,44 +19,94 @@ namespace pdesolver::application::heateq::problem {
 
 		// boundary conditions
 		Index numFluxBCs = config_.boundaryConditions.size();
-		fluxForms_.reserve(numFluxBCs);
+		expressionFluxForms_.reserve(numFluxBCs);
+		nodalFluxForms_.reserve(numFluxBCs);
 		
 		for (const auto& bcCfg : config_.boundaryConditions) {
+			
 			for (auto form : bcCfg.forms) {
 
 				if (form == application::heateq::config::BoundaryConditionConfig::Form::ValueBC) {
 
-					if (bcCfg.mode == config::BoundaryConditionConfig::Mode::File) {
-						throw std::runtime_error("HeatProblem: file-based boundary conditions are not yet implemented");
+					if (bcCfg.mode == solver::config::NodalFieldReadConfig::Mode::File) {
+
+						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletFileT>>(new fem::boundary::BoundaryCondition<DirichletFileT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletFileT{mesh_, bcCfg.file}});
+
+						essentialBCs_.registerBC<DirichletFileT>(bc);
+
+					} else {
+
+						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletExpressionT>>(new fem::boundary::BoundaryCondition<DirichletExpressionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletExpressionT{bcCfg.expression}});
+
+						essentialBCs_.registerBC<DirichletExpressionT>(bc);
+
 					}
-
-					using DirichletT = typename HeatEqBundle::template DirichletBC<SourceCallableT>;
-
-					auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletT>>(new fem::boundary::BoundaryCondition<DirichletT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletT{bcCfg.expression}});
-
-					essentialBCs_.registerBC<DirichletT>(bc);
 
 				} else if (form == config::BoundaryConditionConfig::Form::FluxBC) {
 
-					if (bcCfg.mode == config::BoundaryConditionConfig::Mode::File) {
-						throw std::runtime_error("HeatProblem: file-based boundary conditions are not yet implemented");
+					if (bcCfg.mode == solver::config::NodalFieldReadConfig::Mode::File) {
+
+						NodalFluxSourceT nodalFluxSource(mesh_, bcCfg.file);
+						nodalFluxForms_.push_back(std::make_unique<NodalFluxFormsT>(nodalFluxSource));
+
+						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionFileT>>(new fem::boundary::BoundaryCondition<FluxFunctionFileT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionFileT{mesh_, bcCfg.file}});
+
+						naturalBCs_.template registerBC<FluxFunctionFileT>(bc, *nodalFluxForms_.back(), defaultModelBdy_);
+
+					} else {
+
+						if (bcCfg.fluxExpression.size() != HeatEqBundle::SpatialDim) {
+							throw std::runtime_error("HeatProblem: flux boundary 'expression' must have SpatialDim components");
+						}
+
+						expressionFluxForms_.push_back(std::make_unique<ExpressionFluxFormsT>(bcCfg.fluxExpression));
+
+						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionExpressionT>>(new fem::boundary::BoundaryCondition<FluxFunctionExpressionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionExpressionT{bcCfg.fluxExpression}});
+
+						naturalBCs_.template registerBC<FluxFunctionExpressionT>(bc, *expressionFluxForms_.back(), defaultModelBdy_);
+
 					}
-
-					using FluxFunctionT = typename HeatEqBundle::template FluxBC<FluxCallableT>;
-
-					if (bcCfg.fluxExpression.size() != HeatEqBundle::SpatialDim) {
-						throw std::runtime_error("HeatProblem: flux boundary 'expression' must have SpatialDim components");
-					}
-
-					fluxForms_.push_back(std::make_unique<FluxFormsT>(bcCfg.fluxExpression));
-
-					auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionT>>(new fem::boundary::BoundaryCondition<FluxFunctionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionT{bcCfg.fluxExpression}});
-
-					naturalBCs_.template registerBC<FluxFunctionT>(bc, *fluxForms_.back(), defaultModelBdy_);
 
 				}
 
 			}
+
+			if (!bcCfg.write.file.empty()) {
+
+				if (bcCfg.type == config::BoundaryConditionConfig::Type::Flux) {
+					throw std::runtime_error("HeatProblem: write mode is not supported for flux boundary conditions");
+				}
+
+				std::vector<Real> bcNodalField(mesh_.data.numNodes * HeatEqBundle::NumDOFs);
+
+				if (bcCfg.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
+
+					utils::expression::ScalarExpression bcExpr(bcCfg.expression);
+
+					for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
+
+						Real coords[3] = {Real(0), Real(0), Real(0)};
+						const Real* nodeCoordPtr = mesh_.getNodeCoord(nodeID);
+						for (Index d = 0; d < HeatEqBundle::SpatialDim; ++d) coords[d] = nodeCoordPtr[d];
+
+						bcExpr(Real(0), coords, &bcNodalField[nodeID * HeatEqBundle::NumDOFs]);
+
+					}
+
+				} else {
+
+					io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs> bcSource(mesh_, bcCfg.file);
+
+					for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
+						bcSource.eval(nodeID, &bcNodalField[nodeID * HeatEqBundle::NumDOFs]);
+					}
+
+				}
+
+				io::fieldio::FieldIO::writeBinaryRaw<HeatEqBundle::NumDOFs>(mesh_, Real(0), bcNodalField, bcCfg.write.file);
+
+			}
+
 		}
 
 		// build topoDOF constrains and linear system containers
@@ -71,10 +121,9 @@ namespace pdesolver::application::heateq::problem {
 		U_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
 		U_->zero();
 
-		// parse intital condition
-		if (config_.initialCondition.type == config::InitialConditionConfig::Type::Expression) {
+		if (config_.initialCondition.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
 
-			utils::expression::ScalarExpression icExpr(config_.initialCondition.expression);
+			utils::expression::ScalarExpression icExpr(config_.initialCondition.read.expression);
 
 			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
 
@@ -98,7 +147,30 @@ namespace pdesolver::application::heateq::problem {
 			}
 
 		} else {
-			throw std::runtime_error("HeatProblem: file-based initial conditions are not yet implemented");
+
+			io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs> icSource(mesh_, config_.initialCondition.read.file);
+
+			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
+
+				Real icVal[HeatEqBundle::NumDOFs];
+				icSource.eval(nodeID, icVal);
+
+				for (Index c = 0; c < HeatEqBundle::NumDOFs; ++c) {
+
+					Index tdof = topoDOF_.getNodeDOF(nodeID, c);
+					if (topoDOF_.isConstrained(tdof)) continue;
+
+					Index adof = topoDOF_.toAlgebraic(tdof);
+					U_->data()[adof] = icVal[c];
+
+				}
+
+			}
+
+		}
+
+		if (!config_.initialCondition.write.file.empty()) {
+			io::fieldio::FieldIO::writeBinary<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), config_.initialCondition.write.file);
 		}
 
 		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
@@ -205,7 +277,7 @@ namespace pdesolver::application::heateq::problem {
 		if (!config_.output.vtk || (step % config_.output.writeFrequency != 0)) return;
 
 		const std::string filename = config_.output.directory + "/" + config_.output.prefix + "_" + std::to_string(step) + ".vtk";
-		io::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T"}, filename);
+		io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T"}, filename);
 
 		const char* ordStr = (topoDOF_.ordering() == fem::dof::DOFOrdering::Interleaved) ? "Interleaved" : "Block";
 		driverLogger_.event("wrote '" + filename + "' - " + std::to_string(HeatEqBundle::NumDOFs) + " field(s), " + std::to_string(mesh_.data.numNodes) + " nodes, " + ordStr + " ordering");

@@ -3,9 +3,9 @@ namespace pdesolver::fem::basis {
 // Implementation: eval
 PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::eval(const Real* xi, Real* N) const {
 
-	Real Nx[fem::kMaxBasisOrder + 1];
-	Real Ny[fem::kMaxBasisOrder + 1];
-	Real Nz[fem::kMaxBasisOrder + 1];
+	Real Nx[fem::dispatch::kMaxBasisOrder + 1];
+	Real Ny[fem::dispatch::kMaxBasisOrder + 1];
+	Real Nz[fem::dispatch::kMaxBasisOrder + 1];
 
 	basisX_.eval(xi[0], Nx);
 	basisY_.eval(xi[1], Ny);
@@ -29,8 +29,8 @@ PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::evalGradient(const Real* xi, Re
 
 	Index pD = 3;
 
-	Real Nx[fem::kMaxBasisOrder + 1], Ny[fem::kMaxBasisOrder + 1], Nz[fem::kMaxBasisOrder + 1];
-	Real dNx[fem::kMaxBasisOrder + 1], dNy[fem::kMaxBasisOrder + 1], dNz[fem::kMaxBasisOrder + 1];
+	Real Nx[fem::dispatch::kMaxBasisOrder + 1], Ny[fem::dispatch::kMaxBasisOrder + 1], Nz[fem::dispatch::kMaxBasisOrder + 1];
+	Real dNx[fem::dispatch::kMaxBasisOrder + 1], dNy[fem::dispatch::kMaxBasisOrder + 1], dNz[fem::dispatch::kMaxBasisOrder + 1];
 
 	basisX_.eval(xi[0], Nx);
 	basisX_.evalFirstDerivative(xi[0], dNx);
@@ -57,9 +57,9 @@ PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::evalGradient(const Real* xi, Re
 // Implementation: evalHessian
 PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::evalHessian(const Real* xi, Real* d2Nd2xi) const {
 
-	Real Nx[fem::kMaxBasisOrder + 1], Ny[fem::kMaxBasisOrder + 1], Nz[fem::kMaxBasisOrder + 1];
-	Real dNx[fem::kMaxBasisOrder + 1], dNy[fem::kMaxBasisOrder + 1], dNz[fem::kMaxBasisOrder + 1];
-	Real d2Nx[fem::kMaxBasisOrder + 1], d2Ny[fem::kMaxBasisOrder + 1], d2Nz[fem::kMaxBasisOrder + 1];
+	Real Nx[fem::dispatch::kMaxBasisOrder + 1], Ny[fem::dispatch::kMaxBasisOrder + 1], Nz[fem::dispatch::kMaxBasisOrder + 1];
+	Real dNx[fem::dispatch::kMaxBasisOrder + 1], dNy[fem::dispatch::kMaxBasisOrder + 1], dNz[fem::dispatch::kMaxBasisOrder + 1];
+	Real d2Nx[fem::dispatch::kMaxBasisOrder + 1], d2Ny[fem::dispatch::kMaxBasisOrder + 1], d2Nz[fem::dispatch::kMaxBasisOrder + 1];
 
 	basisX_.eval(xi[0], Nx);
 	basisX_.evalFirstDerivative(xi[0], dNx);
@@ -94,8 +94,8 @@ PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::evalHessian(const Real* xi, Rea
 // Implementation: evalLaplacian
 PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::evalLaplacian(const Real* xi, Real* lapN) const {
 
-	Real Nx[fem::kMaxBasisOrder + 1], Ny[fem::kMaxBasisOrder + 1], Nz[fem::kMaxBasisOrder + 1];
-	Real d2Nx[fem::kMaxBasisOrder + 1], d2Ny[fem::kMaxBasisOrder + 1], d2Nz[fem::kMaxBasisOrder + 1];
+	Real Nx[fem::dispatch::kMaxBasisOrder + 1], Ny[fem::dispatch::kMaxBasisOrder + 1], Nz[fem::dispatch::kMaxBasisOrder + 1];
+	Real d2Nx[fem::dispatch::kMaxBasisOrder + 1], d2Ny[fem::dispatch::kMaxBasisOrder + 1], d2Nz[fem::dispatch::kMaxBasisOrder + 1];
 
 	basisX_.eval(xi[0], Nx);
 	basisX_.evalSecondDerivative(xi[0], d2Nx);

@@ -22,7 +22,7 @@ namespace pdesolver {
 					entries_[bc->tag].push_back(std::make_unique<NaturalBoundaryOperator<EvalQP, Function, FormRegistry, Model>>(std::move(bc), forms, model));
 				}
 
-				void apply(Int tag, EvalQP& qp, Real time, const Real* x, Real* out, Real* Fe) const {
+				void apply(Int tag, EvalQP& qp, Real* Fe) const {
 
 					const auto* entries = getEntries(tag);
 
@@ -30,7 +30,20 @@ namespace pdesolver {
 						return;
 
 					for (const auto& entry : *entries)
-						entry->apply(qp, time, x, out, Fe);
+						entry->apply(qp, Fe);
+				}
+
+				// per-face, before the quadrature-point loop -- mirrors apply()'s entry iteration.
+				// Default no-op per entry (see NaturalBoundaryOperatorBase::gatherFaceElementData).
+				void gatherFaceElementData(Int tag, const Index* faceNodeGlobalIDs, Index nodesPerFace) const {
+
+					const auto* entries = getEntries(tag);
+
+					if (!entries)
+						return;
+
+					for (const auto& entry : *entries)
+						entry->gatherFaceElementData(faceNodeGlobalIDs, nodesPerFace);
 				}
 
 				bool hasAny(Int tag) const {
@@ -55,7 +68,7 @@ namespace pdesolver {
 						return false;
 					}
 
-					for (auto& entry : entries) {
+					for (const auto& entry : *entries) {
 						if (entry->componentType(component) == BCCategory::Natural){
 							return true;
 						}

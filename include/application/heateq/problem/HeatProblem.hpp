@@ -10,7 +10,9 @@
 
 #include "core/Types.hpp"
 
-#include "io/FieldIO.hpp"
+#include "io/fieldio/FieldIO.hpp"
+#include "io/fieldio/NodalFileValueSource.hpp"
+#include "io/fieldio/NodalValueSourceAdapter.hpp"
 
 #include "fem/assembly/Assembler.hpp"
 #include "fem/boundary/BoundaryApplicator.hpp"
@@ -27,6 +29,7 @@
 #include "mesh/Mesh.hpp"
 
 #include "solver/SolverInstance.hpp"
+#include "solver/config/NodalFieldReadConfig.hpp"
 #include "solver/linear/LinearSolverFactory.hpp"
 #include "solver/logging/LoggerFactory.hpp"
 
@@ -48,12 +51,6 @@ namespace pdesolver {
 					using VectorT = linalg::types::Vector<Real, Backend>;
 					using MatrixT = linalg::types::CSRMatrix<Real, Backend>;
 
-					// basis/quadratureVolume/quadratureBoundary are the runtime instances
-					// resolved once by fem::dispatch::dispatch() from the mesh's basis
-					// order and the config's quadrature-point counts (see the
-					// runtime-dispatch refactor) -- HeatProblem holds them for the
-					// lifetime of the problem and forwards them, unchanged, into every
-					// Assembler/BoundaryApplicator/FEMOperator call.
 					HeatProblem(const config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary);
 
 					HeatProblem(const HeatProblem&) = delete;
@@ -86,17 +83,19 @@ namespace pdesolver {
 
 					using MatrixFormsT = fem::form::FormRegistry<typename HeatEqBundle::DiffusionForm>;
 					using SourceFormsT = fem::form::FormRegistry<typename HeatEqBundle::template SourceForm<SourceCallableT>>;
-					using FluxFormsT = fem::form::FormRegistry<typename HeatEqBundle::template FluxForm<FluxCallableT>>;
+					using ExpressionFluxFormsT = fem::form::FormRegistry<typename HeatEqBundle::template FluxForm<FluxCallableT>>;
+
+					using DirichletExpressionT = typename HeatEqBundle::template DirichletBC<SourceCallableT>;
+					using DirichletFileT = typename HeatEqBundle::template DirichletBC<io::fieldio::NodalValueSourceAdapter<io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs>>>;
+					using FluxFunctionExpressionT = typename HeatEqBundle::template FluxBC<FluxCallableT>;
+
+					using NodalFluxSourceT = io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs * HeatEqBundle::SpatialDim>;
+					using FluxFunctionFileT = typename HeatEqBundle::template FluxBC<io::fieldio::NodalValueSourceAdapter<NodalFluxSourceT>>;
+					using NodalFluxFormT = typename HeatEqBundle::template NodalFluxForm<NodalFluxSourceT>;
+					using NodalFluxFormsT = fem::form::FormRegistry<NodalFluxFormT>;
 
 					using CSROperatorT = linalg::op::CSROperator<MatrixT>;
 
-					// Templated on the conductivity model, not fixed to ConstantConductivityModel:
-					// the concrete FEMOperator type depends on which alternative of
-					// HeatEqBundle::ConductivityModelVariant is active, resolved once per
-					// construction/assembly via std::visit in the .tpp -- not a fem::dispatch axis,
-					// since this stays entirely inside one HeatEqBundle instantiation (see the
-					// conductivity-model extensibility discussion: this is what keeps the ~2000
-					// compile-time dispatch instantiations from multiplying per model).
 					template<typename ConductivityModelT>
 					using FEMOperatorFor = linalg::op::FEMOperator<fem::assembly::Assembler<Backend>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ConductivityModelT, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>;
 
@@ -109,9 +108,6 @@ namespace pdesolver {
 
 					utils::logging::driver::Logger driverLogger_;
 
-					// evalEleTemplate_ holds the resolved Basis (order fixed for this
-					// problem's lifetime); copied and rebound per-element inside
-					// Assembler/BoundaryApplicator, never mutated here.
 					typename HeatEqBundle::EvalEle evalEleTemplate_;
 					typename HeatEqBundle::QuadratureVolumeType quadratureVolume_;
 					typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary_;
@@ -131,7 +127,8 @@ namespace pdesolver {
 					MatrixFormsT matrixForms_;
 					SourceFormsT sourceForms_;
 
-					std::vector<std::unique_ptr<FluxFormsT>> fluxForms_;
+					std::vector<std::unique_ptr<ExpressionFluxFormsT>> expressionFluxForms_;
+					std::vector<std::unique_ptr<NodalFluxFormsT>> nodalFluxForms_;
 
 					std::unique_ptr<MatrixT> K_;
 					std::unique_ptr<VectorT> F_;

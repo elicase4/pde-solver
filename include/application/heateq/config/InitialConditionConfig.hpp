@@ -1,9 +1,8 @@
 #ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_INITIALCONDITIONCONFIG_HPP
 #define PDESOLVER_APPLICATION_HEATEQ_CONFIG_INITIALCONDITIONCONFIG_HPP
 
-#include <string>
-
-#include "core/Types.hpp"
+#include "solver/config/NodalFieldReadConfig.hpp"
+#include "solver/config/NodalFieldWriteConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -12,16 +11,8 @@ namespace pdesolver {
 
 				struct InitialConditionConfig {
 
-					enum class Type {
-						Expression,
-						File
-					}; // enum class Type
-
-					Type type = Type::Expression;
-
-					std::string expression;
-
-					std::string file;
+					solver::config::NodalFieldReadConfig read;
+					solver::config::NodalFieldWriteConfig write;
 
 				}; // struct InitialConditionConfig
 
