@@ -23,7 +23,9 @@ physics:
 
     source:
       type: volumetric
-      expression: "0.0"
+      read:
+        mode: expression
+        expression: "0.0"
 
 boundary_conditions:
 

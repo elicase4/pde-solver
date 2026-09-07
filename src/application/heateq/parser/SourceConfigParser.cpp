@@ -1,5 +1,9 @@
 #include "application/heateq/parser/SourceConfigParser.hpp"
+
+#include <stdexcept>
+
 #include "io/YAMLReader.hpp"
+#include "solver/parser/NodalFieldReadConfigParser.hpp"
 
 pdesolver::application::heateq::config::SourceConfig::Type pdesolver::application::heateq::parser::SourceConfigParser::parseSourceType(const std::string& str) {
 
@@ -18,7 +22,13 @@ pdesolver::application::heateq::config::SourceConfig pdesolver::application::hea
 	pdesolver::application::heateq::config::SourceConfig cfg;
 
 	cfg.type = pdesolver::application::heateq::parser::SourceConfigParser::parseSourceType(YAMLReader::required<std::string>(node, "type"));
-	cfg.expression = YAMLReader::required<std::string>(node, "expression");
+
+	const YAML::Node& readNode = node["read"];
+	if (!readNode) {
+		throw std::runtime_error("SourceConfigReader: missing required 'read' section in 'physics.models.source'");
+	}
+
+	cfg.read = pdesolver::solver::parser::NodalFieldReadConfigParser::parse(readNode);
 
 	return cfg;
 

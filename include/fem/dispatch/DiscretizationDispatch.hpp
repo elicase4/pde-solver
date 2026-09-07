@@ -1,12 +1,15 @@
 #ifndef PDESOLVER_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
 #define PDESOLVER_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
 
+#include <stdexcept>
+#include <string>
 #include <utility>
 
 #include "core/Types.hpp"
 
 #include "fem/basis/LagrangeQuad.hpp"
 #include "fem/basis/LagrangeHex.hpp"
+#include "fem/dispatch/DiscretizationLimits.hpp"
 
 #include "fem/quadrature/GaussQuadrature1D.hpp"
 #include "fem/quadrature/GaussQuadratureQuad.hpp"
@@ -32,8 +35,26 @@ namespace pdesolver {
 				using QuadratureBoundaryType = quadrature::GaussQuadratureQuad;
 			};
 
+			// throws instead of silently letting an out-of-range order/quadrature-point count
+			// reach the stack-allocated buffers in Assembler/BoundaryApplicator, which are sized
+			// from these same limits and don't re-check them
+			inline void validateDiscretizationLimits(Index basisOrder, Index quadraturePoints1D) {
+
+				if (basisOrder > kMaxBasisOrder) {
+					throw std::runtime_error("fem::dispatch: basis order " + std::to_string(basisOrder) + " exceeds kMaxBasisOrder (" + std::to_string(kMaxBasisOrder) + ")");
+				}
+
+				if (quadraturePoints1D > kMaxQuadraturePoints1D) {
+					throw std::runtime_error("fem::dispatch: quadrature point count " + std::to_string(quadraturePoints1D) + " exceeds kMaxQuadraturePoints1D (" + std::to_string(kMaxQuadraturePoints1D) + ")");
+				}
+
+			}
+
 			template<Index NSD, typename Visitor>
 			bool dispatchQuad(Index px, Index py, Index xi, Index eta, Visitor&& visitor) {
+
+				validateDiscretizationLimits(px, xi);
+				validateDiscretizationLimits(py, eta);
 
 				using Traits = ElementTypeTraits<mesh::ElementFamily::Quad>;
 
@@ -49,6 +70,10 @@ namespace pdesolver {
 
 			template<Index NSD, typename Visitor>
 			bool dispatchHex(Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
+
+				validateDiscretizationLimits(px, xi);
+				validateDiscretizationLimits(py, eta);
+				validateDiscretizationLimits(pz, zeta);
 
 				using Traits = ElementTypeTraits<mesh::ElementFamily::Hex>;
 

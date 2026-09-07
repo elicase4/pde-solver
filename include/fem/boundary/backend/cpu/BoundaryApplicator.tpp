@@ -5,7 +5,7 @@ class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 
 	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-	void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate Fe on the stack
 		Real Fe[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
@@ -127,7 +127,6 @@ public:
 			const Index* nodeIDs = mesh.getElementNodes(e);
 			Real nodeCoords[EvalEle::SpatialDim*fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
 
-			// extract node coordinates
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
@@ -158,8 +157,8 @@ public:
 				// get face nodes information
 				const Index nodesPerFace = localEle.basis().nodesPerFace(f);
 				
-				Index faceNodeLocalIDs[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
-				Index faceNodeGlobalIDs[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
+				Index faceNodeLocalIDs[fem::dispatch::kMaxNodesPerElementBoundary<EvalEle::ParametricDim>];
+				Index faceNodeGlobalIDs[fem::dispatch::kMaxNodesPerElementBoundary<EvalEle::ParametricDim>];
 
 				localEle.basis().getFaceNodes(f, faceNodeLocalIDs);
 				const Index* elemNodeGlobalIDs = mesh.getElementNodes(e);

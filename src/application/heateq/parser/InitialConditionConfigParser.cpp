@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 #include "solver/parser/NodalFieldReadConfigParser.hpp"
-#include "solver/parser/NodalFieldWriteConfigParser.hpp"
 
 pdesolver::application::heateq::config::InitialConditionConfig pdesolver::application::heateq::parser::InitialConditionConfigParser::parse(const YAML::Node& node) {
 
@@ -15,7 +14,6 @@ pdesolver::application::heateq::config::InitialConditionConfig pdesolver::applic
 	}
 
 	cfg.read = pdesolver::solver::parser::NodalFieldReadConfigParser::parse(readNode);
-	cfg.write = pdesolver::solver::parser::NodalFieldWriteConfigParser::parse(node);
 
 	return cfg;
 

@@ -11,7 +11,6 @@ add_library(pde_solver
 	parser/OutputConfigParser.cpp
 	parser/LoggingConfigParser.cpp
 	parser/NodalFieldReadConfigParser.cpp
-	parser/NodalFieldWriteConfigParser.cpp
 )
 
 target_include_directories(pde_solver

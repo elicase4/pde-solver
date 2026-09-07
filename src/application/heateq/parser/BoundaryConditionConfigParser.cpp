@@ -2,7 +2,6 @@
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 #include "solver/parser/NodalFieldReadConfigParser.hpp"
-#include "solver/parser/NodalFieldWriteConfigParser.hpp"
 
 pdesolver::application::heateq::config::BoundaryConditionConfig::Type pdesolver::application::heateq::parser::BoundaryConditionConfigParser::parseBoundaryConditionType(const std::string& str) {
 
@@ -59,8 +58,6 @@ pdesolver::application::heateq::config::BoundaryConditionConfig pdesolver::appli
 	} else {
 		cfg.expression = YAMLReader::required<std::string>(readNode, "expression");
 	}
-
-	cfg.write = pdesolver::solver::parser::NodalFieldWriteConfigParser::parse(node);
 
 	for (auto& form : YAMLReader::required<std::vector<std::string>>(node, "forms")) {
 		cfg.forms.push_back(BoundaryConditionConfigParser::parseBoundaryConditionForm(form));

@@ -2,6 +2,7 @@
 #define PDESOLVER_APPLICATION_HEATEQ_PROBLEM_HEATPROBLEM_HPP
 
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <variant>
 #include <vector>
@@ -82,8 +83,12 @@ namespace pdesolver {
 					using FluxCallableT = utils::expression::VectorExpression;
 
 					using MatrixFormsT = fem::form::FormRegistry<typename HeatEqBundle::DiffusionForm>;
-					using SourceFormsT = fem::form::FormRegistry<typename HeatEqBundle::template SourceForm<SourceCallableT>>;
+					using ExpressionSourceFormsT = fem::form::FormRegistry<typename HeatEqBundle::template SourceForm<SourceCallableT>>;
 					using ExpressionFluxFormsT = fem::form::FormRegistry<typename HeatEqBundle::template FluxForm<FluxCallableT>>;
+
+					using NodalSourceSourceT = io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs>;
+					using NodalSourceFormT = typename HeatEqBundle::template NodalSourceForm<NodalSourceSourceT>;
+					using NodalSourceFormsT = fem::form::FormRegistry<NodalSourceFormT>;
 
 					using DirichletExpressionT = typename HeatEqBundle::template DirichletBC<SourceCallableT>;
 					using DirichletFileT = typename HeatEqBundle::template DirichletBC<io::fieldio::NodalValueSourceAdapter<io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs>>>;
@@ -125,7 +130,8 @@ namespace pdesolver {
 					typename HeatEqBundle::DefaultModelBdy defaultModelBdy_;
 
 					MatrixFormsT matrixForms_;
-					SourceFormsT sourceForms_;
+					std::optional<ExpressionSourceFormsT> sourceForms_;
+					std::optional<NodalSourceFormsT> nodalSourceForms_;
 
 					std::vector<std::unique_ptr<ExpressionFluxFormsT>> expressionFluxForms_;
 					std::vector<std::unique_ptr<NodalFluxFormsT>> nodalFluxForms_;

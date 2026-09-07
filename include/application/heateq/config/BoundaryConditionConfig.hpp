@@ -7,7 +7,6 @@
 #include "core/Types.hpp"
 #include "application/heateq/config/ConductivityConfig.hpp"
 #include "solver/config/NodalFieldReadConfig.hpp"
-#include "solver/config/NodalFieldWriteConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -41,10 +40,6 @@ namespace pdesolver {
 					std::string expression;
 					std::vector<std::string> fluxExpression;
 					std::string file;
-
-					// optional one-shot export of the resolved BC value -- Value only; Flux is a
-					// shape mismatch (SpatialDim-wide, not NumDOFs-wide), see HeatProblem.tpp.
-					solver::config::NodalFieldWriteConfig write;
 
 					std::vector<Form> forms;
 

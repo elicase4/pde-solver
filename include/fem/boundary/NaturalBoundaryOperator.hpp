@@ -19,10 +19,6 @@ namespace pdesolver {
 				virtual void apply(EvalQP&, Real*) const = 0;
 				virtual BCCategory componentType(Index component) const = 0;
 
-				// per-face, before the quadrature-point loop -- default no-op, so existing
-				// operators need no changes. A future data-driven flux operator overrides this
-				// to gather from an EvalNodalData source into its own (mutable) storage, using
-				// the face-local global node IDs the caller already has in scope.
 				virtual void gatherFaceElementData(const Index*, Index) const {}
 
 			}; // class NaturalBoundaryOperatorBase
@@ -33,8 +29,6 @@ namespace pdesolver {
 
 				NaturalBoundaryOperator(std::shared_ptr<BoundaryCondition<Function>> bc, FormRegistry& forms, Model& model) : bc_(std::move(bc)), forms_(forms), model_(model) {}
 
-				// the flux value comes from qp.x/qp.time inside forms_ (see FluxBoundaryForm),
-				// not from bc_ -- bc_ is only needed for componentType() below
 				void apply(EvalQP& qp, Real* Fe) const override {
 					model_.eval(qp);
 					model_.evalGradient(qp);
@@ -43,6 +37,10 @@ namespace pdesolver {
 
 				BCCategory componentType(Index component) const override {
 					return bc_->componentType[component];
+				}
+
+				void gatherFaceElementData(const Index* faceNodeGlobalIDs, Index nodesPerFace) const override {
+					forms_.gatherElementData(faceNodeGlobalIDs, nodesPerFace);
 				}
 
 			private:

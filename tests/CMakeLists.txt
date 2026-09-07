@@ -59,6 +59,10 @@ add_pde_test(UnitTest_Fem_GaussQuadrature
 	unit/fem/GaussQuadrature.cpp
 )
 
+add_pde_test(UnitTest_Fem_DiscretizationDispatch
+	unit/fem/DiscretizationDispatch.cpp
+)
+
 add_pde_test(UnitTest_Linalg_Cpu_VectorOperations
 	unit/linalg/cpu/VectorOperations.cpp
 )
@@ -109,6 +113,11 @@ add_pde_test(UnitTest_Equations_Heateq_ScalarExpressionWrappers
 	pde_expression
 )
 
+add_pde_test(UnitTest_Equations_Heateq_NodalDataFormEquivalence
+	unit/equations/heateq/NodalDataFormEquivalence.cpp
+	pde_mesh pde_io
+)
+
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 	integration/fem/cpu/HeatEquationMinimal3D.cpp
 	pde_mesh
@@ -127,4 +136,9 @@ add_pde_test(IntegrationTest_Full_Cpu_HeatEquationMinimal
 add_pde_test(IntegrationTest_Full_Cpu_HeatEquationMinimal3D
 	integration/full/cpu/HeatEquationMinimal3D.cpp
 	pde_mesh pde_io
+)
+
+add_pde_test(IntegrationTest_Full_Cpu_HeatEquationFileMode
+	integration/full/cpu/HeatEquationFileMode2D.cpp
+	pde_mesh pde_io pde_solver pde_heateq_app
 )

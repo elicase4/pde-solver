@@ -33,8 +33,6 @@ namespace pdesolver {
 						entry->apply(qp, Fe);
 				}
 
-				// per-face, before the quadrature-point loop -- mirrors apply()'s entry iteration.
-				// Default no-op per entry (see NaturalBoundaryOperatorBase::gatherFaceElementData).
 				void gatherFaceElementData(Int tag, const Index* faceNodeGlobalIDs, Index nodesPerFace) const {
 
 					const auto* entries = getEntries(tag);

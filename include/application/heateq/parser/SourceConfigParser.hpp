@@ -17,6 +17,7 @@ namespace pdesolver {
 
 					static config::SourceConfig::Type parseSourceType(const std::string& str);
 
+					// node is the 'physics.models.source:' section (required -- caller checks it exists)
 					static config::SourceConfig parse(const YAML::Node& node);
 				
 				}; // class SourceConfigParser

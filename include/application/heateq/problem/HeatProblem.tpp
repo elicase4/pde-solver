@@ -1,7 +1,7 @@
 namespace pdesolver::application::heateq::problem {
 
 	template<typename Backend, typename HeatEqBundle>
-	HeatProblem<Backend, HeatEqBundle>::HeatProblem(const application::heateq::config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary) : config_(config), solverInstance_(solver::resolveSolverInstance(config_.solver)), mesh_(std::move(mesh)), topoDOF_(mesh_, config_.discretization.dofOrdering), driverLogger_(solver::logging::makeDriverLogger(config_.logging.driver, "heateq")), evalEleTemplate_(std::move(basis)), quadratureVolume_(std::move(quadratureVolume)), quadratureBoundary_(std::move(quadratureBoundary)), sourceForms_(config_.source.expression) {
+	HeatProblem<Backend, HeatEqBundle>::HeatProblem(const application::heateq::config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary) : config_(config), solverInstance_(solver::resolveSolverInstance(config_.solver)), mesh_(std::move(mesh)), topoDOF_(mesh_, config_.discretization.dofOrdering), driverLogger_(solver::logging::makeDriverLogger(config_.logging.driver, "heateq")), evalEleTemplate_(std::move(basis)), quadratureVolume_(std::move(quadratureVolume)), quadratureBoundary_(std::move(quadratureBoundary)) {
 
 		// solver instance
 		if (solver::isTransient(solverInstance_.mode)) {
@@ -15,6 +15,13 @@ namespace pdesolver::application::heateq::problem {
 			conductivityModel_ = typename HeatEqBundle::AnisotropicConductivityModel{config_.conductivity.tensor};
 		} else {
 			throw std::runtime_error("HeatProblem: unsupported conductivity type");
+		}
+
+		// source
+		if (config_.source.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
+			sourceForms_.emplace(config_.source.read.expression);
+		} else {
+			nodalSourceForms_.emplace(NodalSourceSourceT(mesh_, config_.source.read.file));
 		}
 
 		// boundary conditions
@@ -68,42 +75,6 @@ namespace pdesolver::application::heateq::problem {
 					}
 
 				}
-
-			}
-
-			if (!bcCfg.write.file.empty()) {
-
-				if (bcCfg.type == config::BoundaryConditionConfig::Type::Flux) {
-					throw std::runtime_error("HeatProblem: write mode is not supported for flux boundary conditions");
-				}
-
-				std::vector<Real> bcNodalField(mesh_.data.numNodes * HeatEqBundle::NumDOFs);
-
-				if (bcCfg.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
-
-					utils::expression::ScalarExpression bcExpr(bcCfg.expression);
-
-					for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
-
-						Real coords[3] = {Real(0), Real(0), Real(0)};
-						const Real* nodeCoordPtr = mesh_.getNodeCoord(nodeID);
-						for (Index d = 0; d < HeatEqBundle::SpatialDim; ++d) coords[d] = nodeCoordPtr[d];
-
-						bcExpr(Real(0), coords, &bcNodalField[nodeID * HeatEqBundle::NumDOFs]);
-
-					}
-
-				} else {
-
-					io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs> bcSource(mesh_, bcCfg.file);
-
-					for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
-						bcSource.eval(nodeID, &bcNodalField[nodeID * HeatEqBundle::NumDOFs]);
-					}
-
-				}
-
-				io::fieldio::FieldIO::writeBinaryRaw<HeatEqBundle::NumDOFs>(mesh_, Real(0), bcNodalField, bcCfg.write.file);
 
 			}
 
@@ -169,10 +140,6 @@ namespace pdesolver::application::heateq::problem {
 
 		}
 
-		if (!config_.initialCondition.write.file.empty()) {
-			io::fieldio::FieldIO::writeBinary<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), config_.initialCondition.write.file);
-		}
-
 		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
 		    
 			CSROperatorT op(*K_);
@@ -209,7 +176,11 @@ namespace pdesolver::application::heateq::problem {
 		}
 
 		F_->zero();
-		fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, SourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, sourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
+		if (config_.source.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
+			fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, ExpressionSourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, *sourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
+		} else {
+			fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, NodalSourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, *nodalSourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
+		}
 
 		bcApplicator_.template applyNaturalBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, naturalBCs_, time, evalEleTemplate_, quadratureBoundary_, *F_);
 

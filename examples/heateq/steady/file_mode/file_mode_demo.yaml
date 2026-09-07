@@ -1,13 +1,10 @@
 mesh:
-  
   file: ../../../mesh/square/square.pmsh
 
 discretization:
-  
-  quadrature: 
+  quadrature:
     xi: 2
     eta: 2
-
   dof_ordering:
     type: interleaved
 
@@ -22,25 +19,25 @@ physics:
     source:
       type: volumetric
       read:
-        mode: expression
-        expression: "0.0"
+        mode: file
+        file: source.pndf
 
 boundary_conditions:
 
   - boundary: 0
     type: value
     read:
-      mode: expression
-      expression: "(1-x)*(1-y)"
+      mode: file
+      file: dirichlet_boundary0.pndf
     forms: [value_bc]
     model: constant
 
   - boundary: 1
-    type: value
+    type: flux
     read:
-      mode: expression
-      expression: "(1-x)*(1-y)"
-    forms: [value_bc]
+      mode: file
+      file: flux_boundary1.pndf
+    forms: [flux_bc]
     model: constant
 
   - boundary: 2
@@ -61,8 +58,8 @@ boundary_conditions:
 
 initial_condition:
   read:
-    mode: expression
-    expression: "0.0"
+    mode: file
+    file: initial_condition.pndf
 
 solver:
 
@@ -70,46 +67,24 @@ solver:
     type: steady
 
   linear:
-
     type: cg
-    
     operator:
       type: fem
-
     preconditioner:
       type: identity
-    
     tolerance: 1.0e-12
     max_iterations: 10000
-    # krylov_dim: 50
-
-  # nonlinear:
-    # type: newton
-    # tolerance: 1e-8
-    # max_iterations: 30
-
-  # driver:
-    # type: transient
-    #
-  # timestepper:
-    # type: backward_euler
-    # t0: 0.0
-    # tf: 1.0
-    # dt: 0.01
 
 output:
   directory: output
   vtk: true
   write_frequency: 1
-  prefix: constant_conductivity_solution
+  prefix: file_mode_demo_solution
 
 logging:
-  
   solver:
     type: console
-
   driver:
     type: console
-
   output:
     file: log.txt

@@ -22,6 +22,7 @@
 
 #include "equations/heateq/form/DiffusionForm.hpp"
 #include "equations/heateq/form/SourceForm.hpp"
+#include "equations/heateq/form/NodalSourceForm.hpp"
 #include "equations/heateq/form/FluxBoundaryForm.hpp"
 #include "equations/heateq/form/NodalFluxForm.hpp"
 
@@ -75,6 +76,11 @@ namespace pdesolver {
 			using SourceFunction = heateq::SourceFunction<NSD, NumDOFs, Callable>;
 			template<typename Callable>
 			using SourceForm = heateq::SourceForm<EvalQPVol, SourceFunction<Callable>>;
+
+			// Data-driven (file-backed) Source Form -- Source satisfies fem::eval::EvalNodalData
+			// directly (scalar-shaped, same width as NumDOFs -- no SpatialDim multiplier, unlike flux)
+			template<typename Source>
+			using NodalSourceForm = heateq::NodalSourceForm<EvalQPVol, Source, NumDOFs>;
 
 			// Boundary Flux Form
 			template<typename Callable>

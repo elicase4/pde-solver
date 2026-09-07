@@ -1,9 +1,7 @@
 #ifndef PDESOLVER_APPLICATION_HEATEQ_PARSER_SOURCECONFIG_HPP
 #define PDESOLVER_APPLICATION_HEATEQ_PARSER_SOURCECONFIG_HPP
 
-#include <string>
-
-#include "core/Types.hpp"
+#include "solver/config/NodalFieldReadConfig.hpp"
 
 namespace pdesolver {
 	namespace application {
@@ -12,13 +10,15 @@ namespace pdesolver {
 
 				struct SourceConfig {
 
-					std::string expression;
-
 					enum class Type {
 						VolumetricHeatSource
 					}; // enum class Type
-	
+
 					Type type;
+
+					// the heat equation has one DOF, so NodalFieldReadConfig's scalar
+					// expression shape fits directly, same as InitialConditionConfig
+					solver::config::NodalFieldReadConfig read;
 
 				}; // struct SourceConfig
 
