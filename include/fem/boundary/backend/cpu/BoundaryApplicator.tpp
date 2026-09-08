@@ -167,14 +167,13 @@ public:
 					faceNodeGlobalIDs[i] = elemNodeGlobalIDs[faceNodeLocalIDs[i]];
 				}
 
-				// gather any operator-specific face data (no-op unless a registered entry implements it)
+				// gather any operator-specific face data
 				bcRegistry.gatherFaceElementData(rngTag, faceNodeGlobalIDs, nodesPerFace);
 
 				// qp data
 				EvalQP qp(localEle, f);
 
-				// quadrature loop -- flux value comes from qp.x/qp.time internally (see
-				// FluxBoundaryForm), not from anything computed here
+				// quadrature loop
 				for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
 
 					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);

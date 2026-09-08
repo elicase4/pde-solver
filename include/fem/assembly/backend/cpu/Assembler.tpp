@@ -10,6 +10,7 @@ public:
 		// allocate matrix
 		linalg::types::CSRMatrix<Real, linalg::types::backend::CPU> K(topoDOF.numFreeDOFs(), topoDOF.numFreeDOFs());
 
+		// TODO: make flat
 		// allocate adjacency list
 		std::vector<std::vector<Index>> adjList(topoDOF.numFreeDOFs());
 
@@ -78,6 +79,45 @@ public:
 
 		linalg::types::Vector<Real, linalg::types::backend::CPU> F(topoDOF.numFreeDOFs());
 		return F;
+
+	}
+
+	template<Index numDOFs, Index SpatialDim>
+	static void gatherElementSolution(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, Real* Ue){
+
+		for (Index i = 0; i < nodesPerElement; ++i){
+
+			Real bcVal[topology::TopologicalDOF<numDOFs>::dofsPerNode];
+			bool haveBcVal = false;
+
+			for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
+
+				Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
+
+				// free nodes
+				if (!topoDOF.isConstrained(TdofIDi)) {
+					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
+					Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
+					continue;
+				}
+
+				// constrained nodes
+				if (!haveBcVal) {
+					Int rngTag = topoDOF.getConstraintTag(TdofIDi);
+					const auto* entries = bcRegistry.getEntries(rngTag);
+					if (entries) {
+						for (const auto& entry : *entries) {
+							entry->eval(time, &nodeCoords[SpatialDim*i], bcVal);
+						}
+					}
+					haveBcVal = true;
+				}
+
+				Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = bcVal[j];
+
+			}
+
+		}
 
 	}
 
@@ -226,7 +266,11 @@ public:
 
 			}
 
-			// gather U into Ue
+			// gather U into Ue -- constrained DOFs left at 0 (no algebraic index for them in U).
+			// Harmless today: nothing plugged into assembleVector (SourceForm/NodalSourceForm)
+			// reads Ue at all. Would need Assembler::gatherElementSolution's complete gather
+			// (constrained DOFs evaluated from an EssentialBoundaryRegistry) instead, the moment
+			// a genuinely Ue-dependent LinearForm is wired up here (e.g. a Newton residual).
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
 

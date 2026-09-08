@@ -118,6 +118,11 @@ add_pde_test(UnitTest_Equations_Heateq_NodalDataFormEquivalence
 	pde_mesh pde_io
 )
 
+add_pde_test(UnitTest_Equations_Heateq_QuantityEvaluator
+	unit/equations/heateq/QuantityEvaluator.cpp
+	pde_mesh pde_io
+)
+
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 	integration/fem/cpu/HeatEquationMinimal3D.cpp
 	pde_mesh

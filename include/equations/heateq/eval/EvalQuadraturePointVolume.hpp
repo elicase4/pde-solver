@@ -55,10 +55,12 @@ namespace pdesolver::equations::heateq {
 				xi[pD] = xi_q[pD];
 			}
 			w = weight;
-
+	
+			// basis function evaluation
 			element.basis().eval(xi, N);
 			element.basis().evalGradient(xi, dNdxi);
 
+			// geometry
 			Geometry::mapToPhysical(coords, N, x, nodesPerElement());
 			Geometry::computeJacobian(coords, dNdxi, J, nodesPerElement());
 			Geometry::computeMetric(J, g);

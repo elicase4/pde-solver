@@ -2,6 +2,7 @@
 #include "application/heateq/parser/BoundaryConditionConfigParser.hpp"
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "application/heateq/parser/InitialConditionConfigParser.hpp"
+#include "application/heateq/parser/MonitorConfigParser.hpp"
 #include "application/heateq/parser/SourceConfigParser.hpp"
 
 #include "solver/parser/BackendConfigParser.hpp"
@@ -84,6 +85,13 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	cfg.source = pdesolver::application::heateq::parser::SourceConfigParser::parse(src);
 
 	cfg.backend = pdesolver::solver::parser::BackendConfigParser::parse(root);
+
+	const YAML::Node& monitors = root["monitors"];
+	if (monitors) {
+		for (auto& monitor : monitors) {
+			cfg.monitors.push_back(pdesolver::application::heateq::parser::MonitorConfigParser::parse(monitor));
+		}
+	}
 
 	return cfg;
 

@@ -7,6 +7,7 @@
 #include "application/heateq/config/BoundaryConditionConfig.hpp"
 #include "application/heateq/config/ConductivityConfig.hpp"
 #include "application/heateq/config/InitialConditionConfig.hpp"
+#include "application/heateq/config/MonitorConfig.hpp"
 #include "application/heateq/config/SourceConfig.hpp"
 
 #include "solver/config/BackendConfig.hpp"
@@ -45,6 +46,9 @@ namespace pdesolver {
 					SourceConfig source;
 
 					InitialConditionConfig initialCondition;
+
+					// optional -- absent means no monitors configured
+					std::vector<MonitorConfig> monitors;
 
 				}; // struct HeatConfig
 

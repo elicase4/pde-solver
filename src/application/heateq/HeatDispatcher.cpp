@@ -69,6 +69,7 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 
 		heatProblem.writeOutput(0);
 		heatProblem.writeLog();
+		heatProblem.evaluateMonitors();
 
 		if (converged) {
 			logger.event("converged");

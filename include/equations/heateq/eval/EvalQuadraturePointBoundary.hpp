@@ -55,6 +55,13 @@ namespace pdesolver::equations::heateq {
 
 		// geometry
 		Real J[SpatialDim*ParametricDim];
+		Real g[ParametricDim*ParametricDim];
+
+		// physical gradient
+		Real dNdx[SpatialDim*fem::dispatch::kMaxNodesPerElement<ParametricDim>];
+
+		// conductivity coefficient
+		Real K[SpatialDim*SpatialDim];
 
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_face_q, const Real weight){
 
@@ -79,6 +86,10 @@ namespace pdesolver::equations::heateq {
 			Geometry::mapToPhysical(coords, N, x, nodesPerElement());
 			Geometry::computeJacobian(coords, dNdxi, J, nodesPerElement());
 			Geometry::computeBoundaryNormal(J, normalRef, normal);
+			Geometry::computeMetric(J, g);
+
+			// transforms
+			Geometry::transformGradient(J, g, dNdxi, dNdx, nodesPerElement());
 
 		}
 

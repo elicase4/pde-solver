@@ -11,17 +11,44 @@ namespace pdesolver::application::heateq::problem {
 		// conductivity model
 		if (config_.conductivity.type == config::ConductivityConfig::Type::Constant) {
 			conductivityModel_ = typename HeatEqBundle::ConstantConductivityModel{config_.conductivity.value};
+			conductivityModelBdy_ = typename HeatEqBundle::ConstantConductivityModelBdy{config_.conductivity.value};
 		} else if (config_.conductivity.type == config::ConductivityConfig::Type::Anisotropic) {
 			conductivityModel_ = typename HeatEqBundle::AnisotropicConductivityModel{config_.conductivity.tensor};
+			conductivityModelBdy_ = typename HeatEqBundle::AnisotropicConductivityModelBdy{config_.conductivity.tensor};
 		} else {
 			throw std::runtime_error("HeatProblem: unsupported conductivity type");
+		}
+
+		// monitors
+		for (const auto& monitorCfg : config_.monitors) {
+
+			if (monitorCfg.reduction == fem::quantity::Reduction::Integral) {
+
+				MonitorCombinationIntegralT combination;
+				for (const auto& term : monitorCfg.terms) {
+					monitorRegistryIntegral_.registerTag(term.boundary);
+					combination.addTerm(term.boundary, term.coefficient);
+				}
+				monitorCombinationsIntegral_.emplace_back(monitorCfg.name, std::move(combination));
+
+			} else {
+
+				MonitorCombinationAverageT combination;
+				for (const auto& term : monitorCfg.terms) {
+					monitorRegistryAverage_.registerTag(term.boundary);
+					combination.addTerm(term.boundary, term.coefficient);
+				}
+				monitorCombinationsAverage_.emplace_back(monitorCfg.name, std::move(combination));
+
+			}
+
 		}
 
 		// source
 		if (config_.source.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
 			sourceForms_.emplace(config_.source.read.expression);
 		} else {
-			nodalSourceForms_.emplace(NodalSourceSourceT(mesh_, config_.source.read.file));
+			nodalSourceForms_.emplace(NodalScalarSourceT(mesh_, config_.source.read.file));
 		}
 
 		// boundary conditions
@@ -37,9 +64,9 @@ namespace pdesolver::application::heateq::problem {
 
 					if (bcCfg.mode == solver::config::NodalFieldReadConfig::Mode::File) {
 
-						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletFileT>>(new fem::boundary::BoundaryCondition<DirichletFileT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletFileT{mesh_, bcCfg.file}});
+						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletNodalT>>(new fem::boundary::BoundaryCondition<DirichletNodalT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletNodalT{mesh_, bcCfg.file}});
 
-						essentialBCs_.registerBC<DirichletFileT>(bc);
+						essentialBCs_.registerBC<DirichletNodalT>(bc);
 
 					} else {
 
@@ -56,9 +83,9 @@ namespace pdesolver::application::heateq::problem {
 						NodalFluxSourceT nodalFluxSource(mesh_, bcCfg.file);
 						nodalFluxForms_.push_back(std::make_unique<NodalFluxFormsT>(nodalFluxSource));
 
-						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionFileT>>(new fem::boundary::BoundaryCondition<FluxFunctionFileT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionFileT{mesh_, bcCfg.file}});
+						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionNodalT>>(new fem::boundary::BoundaryCondition<FluxFunctionNodalT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionNodalT{mesh_, bcCfg.file}});
 
-						naturalBCs_.template registerBC<FluxFunctionFileT>(bc, *nodalFluxForms_.back(), defaultModelBdy_);
+						naturalBCs_.template registerBC<FluxFunctionNodalT>(bc, *nodalFluxForms_.back(), defaultModelBdy_);
 
 					} else {
 
@@ -92,6 +119,7 @@ namespace pdesolver::application::heateq::problem {
 		U_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
 		U_->zero();
 
+		// initial condition
 		if (config_.initialCondition.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
 
 			utils::expression::ScalarExpression icExpr(config_.initialCondition.read.expression);
@@ -119,7 +147,7 @@ namespace pdesolver::application::heateq::problem {
 
 		} else {
 
-			io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs> icSource(mesh_, config_.initialCondition.read.file);
+			NodalScalarSourceT icSource(mesh_, config_.initialCondition.read.file);
 
 			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
 
@@ -140,6 +168,7 @@ namespace pdesolver::application::heateq::problem {
 
 		}
 
+		// configure linear operator
 		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
 		    
 			CSROperatorT op(*K_);
@@ -168,6 +197,7 @@ namespace pdesolver::application::heateq::problem {
 	template<typename Backend, typename HeatEqBundle>
 	void HeatProblem<Backend, HeatEqBundle>::assembleSystem(Real time) {
 
+		// assemble K if needed
 		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
 			std::visit([&](auto& model) {
 				using ConductivityModelT = std::decay_t<decltype(model)>;
@@ -175,6 +205,7 @@ namespace pdesolver::application::heateq::problem {
 			}, conductivityModel_);
 		}
 
+		// assemble F
 		F_->zero();
 		if (config_.source.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
 			fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, ExpressionSourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, *sourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
@@ -182,8 +213,10 @@ namespace pdesolver::application::heateq::problem {
 			fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, NodalSourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, *nodalSourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
 		}
 
+		// apply natural BCs
 		bcApplicator_.template applyNaturalBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, naturalBCs_, time, evalEleTemplate_, quadratureBoundary_, *F_);
 
+		// apply essential BCs
 		std::visit([&](auto& model) {
 			using ConductivityModelT = std::decay_t<decltype(model)>;
 			bcApplicator_.template applyEssentialBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ConductivityModelT, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, essentialBCs_, time, model, matrixForms_, evalEleTemplate_, quadratureVolume_, *F_);
@@ -194,6 +227,7 @@ namespace pdesolver::application::heateq::problem {
 	template<typename Backend, typename HeatEqBundle>
 	bool HeatProblem<Backend, HeatEqBundle>::solveLinear() {
 
+		// run linear solver
 		linalg::solver::SolverReport<VectorT> report;
 		bool converged = linearSolverRunner_->solve(*F_, *U_, report);
 		return converged;
@@ -257,6 +291,39 @@ namespace pdesolver::application::heateq::problem {
 
 	template<typename Backend, typename HeatEqBundle>
 	void HeatProblem<Backend, HeatEqBundle>::writeLog() const {
+
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::evaluateMonitors() const {
+
+		if (monitorCombinationsIntegral_.empty() && monitorCombinationsAverage_.empty()) return;
+
+		std::visit([&](auto& model) {
+
+			using ConductivityModelT = std::decay_t<decltype(model)>;
+
+			if (!monitorCombinationsIntegral_.empty()) {
+				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesIntegralT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, Real(0), model, monitorQuantitiesIntegral_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryIntegral_);
+			}
+
+			if (!monitorCombinationsAverage_.empty()) {
+				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesAverageT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, Real(0), model, monitorQuantitiesAverage_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryAverage_);
+			}
+
+		}, conductivityModelBdy_);
+
+		Real value[HeatEqBundle::HeatFluxIntegrand::NumComponents];
+
+		for (const auto& [name, combination] : monitorCombinationsIntegral_) {
+			combination.evaluate(monitorRegistryIntegral_, value);
+			driverLogger_.event("monitor '" + name + "' = " + std::to_string(value[0]));
+		}
+
+		for (const auto& [name, combination] : monitorCombinationsAverage_) {
+			combination.evaluate(monitorRegistryAverage_, value);
+			driverLogger_.event("monitor '" + name + "' = " + std::to_string(value[0]));
+		}
 
 	}
 

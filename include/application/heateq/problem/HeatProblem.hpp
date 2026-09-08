@@ -3,7 +3,9 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 #include <type_traits>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -20,6 +22,7 @@
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/boundary/NaturalBoundaryRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
+#include "fem/quantity/QuantityEvaluator.hpp"
 
 #include "linalg/operator/CSROperator.hpp"
 #include "linalg/operator/FEMOperator.hpp"
@@ -77,27 +80,35 @@ namespace pdesolver {
 
 					void writeLog() const;
 
+					void evaluateMonitors() const;
+
 				private:
 
 					using SourceCallableT = utils::expression::ScalarExpression;
 					using FluxCallableT = utils::expression::VectorExpression;
 
-					using MatrixFormsT = fem::form::FormRegistry<typename HeatEqBundle::DiffusionForm>;
-					using ExpressionSourceFormsT = fem::form::FormRegistry<typename HeatEqBundle::template SourceForm<SourceCallableT>>;
-					using ExpressionFluxFormsT = fem::form::FormRegistry<typename HeatEqBundle::template FluxForm<FluxCallableT>>;
+					using NodalScalarSourceT = typename HeatEqBundle::NodalScalarSource;
+					using NodalFluxSourceT = typename HeatEqBundle::NodalFluxSource;
 
-					using NodalSourceSourceT = io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs>;
-					using NodalSourceFormT = typename HeatEqBundle::template NodalSourceForm<NodalSourceSourceT>;
-					using NodalSourceFormsT = fem::form::FormRegistry<NodalSourceFormT>;
+					using MatrixFormsT = typename HeatEqBundle::MatrixForms;
+					using ExpressionSourceFormsT = typename HeatEqBundle::template ExpressionSourceForms<SourceCallableT>;
+					using NodalSourceFormsT = typename HeatEqBundle::template NodalSourceForms<NodalScalarSourceT>;
+					using ExpressionFluxFormsT = typename HeatEqBundle::template ExpressionFluxForms<FluxCallableT>;
+					using NodalFluxFormsT = typename HeatEqBundle::template NodalFluxForms<NodalFluxSourceT>;
 
-					using DirichletExpressionT = typename HeatEqBundle::template DirichletBC<SourceCallableT>;
-					using DirichletFileT = typename HeatEqBundle::template DirichletBC<io::fieldio::NodalValueSourceAdapter<io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs>>>;
-					using FluxFunctionExpressionT = typename HeatEqBundle::template FluxBC<FluxCallableT>;
+					using DirichletExpressionT = typename HeatEqBundle::template DirichletExpression<SourceCallableT>;
+					using DirichletNodalT = typename HeatEqBundle::template DirichletNodal<NodalScalarSourceT>;
+					using FluxFunctionExpressionT = typename HeatEqBundle::template FluxBCExpression<FluxCallableT>;
+					using FluxFunctionNodalT = typename HeatEqBundle::template FluxBCNodal<NodalFluxSourceT>;
 
-					using NodalFluxSourceT = io::fieldio::NodalFileValueSource<HeatEqBundle::NumDOFs * HeatEqBundle::SpatialDim>;
-					using FluxFunctionFileT = typename HeatEqBundle::template FluxBC<io::fieldio::NodalValueSourceAdapter<NodalFluxSourceT>>;
-					using NodalFluxFormT = typename HeatEqBundle::template NodalFluxForm<NodalFluxSourceT>;
-					using NodalFluxFormsT = fem::form::FormRegistry<NodalFluxFormT>;
+					template<fem::quantity::Reduction Mode>
+					using MonitorQuantitiesFor = typename HeatEqBundle::template QuantityForms<typename HeatEqBundle::template ReducedQuantity<typename HeatEqBundle::HeatFluxIntegrand, Mode>>;
+					using MonitorQuantitiesIntegralT = MonitorQuantitiesFor<fem::quantity::Reduction::Integral>;
+					using MonitorQuantitiesAverageT = MonitorQuantitiesFor<fem::quantity::Reduction::Average>;
+					using MonitorRegistryIntegralT = typename HeatEqBundle::template BoundaryQuantityRegistry<MonitorQuantitiesIntegralT>;
+					using MonitorRegistryAverageT = typename HeatEqBundle::template BoundaryQuantityRegistry<MonitorQuantitiesAverageT>;
+					using MonitorCombinationIntegralT = typename HeatEqBundle::template BoundaryQuantityCombination<MonitorQuantitiesIntegralT>;
+					using MonitorCombinationAverageT = typename HeatEqBundle::template BoundaryQuantityCombination<MonitorQuantitiesAverageT>;
 
 					using CSROperatorT = linalg::op::CSROperator<MatrixT>;
 
@@ -125,9 +136,17 @@ namespace pdesolver {
 					fem::boundary::NaturalBoundaryRegistry<typename HeatEqBundle::EvalQPBdy> naturalBCs_;
 
 					typename HeatEqBundle::ConductivityModelVariant conductivityModel_;
+					typename HeatEqBundle::ConductivityModelVariantBdy conductivityModelBdy_;
 
 					typename HeatEqBundle::DefaultModel defaultModel_;
 					typename HeatEqBundle::DefaultModelBdy defaultModelBdy_;
+
+					MonitorQuantitiesIntegralT monitorQuantitiesIntegral_;
+					MonitorQuantitiesAverageT monitorQuantitiesAverage_;
+					mutable MonitorRegistryIntegralT monitorRegistryIntegral_;
+					mutable MonitorRegistryAverageT monitorRegistryAverage_;
+					std::vector<std::pair<std::string, MonitorCombinationIntegralT>> monitorCombinationsIntegral_;
+					std::vector<std::pair<std::string, MonitorCombinationAverageT>> monitorCombinationsAverage_;
 
 					MatrixFormsT matrixForms_;
 					std::optional<ExpressionSourceFormsT> sourceForms_;

@@ -60,6 +60,42 @@ initial_condition:
     mode: expression
     expression: "0.0"
 
+monitors:
+
+  - name: inlet_flux
+    quantity: heat_flux
+    reduction: integral
+    terms:
+      - boundary: 1
+
+  - name: outlet_flux
+    quantity: heat_flux
+    reduction: integral
+    terms:
+      - boundary: 2
+
+  - name: wall_flux
+    quantity: heat_flux
+    reduction: integral
+    terms:
+      - boundary: 3
+
+  # average flux density through the inlet -- inlet_flux / inlet area
+  - name: inlet_flux_avg
+    quantity: heat_flux
+    reduction: average
+    terms:
+      - boundary: 1
+
+  # energy balance check
+  - name: net_balance
+    quantity: heat_flux
+    reduction: integral
+    terms:
+      - boundary: 1
+      - boundary: 2
+      - boundary: 3
+
 solver:
 
   driver:

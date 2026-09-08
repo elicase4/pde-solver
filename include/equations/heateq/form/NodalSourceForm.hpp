@@ -10,9 +10,6 @@
 
 namespace pdesolver::equations::heateq {
 
-	// data-driven counterpart to SourceForm -- instead of evaluating a continuous expression
-	// at qp.x, interpolates a per-element-node array (gathered once per element via
-	// gatherElementData) at the QP using qp.N (same basis as the test space, matching Galerkin).
 	template<typename QuadraturePointVolume, fem::eval::EvalNodalData Source, Index NumComponents_>
 	class NodalSourceForm {
 	public:
@@ -23,7 +20,7 @@ namespace pdesolver::equations::heateq {
 		requires (!(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, NodalSourceForm> && ...)))
 		constexpr NodalSourceForm(Args&&... args) : source_(std::forward<Args>(args)...) {}
 
-		// per-element, before the quadrature-point loop -- see fem/form/GathersElementData.hpp
+		// per-element, before the quadrature-point loop
 		void gatherElementData(const Index* nodeIDs, Index nodesPerElement) const {
 			for (Index a = 0; a < nodesPerElement; ++a) {
 				source_.eval(nodeIDs[a], &De_[a * NumComponents]);

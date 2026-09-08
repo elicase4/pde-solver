@@ -7,9 +7,6 @@
 
 namespace pdesolver::equations::heateq {
 
-	// Basis is now an instance (holds runtime order), not a pure static-method
-	// type -- constructed once per HeatProblem from the resolved discretization
-	// config and never changes per-element. See the runtime-dispatch refactor.
 	template<typename Basis, Index SD>
 	class EvalElement {
 	public:

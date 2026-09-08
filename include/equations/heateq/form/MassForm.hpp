@@ -21,7 +21,6 @@ namespace pdesolver::equations::heateq {
 			
 			for (Index a = 0; a < qp.nodesPerElement(); ++a){
 				for (Index b = 0; b < qp.nodesPerElement(); ++b){
-					
 					Oe[a] += qp.N[a] * qp.N[b] * Ue[b] * qp.measure * qp.w;
 				}
 			}

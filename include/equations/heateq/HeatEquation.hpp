@@ -26,17 +26,20 @@
 #include "equations/heateq/form/FluxBoundaryForm.hpp"
 #include "equations/heateq/form/NodalFluxForm.hpp"
 
+#include "equations/heateq/quantity/HeatFluxIntegrand.hpp"
+#include "equations/heateq/quantity/QuantityLimits.hpp"
+
+#include "fem/form/FormRegistry.hpp"
+#include "fem/quantity/BoundaryQuantityCombination.hpp"
+#include "fem/quantity/BoundaryQuantityRegistry.hpp"
+#include "fem/quantity/QuantityEvaluator.hpp"
+#include "fem/quantity/QuantityForms.hpp"
+#include "io/fieldio/NodalFileValueSource.hpp"
+#include "io/fieldio/NodalValueSourceAdapter.hpp"
+
 namespace pdesolver {
 	namespace equations {
 
-		// NSD/NPD/Family are the only compile-time discretization axes now (per
-		// the runtime-dispatch refactor) -- basis order and quadrature-point
-		// counts are runtime fields on Basis/QuadratureVolumeType/
-		// QuadratureBoundaryType, resolved once per HeatProblem construction via
-		// fem::dispatch::dispatch(), not per (order, quadrature) combination.
-		// NPD stays an explicit template parameter alongside NSD (matching
-		// fem::dispatch's own npd/nsd/family resolution order) even though it's
-		// structurally implied by Family, rather than deriving it.
 		template<Index NSD, Index NPD, mesh::ElementFamily Family>
 		struct HeatEquation {
 
@@ -44,20 +47,19 @@ namespace pdesolver {
 			static constexpr Index NumDOFs = 1;
 			static constexpr Index SpatialDim = NSD;
 
-			// Discretization Info -- concrete types for this family, resolved via
-			// the same trait fem::dispatch::dispatch() uses to construct instances.
+			// Discretization Info
 			using ElementTraits = fem::dispatch::ElementTypeTraits<Family>;
 			using Basis = typename ElementTraits::BasisType;
 			using QuadratureVolumeType = typename ElementTraits::QuadratureVolumeType;
 			using QuadratureBoundaryType = typename ElementTraits::QuadratureBoundaryType;
 
-			// Geometry -- NodesPerElement dropped from JacobianTransform's
-			// template (see task #59); it's a runtime arg on the three methods
-			// that need it now.
+			// Geometry
 			using Transform = fem::geometry::JacobianTransform<NSD, NPD>;
 
-			// Eval types
+			// Element Evaluator
 			using EvalEle = heateq::EvalElement<Basis, NSD>;
+			
+			// Quadrature Point Evaluator
 			using EvalQPVol = heateq::EvalQuadraturePointVolume<EvalEle, Basis, Transform>;
 			using EvalQPBdy = heateq::EvalQuadraturePointBoundary<EvalEle, Basis, Transform>;
 
@@ -65,38 +67,73 @@ namespace pdesolver {
 			using DefaultModel = heateq::DefaultModel<EvalQPVol>;
 			using ConstantConductivityModel = heateq::ConstantConductivityModel<EvalQPVol>;
 			using AnisotropicConductivityModel = heateq::AnisotropicConductivityModel<EvalQPVol>;
+			using ConstantConductivityModelBdy = heateq::ConstantConductivityModel<EvalQPBdy>;
+			using AnisotropicConductivityModelBdy = heateq::AnisotropicConductivityModel<EvalQPBdy>;
+
+			// Constitutive Model Variant
 			using ConductivityModelVariant = std::variant<ConstantConductivityModel, AnisotropicConductivityModel>;
+			using ConductivityModelVariantBdy = std::variant<ConstantConductivityModelBdy, AnisotropicConductivityModelBdy>;
+
+			// Default Model
 			using DefaultModelBdy = heateq::DefaultModel<EvalQPBdy>;
+
+			// Field interpolation for primary dofs
+			using EvalField = heateq::EvalField;
 
 			// Diffusion Form
 			using DiffusionForm = heateq::DiffusionForm<EvalQPVol>;
+			using MatrixForms = fem::form::FormRegistry<DiffusionForm>;
 
-			// Source Form
+			// Nodal-data sources
+			using NodalScalarSource = io::fieldio::NodalFileValueSource<NumDOFs>;
+			using NodalFluxSource = io::fieldio::NodalFileValueSource<NumDOFs * SpatialDim>;
+
+			// Source: Expression callable vs Nodal data, and their FormRegistry wrappings
 			template<typename Callable>
 			using SourceFunction = heateq::SourceFunction<NSD, NumDOFs, Callable>;
 			template<typename Callable>
 			using SourceForm = heateq::SourceForm<EvalQPVol, SourceFunction<Callable>>;
-
-			// Data-driven (file-backed) Source Form -- Source satisfies fem::eval::EvalNodalData
-			// directly (scalar-shaped, same width as NumDOFs -- no SpatialDim multiplier, unlike flux)
+			template<typename Callable>
+			using ExpressionSourceForms = fem::form::FormRegistry<SourceForm<Callable>>;
 			template<typename Source>
 			using NodalSourceForm = heateq::NodalSourceForm<EvalQPVol, Source, NumDOFs>;
+			template<typename Source>
+			using NodalSourceForms = fem::form::FormRegistry<NodalSourceForm<Source>>;
 
-			// Boundary Flux Form
+			// Boundary Flux: Expression callable vs Nodal
 			template<typename Callable>
 			using FluxBC = heateq::BoundaryFluxFunction<NSD, NumDOFs, Callable>;
 			template<typename Callable>
+			using FluxBCExpression = FluxBC<Callable>;
+			template<typename Source>
+			using FluxBCNodal = FluxBC<io::fieldio::NodalValueSourceAdapter<Source>>;
+			template<typename Callable>
 			using FluxForm = heateq::FluxBoundaryForm<EvalQPBdy, FluxBC<Callable>>;
-
-			// Data-driven (file-backed) Boundary Flux Form -- Source satisfies
-			// fem::eval::EvalNodalData directly, no FluxBC wrapper (that wrapper's
-			// eval(time,x,out) shape doesn't fit a node-indexed source)
+			template<typename Callable>
+			using ExpressionFluxForms = fem::form::FormRegistry<FluxForm<Callable>>;
 			template<typename Source>
 			using NodalFluxForm = heateq::NodalFluxForm<EvalQPBdy, Source, NumDOFs, SpatialDim>;
+			template<typename Source>
+			using NodalFluxForms = fem::form::FormRegistry<NodalFluxForm<Source>>;
 
-			// Boundary Value Function
+			// Boundary Value (Dirichlet): Expression callable vs Nodal data
 			template<typename Callable>
 			using DirichletBC = heateq::BoundaryValueFunction<NSD, NumDOFs, Callable>;
+			template<typename Callable>
+			using DirichletExpression = DirichletBC<Callable>;
+			template<typename Source>
+			using DirichletNodal = DirichletBC<io::fieldio::NodalValueSourceAdapter<Source>>;
+
+			// Derived quantities
+			using HeatFluxIntegrand = heateq::quantity::HeatFluxIntegrand<EvalQPBdy>;
+			template<typename Form, fem::quantity::Reduction Mode>
+			using ReducedQuantity = fem::quantity::ReducedQuantity<Form, Mode>;
+			template<typename... ReducedQuantities>
+			using QuantityForms = fem::quantity::QuantityForms<ReducedQuantities...>;
+			template<typename QuantityFormsT>
+			using BoundaryQuantityRegistry = fem::quantity::BoundaryQuantityRegistry<QuantityFormsT>;
+			template<typename QuantityFormsT>
+			using BoundaryQuantityCombination = fem::quantity::BoundaryQuantityCombination<QuantityFormsT>;
 
 		}; // struct HeatEquation
 
