@@ -11,19 +11,23 @@ discretization:
   dof_ordering:
     type: interleaved
 
+materials:
+
+  conductivity:
+    type: constant
+    value: 1.0
+    unit: W/(m*K)
+
 physics:
 
   models:
-
-    conductivity:
-      type: constant
-      value: 1.0
 
     source:
       type: volumetric
       read:
         mode: expression
         expression: "0.0"
+        unit: W/m^3
 
 boundary_conditions:
 
@@ -32,6 +36,7 @@ boundary_conditions:
     read:
       mode: expression
       expression: "(1-x)*(1-y)"
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -40,6 +45,7 @@ boundary_conditions:
     read:
       mode: expression
       expression: "(1-x)*(1-y)"
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -48,6 +54,7 @@ boundary_conditions:
     read:
       mode: expression
       expression: "(1-x)*(1-y)"
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -56,6 +63,7 @@ boundary_conditions:
     read:
       mode: expression
       expression: "(1-x)*(1-y)"
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -63,6 +71,7 @@ initial_condition:
   read:
     mode: expression
     expression: "0.0"
+    unit: K
 
 solver:
 

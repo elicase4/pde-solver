@@ -18,6 +18,11 @@ namespace pdesolver {
 					Real coefficient = 1.0;
 				}; // struct MonitorTermConfig
 
+				struct MonitorOutputConfig {
+					bool console = true;
+					std::string file; // optional CSV path
+				}; // struct MonitorOutputConfig
+
 				struct MonitorConfig {
 
 					enum class Quantity {
@@ -30,6 +35,8 @@ namespace pdesolver {
 					fem::quantity::Reduction reduction;
 
 					std::vector<MonitorTermConfig> terms;
+
+					MonitorOutputConfig output;
 
 				}; // struct MonitorConfig
 

@@ -59,6 +59,8 @@ pdesolver::application::heateq::config::BoundaryConditionConfig pdesolver::appli
 		cfg.expression = YAMLReader::required<std::string>(readNode, "expression");
 	}
 
+	cfg.unit = YAMLReader::required<std::string>(readNode, "unit");
+
 	for (auto& form : YAMLReader::required<std::vector<std::string>>(node, "forms")) {
 		cfg.forms.push_back(BoundaryConditionConfigParser::parseBoundaryConditionForm(form));
 	}

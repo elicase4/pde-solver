@@ -46,6 +46,12 @@ pdesolver::application::heateq::config::MonitorConfig pdesolver::application::he
 
 	}
 
+	const YAML::Node& outputNode = node["output"];
+	if (outputNode) {
+		cfg.output.console = YAMLReader::optional<bool>(outputNode, "console", true);
+		cfg.output.file = YAMLReader::optional<std::string>(outputNode, "file", "");
+	}
+
 	return cfg;
 
 }

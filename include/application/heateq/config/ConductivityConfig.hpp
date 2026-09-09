@@ -1,6 +1,7 @@
 #ifndef PDESOLVER_APPLICATION_HEATEQ_PARSER_CONDUCTIVITYCONFIG_HPP
 #define PDESOLVER_APPLICATION_HEATEQ_PARSER_CONDUCTIVITYCONFIG_HPP
 
+#include <string>
 #include <vector>
 
 #include "core/Types.hpp"
@@ -23,6 +24,8 @@ namespace pdesolver {
 					Real value;
 
 					std::vector<std::vector<Real>> tensor;
+
+					std::string unit; // required, SI unit label -- e.g. "W/(m*K)"
 
 				}; // struct ConductivityConfig
 

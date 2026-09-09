@@ -8,19 +8,23 @@ discretization:
   dof_ordering:
     type: interleaved
 
+materials:
+
+  conductivity:
+    type: constant
+    value: 1.0
+    unit: W/(m*K)
+
 physics:
 
   models:
-
-    conductivity:
-      type: constant
-      value: 1.0
 
     source:
       type: volumetric
       read:
         mode: file
         file: source.pndf
+        unit: W/m^3
 
 boundary_conditions:
 
@@ -29,6 +33,7 @@ boundary_conditions:
     read:
       mode: file
       file: dirichlet_boundary0.pndf
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -37,6 +42,7 @@ boundary_conditions:
     read:
       mode: file
       file: flux_boundary1.pndf
+      unit: W/m^2
     forms: [flux_bc]
     model: constant
 
@@ -45,6 +51,7 @@ boundary_conditions:
     read:
       mode: expression
       expression: "(1-x)*(1-y)"
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -53,6 +60,7 @@ boundary_conditions:
     read:
       mode: expression
       expression: "(1-x)*(1-y)"
+      unit: K
     forms: [value_bc]
     model: constant
 
@@ -60,6 +68,7 @@ initial_condition:
   read:
     mode: file
     file: initial_condition.pndf
+    unit: K
 
 solver:
 

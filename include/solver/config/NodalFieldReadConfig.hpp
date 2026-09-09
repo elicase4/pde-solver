@@ -17,6 +17,7 @@ namespace pdesolver {
 				Mode mode = Mode::Expression;
 				std::string expression; // only used when mode == Expression
 				std::string file;       // only used when mode == File
+				std::string unit;       // required, SI unit label -- e.g. "K", "W/m^3"
 
 			}; // struct NodalFieldReadConfig
 

@@ -40,6 +40,7 @@ namespace pdesolver {
 					std::string expression;
 					std::vector<std::string> fluxExpression;
 					std::string file;
+					std::string unit; // required, SI unit label -- e.g. "K", "W/m^2"
 
 					std::vector<Form> forms;
 

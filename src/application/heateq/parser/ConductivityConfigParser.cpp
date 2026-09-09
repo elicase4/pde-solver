@@ -29,6 +29,8 @@ pdesolver::application::heateq::config::ConductivityConfig pdesolver::applicatio
 		cfg.tensor = YAMLReader::required<std::vector<std::vector<Real>>>(node, "tensor");
 	}
 
+	cfg.unit = YAMLReader::required<std::string>(node, "unit");
+
 	return cfg;
 
 }

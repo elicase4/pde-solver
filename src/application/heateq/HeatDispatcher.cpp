@@ -1,3 +1,4 @@
+#include <fstream>
 #include <stdexcept>
 #include <utility>
 
@@ -32,6 +33,10 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 
 	if (!config.solver.linear.has_value()) {
 		throw std::runtime_error("HeatDispatcher: solver.linear config is required");
+	}
+
+	for (const std::string& path : {config.logging.driver.textFile, config.logging.solver.textFile}) {
+		if (!path.empty()) std::ofstream(path, std::ios::trunc);
 	}
 
 	pdesolver::mesh::Mesh mesh;
@@ -69,7 +74,7 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 
 		heatProblem.writeOutput(0);
 		heatProblem.writeLog();
-		heatProblem.evaluateMonitors();
+		heatProblem.evaluateMonitors(0, 0.0);
 
 		if (converged) {
 			logger.event("converged");

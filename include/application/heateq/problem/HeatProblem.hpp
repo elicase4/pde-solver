@@ -23,6 +23,9 @@
 #include "fem/boundary/NaturalBoundaryRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
 #include "fem/quantity/QuantityEvaluator.hpp"
+#include "fem/quantity/QuantityUnits.hpp"
+
+#include "utils/logging/core/CsvWriter.hpp"
 
 #include "linalg/operator/CSROperator.hpp"
 #include "linalg/operator/FEMOperator.hpp"
@@ -80,7 +83,7 @@ namespace pdesolver {
 
 					void writeLog() const;
 
-					void evaluateMonitors() const;
+					void evaluateMonitors(Index tick, Real time) const;
 
 				private:
 
@@ -109,6 +112,15 @@ namespace pdesolver {
 					using MonitorRegistryAverageT = typename HeatEqBundle::template BoundaryQuantityRegistry<MonitorQuantitiesAverageT>;
 					using MonitorCombinationIntegralT = typename HeatEqBundle::template BoundaryQuantityCombination<MonitorQuantitiesIntegralT>;
 					using MonitorCombinationAverageT = typename HeatEqBundle::template BoundaryQuantityCombination<MonitorQuantitiesAverageT>;
+
+					template<typename CombinationT>
+					struct MonitorOutput {
+						std::string name;
+						CombinationT combination;
+						bool toConsole;
+						std::string unit;
+						utils::logging::CsvWriter csv;
+					}; // struct MonitorOutput
 
 					using CSROperatorT = linalg::op::CSROperator<MatrixT>;
 
@@ -145,8 +157,8 @@ namespace pdesolver {
 					MonitorQuantitiesAverageT monitorQuantitiesAverage_;
 					mutable MonitorRegistryIntegralT monitorRegistryIntegral_;
 					mutable MonitorRegistryAverageT monitorRegistryAverage_;
-					std::vector<std::pair<std::string, MonitorCombinationIntegralT>> monitorCombinationsIntegral_;
-					std::vector<std::pair<std::string, MonitorCombinationAverageT>> monitorCombinationsAverage_;
+					std::vector<MonitorOutput<MonitorCombinationIntegralT>> monitorOutputsIntegral_;
+					std::vector<MonitorOutput<MonitorCombinationAverageT>> monitorOutputsAverage_;
 
 					MatrixFormsT matrixForms_;
 					std::optional<ExpressionSourceFormsT> sourceForms_;

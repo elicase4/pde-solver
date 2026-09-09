@@ -21,6 +21,21 @@ namespace pdesolver::utils::logging {
 			lastRelPerDOF_[i] = (base > Real(0)) ? static_cast<Real>(perDOFAbs[i]) / base : Real(0);
 		}
 
+		const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
+
+		// CSV row -- every iteration, independent of the console interval throttle below
+		// (a thinned-out plot loses fidelity for no benefit; the throttle exists only to
+		// reduce terminal clutter). outer_tick is reserved for nonlinear iteration / timestep
+		// index, once one of those exists to prefix a single linear solve's own history.
+		if (csv_->enabled()) {
+			std::vector<Real> row = {Real(0), static_cast<Real>(iter)};
+			for (const auto& v : perDOFAbs) row.push_back(static_cast<Real>(v));
+			for (const auto& v : lastRelPerDOF_) row.push_back(v);
+			row.push_back(static_cast<Real>(flopsThisIter));
+			row.push_back(static_cast<Real>(elapsed));
+			csv_->writeRow(row);
+		}
+
 		// check to print based on config
 		if (interval == 0) return;
 		if ((iter > 0) && ((iter % interval) != 0)) return;
@@ -32,18 +47,16 @@ namespace pdesolver::utils::logging {
 			const_cast<ConsoleLogger*>(this)->printHeader = false;
 		}
 
-		const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
-
 		// set print format
-		std::cout << "  " << std::left << std::setw(6) << iter << "  ";
-		std::cout << std::scientific << std::setprecision(4);
+		*out_ << "  " << std::left << std::setw(6) << iter << "  ";
+		*out_ << std::scientific << std::setprecision(4);
 
 		for (const auto& v : lastRelPerDOF_) {
-			std::cout << std::setw(14) << v << "  ";
+			*out_ << std::setw(14) << v << "  ";
 		}
 
-		std::cout << std::fixed << std::setprecision(3) << elapsed << "s";
-		std::cout << "\n";
+		*out_ << std::fixed << std::setprecision(3) << elapsed << "s";
+		*out_ << "\n";
 
 	}
 
@@ -97,14 +110,14 @@ namespace pdesolver::utils::logging {
 		const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 		const double avgFlopsPerIter = (lastIter_ > 0) ? (totalFlops_ / static_cast<double>(lastIter_)) : 0.0;
 
-		std::cout << "  [" << solverName << "] " << (converged ? "converged" : "did not converge") << ": " << lastIter_ << " iterations, ";
+		*out_ << "  [" << solverName << "] " << (converged ? "converged" : "did not converge") << ": " << lastIter_ << " iterations, ";
 
 		for (Index i = 0; i < lastRelPerDOF_.size(); ++i) {
-			std::cout << "res[" << dofNames[i] << "] " << std::scientific << std::setprecision(4) << lastRelPerDOF_[i];
-			if (i + 1 < lastRelPerDOF_.size()) std::cout << ", ";
+			*out_ << "res[" << dofNames[i] << "] " << std::scientific << std::setprecision(4) << lastRelPerDOF_[i];
+			if (i + 1 < lastRelPerDOF_.size()) *out_ << ", ";
 		}
 
-		std::cout << ", avg " << std::scientific << std::setprecision(2) << avgFlopsPerIter << " flops/iter, " << std::fixed << std::setprecision(3) << elapsed << "s\n";
+		*out_ << ", avg " << std::scientific << std::setprecision(2) << avgFlopsPerIter << " flops/iter, " << std::fixed << std::setprecision(3) << elapsed << "s\n";
 
 	}
 
@@ -112,38 +125,38 @@ namespace pdesolver::utils::logging {
 
 		const int width = 60;
 
-		std::cout << "\n";
-		std::cout << "  " << std::string(width, '=') << "\n";
-		std::cout << "  " << equationName << " - " << solverName << "\n";
-		std::cout << "  Preconditioner: " << preconditionerName << "\n";
+		*out_ << "\n";
+		*out_ << "  " << std::string(width, '=') << "\n";
+		*out_ << "  " << equationName << " - " << solverName << "\n";
+		*out_ << "  Preconditioner: " << preconditionerName << "\n";
 
 		for (const auto& param : extraParams) {
-			std::cout << "  " << param.first << ": " << param.second << "\n";
+			*out_ << "  " << param.first << ": " << param.second << "\n";
 		}
 
 		if (dofNames.size() > 1) {
-			std::cout << "  Components:";
-			for (const auto& n : dofNames) std::cout << "  " << n;
-			std::cout << "\n";
-			std::cout << "  DOF ordering: " << (dofOrdering == fem::dof::DOFOrdering::Interleaved ? "Interleaved (node-major)" : "Block (field-major)") << "\n";
+			*out_ << "  Components:";
+			for (const auto& n : dofNames) *out_ << "  " << n;
+			*out_ << "\n";
+			*out_ << "  DOF ordering: " << (dofOrdering == fem::dof::DOFOrdering::Interleaved ? "Interleaved (node-major)" : "Block (field-major)") << "\n";
 		}
 
-		std::cout << "  " << std::string(width, '=') << "\n";
+		*out_ << "  " << std::string(width, '=') << "\n";
 
 	}
 
 	inline void ConsoleLogger::printColumnHeader() const {
 
-		std::cout << "  " << std::left << std::setw(6) << "Iter" << "  ";
+		*out_ << "  " << std::left << std::setw(6) << "Iter" << "  ";
 
 		for (const auto& name : dofNames) {
-			std::cout << std::setw(14) << ("Res[" + name + "]") << "  ";
+			*out_ << std::setw(14) << ("Res[" + name + "]") << "  ";
 		}
 
-		std::cout << std::setw(10) << "Elapsed" << "\n";
+		*out_ << std::setw(10) << "Elapsed" << "\n";
 
 		const Index width = 8 + 16 * dofNames.size() + 10;
-		std::cout << "  " << std::string(std::max<Index>(30, width), '-') << "\n";
+		*out_ << "  " << std::string(std::max<Index>(30, width), '-') << "\n";
 
 	}
 

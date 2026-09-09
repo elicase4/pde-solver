@@ -29,7 +29,7 @@ namespace pdesolver {
 		namespace linear {
 
 			template<typename OperatorType, typename VectorType>
-			std::unique_ptr<linalg::solver::LinearSolverRunner<VectorType>> makeLinearSolverRunner(const OperatorType& op, Index n, const config::LinearSolverConfig& cfg, const config::LoggerConfig& loggerCfg, const std::string& equationName, const std::vector<std::string>& dofNames) {
+			std::unique_ptr<linalg::solver::LinearSolverRunner<VectorType>> makeLinearSolverRunner(const OperatorType& op, Index n, const config::LinearSolverConfig& cfg, const config::SolverLoggerConfig& loggerCfg, const std::string& equationName, const std::vector<std::string>& dofNames) {
 
 				if (cfg.preconditioner.type != config::PreconditionerConfig::Type::Identity) {
 					throw std::runtime_error("LinearSolverFactory: only the identity preconditioner is implemented so far");
@@ -57,8 +57,11 @@ namespace pdesolver {
 							{"Tolerance", tolStream.str() + " (" + (cgCfg.tolType == linalg::solver::iterative::cg::ToleranceType::Relative ? "Relative" : "Absolute") + ")"}
 						};
 
-						LoggerT logger = (loggerCfg.type == config::LoggerConfig::Type::Console)
-							? LoggerT(utils::logging::ConsoleLogger(equationName, "PCG", preconditionerName, dofNames, extraParams, n))
+						const bool consoleEnabled = (loggerCfg.type == config::LoggerConfig::Type::Console);
+						const bool anyOutput = consoleEnabled || !loggerCfg.textFile.empty() || !loggerCfg.csvFile.empty();
+
+						LoggerT logger = anyOutput
+							? LoggerT(utils::logging::ConsoleLogger(equationName, "PCG", preconditionerName, dofNames, extraParams, n, fem::dof::DOFOrdering::Interleaved, 1, consoleEnabled, loggerCfg.textFile, loggerCfg.csvFile))
 							: LoggerT(utils::logging::NullLogger{});
 
 						return std::make_unique<linalg::solver::iterative::cg::CGRunner<OperatorType, VectorType, PreconditionerT, LoggerT>>(op, n, cgCfg, std::move(logger));

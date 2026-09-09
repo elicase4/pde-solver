@@ -32,6 +32,8 @@ pdesolver::solver::config::NodalFieldReadConfig pdesolver::solver::parser::Nodal
 		cfg.expression = YAMLReader::required<std::string>(node, "expression");
 	}
 
+	cfg.unit = YAMLReader::required<std::string>(node, "unit");
+
 	return cfg;
 
 }

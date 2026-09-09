@@ -15,8 +15,10 @@ namespace pdesolver {
 
 			inline utils::logging::driver::Logger makeDriverLogger(const config::LoggerConfig& cfg, std::string tag) {
 
-				if (cfg.type == config::LoggerConfig::Type::Console) {
-					return utils::logging::driver::Logger(utils::logging::driver::ConsoleLogger{std::move(tag)});
+				const bool consoleEnabled = (cfg.type == config::LoggerConfig::Type::Console);
+
+				if (consoleEnabled || !cfg.textFile.empty()) {
+					return utils::logging::driver::Logger(utils::logging::driver::ConsoleLogger{std::move(tag), consoleEnabled, cfg.textFile});
 				}
 
 				return utils::logging::driver::Logger(utils::logging::NullLogger{});

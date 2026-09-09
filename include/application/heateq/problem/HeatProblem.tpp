@@ -19,7 +19,6 @@ namespace pdesolver::application::heateq::problem {
 			throw std::runtime_error("HeatProblem: unsupported conductivity type");
 		}
 
-		// monitors
 		for (const auto& monitorCfg : config_.monitors) {
 
 			if (monitorCfg.reduction == fem::quantity::Reduction::Integral) {
@@ -29,7 +28,8 @@ namespace pdesolver::application::heateq::problem {
 					monitorRegistryIntegral_.registerTag(term.boundary);
 					combination.addTerm(term.boundary, term.coefficient);
 				}
-				monitorCombinationsIntegral_.emplace_back(monitorCfg.name, std::move(combination));
+				const std::string unit = fem::quantity::unitFor<typename HeatEqBundle::HeatFluxIntegrand>(monitorCfg.reduction, HeatEqBundle::SpatialDim - 1);
+				monitorOutputsIntegral_.push_back(MonitorOutput<MonitorCombinationIntegralT>{monitorCfg.name, std::move(combination), monitorCfg.output.console, unit, utils::logging::CsvWriter(monitorCfg.output.file, {"tick", "time", monitorCfg.name + " [" + unit + "]"})});
 
 			} else {
 
@@ -38,7 +38,8 @@ namespace pdesolver::application::heateq::problem {
 					monitorRegistryAverage_.registerTag(term.boundary);
 					combination.addTerm(term.boundary, term.coefficient);
 				}
-				monitorCombinationsAverage_.emplace_back(monitorCfg.name, std::move(combination));
+				const std::string unit = fem::quantity::unitFor<typename HeatEqBundle::HeatFluxIntegrand>(monitorCfg.reduction, HeatEqBundle::SpatialDim - 1);
+				monitorOutputsAverage_.push_back(MonitorOutput<MonitorCombinationAverageT>{monitorCfg.name, std::move(combination), monitorCfg.output.console, unit, utils::logging::CsvWriter(monitorCfg.output.file, {"tick", "time", monitorCfg.name + " [" + unit + "]"})});
 
 			}
 
@@ -282,7 +283,8 @@ namespace pdesolver::application::heateq::problem {
 		if (!config_.output.vtk || (step % config_.output.writeFrequency != 0)) return;
 
 		const std::string filename = config_.output.directory + "/" + config_.output.prefix + "_" + std::to_string(step) + ".vtk";
-		io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T"}, filename);
+		// "T[K]" -- temperature's unit is fixed by the heat equation itself (SI, kelvin), not user-configurable
+		io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T[K]"}, filename);
 
 		const char* ordStr = (topoDOF_.ordering() == fem::dof::DOFOrdering::Interleaved) ? "Interleaved" : "Block";
 		driverLogger_.event("wrote '" + filename + "' - " + std::to_string(HeatEqBundle::NumDOFs) + " field(s), " + std::to_string(mesh_.data.numNodes) + " nodes, " + ordStr + " ordering");
@@ -295,34 +297,36 @@ namespace pdesolver::application::heateq::problem {
 	}
 
 	template<typename Backend, typename HeatEqBundle>
-	void HeatProblem<Backend, HeatEqBundle>::evaluateMonitors() const {
+	void HeatProblem<Backend, HeatEqBundle>::evaluateMonitors(Index tick, Real time) const {
 
-		if (monitorCombinationsIntegral_.empty() && monitorCombinationsAverage_.empty()) return;
+		if (monitorOutputsIntegral_.empty() && monitorOutputsAverage_.empty()) return;
 
 		std::visit([&](auto& model) {
 
 			using ConductivityModelT = std::decay_t<decltype(model)>;
 
-			if (!monitorCombinationsIntegral_.empty()) {
-				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesIntegralT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, Real(0), model, monitorQuantitiesIntegral_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryIntegral_);
+			if (!monitorOutputsIntegral_.empty()) {
+				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesIntegralT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, time, model, monitorQuantitiesIntegral_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryIntegral_);
 			}
 
-			if (!monitorCombinationsAverage_.empty()) {
-				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesAverageT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, Real(0), model, monitorQuantitiesAverage_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryAverage_);
+			if (!monitorOutputsAverage_.empty()) {
+				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesAverageT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, time, model, monitorQuantitiesAverage_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryAverage_);
 			}
 
 		}, conductivityModelBdy_);
 
 		Real value[HeatEqBundle::HeatFluxIntegrand::NumComponents];
 
-		for (const auto& [name, combination] : monitorCombinationsIntegral_) {
-			combination.evaluate(monitorRegistryIntegral_, value);
-			driverLogger_.event("monitor '" + name + "' = " + std::to_string(value[0]));
+		for (const auto& out : monitorOutputsIntegral_) {
+			out.combination.evaluate(monitorRegistryIntegral_, value);
+			if (out.toConsole) driverLogger_.event("monitor '" + out.name + "' = " + std::to_string(value[0]) + " " + out.unit);
+			out.csv.writeRow({static_cast<Real>(tick), time, value[0]});
 		}
 
-		for (const auto& [name, combination] : monitorCombinationsAverage_) {
-			combination.evaluate(monitorRegistryAverage_, value);
-			driverLogger_.event("monitor '" + name + "' = " + std::to_string(value[0]));
+		for (const auto& out : monitorOutputsAverage_) {
+			out.combination.evaluate(monitorRegistryAverage_, value);
+			if (out.toConsole) driverLogger_.event("monitor '" + out.name + "' = " + std::to_string(value[0]) + " " + out.unit);
+			out.csv.writeRow({static_cast<Real>(tick), time, value[0]});
 		}
 
 	}

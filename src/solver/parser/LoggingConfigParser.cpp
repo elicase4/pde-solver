@@ -31,16 +31,14 @@ pdesolver::solver::config::LoggingConfig pdesolver::solver::parser::LoggingConfi
 	const YAML::Node& solverNode = node["solver"];
 	if (solverNode) {
 		cfg.solver.type = LoggingConfigParser::parseLoggerType(YAMLReader::optional<std::string>(solverNode, "type", "console"));
+		cfg.solver.textFile = YAMLReader::optional<std::string>(solverNode, "text_file", "");
+		cfg.solver.csvFile = YAMLReader::optional<std::string>(solverNode, "csv_file", "");
 	}
 
 	const YAML::Node& driverNode = node["driver"];
 	if (driverNode) {
 		cfg.driver.type = LoggingConfigParser::parseLoggerType(YAMLReader::optional<std::string>(driverNode, "type", "console"));
-	}
-
-	const YAML::Node& outputNode = node["output"];
-	if (outputNode) {
-		cfg.outputFile = YAMLReader::optional<std::string>(outputNode, "file", "");
+		cfg.driver.textFile = YAMLReader::optional<std::string>(driverNode, "text_file", "");
 	}
 
 	return cfg;

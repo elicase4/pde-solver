@@ -1,0 +1,8 @@
+[heateq] mesh: ../../../mesh/ubend/quarter_ubend.pmsh -> 750 elements, nsd=3 npd=3
+[heateq] wrote 'output/gmsh_constant_conductivity_solution_0.vtk' - 1 field(s), 1116 nodes, Interleaved ordering
+[heateq] monitor 'inlet_flux' = -11.531920 W
+[heateq] monitor 'outlet_flux' = 11.531920 W
+[heateq] monitor 'wall_flux' = -0.000000 W
+[heateq] monitor 'net_balance' = -0.000000 W
+[heateq] monitor 'inlet_flux_avg' = -11.531920 W/m^2
+[heateq] converged
