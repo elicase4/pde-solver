@@ -8,6 +8,7 @@ add_library(pde_solver
 	parser/LinearSolverConfigParser.cpp
 	parser/NonlinearSolverConfigParser.cpp
 	parser/TimeStepperConfigParser.cpp
+	parser/TimeStepSizeConfigParser.cpp
 	parser/OutputConfigParser.cpp
 	parser/LoggingConfigParser.cpp
 	parser/NodalFieldReadConfigParser.cpp

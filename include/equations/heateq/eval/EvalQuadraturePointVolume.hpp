@@ -48,6 +48,10 @@ namespace pdesolver::equations::heateq {
 		// conductivity coefficient
 		Real K[SpatialDim*SpatialDim];
 
+		// mass matrix coefficients
+		Real rho;
+		Real cp;
+
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 
 			// set quad info

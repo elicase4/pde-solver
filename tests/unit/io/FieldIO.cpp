@@ -45,7 +45,7 @@ protected:
 	
 	fem::boundary::EssentialBoundaryRegistry EssentialBCRegistry;
 
-	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
+	HeatEqBundle::ConductivityModel constantConductivityModel;
 
 	// operator form
 	HeatEqBundle::DiffusionForm diffusionForm;
@@ -58,7 +58,7 @@ protected:
 
 		mesh = gen.generate();
 
-		constantConductivityModel.conductivity = 1.0;
+		constantConductivityModel.setConstant(1.0);
 	
 		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
 		

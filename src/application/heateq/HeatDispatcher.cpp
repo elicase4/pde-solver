@@ -17,7 +17,9 @@
 #include "mesh/Mesh.hpp"
 
 #include "solver/driver/Steady.hpp"
+#include "solver/driver/Transient.hpp"
 #include "solver/logging/LoggerFactory.hpp"
+#include "solver/timestepper/TimeStepperFactory.hpp"
 
 bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::application::heateq::config::HeatConfig& config) {
 
@@ -27,13 +29,15 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 		throw std::runtime_error("HeatDispatcher: only the CPU backend is supported so far");
 	}
 
-	if (config.solver.driver.type != sconfig::DriverConfig::Type::Steady) {
-		throw std::runtime_error("HeatDispatcher: only the steady driver is supported so far");
-	}
-
 	if (!config.solver.linear.has_value()) {
 		throw std::runtime_error("HeatDispatcher: solver.linear config is required");
 	}
+
+	if (config.solver.driver.type == sconfig::DriverConfig::Type::PseudoTransient) {
+		throw std::runtime_error("HeatDispatcher: the pseudo_transient driver is not yet implemented");
+	}
+
+	const bool steady = (config.solver.driver.type == sconfig::DriverConfig::Type::Steady);
 
 	for (const std::string& path : {config.logging.driver.textFile, config.logging.solver.textFile}) {
 		if (!path.empty()) std::ofstream(path, std::ios::trunc);
@@ -69,12 +73,30 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 		ProblemT heatProblem(config, std::move(mesh), std::move(basis), std::move(quadVol), std::move(quadBdy));
 		StageT stage(heatProblem);
 
-		pdesolver::solver::driver::Steady<StageT> driver;
-		converged = driver.solve(stage);
+		if (steady) {
 
-		heatProblem.writeOutput(0);
+			pdesolver::solver::driver::Steady<StageT> driver;
+			converged = driver.solve(stage);
+
+			heatProblem.writeOutput(0);
+			heatProblem.evaluateMonitors(0, 0.0);
+
+		} else {
+
+			const auto& tsCfg = *heatProblem.solverInstance().timestepper;
+
+			// step 0 == the initial condition
+			heatProblem.writeOutput(0);
+			heatProblem.evaluateMonitors(0, tsCfg.t0);
+
+			auto stepper = pdesolver::solver::timestepper::makeTimeStepperRunner<StageT>(stage, tsCfg, "heateq");
+
+			pdesolver::solver::driver::Transient<StageT> driver;
+			converged = driver.solve(stage, *stepper);
+
+		}
+
 		heatProblem.writeLog();
-		heatProblem.evaluateMonitors(0, 0.0);
 
 		if (converged) {
 			logger.event("converged");

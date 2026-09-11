@@ -6,27 +6,24 @@
 #include <string>
 
 #include "solver/config/TimeStepperConfig.hpp"
+#include "solver/timestepper/BackwardEuler.hpp"
+#include "solver/timestepper/StepSizePolicyFactory.hpp"
 #include "solver/timestepper/TimeStepperRunner.hpp"
 
 namespace pdesolver {
 	namespace solver {
 		namespace timestepper {
 
-			// Mirrors solver::linear::makeLinearSolverRunner's shape and throw-for-unimplemented
-			// pattern. No concrete stepper exists yet -- all four cases throw until #41 lands.
-			// TODO: signature will need to grow once a concrete stepper is implemented, to inject
-			// whichever of LinearSolverRunner/NonlinearSolverRunner the wrapped stage's resolved
-			// SolverMode calls for (see TimeStepperRunner.hpp's composition note).
-			template<typename VectorType>
-			std::unique_ptr<TimeStepperRunner<VectorType>> makeTimeStepperRunner(const config::TimeStepperConfig& cfg, const std::string& equationLabel) {
+			template<typename StageType>
+			std::unique_ptr<TimeStepperRunner> makeTimeStepperRunner(StageType& stage, const config::TimeStepperConfig& cfg, const std::string& equationLabel) {
 
 				switch (cfg.type) {
 
+					case config::TimeStepperConfig::Type::BackwardEuler:
+						return std::make_unique<BackwardEulerRunner<StageType>>(stage, cfg, makeStepSizePolicy(cfg.stepSize, equationLabel));
+
 					case config::TimeStepperConfig::Type::ForwardEuler:
 						throw std::runtime_error("TimeStepperFactory[" + equationLabel + "]: ForwardEuler not yet implemented");
-
-					case config::TimeStepperConfig::Type::BackwardEuler:
-						throw std::runtime_error("TimeStepperFactory[" + equationLabel + "]: BackwardEuler not yet implemented");
 
 					case config::TimeStepperConfig::Type::GeneralizedAlpha:
 						throw std::runtime_error("TimeStepperFactory[" + equationLabel + "]: GeneralizedAlpha not yet implemented");

@@ -6,7 +6,6 @@
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <variant>
 #include <vector>
 
 #include "application/heateq/config/HeatConfig.hpp"
@@ -21,12 +20,14 @@
 #include "fem/boundary/BoundaryApplicator.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/boundary/NaturalBoundaryRegistry.hpp"
+#include "fem/eval/ModelRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
 #include "fem/quantity/QuantityEvaluator.hpp"
 #include "fem/quantity/QuantityUnits.hpp"
 
 #include "utils/logging/core/CsvWriter.hpp"
 
+#include "linalg/operations/VectorOps.hpp"
 #include "linalg/operator/CSROperator.hpp"
 #include "linalg/operator/FEMOperator.hpp"
 #include "linalg/solver/base/LinearSolverRunner.hpp"
@@ -71,6 +72,10 @@ namespace pdesolver {
 
 					bool solveLinearStep();
 
+					void advanceTimestep();
+
+					void setDt(Real dt);
+
 					const solver::SolverInstance& solverInstance() const { return solverInstance_; }
 
 					const VectorT& solution() const { return *U_; }
@@ -87,13 +92,29 @@ namespace pdesolver {
 
 				private:
 
+					using OpType = solver::config::LinearSolverConfig::OperatorType;
+
+					// assembly helpers
+					void loadNodalField(const solver::config::NodalFieldReadConfig& cfg, VectorT& target) const;
+					void assembleStiffnessMatrix(Real time);   // steady K -> K_
+					void assembleTransientOperatorMatrix();     // K + M/dt -> K_
+					void assembleLoad(Real time);              // volumetric source -> F_
+					void addTransientMassTerm(Real time);      // F_ += (C/dt)*M*U_prev
+					void applyNatural(Real time);              // F_ += flux BCs
+					void applyEssential(Real time);            // constrain F_ against the active operator
+
+					Real transientMassCoefficient() const { return Real(1) / dt_; }
+
+					template<typename OperatorT>
+					void makeLinearRunner(const OperatorT& op);
+
 					using SourceCallableT = utils::expression::ScalarExpression;
 					using FluxCallableT = utils::expression::VectorExpression;
 
 					using NodalScalarSourceT = typename HeatEqBundle::NodalScalarSource;
 					using NodalFluxSourceT = typename HeatEqBundle::NodalFluxSource;
 
-					using MatrixFormsT = typename HeatEqBundle::MatrixForms;
+					using StiffnessFormsT = typename HeatEqBundle::StiffnessForms;
 					using ExpressionSourceFormsT = typename HeatEqBundle::template ExpressionSourceForms<SourceCallableT>;
 					using NodalSourceFormsT = typename HeatEqBundle::template NodalSourceForms<NodalScalarSourceT>;
 					using ExpressionFluxFormsT = typename HeatEqBundle::template ExpressionFluxForms<FluxCallableT>;
@@ -104,6 +125,7 @@ namespace pdesolver {
 					using FluxFunctionExpressionT = typename HeatEqBundle::template FluxBCExpression<FluxCallableT>;
 					using FluxFunctionNodalT = typename HeatEqBundle::template FluxBCNodal<NodalFluxSourceT>;
 
+					// TODO: generalize for more monitors
 					template<fem::quantity::Reduction Mode>
 					using MonitorQuantitiesFor = typename HeatEqBundle::template QuantityForms<typename HeatEqBundle::template ReducedQuantity<typename HeatEqBundle::HeatFluxIntegrand, Mode>>;
 					using MonitorQuantitiesIntegralT = MonitorQuantitiesFor<fem::quantity::Reduction::Integral>;
@@ -124,8 +146,14 @@ namespace pdesolver {
 
 					using CSROperatorT = linalg::op::CSROperator<MatrixT>;
 
-					template<typename ConductivityModelT>
-					using FEMOperatorFor = linalg::op::FEMOperator<fem::assembly::Assembler<Backend>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ConductivityModelT, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>;
+					using TransientOperatorFormsT = typename HeatEqBundle::TransientOperatorForms;
+					using MassFormsT = typename HeatEqBundle::MassForms;
+
+					// matrix-free operators
+					template<typename ModelT, typename FormsT>
+					using MatrixFreeOperator = linalg::op::FEMOperator<fem::assembly::Assembler<Backend>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ModelT, FormsT, typename HeatEqBundle::QuadratureVolumeType>;
+					using SteadyMatrixFreeOperatorT = MatrixFreeOperator<typename HeatEqBundle::ConductivityModel, StiffnessFormsT>;
+					using TransientMatrixFreeOperatorT = MatrixFreeOperator<typename HeatEqBundle::MaterialModel, TransientOperatorFormsT>;
 
 					config::HeatConfig config_;
 
@@ -147,8 +175,8 @@ namespace pdesolver {
 					fem::boundary::EssentialBoundaryRegistry essentialBCs_;
 					fem::boundary::NaturalBoundaryRegistry<typename HeatEqBundle::EvalQPBdy> naturalBCs_;
 
-					typename HeatEqBundle::ConductivityModelVariant conductivityModel_;
-					typename HeatEqBundle::ConductivityModelVariantBdy conductivityModelBdy_;
+					typename HeatEqBundle::ConductivityModel conductivityModel_;
+					typename HeatEqBundle::ConductivityModelBdy conductivityModelBdy_;
 
 					typename HeatEqBundle::DefaultModel defaultModel_;
 					typename HeatEqBundle::DefaultModelBdy defaultModelBdy_;
@@ -160,16 +188,27 @@ namespace pdesolver {
 					std::vector<MonitorOutput<MonitorCombinationIntegralT>> monitorOutputsIntegral_;
 					std::vector<MonitorOutput<MonitorCombinationAverageT>> monitorOutputsAverage_;
 
-					MatrixFormsT matrixForms_;
+					StiffnessFormsT stiffnessForms_;
 					std::optional<ExpressionSourceFormsT> sourceForms_;
 					std::optional<NodalSourceFormsT> nodalSourceForms_;
 
 					std::vector<std::unique_ptr<ExpressionFluxFormsT>> expressionFluxForms_;
 					std::vector<std::unique_ptr<NodalFluxFormsT>> nodalFluxForms_;
 
+					// transient-only
+					Real dt_ = Real(0);
+					typename HeatEqBundle::DensityModel densityModel_;
+					typename HeatEqBundle::SpecificHeatModel specificHeatModel_;
+					typename HeatEqBundle::MaterialModel materialModel_;
+					typename HeatEqBundle::MassMaterialModel massMaterialModel_;
+					TransientOperatorFormsT transientOperatorForms_;
+					MassFormsT massForms_;
+
 					std::unique_ptr<MatrixT> K_;
 					std::unique_ptr<VectorT> F_;
 					std::unique_ptr<VectorT> U_;
+					std::unique_ptr<VectorT> U_prev_;      // transient-only
+					std::unique_ptr<VectorT> massTimesUprev_; // transient-only scratch for M*U_prev
 
 					std::unique_ptr<linalg::solver::LinearSolverRunner<VectorT>> linearSolverRunner_;
 

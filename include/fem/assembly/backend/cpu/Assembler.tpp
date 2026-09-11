@@ -82,47 +82,8 @@ public:
 
 	}
 
-	template<Index numDOFs, Index SpatialDim>
-	static void gatherElementSolution(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, Real* Ue){
-
-		for (Index i = 0; i < nodesPerElement; ++i){
-
-			Real bcVal[topology::TopologicalDOF<numDOFs>::dofsPerNode];
-			bool haveBcVal = false;
-
-			for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-				Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-
-				// free nodes
-				if (!topoDOF.isConstrained(TdofIDi)) {
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-					Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
-					continue;
-				}
-
-				// constrained nodes
-				if (!haveBcVal) {
-					Int rngTag = topoDOF.getConstraintTag(TdofIDi);
-					const auto* entries = bcRegistry.getEntries(rngTag);
-					if (entries) {
-						for (const auto& entry : *entries) {
-							entry->eval(time, &nodeCoords[SpatialDim*i], bcVal);
-						}
-					}
-					haveBcVal = true;
-				}
-
-				Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = bcVal[j];
-
-			}
-
-		}
-
-	}
-
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode = GatherMode::Free>
+	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K, const fem::boundary::EssentialBoundaryRegistry* bcRegistry = nullptr){
 
 		// allocate Ke on the stack
 		Real Ke[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs) * (fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
@@ -165,17 +126,7 @@ public:
 			}
 
 			// gather U into Ue
-			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
-				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) continue;
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-
-					Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
-
-				}
-			}
+			gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
 
 			// gather any form-specific element data
 			forms.gatherElementData(nodeIDs, localEle.nodesPerElement());
@@ -195,35 +146,14 @@ public:
 			}
 
 			// scatter Ke into K
-			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
-				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) continue;
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-
-					for (Index k = 0; k < localEle.nodesPerElement(); ++k){
-						for (Index l = 0; l < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++l){
-
-							Index TdofIDk = topoDOF.getNodeDOF(nodeIDs[k], l);
-							if (topoDOF.isConstrained(TdofIDk)) continue;
-							Index AdofIDk = topoDOF.toAlgebraic(TdofIDk);
-							Index p = K.getDataIndex(AdofIDi, AdofIDk);
-
-							K.data()[p] += Ke[(i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j)*(localEle.nodesPerElement() * topology::TopologicalDOF<numDOFs>::dofsPerNode) + (k*topology::TopologicalDOF<numDOFs>::dofsPerNode + l)];
-
-						}
-					}
-
-				}
-			}
+			scatterElementMatrix<numDOFs>(nodeIDs, localEle.nodesPerElement(), topoDOF, Ke, K);
 
 		}
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode = GatherMode::Free>
+	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, linalg::types::Vector<Real, linalg::types::backend::CPU>& F, const fem::boundary::EssentialBoundaryRegistry* bcRegistry = nullptr){
 
 		// allocate Fe on the stack
 		Real Fe[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
@@ -266,24 +196,10 @@ public:
 
 			}
 
-			// gather U into Ue -- constrained DOFs left at 0 (no algebraic index for them in U).
-			// Harmless today: nothing plugged into assembleVector (SourceForm/NodalSourceForm)
-			// reads Ue at all. Would need Assembler::gatherElementSolution's complete gather
-			// (constrained DOFs evaluated from an EssentialBoundaryRegistry) instead, the moment
-			// a genuinely Ue-dependent LinearForm is wired up here (e.g. a Newton residual).
-			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
-				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
+			// gather U into Ue
+			gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
 
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) continue;
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-
-					Ue[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j] = U.data()[AdofIDi];
-
-				}
-			}
-
-			// gather any form-specific element data (no-op unless a registered form implements it)
+			// gather any form-specific element data
 			forms.gatherElementData(nodeIDs, localEle.nodesPerElement());
 
 			// bind element data
@@ -301,17 +217,7 @@ public:
 			}
 
 			// scatter Fe into F
-			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
-				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) continue;
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-
-					F.data()[AdofIDi] += Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
-
-				}
-			}
+			scatterElementVector<numDOFs>(nodeIDs, localEle.nodesPerElement(), topoDOF, Fe, F);
 
 		}
 

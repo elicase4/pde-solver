@@ -4,10 +4,13 @@
 #include <string>
 #include <vector>
 
+#include <optional>
+
 #include "application/heateq/config/BoundaryConditionConfig.hpp"
 #include "application/heateq/config/ConductivityConfig.hpp"
 #include "application/heateq/config/InitialConditionConfig.hpp"
 #include "application/heateq/config/MonitorConfig.hpp"
+#include "application/heateq/config/ScalarMaterialPropertyConfig.hpp"
 #include "application/heateq/config/SourceConfig.hpp"
 
 #include "solver/config/BackendConfig.hpp"
@@ -42,6 +45,10 @@ namespace pdesolver {
 					std::vector<BoundaryConditionConfig> boundaryConditions;
 
 					ConductivityConfig conductivity;
+
+					// only meaningful (and required) for a transient driver -- steady conduction never assembles a mass matrix
+					std::optional<ScalarMaterialPropertyConfig> density;
+					std::optional<ScalarMaterialPropertyConfig> specificHeat;
 
 					SourceConfig source;
 

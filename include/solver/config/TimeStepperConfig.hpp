@@ -4,6 +4,7 @@
 #include "core/Types.hpp"
 #include "solver/config/NonlinearSolverConfig.hpp"
 #include "solver/config/LinearSolverConfig.hpp"
+#include "solver/config/TimeStepSizeConfig.hpp"
 
 namespace pdesolver {
 	namespace solver {
@@ -23,11 +24,9 @@ namespace pdesolver {
 				// Time interval
 				Real t0 = 0.0;
 				Real tf = 1.0;
-				Real dt = 1e-3;
 
-				// Generalized alpha spectral radius
-				// Real rhoInf = 1 // no numerical dissipation
-				// Real rhoInf = 0 // maximum high-frequency dissipation
+				TimeStepSizeConfig stepSize;
+
 				Real rhoInf = 0.5;
 
 				// Solver config

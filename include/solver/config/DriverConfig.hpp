@@ -9,7 +9,8 @@ namespace pdesolver {
 
 				enum class Type {
 					Steady,
-					Transient
+					Transient,
+					PseudoTransient // steady, driven by pseudo-time-marching -- not yet implemented
 				}; // enum class Type
 
 				Type type = Type::Steady;

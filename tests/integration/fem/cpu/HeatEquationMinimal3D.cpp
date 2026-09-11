@@ -73,7 +73,7 @@ protected:
 	// declare models
 	HeatEqBundle::DefaultModel defaultModel;
 	HeatEqBundle::DefaultModelBdy defaultModelBdy;
-	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
+	HeatEqBundle::ConductivityModel constantConductivityModel;
 
 	// operator form
 	HeatEqBundle::DiffusionForm diffusionForm;
@@ -107,7 +107,7 @@ protected:
 		topoDOF3D = std::make_unique<topology::TopologicalDOF<HeatEqBundle::NumDOFs>>(mesh3D, DOFOrdering);
 
 		// set conductivity model parameters
-		constantConductivityModel.conductivity = 1.0;
+		constantConductivityModel.setConstant(1.0);
 
 		// LEFT/RIGHT/FRONT/BACK essential
 		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
@@ -175,7 +175,7 @@ TEST_F(CPUHeatEquationMinimal3D, KMatrix){
 	EXPECT_EQ(K.nCols(), 45);
 	EXPECT_EQ(U.size(), 45);
 
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
 
 	const Real tol = 1e-10;
 
@@ -221,7 +221,7 @@ TEST_F(CPUHeatEquationMinimal3D, OVector){
 		U.data()[i] = 1.0;
 	}
 
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, O);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, O);
 
 	const Real tol = 1e-10;
 
@@ -284,7 +284,7 @@ TEST_F(CPUHeatEquationMinimal3D, FVector){
 		}
 	}
 
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
 
 	EXPECT_NEAR(F.data()[topoDOF3D->toAlgebraic(nodeID(1,1,0))], -1.0/3.0, tol);
 	EXPECT_NEAR(F.data()[topoDOF3D->toAlgebraic(nodeID(1,1,1))], 2.0, tol);

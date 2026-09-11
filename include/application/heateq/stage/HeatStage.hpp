@@ -50,6 +50,18 @@ namespace pdesolver {
 
 					bool solveLinearStep() { return problem_.solveLinearStep(); }
 
+					// --- TransientCapableStage ---
+					void setDt(Real dt) { problem_.setDt(dt); }
+
+					void setTime(Real t) { currentTime_ = t; }
+
+					void advance() { problem_.advanceTimestep(); }
+
+					void onStepComplete(Index step, Real time) {
+						problem_.writeOutput(step);
+						problem_.evaluateMonitors(step, time);
+					}
+
 					decltype(auto) solution() const { return problem_.solution(); }
 
 				private:

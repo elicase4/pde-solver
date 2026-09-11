@@ -1,0 +1,114 @@
+[heateq] mesh: ../../../mesh/square/square.pmsh -> 576 elements, nsd=2 npd=2
+[heateq] wrote 'output/heating_block_solution_0.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 9200.000000 W
+[heateq] monitor 'net_influx' = 3512.704081 W
+[heateq] monitor 'net_influx' = 2115.542572 W
+[heateq] monitor 'net_influx' = 1538.954348 W
+[heateq] monitor 'net_influx' = 1219.976578 W
+[heateq] monitor 'net_influx' = 1012.825466 W
+[heateq] monitor 'net_influx' = 864.754594 W
+[heateq] monitor 'net_influx' = 752.026795 W
+[heateq] monitor 'net_influx' = 662.307956 W
+[heateq] monitor 'net_influx' = 588.526896 W
+[heateq] wrote 'output/heating_block_solution_10.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 526.335768 W
+[heateq] monitor 'net_influx' = 472.917881 W
+[heateq] monitor 'net_influx' = 426.371388 W
+[heateq] monitor 'net_influx' = 385.366243 W
+[heateq] monitor 'net_influx' = 348.942282 W
+[heateq] monitor 'net_influx' = 316.385283 W
+[heateq] monitor 'net_influx' = 287.148494 W
+[heateq] monitor 'net_influx' = 260.801771 W
+[heateq] monitor 'net_influx' = 236.997997 W
+[heateq] monitor 'net_influx' = 215.450553 W
+[heateq] wrote 'output/heating_block_solution_20.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 195.918000 W
+[heateq] monitor 'net_influx' = 178.193487 W
+[heateq] monitor 'net_influx' = 162.097329 W
+[heateq] monitor 'net_influx' = 147.471694 W
+[heateq] monitor 'net_influx' = 134.176741 W
+[heateq] monitor 'net_influx' = 122.087729 W
+[heateq] monitor 'net_influx' = 111.092823 W
+[heateq] monitor 'net_influx' = 101.091368 W
+[heateq] monitor 'net_influx' = 91.992508 W
+[heateq] monitor 'net_influx' = 83.714061 W
+[heateq] wrote 'output/heating_block_solution_30.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 76.181568 W
+[heateq] monitor 'net_influx' = 69.327488 W
+[heateq] monitor 'net_influx' = 63.090504 W
+[heateq] monitor 'net_influx' = 57.414914 W
+[heateq] monitor 'net_influx' = 52.250089 W
+[heateq] monitor 'net_influx' = 47.550000 W
+[heateq] monitor 'net_influx' = 43.272787 W
+[heateq] monitor 'net_influx' = 39.380375 W
+[heateq] monitor 'net_influx' = 35.838125 W
+[heateq] monitor 'net_influx' = 32.614525 W
+[heateq] wrote 'output/heating_block_solution_40.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 29.680901 W
+[heateq] monitor 'net_influx' = 27.011163 W
+[heateq] monitor 'net_influx' = 24.581571 W
+[heateq] monitor 'net_influx' = 22.370519 W
+[heateq] monitor 'net_influx' = 20.358350 W
+[heateq] monitor 'net_influx' = 18.527172 W
+[heateq] monitor 'net_influx' = 16.860705 W
+[heateq] monitor 'net_influx' = 15.344133 W
+[heateq] monitor 'net_influx' = 13.963973 W
+[heateq] monitor 'net_influx' = 12.707955 W
+[heateq] wrote 'output/heating_block_solution_50.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 11.564913 W
+[heateq] monitor 'net_influx' = 10.524683 W
+[heateq] monitor 'net_influx' = 9.578020 W
+[heateq] monitor 'net_influx' = 8.716506 W
+[heateq] monitor 'net_influx' = 7.932482 W
+[heateq] monitor 'net_influx' = 7.218980 W
+[heateq] monitor 'net_influx' = 6.569654 W
+[heateq] monitor 'net_influx' = 5.978734 W
+[heateq] monitor 'net_influx' = 5.440965 W
+[heateq] monitor 'net_influx' = 4.951567 W
+[heateq] wrote 'output/heating_block_solution_60.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 4.506188 W
+[heateq] monitor 'net_influx' = 4.100870 W
+[heateq] monitor 'net_influx' = 3.732009 W
+[heateq] monitor 'net_influx' = 3.396327 W
+[heateq] monitor 'net_influx' = 3.090837 W
+[heateq] monitor 'net_influx' = 2.812826 W
+[heateq] monitor 'net_influx' = 2.559821 W
+[heateq] monitor 'net_influx' = 2.329573 W
+[heateq] monitor 'net_influx' = 2.120035 W
+[heateq] monitor 'net_influx' = 1.929344 W
+[heateq] wrote 'output/heating_block_solution_70.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 1.755805 W
+[heateq] monitor 'net_influx' = 1.597876 W
+[heateq] monitor 'net_influx' = 1.454152 W
+[heateq] monitor 'net_influx' = 1.323355 W
+[heateq] monitor 'net_influx' = 1.204324 W
+[heateq] monitor 'net_influx' = 1.095998 W
+[heateq] monitor 'net_influx' = 0.997417 W
+[heateq] monitor 'net_influx' = 0.907702 W
+[heateq] monitor 'net_influx' = 0.826057 W
+[heateq] monitor 'net_influx' = 0.751756 W
+[heateq] wrote 'output/heating_block_solution_80.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 0.684138 W
+[heateq] monitor 'net_influx' = 0.622601 W
+[heateq] monitor 'net_influx' = 0.566600 W
+[heateq] monitor 'net_influx' = 0.515636 W
+[heateq] monitor 'net_influx' = 0.469256 W
+[heateq] monitor 'net_influx' = 0.427048 W
+[heateq] monitor 'net_influx' = 0.388637 W
+[heateq] monitor 'net_influx' = 0.353680 W
+[heateq] monitor 'net_influx' = 0.321867 W
+[heateq] monitor 'net_influx' = 0.292916 W
+[heateq] wrote 'output/heating_block_solution_90.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 0.266570 W
+[heateq] monitor 'net_influx' = 0.242592 W
+[heateq] monitor 'net_influx' = 0.220772 W
+[heateq] monitor 'net_influx' = 0.200914 W
+[heateq] monitor 'net_influx' = 0.182843 W
+[heateq] monitor 'net_influx' = 0.166396 W
+[heateq] monitor 'net_influx' = 0.151430 W
+[heateq] monitor 'net_influx' = 0.137809 W
+[heateq] monitor 'net_influx' = 0.125413 W
+[heateq] monitor 'net_influx' = 0.114133 W
+[heateq] wrote 'output/heating_block_solution_100.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] monitor 'net_influx' = 0.103867 W
+[heateq] converged

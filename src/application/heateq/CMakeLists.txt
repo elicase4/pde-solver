@@ -11,6 +11,7 @@ add_library(pde_heateq_app
 	parser/HeatConfigParser.cpp
 	parser/InitialConditionConfigParser.cpp
 	parser/MonitorConfigParser.cpp
+	parser/ScalarMaterialPropertyConfigParser.cpp
 	parser/SourceConfigParser.cpp
 )
 

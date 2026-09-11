@@ -51,32 +51,7 @@ public:
 			EvalQP qp(localEle);
 
 			// fill Ge
-			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
-
-				Real bcVal[topology::TopologicalDOF<numDOFs>::dofsPerNode];
-
-				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (!topoDOF.isConstrained(TdofIDi)) {
-						continue;
-					}
-
-					Int rngTag = topoDOF.getConstraintTag(TdofIDi);
-
-					const auto* entries = bcRegistry.getEntries(rngTag);
-
-					if (entries) {
-						for (const auto& entry : *entries) {
-							entry->eval(time, &nodeCoords[EvalEle::SpatialDim*i], bcVal);
-						}
-					}
-
-					Ge[i*topology::TopologicalDOF<numDOFs>::dofsPerNode+j] = bcVal[j];
-
-				}
-
-			}
+			fem::assembly::gatherElementVector<numDOFs, EvalEle::SpatialDim, fem::assembly::GatherMode::Constrained>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ge);
 
 			// gather any form-specific element data
 			forms.gatherElementData(nodeIDs, localEle.nodesPerElement());
@@ -90,17 +65,7 @@ public:
 			}
 
 			// scatter Fe into F
-			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
-				for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-					Index TdofIDi = topoDOF.getNodeDOF(nodeIDs[i], j);
-					if (topoDOF.isConstrained(TdofIDi)) continue;
-					Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-
-					F.data()[AdofIDi] -= Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
-
-				}
-			}
+			fem::assembly::scatterElementVector<numDOFs>(nodeIDs, localEle.nodesPerElement(), topoDOF, Fe, F, Real(-1));
 
 		}
 
@@ -182,19 +147,7 @@ public:
 				}
 
 				// scatter Fe into F
-				for (Index i = 0; i < nodesPerFace; ++i){
-
-					for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
-
-						Index TdofIDi = topoDOF.getNodeDOF(elemNodeGlobalIDs[faceNodeLocalIDs[i]], j);
-						if (topoDOF.isConstrained(TdofIDi)) continue;
-						Index AdofIDi = topoDOF.toAlgebraic(TdofIDi);
-
-						F.data()[AdofIDi] += Fe[i*topology::TopologicalDOF<numDOFs>::dofsPerNode + j];
-
-					}
-
-				}
+				fem::assembly::scatterElementVector<numDOFs>(faceNodeGlobalIDs, nodesPerFace, topoDOF, Fe, F);
 
 			}
 

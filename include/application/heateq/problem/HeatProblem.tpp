@@ -3,23 +3,45 @@ namespace pdesolver::application::heateq::problem {
 	template<typename Backend, typename HeatEqBundle>
 	HeatProblem<Backend, HeatEqBundle>::HeatProblem(const application::heateq::config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary) : config_(config), solverInstance_(solver::resolveSolverInstance(config_.solver)), mesh_(std::move(mesh)), topoDOF_(mesh_, config_.discretization.dofOrdering), driverLogger_(solver::logging::makeDriverLogger(config_.logging.driver, "heateq")), evalEleTemplate_(std::move(basis)), quadratureVolume_(std::move(quadratureVolume)), quadratureBoundary_(std::move(quadratureBoundary)) {
 
-		// solver instance
-		if (solver::isTransient(solverInstance_.mode)) {
-			throw std::runtime_error("HeatProblem: transient driver support is not yet implemented");
-		}
-
 		// conductivity model
 		if (config_.conductivity.type == config::ConductivityConfig::Type::Constant) {
-			conductivityModel_ = typename HeatEqBundle::ConstantConductivityModel{config_.conductivity.value};
-			conductivityModelBdy_ = typename HeatEqBundle::ConstantConductivityModelBdy{config_.conductivity.value};
+			conductivityModel_.setConstant(config_.conductivity.value);
+			conductivityModelBdy_.setConstant(config_.conductivity.value);
 		} else if (config_.conductivity.type == config::ConductivityConfig::Type::Anisotropic) {
-			conductivityModel_ = typename HeatEqBundle::AnisotropicConductivityModel{config_.conductivity.tensor};
-			conductivityModelBdy_ = typename HeatEqBundle::AnisotropicConductivityModelBdy{config_.conductivity.tensor};
+			conductivityModel_.setAnisotropic(config_.conductivity.tensor);
+			conductivityModelBdy_.setAnisotropic(config_.conductivity.tensor);
 		} else {
 			throw std::runtime_error("HeatProblem: unsupported conductivity type");
 		}
 
+		const bool transient = solver::isTransient(solverInstance_.mode);
+
+		// transient setup
+		if (transient) {
+
+			if (!config_.density.has_value() || !config_.specificHeat.has_value()) {
+				throw std::runtime_error("HeatProblem: 'materials.density' and 'materials.specific_heat' are required for a transient driver");
+			}
+
+			if (!solverInstance_.timestepper) {
+				throw std::runtime_error("HeatProblem: solver.timestepper config is required for a transient driver");
+			}
+
+			densityModel_.value = config_.density->value;
+			specificHeatModel_.value = config_.specificHeat->value;
+
+			materialModel_ = typename HeatEqBundle::MaterialModel(conductivityModel_, densityModel_, specificHeatModel_);
+			massMaterialModel_ = typename HeatEqBundle::MassMaterialModel(densityModel_, specificHeatModel_);
+
+			setDt(solverInstance_.timestepper->stepSize.dt);
+
+		}
+
+		// monitors
 		for (const auto& monitorCfg : config_.monitors) {
+
+			const std::string unit = fem::quantity::unitFor<typename HeatEqBundle::HeatFluxIntegrand>(monitorCfg.reduction, HeatEqBundle::SpatialDim - 1);
+			const std::vector<std::string> columns{"tick", "time", monitorCfg.name + " [" + unit + "]"};
 
 			if (monitorCfg.reduction == fem::quantity::Reduction::Integral) {
 
@@ -28,8 +50,7 @@ namespace pdesolver::application::heateq::problem {
 					monitorRegistryIntegral_.registerTag(term.boundary);
 					combination.addTerm(term.boundary, term.coefficient);
 				}
-				const std::string unit = fem::quantity::unitFor<typename HeatEqBundle::HeatFluxIntegrand>(monitorCfg.reduction, HeatEqBundle::SpatialDim - 1);
-				monitorOutputsIntegral_.push_back(MonitorOutput<MonitorCombinationIntegralT>{monitorCfg.name, std::move(combination), monitorCfg.output.console, unit, utils::logging::CsvWriter(monitorCfg.output.file, {"tick", "time", monitorCfg.name + " [" + unit + "]"})});
+				monitorOutputsIntegral_.push_back(MonitorOutput<MonitorCombinationIntegralT>{monitorCfg.name, std::move(combination), monitorCfg.output.console, unit, utils::logging::CsvWriter(monitorCfg.output.file, columns)});
 
 			} else {
 
@@ -38,8 +59,7 @@ namespace pdesolver::application::heateq::problem {
 					monitorRegistryAverage_.registerTag(term.boundary);
 					combination.addTerm(term.boundary, term.coefficient);
 				}
-				const std::string unit = fem::quantity::unitFor<typename HeatEqBundle::HeatFluxIntegrand>(monitorCfg.reduction, HeatEqBundle::SpatialDim - 1);
-				monitorOutputsAverage_.push_back(MonitorOutput<MonitorCombinationAverageT>{monitorCfg.name, std::move(combination), monitorCfg.output.console, unit, utils::logging::CsvWriter(monitorCfg.output.file, {"tick", "time", monitorCfg.name + " [" + unit + "]"})});
+				monitorOutputsAverage_.push_back(MonitorOutput<MonitorCombinationAverageT>{monitorCfg.name, std::move(combination), monitorCfg.output.console, unit, utils::logging::CsvWriter(monitorCfg.output.file, columns)});
 
 			}
 
@@ -56,9 +76,9 @@ namespace pdesolver::application::heateq::problem {
 		Index numFluxBCs = config_.boundaryConditions.size();
 		expressionFluxForms_.reserve(numFluxBCs);
 		nodalFluxForms_.reserve(numFluxBCs);
-		
+
 		for (const auto& bcCfg : config_.boundaryConditions) {
-			
+
 			for (auto form : bcCfg.forms) {
 
 				if (form == application::heateq::config::BoundaryConditionConfig::Form::ValueBC) {
@@ -66,13 +86,11 @@ namespace pdesolver::application::heateq::problem {
 					if (bcCfg.mode == solver::config::NodalFieldReadConfig::Mode::File) {
 
 						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletNodalT>>(new fem::boundary::BoundaryCondition<DirichletNodalT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletNodalT{mesh_, bcCfg.file}});
-
 						essentialBCs_.registerBC<DirichletNodalT>(bc);
 
 					} else {
 
 						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<DirichletExpressionT>>(new fem::boundary::BoundaryCondition<DirichletExpressionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Essential}, DirichletExpressionT{bcCfg.expression}});
-
 						essentialBCs_.registerBC<DirichletExpressionT>(bc);
 
 					}
@@ -85,7 +103,6 @@ namespace pdesolver::application::heateq::problem {
 						nodalFluxForms_.push_back(std::make_unique<NodalFluxFormsT>(nodalFluxSource));
 
 						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionNodalT>>(new fem::boundary::BoundaryCondition<FluxFunctionNodalT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionNodalT{mesh_, bcCfg.file}});
-
 						naturalBCs_.template registerBC<FluxFunctionNodalT>(bc, *nodalFluxForms_.back(), defaultModelBdy_);
 
 					} else {
@@ -97,7 +114,6 @@ namespace pdesolver::application::heateq::problem {
 						expressionFluxForms_.push_back(std::make_unique<ExpressionFluxFormsT>(bcCfg.fluxExpression));
 
 						auto bc = std::shared_ptr<fem::boundary::BoundaryCondition<FluxFunctionExpressionT>>(new fem::boundary::BoundaryCondition<FluxFunctionExpressionT>{bcCfg.boundaryID, {fem::boundary::BCCategory::Natural}, FluxFunctionExpressionT{bcCfg.fluxExpression}});
-
 						naturalBCs_.template registerBC<FluxFunctionExpressionT>(bc, *expressionFluxForms_.back(), defaultModelBdy_);
 
 					}
@@ -108,143 +124,210 @@ namespace pdesolver::application::heateq::problem {
 
 		}
 
-		// build topoDOF constrains and linear system containers
+		// constraints & linear system containers
 		topoDOF_.buildConstraints(evalEleTemplate_.basis(), essentialBCs_);
-		
-		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
+
+		if (solverInstance_.linear->operatorType == OpType::CSR) {
 			K_ = std::make_unique<MatrixT>(fem::assembly::Assembler<Backend>::template createMatrix<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
 		}
 
 		F_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
-
 		U_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
 		U_->zero();
 
+		if (transient) {
+			U_prev_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
+			massTimesUprev_ = std::make_unique<VectorT>(fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_));
+		}
+
 		// initial condition
-		if (config_.initialCondition.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
-
-			utils::expression::ScalarExpression icExpr(config_.initialCondition.read.expression);
-
-			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
-
-				Real coords[3] = {Real(0), Real(0), Real(0)};
-				const Real* nodeCoordPtr = mesh_.getNodeCoord(nodeID);
-				for (Index d = 0; d < HeatEqBundle::SpatialDim; ++d) coords[d] = nodeCoordPtr[d];
-
-				Real icVal[HeatEqBundle::NumDOFs];
-				icExpr(Real(0), coords, icVal);
-
-				for (Index c = 0; c < HeatEqBundle::NumDOFs; ++c) {
-
-					Index tdof = topoDOF_.getNodeDOF(nodeID, c);
-					if (topoDOF_.isConstrained(tdof)) continue;
-
-					Index adof = topoDOF_.toAlgebraic(tdof);
-					U_->data()[adof] = icVal[c];
-
-				}
-
-			}
-
-		} else {
-
-			NodalScalarSourceT icSource(mesh_, config_.initialCondition.read.file);
-
-			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
-
-				Real icVal[HeatEqBundle::NumDOFs];
-				icSource.eval(nodeID, icVal);
-
-				for (Index c = 0; c < HeatEqBundle::NumDOFs; ++c) {
-
-					Index tdof = topoDOF_.getNodeDOF(nodeID, c);
-					if (topoDOF_.isConstrained(tdof)) continue;
-
-					Index adof = topoDOF_.toAlgebraic(tdof);
-					U_->data()[adof] = icVal[c];
-
-				}
-
-			}
-
+		loadNodalField(config_.initialCondition.read, *U_);
+		if (transient) {
+			linalg::operations::copy(*U_, *U_prev_);
 		}
 
-		// configure linear operator
-		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
-		    
-			CSROperatorT op(*K_);
-			linearSolverRunner_ = solver::linear::makeLinearSolverRunner<CSROperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, "Heat Equation", std::vector<std::string>{"T"});
-		
-		} else if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::FEM) {
+		// configure the linear operator
+		const OpType opType = solverInstance_.linear->operatorType;
 
-			std::visit([&](auto& model) {
+		if (opType == OpType::CSR) {
 
-				using ConductivityModelT = std::decay_t<decltype(model)>;
-				using FEMOperatorT = FEMOperatorFor<ConductivityModelT>;
+			if (transient){
+				assembleTransientOperatorMatrix();
+			}
+			makeLinearRunner(CSROperatorT(*K_));
 
-				FEMOperatorT op(assembler_, mesh_, topoDOF_, Real(0), model, matrixForms_, evalEleTemplate_, quadratureVolume_);
-				linearSolverRunner_ = solver::linear::makeLinearSolverRunner<FEMOperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, "Heat Equation", std::vector<std::string>{"T"});
+		} else if (opType == OpType::FEM) {
 
-			}, conductivityModel_);
+			if (transient) {
+				makeLinearRunner(TransientMatrixFreeOperatorT(assembler_, mesh_, topoDOF_, Real(0), materialModel_, transientOperatorForms_, evalEleTemplate_, quadratureVolume_));
+			} else {
+				makeLinearRunner(SteadyMatrixFreeOperatorT(assembler_, mesh_, topoDOF_, Real(0), conductivityModel_, stiffnessForms_, evalEleTemplate_, quadratureVolume_));
+			}
 
 		} else {
-			
 			throw std::runtime_error("HeatProblem: unsupported operator");
-		
 		}
-	
+
+	}
+
+	// assembly helpers
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::loadNodalField(const solver::config::NodalFieldReadConfig& cfg, VectorT& target) const {
+
+		auto scatter = [&](Index nodeID, const Real* val) {
+			for (Index c = 0; c < HeatEqBundle::NumDOFs; ++c) {
+				Index tdof = topoDOF_.getNodeDOF(nodeID, c);
+				if (topoDOF_.isConstrained(tdof)) continue;
+				target.data()[topoDOF_.toAlgebraic(tdof)] = val[c];
+			}
+		};
+
+		if (cfg.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
+
+			utils::expression::ScalarExpression expr(cfg.expression);
+
+			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
+				Real coords[3] = {Real(0), Real(0), Real(0)};
+				const Real* p = mesh_.getNodeCoord(nodeID);
+				for (Index d = 0; d < HeatEqBundle::SpatialDim; ++d) coords[d] = p[d];
+				Real val[HeatEqBundle::NumDOFs];
+				expr(Real(0), coords, val);
+				scatter(nodeID, val);
+			}
+
+		} else {
+
+			NodalScalarSourceT src(mesh_, cfg.file);
+
+			for (Index nodeID = 0; nodeID < mesh_.data.numNodes; ++nodeID) {
+				Real val[HeatEqBundle::NumDOFs];
+				src.eval(nodeID, val);
+				scatter(nodeID, val);
+			}
+
+		}
+
 	}
 
 	template<typename Backend, typename HeatEqBundle>
-	void HeatProblem<Backend, HeatEqBundle>::assembleSystem(Real time) {
+	void HeatProblem<Backend, HeatEqBundle>::assembleStiffnessMatrix(Real time) {
 
-		// assemble K if needed
-		if (solverInstance_.linear->operatorType == solver::config::LinearSolverConfig::OperatorType::CSR) {
-			std::visit([&](auto& model) {
-				using ConductivityModelT = std::decay_t<decltype(model)>;
-				fem::assembly::Assembler<Backend>::template assembleMatrix<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ConductivityModelT, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, model, matrixForms_, evalEleTemplate_, quadratureVolume_, *U_, *K_);
-			}, conductivityModel_);
-		}
+		fem::assembly::Assembler<Backend>::template assembleMatrix<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::ConductivityModel, StiffnessFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, conductivityModel_, stiffnessForms_, evalEleTemplate_, quadratureVolume_, *U_, *K_);
 
-		// assemble F
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::assembleTransientOperatorMatrix() {
+
+		fem::assembly::Assembler<Backend>::template assembleMatrix<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::MaterialModel, TransientOperatorFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, Real(0), materialModel_, transientOperatorForms_, evalEleTemplate_, quadratureVolume_, *U_, *K_);
+
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::assembleLoad(Real time) {
+
 		F_->zero();
+
 		if (config_.source.read.mode == solver::config::NodalFieldReadConfig::Mode::Expression) {
 			fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, ExpressionSourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, *sourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
 		} else {
 			fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::DefaultModel, NodalSourceFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, time, defaultModel_, *nodalSourceForms_, evalEleTemplate_, quadratureVolume_, *U_, *F_);
 		}
 
-		// apply natural BCs
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::addTransientMassTerm(Real time) {
+
+		massTimesUprev_->zero();
+		fem::assembly::Assembler<Backend>::template assembleVector<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::MassMaterialModel, MassFormsT, typename HeatEqBundle::QuadratureVolumeType, fem::assembly::GatherMode::Full>(mesh_, topoDOF_, time - dt_, massMaterialModel_, massForms_, evalEleTemplate_, quadratureVolume_, *U_prev_, *massTimesUprev_, &essentialBCs_);
+		linalg::operations::axpy(transientMassCoefficient(), *massTimesUprev_, *F_);
+
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::applyNatural(Real time) {
+
 		bcApplicator_.template applyNaturalBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, naturalBCs_, time, evalEleTemplate_, quadratureBoundary_, *F_);
 
-		// apply essential BCs
-		std::visit([&](auto& model) {
-			using ConductivityModelT = std::decay_t<decltype(model)>;
-			bcApplicator_.template applyEssentialBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, ConductivityModelT, MatrixFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, essentialBCs_, time, model, matrixForms_, evalEleTemplate_, quadratureVolume_, *F_);
-		}, conductivityModel_);
-	
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::applyEssential(Real time) {
+
+		if (solver::isTransient(solverInstance_.mode)) {
+			bcApplicator_.template applyEssentialBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::MaterialModel, TransientOperatorFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, essentialBCs_, time, materialModel_, transientOperatorForms_, evalEleTemplate_, quadratureVolume_, *F_);
+		} else {
+			bcApplicator_.template applyEssentialBCs<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPVol, typename HeatEqBundle::ConductivityModel, StiffnessFormsT, typename HeatEqBundle::QuadratureVolumeType>(mesh_, topoDOF_, essentialBCs_, time, conductivityModel_, stiffnessForms_, evalEleTemplate_, quadratureVolume_, *F_);
+		}
+
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	template<typename OperatorT>
+	void HeatProblem<Backend, HeatEqBundle>::makeLinearRunner(const OperatorT& op) {
+
+		linearSolverRunner_ = solver::linear::makeLinearSolverRunner<OperatorT, VectorT>(op, topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, "Heat Equation", std::vector<std::string>{"T"});
+
+	}
+
+	// public surface
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::assembleSystem(Real time) {
+
+		const bool transient = solver::isTransient(solverInstance_.mode);
+
+		if (!transient && solverInstance_.linear->operatorType == OpType::CSR) {
+			assembleStiffnessMatrix(time);
+		}
+
+		assembleLoad(time);
+		if (transient){
+			addTransientMassTerm(time);
+		}
+
+		applyNatural(time);
+		applyEssential(time);
+
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::advanceTimestep() {
+
+		// step-to-step state roll -- driven by the timestepper via HeatStage::advance()
+		linalg::operations::copy(*U_, *U_prev_);
+
+	}
+
+	template<typename Backend, typename HeatEqBundle>
+	void HeatProblem<Backend, HeatEqBundle>::setDt(Real dt) {
+
+		if (dt == dt_) return; // common case: the active step-size policy kept dt unchanged
+
+		dt_ = dt;
+		transientOperatorForms_ = TransientOperatorFormsT(typename HeatEqBundle::DiffusionForm{}, typename HeatEqBundle::MassFormOverDt{transientMassCoefficient()});
+
+		if (K_) {
+			assembleTransientOperatorMatrix();
+		}
+
 	}
 
 	template<typename Backend, typename HeatEqBundle>
 	bool HeatProblem<Backend, HeatEqBundle>::solveLinear() {
 
-		// run linear solver
 		linalg::solver::SolverReport<VectorT> report;
-		bool converged = linearSolverRunner_->solve(*F_, *U_, report);
-		return converged;
-	
+		return linearSolverRunner_->solve(*F_, *U_, report);
+
 	}
 
 	template<typename Backend, typename HeatEqBundle>
 	Real HeatProblem<Backend, HeatEqBundle>::residualNorm() const {
 
-		// PSEUDOCODE -- unreachable until Newton/Picard exist (see resolveSolverInstance() note
-		// in the constructor). K_/F_/U_ reflect whatever was last assembled by assembleSystem();
-		// this must NOT re-assemble itself, callers are expected to call assemble() first.
-		//
-		// r = F_ - K_ * U_        (raw allocation TBD -- reuse a scratch VectorT member rather
-		//                          than allocating here, this runs every nonlinear iteration)
-		// return ||r||_2
+		// PSEUDOCODE -- unreachable until Newton/Picard exist. K_/F_/U_ reflect the last
+		// assembleSystem(); this must NOT re-assemble. Callers assemble() first.
+		//   r = F_ - K_ * U_   (reuse a scratch VectorT member, not a fresh allocation)
+		//   return ||r||_2
 
 		return Real(0);
 
@@ -255,23 +338,13 @@ namespace pdesolver::application::heateq::problem {
 
 		// PSEUDOCODE -- unreachable until Newton/Picard exist.
 		//
-		// Newton (solverInstance_.nonlinear->type == Newton):
-		//   assemble the EXACT tangent J(U_) -- NOT the same as K_ once a NonlinearTangentForm-
-		//   conforming form exists for a genuinely U-dependent equation (K_ alone is missing the
-		//   dK/dU * U term). Heat conduction has no such form yet (constant conductivity), so
-		//   this path has nothing correct to fall back to -- that's exactly why Newton stays
-		//   unreachable rather than silently reusing K_ as if it were the true tangent.
+		// Newton: assemble the EXACT tangent J(U_) -- not K_, which is missing the dK/dU * U term.
+		// Heat conduction has no U-dependent form yet, so there's nothing correct to fall back to.
 		//
-		// Picard (solverInstance_.nonlinear->type == Picard):
-		//   J(U_) == K_ (already assembled, U-dependent coefficients frozen at current U_) --
-		//   this path COULD reuse the existing linearSolverRunner_ machinery directly:
-		//     r = F_ - K_ * U_
-		//     solve K_ * deltaU = r   via linearSolverRunner_
-		//     U_ += deltaU
-		//     return whether that linear solve converged
+		// Picard: J(U_) == K_ (coefficients frozen at U_) -- could reuse linearSolverRunner_:
+		//   r = F_ - K_ * U_ ; solve K_ * deltaU = r ; U_ += deltaU ; return converged
 		//
-		// Either way: this is a correction solve (deltaU), NOT solveLinear()'s direct solve for
-		// U_ -- do not collapse the two.
+		// Either way this is a correction solve (deltaU), NOT solveLinear()'s direct solve.
 
 		return false;
 
@@ -283,8 +356,7 @@ namespace pdesolver::application::heateq::problem {
 		if (!config_.output.vtk || (step % config_.output.writeFrequency != 0)) return;
 
 		const std::string filename = config_.output.directory + "/" + config_.output.prefix + "_" + std::to_string(step) + ".vtk";
-		// "T[K]" -- temperature's unit is fixed by the heat equation itself (SI, kelvin), not user-configurable
-		io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T[K]"}, filename);
+		io::fieldio::FieldIO::writeVTK<HeatEqBundle::NumDOFs>(mesh_, topoDOF_, essentialBCs_, Real(0), U_->data(), {"T [K]"}, filename);
 
 		const char* ordStr = (topoDOF_.ordering() == fem::dof::DOFOrdering::Interleaved) ? "Interleaved" : "Block";
 		driverLogger_.event("wrote '" + filename + "' - " + std::to_string(HeatEqBundle::NumDOFs) + " field(s), " + std::to_string(mesh_.data.numNodes) + " nodes, " + ordStr + " ordering");
@@ -301,19 +373,13 @@ namespace pdesolver::application::heateq::problem {
 
 		if (monitorOutputsIntegral_.empty() && monitorOutputsAverage_.empty()) return;
 
-		std::visit([&](auto& model) {
+		if (!monitorOutputsIntegral_.empty()) {
+			fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, typename HeatEqBundle::ConductivityModelBdy, MonitorQuantitiesIntegralT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, time, conductivityModelBdy_, monitorQuantitiesIntegral_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryIntegral_);
+		}
 
-			using ConductivityModelT = std::decay_t<decltype(model)>;
-
-			if (!monitorOutputsIntegral_.empty()) {
-				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesIntegralT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, time, model, monitorQuantitiesIntegral_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryIntegral_);
-			}
-
-			if (!monitorOutputsAverage_.empty()) {
-				fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, ConductivityModelT, MonitorQuantitiesAverageT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, time, model, monitorQuantitiesAverage_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryAverage_);
-			}
-
-		}, conductivityModelBdy_);
+		if (!monitorOutputsAverage_.empty()) {
+			fem::quantity::QuantityEvaluator<Backend>::template evaluateBoundaryRegistry<HeatEqBundle::NumDOFs, typename HeatEqBundle::EvalEle, typename HeatEqBundle::EvalQPBdy, typename HeatEqBundle::ConductivityModelBdy, MonitorQuantitiesAverageT, typename HeatEqBundle::QuadratureBoundaryType>(mesh_, topoDOF_, essentialBCs_, time, conductivityModelBdy_, monitorQuantitiesAverage_, evalEleTemplate_, quadratureBoundary_, *U_, monitorRegistryAverage_);
+		}
 
 		Real value[HeatEqBundle::HeatFluxIntegrand::NumComponents];
 

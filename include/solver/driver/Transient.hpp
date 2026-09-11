@@ -2,33 +2,33 @@
 #define PDESOLVER_SOLVER_DRIVER_TRANSIENT_HPP
 
 #include "solver/stage/Stage.hpp"
-#include "solver/timestepper/TimeStepper.hpp"
+#include "solver/timestepper/TimeStepperRunner.hpp"
 
 namespace pdesolver {
 	namespace solver {
 		namespace driver {
 
-			template<stage::Stage StageType, typename TimeStepperType, typename VectorType>
+			// Owns only the outer loop -- one-time initialize()/finalize() plus stepping until
+			// the timestepper says it's done. Each step's assemble/solve/advance/output lives in
+			// the timestepper (see TimeStepperRunner). Mirrors Driver::Steady.
+			template<stage::Stage StageType>
 			class Transient {
 			public:
 
-				bool solve(StageType& stage, TimeStepperType& stepper, VectorType& U, VectorType& U_prev) {
+				bool solve(StageType& stage, timestepper::TimeStepperRunner& stepper) {
+
+					stage.initialize();
 
 					while (!stepper.finished()) {
-						
-						stage.initialize();
-						stage.assemble();
-
-						if (!stage.solve()) {
+						if (!stepper.step()) {
+							stage.finalize();
 							return false;
 						}
-
-						stepper.advance(U, U_prev);
-						stage.finalize();
-
 					}
 
+					stage.finalize();
 					return true;
+
 				}
 
 			}; // class Transient

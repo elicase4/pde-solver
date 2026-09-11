@@ -8,17 +8,17 @@
 namespace pdesolver {
 	namespace solver {
 
-		template<typename T, typename VectorType>
-		concept TimeStepper = requires(T& ts, VectorType& U, const VectorType& U_prev) {
-			
+		template<typename T>
+		concept TimeStepper = requires(T& ts) {
+
+			{ ts.step() } -> std::same_as<bool>;
+
 			{ ts.finished() } -> std::same_as<bool>;
 
-			{ ts.advance(U, U_prev) } -> std::same_as<void>;
+			{ ts.currentStep() } -> std::same_as<Index>;
 
-			{ ts.time() } -> std::same_as<Real>;
-		
-			{ ts.dt() } -> std::same_as<Real>;
-		
+			{ ts.currentTime() } -> std::same_as<Real>;
+
 		}; // concept TimeStepper
 
 	} // namespace solver

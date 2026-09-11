@@ -22,4 +22,24 @@ namespace pdesolver::linalg::operations {
 
 	}
 
+	template<typename MatrixType, typename VectorType>
+	void lump(const MatrixType& A, VectorType& diag){
+
+		assert(A.nCols() == A.nCols());
+		assert(A.nRows() == diag.size());
+
+		for (Index i = 0; i < A.nRows(); ++i){
+
+			typename VectorType::value_type sum = 0;
+
+			for (Index p = A.rowPtr()[i]; p < A.rowPtr()[i+1]; ++p){
+				sum += A.data()[p];
+			}
+
+			diag.data()[i] = sum;
+		
+		}
+
+	}
+
 } // namespace pdesolver::linalg::operations

@@ -76,7 +76,7 @@ protected:
 
 	// declare model
 	HeatEqBundle::DefaultModel defaultModel;
-	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
+	HeatEqBundle::ConductivityModel constantConductivityModel;
 
 	// operator form
 	HeatEqBundle::DiffusionForm diffusionForm;
@@ -105,7 +105,7 @@ protected:
 		topoDOF3D = std::make_unique<topology::TopologicalDOF<HeatEqBundle::NumDOFs>>(mesh3D, DOFOrdering);
 
 		// set conductivity model parameters
-		constantConductivityModel.conductivity = 1.0;
+		constantConductivityModel.setConstant(1.0);
 
 		// register all 6 faces as essential
 		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
@@ -154,11 +154,11 @@ TEST_F(CPUHeatEquationMinimal3D, MatrixCGSolverTrilinearSolP1){
 	EXPECT_EQ(U.size(), 343);
 	EXPECT_EQ(F.size(), 343);
 
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
 
 	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, defaultModel, rhsForms, evalEle, quadVol, U, F);
 
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
 
 	linalg::op::CSROperator<linalg::types::CSRMatrix<Real, BackendType>> op(K);
 
@@ -214,9 +214,9 @@ TEST_F(CPUHeatEquationMinimal3D, MatrixFreeCGSolver){
 
 	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(rhsForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, t, defaultModel, rhsForms, evalEle, quadVol, U, F);
 
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh3D, *topoDOF3D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
 
-	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType> op(assembler, mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol);
+	linalg::op::FEMOperator<fem::assembly::Assembler<BackendType>, topology::TopologicalDOF<HeatEqBundle::NumDOFs>, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType> op(assembler, mesh3D, *topoDOF3D, t, constantConductivityModel, operatorForms, evalEle, quadVol);
 
 	linalg::solver::iterative::cg::Workspace<linalg::types::Vector<Real, BackendType>> W(topoDOF3D->numFreeDOFs());
 	linalg::solver::SolverReport<linalg::types::Vector<Real, BackendType>> report;

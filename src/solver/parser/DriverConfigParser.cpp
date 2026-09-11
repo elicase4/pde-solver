@@ -7,8 +7,10 @@ pdesolver::solver::config::DriverConfig::Type pdesolver::solver::parser::DriverC
 		return config::DriverConfig::Type::Steady;
 	if (str == "transient")
 		return config::DriverConfig::Type::Transient;
+	if (str == "pseudo_transient")
+		return config::DriverConfig::Type::PseudoTransient;
 
-	throw std::runtime_error("Unknown driver type: '" + str + "'. Valid options: steady, transient");
+	throw std::runtime_error("Unknown driver type: '" + str + "'. Valid options: steady, transient, pseudo_transient");
 
 }
 

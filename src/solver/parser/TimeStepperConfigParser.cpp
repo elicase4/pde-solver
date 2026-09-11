@@ -1,6 +1,7 @@
 #include "solver/parser/TimeStepperConfigParser.hpp"
 #include "solver/parser/NonlinearSolverConfigParser.hpp"
 #include "solver/parser/LinearSolverConfigParser.hpp"
+#include "solver/parser/TimeStepSizeConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 
 pdesolver::solver::config::TimeStepperConfig::Type pdesolver::solver::parser::TimeStepperConfigParser::parseTimeStepperType(const std::string& str) {
@@ -27,8 +28,13 @@ pdesolver::solver::config::TimeStepperConfig pdesolver::solver::parser::TimeStep
 	cfg.type = parseTimeStepperType(YAMLReader::required<std::string>(node, "type"));
 	cfg.t0 = YAMLReader::optional<Real>(node, "t0", 0.0);
 	cfg.tf = YAMLReader::optional<Real>(node, "tf", 0.0);
-	cfg.dt = YAMLReader::optional<Real>(node, "dt", 0.0);
 	cfg.rhoInf = YAMLReader::optional<Real>(node, "rho_inf", 0.5);
+
+	const YAML::Node& stepSize = node["step_size"];
+	if (!stepSize) {
+		throw std::runtime_error("TimeStepperConfigParser: missing required 'step_size' section");
+	}
+	cfg.stepSize = TimeStepSizeConfigParser::parse(stepSize);
 
 	if (node["nonlinear_solver"]) {
 		cfg.nonlinearSolver = NonlinearSolverConfigParser::parse(node["nonlinear_solver"]);

@@ -10,6 +10,9 @@ namespace pdesolver {
 			template<typename MatrixType, typename VectorType>
 			void matvec(const MatrixType& A, const VectorType& x, VectorType& y);
 
+			template<typename MatrixType, typename VectorType>
+			void lump(const MatrixType& A, VectorType& diag);
+
 		} // namespace operations
 	} // namespace linalg
 } // namespace pdesolver

@@ -8,6 +8,7 @@
 
 #include "core/Types.hpp"
 
+#include "fem/assembly/ElementMap.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/eval/EvalElement.hpp"
@@ -46,17 +47,11 @@ namespace pdesolver {
 				template<Index numDOFs>
 				static linalg::types::Vector<Real, Backend> createVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF);
 
-				// gathers one element's complete nodal solution into Ue
-				template<Index numDOFs, Index SpatialDim>
-				static void gatherElementSolution(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const linalg::types::Vector<Real, Backend>& U, Real* Ue);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode = GatherMode::Free>
+				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K, const fem::boundary::EssentialBoundaryRegistry* bcRegistry = nullptr);
 
-				// matrix assembly
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K);
-
-				// vector assembly
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode = GatherMode::Free>
+				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F, const fem::boundary::EssentialBoundaryRegistry* bcRegistry = nullptr);
 
 			}; // class Assembler
 

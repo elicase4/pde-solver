@@ -12,16 +12,16 @@ namespace pdesolver::equations::heateq {
 			
 			for (Index a = 0; a < qp.nodesPerElement(); ++a){
 				for (Index b = 0; b < qp.nodesPerElement(); ++b){
-					Me[a * qp.nodesPerElement() + b] += qp.N[a] * qp.N[b] * qp.measure * qp.w;
+					Me[a * qp.nodesPerElement() + b] += qp.rho * qp.cp * qp.N[a] * qp.N[b] * qp.measure * qp.w;
 				}
 			}
 		}
-		
+
 		PDE_HOST PDE_DEVICE static void computeElementLevelVector(const QuadraturePointVolume& qp, const Real* Ue, Real* Oe){
-			
+
 			for (Index a = 0; a < qp.nodesPerElement(); ++a){
 				for (Index b = 0; b < qp.nodesPerElement(); ++b){
-					Oe[a] += qp.N[a] * qp.N[b] * Ue[b] * qp.measure * qp.w;
+					Oe[a] += qp.rho * qp.cp * qp.N[a] * qp.N[b] * Ue[b] * qp.measure * qp.w;
 				}
 			}
 		}

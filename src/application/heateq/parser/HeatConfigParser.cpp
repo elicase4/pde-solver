@@ -3,6 +3,7 @@
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "application/heateq/parser/InitialConditionConfigParser.hpp"
 #include "application/heateq/parser/MonitorConfigParser.hpp"
+#include "application/heateq/parser/ScalarMaterialPropertyConfigParser.hpp"
 #include "application/heateq/parser/SourceConfigParser.hpp"
 
 #include "solver/parser/BackendConfigParser.hpp"
@@ -72,6 +73,18 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 		throw std::runtime_error("HeatConfigReader: missing required 'materials.conductivity' section in " + filename);
 	}
 	cfg.conductivity = pdesolver::application::heateq::parser::ConductivityConfigParser::parse(cond);
+
+	// density/specific_heat are optional here -- only meaningful for a transient driver;
+	// HeatProblem enforces they're present once it knows the solver mode
+	const YAML::Node& density = materials["density"];
+	if (density) {
+		cfg.density = pdesolver::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(density);
+	}
+
+	const YAML::Node& specificHeat = materials["specific_heat"];
+	if (specificHeat) {
+		cfg.specificHeat = pdesolver::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(specificHeat);
+	}
 
 	const YAML::Node& physics = root["physics"];
 	if (!physics) {

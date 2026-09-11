@@ -1,8 +1,6 @@
 #ifndef HEATEQUATION
 #define HEATEQUATION
 
-#include <variant>
-
 #include "core/Types.hpp"
 #include "core/FEM.hpp"
 
@@ -15,12 +13,14 @@
 #include "equations/heateq/eval/SourceFunction.hpp"
 #include "equations/heateq/eval/DefaultModel.hpp"
 #include "equations/heateq/eval/ConductivityModel.hpp"
+#include "equations/heateq/eval/HeatCapacityModel.hpp"
 #include "equations/heateq/eval/EvalElement.hpp"
 #include "equations/heateq/eval/EvalField.hpp"
 #include "equations/heateq/eval/EvalQuadraturePointVolume.hpp"
 #include "equations/heateq/eval/EvalQuadraturePointBoundary.hpp"
 
 #include "equations/heateq/form/DiffusionForm.hpp"
+#include "equations/heateq/form/MassForm.hpp"
 #include "equations/heateq/form/SourceForm.hpp"
 #include "equations/heateq/form/NodalSourceForm.hpp"
 #include "equations/heateq/form/FluxBoundaryForm.hpp"
@@ -29,7 +29,9 @@
 #include "equations/heateq/quantity/HeatFluxIntegrand.hpp"
 #include "equations/heateq/quantity/QuantityLimits.hpp"
 
+#include "fem/eval/ModelRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
+#include "fem/form/ScaledForm.hpp"
 #include "fem/quantity/BoundaryQuantityCombination.hpp"
 #include "fem/quantity/BoundaryQuantityRegistry.hpp"
 #include "fem/quantity/QuantityEvaluator.hpp"
@@ -63,32 +65,36 @@ namespace pdesolver {
 			using EvalQPVol = heateq::EvalQuadraturePointVolume<EvalEle, Basis, Transform>;
 			using EvalQPBdy = heateq::EvalQuadraturePointBoundary<EvalEle, Basis, Transform>;
 
-			// Constitutive Models
+			// Constitutive models
 			using DefaultModel = heateq::DefaultModel<EvalQPVol>;
-			using ConstantConductivityModel = heateq::ConstantConductivityModel<EvalQPVol>;
-			using AnisotropicConductivityModel = heateq::AnisotropicConductivityModel<EvalQPVol>;
-			using ConstantConductivityModelBdy = heateq::ConstantConductivityModel<EvalQPBdy>;
-			using AnisotropicConductivityModelBdy = heateq::AnisotropicConductivityModel<EvalQPBdy>;
-
-			// Constitutive Model Variant
-			using ConductivityModelVariant = std::variant<ConstantConductivityModel, AnisotropicConductivityModel>;
-			using ConductivityModelVariantBdy = std::variant<ConstantConductivityModelBdy, AnisotropicConductivityModelBdy>;
-
-			// Default Model
 			using DefaultModelBdy = heateq::DefaultModel<EvalQPBdy>;
+			using ConductivityModel = heateq::ConductivityModel<EvalQPVol>;
+			using ConductivityModelBdy = heateq::ConductivityModel<EvalQPBdy>;
+			using DensityModel = heateq::DensityModel<EvalQPVol>;
+			using SpecificHeatModel = heateq::SpecificHeatModel<EvalQPVol>;
+
+			// Material model bundles
+			using MaterialModel = fem::eval::ModelRegistry<ConductivityModel, DensityModel, SpecificHeatModel>;
+			using MassMaterialModel = fem::eval::ModelRegistry<DensityModel, SpecificHeatModel>;
 
 			// Field interpolation for primary dofs
 			using EvalField = heateq::EvalField;
 
-			// Diffusion Form
+			// Operator forms
 			using DiffusionForm = heateq::DiffusionForm<EvalQPVol>;
-			using MatrixForms = fem::form::FormRegistry<DiffusionForm>;
+			using StiffnessForms = fem::form::FormRegistry<DiffusionForm>;
+
+			using MassForm = heateq::MassForm<EvalQPVol>;
+			using MassForms = fem::form::FormRegistry<MassForm>;
+
+			using MassFormOverDt = fem::form::ScaledForm<MassForm>;
+			using TransientOperatorForms = fem::form::FormRegistry<DiffusionForm, MassFormOverDt>;
 
 			// Nodal-data sources
 			using NodalScalarSource = io::fieldio::NodalFileValueSource<NumDOFs>;
 			using NodalFluxSource = io::fieldio::NodalFileValueSource<NumDOFs * SpatialDim>;
 
-			// Source: Expression callable vs Nodal data, and their FormRegistry wrappings
+			// Source: Expression callable vs Nodal data
 			template<typename Callable>
 			using SourceFunction = heateq::SourceFunction<NSD, NumDOFs, Callable>;
 			template<typename Callable>
@@ -116,7 +122,7 @@ namespace pdesolver {
 			template<typename Source>
 			using NodalFluxForms = fem::form::FormRegistry<NodalFluxForm<Source>>;
 
-			// Boundary Value (Dirichlet): Expression callable vs Nodal data
+			// Boundary Value: Expression callable vs Nodal data
 			template<typename Callable>
 			using DirichletBC = heateq::BoundaryValueFunction<NSD, NumDOFs, Callable>;
 			template<typename Callable>

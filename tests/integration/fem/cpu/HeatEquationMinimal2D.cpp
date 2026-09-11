@@ -69,7 +69,7 @@ protected:
 	// declare models
 	HeatEqBundle::DefaultModel defaultModel;
 	HeatEqBundle::DefaultModelBdy defaultModelBdy;
-	HeatEqBundle::ConstantConductivityModel constantConductivityModel;
+	HeatEqBundle::ConductivityModel constantConductivityModel;
 
 	// operator form
 	HeatEqBundle::DiffusionForm diffusionForm;
@@ -101,7 +101,7 @@ protected:
 		topoDOF2D = std::make_unique<topology::TopologicalDOF<HeatEqBundle::NumDOFs>>(mesh2D, DOFOrdering);
 
 		// set conductivity model parameters
-		constantConductivityModel.conductivity = 1.0;
+		constantConductivityModel.setConstant(1.0);
 
 		// Set and register boundary 0
 		bc0 = std::make_shared<fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>>(fem::boundary::BoundaryCondition<HeatEqBundle::DirichletBC<decltype(g)>>{0, {fem::boundary::BCCategory::Essential}, HeatEqBundle::DirichletBC<decltype(g)>{g}});
@@ -200,7 +200,7 @@ TEST_F(CPUHeatEquationMinimal, KMatrix){
 	EXPECT_EQ(U.size(), 12);
 
 	// call assembly for system matrix
-	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
+	assembler.assembleMatrix<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, K);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -263,7 +263,7 @@ TEST_F(CPUHeatEquationMinimal, OVector){
 	}
 
 	// call assembly for system matrix
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, O);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, t, constantConductivityModel, operatorForms, evalEle, quadVol, U, O);
 
 	// test tolerance
 	const Real tol = 1e-10;
@@ -347,7 +347,7 @@ TEST_F(CPUHeatEquationMinimal, FVector){
 	EXPECT_NEAR(F.data()[11], 9.0, tol);
 
 	// apply essential bcs
-	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConstantConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
+	bcApplicator.applyEssentialBCs<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::ConductivityModel, decltype(operatorForms), HeatEqBundle::QuadratureVolumeType>(mesh2D, *topoDOF2D, EssentialBCRegistry, t, constantConductivityModel, operatorForms, evalEle, quadVol, F);
 
 	// tests after applying essential bcs
 	EXPECT_NEAR(F.data()[0], 1.0/6.0 - 1.0, tol);

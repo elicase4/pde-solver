@@ -14,8 +14,6 @@ namespace pdesolver::equations::heateq::quantity {
 
 		static constexpr Index NumComponents = 1;
 
-		// SI unit under Reduction::Integral (a boundary-integrated flux is power);
-		// fem::quantity::unitFor() appends "/m^k" per boundary dimension for Reduction::Average.
 		static constexpr const char* BaseUnit = "W";
 
 		PDE_HOST PDE_DEVICE void computeElementLevelValue(const QuadraturePointBoundary& qp, const Real* Ue, Real* out) const {

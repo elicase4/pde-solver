@@ -45,7 +45,7 @@ public:
 			}
 
 			// gather the complete nodal solution
-			fem::assembly::Assembler<linalg::types::backend::CPU>::template gatherElementSolution<numDOFs, EvalEle::SpatialDim>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, U, Ue);
+			fem::assembly::gatherElementVector<numDOFs, EvalEle::SpatialDim, fem::assembly::GatherMode::Full>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ue, &U);
 
 			// bind element data
 			localEle.bindElement(nodeCoords, time);
@@ -119,7 +119,7 @@ public:
 
 			}
 
-			fem::assembly::Assembler<linalg::types::backend::CPU>::template gatherElementSolution<numDOFs, EvalEle::SpatialDim>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, U, Ue);
+			fem::assembly::gatherElementVector<numDOFs, EvalEle::SpatialDim, fem::assembly::GatherMode::Full>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ue, &U);
 
 			// bind element data
 			localEle.bindElement(nodeCoords, time);
