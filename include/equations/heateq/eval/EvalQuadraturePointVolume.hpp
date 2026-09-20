@@ -1,6 +1,7 @@
 #ifndef HEATEQUATION_EVALQUADRATUREPOINTVOLUME_HPP
 #define HEATEQUATION_EVALQUADRATUREPOINTVOLUME_HPP
 
+#include "equations/heateq/eval/EvalField.hpp"
 #include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/eval/EvalQuadraturePointVolume.hpp"
 
@@ -45,12 +46,27 @@ namespace pdesolver::equations::heateq {
 		// measure
 		Real measure;
 
-		// conductivity coefficient
+		// conductivity model
 		Real K[SpatialDim*SpatialDim];
+		Real dKdT[SpatialDim*SpatialDim];
 
-		// mass matrix coefficients
+		// heat capacity model
 		Real rho;
 		Real cp;
+		Real dcpdT;
+
+		// field state definition
+		struct DOFFieldState {
+			Real value;
+			Real gradient[SpatialDim];
+			Real rate;
+		};
+
+		// temperature field state
+		DOFFieldState T;
+
+		// number of auxiliary DOF states 
+		static constexpr Index NumAuxStates = 1;
 
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_q, const Real weight){
 
@@ -59,7 +75,7 @@ namespace pdesolver::equations::heateq {
 				xi[pD] = xi_q[pD];
 			}
 			w = weight;
-	
+
 			// basis function evaluation
 			element.basis().eval(xi, N);
 			element.basis().evalGradient(xi, dNdxi);
@@ -73,6 +89,12 @@ namespace pdesolver::equations::heateq {
 			// transforms
 			Geometry::transformGradient(J, g, dNdxi, dNdx, nodesPerElement());
 
+		}
+
+		PDE_HOST PDE_DEVICE void interpolateFields(const Real* Ue, const Real* const* auxStates) {
+			EvalField().eval(*this, Ue, &T.value);
+			EvalField().evalGradient(*this, Ue, T.gradient);
+			EvalField().eval(*this, auxStates[0], &T.rate);
 		}
 
 	}; // class EvalQuadraturePointVolume

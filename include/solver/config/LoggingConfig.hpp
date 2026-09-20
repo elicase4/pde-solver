@@ -33,9 +33,32 @@ namespace pdesolver {
 
 			}; // struct SolverLoggerConfig
 
+			// timestepper logging is one row per accepted step (not per solve attempt) --
+			// same shape as SolverLoggerConfig for the same reason (structured CSV alongside
+			// the console/text mirror).
+			struct TimeStepperLoggerConfig : LoggerConfig {
+
+				// optional -- one row per accepted step (step, time, dt, attempts,
+				// residual_norm, elapsed); empty = no CSV
+				std::string csvFile;
+
+			}; // struct TimeStepperLoggerConfig
+
+			// nonlinear (Newton/Picard) logging is one row per outer iteration -- same shape
+			// as TimeStepperLoggerConfig for the same reason.
+			struct NonlinearLoggerConfig : LoggerConfig {
+
+				// optional -- one row per outer iteration (iter, residual_norm,
+				// residual_rel, elapsed); empty = no CSV
+				std::string csvFile;
+
+			}; // struct NonlinearLoggerConfig
+
 			struct LoggingConfig {
 
 				SolverLoggerConfig solver;
+				TimeStepperLoggerConfig timestepper;
+				NonlinearLoggerConfig nonlinear;
 				LoggerConfig driver;
 
 			}; // struct LoggingConfig

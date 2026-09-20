@@ -4,7 +4,7 @@
 
 #include "mesh/generator/BlockMesh2D.hpp"
 #include "io/MeshIO.hpp"
-#include "io/VTKWriter.hpp"
+#include "io/visualization/VTKWriter.hpp"
 
 using namespace pdesolver::mesh::generator;
 using namespace pdesolver::mesh;

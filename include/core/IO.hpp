@@ -7,6 +7,6 @@
 #include "io/fieldio/TimeSeriesValueSource.hpp"
 #include "io/MeshIO.hpp"
 //#include "io/GmshReader.hpp"
-#include "io/VTKWriter.hpp"
+#include "io/visualization/VTKWriter.hpp"
 
 #endif

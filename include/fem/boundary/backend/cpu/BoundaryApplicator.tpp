@@ -65,7 +65,7 @@ public:
 			}
 
 			// scatter Fe into F
-			fem::assembly::scatterElementVector<numDOFs>(nodeIDs, localEle.nodesPerElement(), topoDOF, Fe, F, Real(-1));
+			fem::assembly::scatterElementVector<numDOFs, fem::assembly::ScatterMode::Free>(nodeIDs, localEle.nodesPerElement(), topoDOF, Fe, F, Real(-1));
 
 		}
 
@@ -147,7 +147,7 @@ public:
 				}
 
 				// scatter Fe into F
-				fem::assembly::scatterElementVector<numDOFs>(faceNodeGlobalIDs, nodesPerFace, topoDOF, Fe, F);
+				fem::assembly::scatterElementVector<numDOFs, fem::assembly::ScatterMode::Free>(faceNodeGlobalIDs, nodesPerFace, topoDOF, Fe, F);
 
 			}
 

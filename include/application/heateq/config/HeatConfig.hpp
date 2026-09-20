@@ -12,6 +12,7 @@
 #include "application/heateq/config/MonitorConfig.hpp"
 #include "application/heateq/config/ScalarMaterialPropertyConfig.hpp"
 #include "application/heateq/config/SourceConfig.hpp"
+#include "application/heateq/config/SpecificHeatConfig.hpp"
 
 #include "solver/config/BackendConfig.hpp"
 #include "solver/config/MeshConfig.hpp"
@@ -37,8 +38,6 @@ namespace pdesolver {
 					solver::config::DiscretizationConfig discretization;
 
 					solver::config::SolverConfig solver;
-					
-					solver::config::OutputConfig output;
 
 					solver::config::LoggingConfig logging;
 
@@ -46,16 +45,18 @@ namespace pdesolver {
 
 					ConductivityConfig conductivity;
 
-					// only meaningful (and required) for a transient driver -- steady conduction never assembles a mass matrix
-					std::optional<ScalarMaterialPropertyConfig> density;
-					std::optional<ScalarMaterialPropertyConfig> specificHeat;
-
 					SourceConfig source;
 
 					InitialConditionConfig initialCondition;
 
-					// optional -- absent means no monitors configured
 					std::vector<MonitorConfig> monitors;
+					
+					// transient properties
+					std::optional<ScalarMaterialPropertyConfig> density;
+					std::optional<SpecificHeatConfig> specificHeat;
+					
+					// optional output
+					std::optional<solver::config::OutputConfig> output;
 
 				}; // struct HeatConfig
 

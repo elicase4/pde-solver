@@ -16,16 +16,21 @@ namespace pdesolver {
 					enum class Type {
 						Default,
 						Constant,
-						Anisotropic
+						Anisotropic,
+						TemperatureDependentIsotropic,
+						TemperatureDependentAnisotropic
 					}; // enum class Type
 
 					Type type;
 
-					Real value;
+					Real value; // Constant
 
-					std::vector<std::vector<Real>> tensor;
+					std::vector<std::vector<Real>> tensor; // Anisotropic, TemperatureDependentAnisotropic
 
-					std::string unit; // required, SI unit label -- e.g. "W/(m*K)"
+					std::string valueExpression;    // TemperatureDependentIsotropic/Anisotropic: k(T)
+					std::string gradientExpression; // TemperatureDependentIsotropic/Anisotropic: dk/dT(T)
+
+					std::string unit; // required, SI unit label
 
 				}; // struct ConductivityConfig
 

@@ -11,6 +11,8 @@
 #include "solver/timestepper/TimeStepSizePolicy.hpp"
 #include "solver/timestepper/TimeStepperRunner.hpp"
 
+#include "utils/logging/timestepper/Logger.hpp"
+
 namespace pdesolver {
 	namespace solver {
 		namespace timestepper {
@@ -19,14 +21,22 @@ namespace pdesolver {
 			class BackwardEulerRunner : public TimeStepperRunner {
 			public:
 
-				BackwardEulerRunner(StageType& stage, const config::TimeStepperConfig& cfg, std::unique_ptr<TimeStepSizePolicy> policy)
-					: stage_(stage), policy_(std::move(policy)), time_(cfg.t0), tf_(cfg.tf) {}
+				BackwardEulerRunner(StageType& stage, const config::TimeStepperConfig& cfg, std::unique_ptr<TimeStepSizePolicy> policy, utils::logging::timestepper::Logger logger)
+					: stage_(stage), policy_(std::move(policy)), logger_(std::move(logger)), time_(cfg.t0), tf_(cfg.tf) {}
+
+				// summary is printed here, once this runner's work is over, rather than by the
+				// outer Transient driver -- mirrors CGRunner calling logger.summary(...) itself
+				// at the point its own work concludes.
+				~BackwardEulerRunner() override { logger_.summary(finished()); }
 
 				bool step() override {
 
 					Real dt;
+					Index attempts = 0;
 
 					do {
+
+						++attempts;
 
 						// never overshoot tf
 						dt = std::min(policy_->dt(), tf_ - time_);
@@ -48,6 +58,8 @@ namespace pdesolver {
 					++step_;
 					stage_.onStepComplete(step_, time_);
 
+					logger_.log(step_, time_, dt, attempts, stage_.residualNorm());
+
 					return true;
 
 				}
@@ -62,6 +74,7 @@ namespace pdesolver {
 
 				StageType& stage_;
 				std::unique_ptr<TimeStepSizePolicy> policy_;
+				utils::logging::timestepper::Logger logger_;
 
 				Real time_;
 				Real tf_;

@@ -59,7 +59,7 @@ namespace pdesolver::fem::assembly {
 
 	}
 
-	template<Index numDOFs, typename VectorType>
+	template<Index numDOFs, ScatterMode Mode, typename VectorType>
 	PDE_HOST PDE_DEVICE void scatterElementVector(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Xe, VectorType& X, Real coefficient){
 
 		for (Index i = 0; i < nodesPerElement; ++i){
@@ -76,7 +76,7 @@ namespace pdesolver::fem::assembly {
 
 	}
 
-	template<Index numDOFs, typename MatrixType>
+	template<Index numDOFs, ScatterMode Mode, typename MatrixType>
 	PDE_HOST PDE_DEVICE void scatterElementMatrix(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Ke, MatrixType& K, Real coefficient){
 
 		for (Index i = 0; i < nodesPerElement; ++i){

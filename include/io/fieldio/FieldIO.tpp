@@ -1,7 +1,7 @@
 namespace pdesolver::io::fieldio {
 
 	template<Index numDOFs>
-	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, VTKWriter::Format fmt) {
+	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, visualization::VTKWriter::Format fmt) {
 
 		if (!mesh.isValid()){
 			throw std::runtime_error("FieldIO::writeVTK: mesh is invalid");
@@ -11,7 +11,7 @@ namespace pdesolver::io::fieldio {
 			throw std::runtime_error("FieldIO::writeVTK: dofNames.size() (" + std::to_string(dofNames.size()) + ") must equal dofsPerNode (" + std::to_string(topology::TopologicalDOF<numDOFs>::dofsPerNode) + ")");
 		}
 
-		const int cellType = VTKWriter::inferVTKCellType(mesh.data.spatialDim, mesh.data.nodesPerElement);
+		const int cellType = visualization::VTKWriter::inferVTKCellType(mesh.data.spatialDim, mesh.data.nodesPerElement);
 		if (cellType == 0){
 			throw std::runtime_error("FieldIO::writeVTK: unsupported spatialDim/nodesPerElement combination (" + std::to_string(mesh.data.spatialDim) + "D, " + std::to_string(mesh.data.nodesPerElement) + " nodes/elem");
 		}
@@ -20,7 +20,7 @@ namespace pdesolver::io::fieldio {
 		std::vector<Index> ienCCW(mesh.data.numElements * mesh.data.nodesPerElement);
 		for (Index e = 0; e < mesh.data.numElements; ++e){
 
-			std::vector<Index> ccw = VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
+			std::vector<Index> ccw = visualization::VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
 
 			for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
 				ienCCW[e * mesh.data.nodesPerElement + k] = ccw[k];
@@ -32,7 +32,7 @@ namespace pdesolver::io::fieldio {
 		const std::vector<Real> nodalField = reconstructNodalField(mesh, topoDOF, bcRegistry, time, algField);
 
 		// write file
-		VTKWriter w(filename, fmt);
+		visualization::VTKWriter w(filename, fmt);
 		w.writeHeader("solver field output");
 		w.writePoints(mesh.data.xyz.data(), mesh.data.numNodes, mesh.data.spatialDim);
 		w.writeCells(ienCCW.data(), mesh.data.numElements, mesh.data.nodesPerElement);
@@ -48,6 +48,62 @@ namespace pdesolver::io::fieldio {
 				componentBuf[n] = nodalField[n*topology::TopologicalDOF<numDOFs>::dofsPerNode + c];
 			}
 			w.writeScalar(dofNames[c], componentBuf.data(), mesh.data.numNodes);
+		}
+
+		w.endPointData();
+
+	}
+
+	template<Index numDOFs>
+	void FieldIO::writeVTU(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::vector<std::string>& dofUnits, const std::string& filename) {
+
+		if (!mesh.isValid()){
+			throw std::runtime_error("FieldIO::writeVTU: mesh is invalid");
+		}
+
+		if (dofNames.size() != topology::TopologicalDOF<numDOFs>::dofsPerNode){
+			throw std::runtime_error("FieldIO::writeVTU: dofNames.size() (" + std::to_string(dofNames.size()) + ") must equal dofsPerNode (" + std::to_string(topology::TopologicalDOF<numDOFs>::dofsPerNode) + ")");
+		}
+
+		if (dofUnits.size() != dofNames.size()){
+			throw std::runtime_error("FieldIO::writeVTU: dofUnits.size() (" + std::to_string(dofUnits.size()) + ") must equal dofNames.size() (" + std::to_string(dofNames.size()) + ")");
+		}
+
+		const int cellType = visualization::VTKWriter::inferVTKCellType(mesh.data.spatialDim, mesh.data.nodesPerElement);
+		if (cellType == 0){
+			throw std::runtime_error("FieldIO::writeVTU: unsupported spatialDim/nodesPerElement combination (" + std::to_string(mesh.data.spatialDim) + "D, " + std::to_string(mesh.data.nodesPerElement) + " nodes/elem");
+		}
+
+		// get ccw connectivity
+		std::vector<Index> ienCCW(mesh.data.numElements * mesh.data.nodesPerElement);
+		for (Index e = 0; e < mesh.data.numElements; ++e){
+
+			std::vector<Index> ccw = visualization::VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
+
+			for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
+				ienCCW[e * mesh.data.nodesPerElement + k] = ccw[k];
+			}
+
+		}
+
+		// reconstruct full nodal field
+		const std::vector<Real> nodalField = reconstructNodalField(mesh, topoDOF, bcRegistry, time, algField);
+
+		// write file
+		visualization::VTUWriter w(filename, mesh.data.numNodes, mesh.data.numElements);
+		w.writePoints(mesh.data.xyz.data(), mesh.data.spatialDim);
+		w.writeCells(ienCCW.data(), mesh.data.nodesPerElement, cellType);
+
+		// write point data
+		w.beginPointData();
+
+		// extract interleaved data (always the case for topologicalDOF) from nodalField for stride-1 buffer to input to writeScalar
+		std::vector<Real> componentBuf(mesh.data.numNodes);
+		for (Index c = 0; c < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++c) {
+			for (Index n = 0; n < mesh.data.numNodes; ++n){
+				componentBuf[n] = nodalField[n*topology::TopologicalDOF<numDOFs>::dofsPerNode + c];
+			}
+			w.writeScalar(dofNames[c], componentBuf.data(), dofUnits[c]);
 		}
 
 		w.endPointData();

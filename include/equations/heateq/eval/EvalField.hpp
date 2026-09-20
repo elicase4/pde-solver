@@ -7,9 +7,6 @@
 
 namespace pdesolver::equations::heateq {
 
-	// no template params -- node count comes from qp.nodesPerElement() (runtime, matching every
-	// other class since the dispatch refactor) and SpatialDim from decltype(qp), so one instance
-	// works for both EvalQPVol and EvalQPBdy.
 	struct EvalField {
 
 		static constexpr Index NumComponents = 1;

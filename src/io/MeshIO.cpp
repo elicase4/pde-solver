@@ -1,12 +1,12 @@
 #include "io/MeshIO.hpp"
 
-void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt){
+void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filename, visualization::VTKWriter::Format fmt){
 
 	if (!mesh.isValid()) {
 		throw std::runtime_error("MeshIO::writeVTK: mesh is invalid");
 	}
 
-	const int cellType = VTKWriter::inferVTKCellType(mesh.data.spatialDim, mesh.data.nodesPerElement);
+	const int cellType = visualization::VTKWriter::inferVTKCellType(mesh.data.spatialDim, mesh.data.nodesPerElement);
 	if (cellType == 0){
 		throw std::runtime_error("MeshIO:writeVTK: unsupported spatialDim/nodesPerElement combination (" + std::to_string(mesh.data.spatialDim) + "D, " + std::to_string(mesh.data.nodesPerElement) + " nodes/elem)");
 	}
@@ -14,13 +14,13 @@ void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filena
 	// Build CCW connectivity from row-major connectivity
 	std::vector<Index> ienCCW(mesh.data.numElements * mesh.data.nodesPerElement);
 	for (Index e = 0; e < mesh.data.numElements; ++e) {
-		std::vector<Index> ccw = VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
+		std::vector<Index> ccw = visualization::VTKWriter::rowMajorToCCW(mesh.getElementNodes(e), mesh.data.nodesPerElement);
 		for (Index k = 0; k < mesh.data.nodesPerElement; ++k){
 			ienCCW[e * mesh.data.nodesPerElement + k] = ccw[k];
 		}
 	}
 
-	VTKWriter w(filename, fmt);
+	visualization::VTKWriter w(filename, fmt);
 	w.writeHeader("solver mesh");
 	w.writePoints(mesh.data.xyz.data(), mesh.data.numNodes, mesh.data.spatialDim);
 	w.writeCells(ienCCW.data(), mesh.data.numElements, mesh.data.nodesPerElement);

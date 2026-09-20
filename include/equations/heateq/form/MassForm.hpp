@@ -8,7 +8,7 @@ namespace pdesolver::equations::heateq {
 	template<typename QuadraturePointVolume>
 	struct MassForm {
 
-		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, const Real*, Real* Me){
+		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, Real* Me){
 			
 			for (Index a = 0; a < qp.nodesPerElement(); ++a){
 				for (Index b = 0; b < qp.nodesPerElement(); ++b){

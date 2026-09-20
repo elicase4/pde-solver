@@ -13,16 +13,17 @@ namespace pdesolver {
 		namespace assembly {
 
 			enum class GatherMode { Free, Full, Constrained };
+			enum class ScatterMode { Free };
 
 			struct NoSolution {};
 
 			template<Index numDOFs, Index SpatialDim, GatherMode Mode, typename VectorType = NoSolution>
 			PDE_HOST PDE_DEVICE void gatherElementVector(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry* bcRegistry, const Real time, Real* Ue, const VectorType* U = nullptr);
 
-			template<Index numDOFs, typename VectorType>
+			template<Index numDOFs, ScatterMode Mode, typename VectorType>
 			PDE_HOST PDE_DEVICE void scatterElementVector(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Xe, VectorType& X, Real coefficient = Real(1));
 
-			template<Index numDOFs, typename MatrixType>
+			template<Index numDOFs, ScatterMode Mode, typename MatrixType>
 			PDE_HOST PDE_DEVICE void scatterElementMatrix(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Ke, MatrixType& K, Real coefficient = Real(1));
 
 		} // namespace assembly

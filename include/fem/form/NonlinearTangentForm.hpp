@@ -13,7 +13,7 @@ namespace pdesolver {
 			
 			template<typename Form, typename QuadraturePoint>
 			concept NonlinearTangentForm = requires (const Form f, const QuadraturePoint& qp, Real* Ue, Real* Ke, Real* Oe) {
-				{ f.computeElementLevelMatrix(qp, Ue, Ke) } -> std::same_as<void>;
+				{ f.computeElementLevelMatrix(qp, Ke) } -> std::same_as<void>;
 				{ f.computeElementLevelVector(qp, Ue, Oe) } -> std::same_as<void>;
 			}; // concept NonlinearTangentForm
 

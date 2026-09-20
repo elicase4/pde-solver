@@ -1,114 +1,204 @@
 [heateq] mesh: ../../../mesh/square/square.pmsh -> 576 elements, nsd=2 npd=2
-[heateq] wrote 'output/heating_block_solution_0.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000000.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 9200.000000 W
+[heateq] wrote 'output/heating_block_solution_000001.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 3512.704081 W
+[heateq] wrote 'output/heating_block_solution_000002.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 2115.542572 W
+[heateq] wrote 'output/heating_block_solution_000003.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1538.954348 W
+[heateq] wrote 'output/heating_block_solution_000004.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1219.976578 W
+[heateq] wrote 'output/heating_block_solution_000005.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1012.825466 W
+[heateq] wrote 'output/heating_block_solution_000006.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 864.754594 W
+[heateq] wrote 'output/heating_block_solution_000007.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 752.026795 W
+[heateq] wrote 'output/heating_block_solution_000008.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 662.307956 W
+[heateq] wrote 'output/heating_block_solution_000009.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 588.526896 W
-[heateq] wrote 'output/heating_block_solution_10.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000010.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 526.335768 W
+[heateq] wrote 'output/heating_block_solution_000011.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 472.917881 W
+[heateq] wrote 'output/heating_block_solution_000012.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 426.371388 W
+[heateq] wrote 'output/heating_block_solution_000013.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 385.366243 W
+[heateq] wrote 'output/heating_block_solution_000014.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 348.942282 W
+[heateq] wrote 'output/heating_block_solution_000015.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 316.385283 W
+[heateq] wrote 'output/heating_block_solution_000016.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 287.148494 W
+[heateq] wrote 'output/heating_block_solution_000017.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 260.801771 W
+[heateq] wrote 'output/heating_block_solution_000018.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 236.997997 W
+[heateq] wrote 'output/heating_block_solution_000019.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 215.450553 W
-[heateq] wrote 'output/heating_block_solution_20.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000020.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 195.918000 W
+[heateq] wrote 'output/heating_block_solution_000021.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 178.193487 W
+[heateq] wrote 'output/heating_block_solution_000022.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 162.097329 W
+[heateq] wrote 'output/heating_block_solution_000023.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 147.471694 W
+[heateq] wrote 'output/heating_block_solution_000024.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 134.176741 W
+[heateq] wrote 'output/heating_block_solution_000025.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 122.087729 W
+[heateq] wrote 'output/heating_block_solution_000026.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 111.092823 W
+[heateq] wrote 'output/heating_block_solution_000027.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 101.091368 W
+[heateq] wrote 'output/heating_block_solution_000028.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 91.992508 W
+[heateq] wrote 'output/heating_block_solution_000029.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 83.714061 W
-[heateq] wrote 'output/heating_block_solution_30.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000030.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 76.181568 W
+[heateq] wrote 'output/heating_block_solution_000031.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 69.327488 W
+[heateq] wrote 'output/heating_block_solution_000032.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 63.090504 W
+[heateq] wrote 'output/heating_block_solution_000033.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 57.414914 W
+[heateq] wrote 'output/heating_block_solution_000034.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 52.250089 W
+[heateq] wrote 'output/heating_block_solution_000035.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 47.550000 W
+[heateq] wrote 'output/heating_block_solution_000036.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 43.272787 W
+[heateq] wrote 'output/heating_block_solution_000037.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 39.380375 W
+[heateq] wrote 'output/heating_block_solution_000038.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 35.838125 W
+[heateq] wrote 'output/heating_block_solution_000039.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 32.614525 W
-[heateq] wrote 'output/heating_block_solution_40.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000040.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 29.680901 W
+[heateq] wrote 'output/heating_block_solution_000041.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 27.011163 W
+[heateq] wrote 'output/heating_block_solution_000042.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 24.581571 W
+[heateq] wrote 'output/heating_block_solution_000043.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 22.370519 W
+[heateq] wrote 'output/heating_block_solution_000044.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 20.358350 W
+[heateq] wrote 'output/heating_block_solution_000045.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 18.527172 W
+[heateq] wrote 'output/heating_block_solution_000046.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 16.860705 W
+[heateq] wrote 'output/heating_block_solution_000047.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 15.344133 W
+[heateq] wrote 'output/heating_block_solution_000048.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 13.963973 W
+[heateq] wrote 'output/heating_block_solution_000049.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 12.707955 W
-[heateq] wrote 'output/heating_block_solution_50.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000050.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 11.564913 W
+[heateq] wrote 'output/heating_block_solution_000051.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 10.524683 W
+[heateq] wrote 'output/heating_block_solution_000052.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 9.578020 W
+[heateq] wrote 'output/heating_block_solution_000053.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 8.716506 W
+[heateq] wrote 'output/heating_block_solution_000054.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 7.932482 W
+[heateq] wrote 'output/heating_block_solution_000055.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 7.218980 W
+[heateq] wrote 'output/heating_block_solution_000056.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 6.569654 W
+[heateq] wrote 'output/heating_block_solution_000057.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 5.978734 W
+[heateq] wrote 'output/heating_block_solution_000058.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 5.440965 W
+[heateq] wrote 'output/heating_block_solution_000059.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 4.951567 W
-[heateq] wrote 'output/heating_block_solution_60.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000060.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 4.506188 W
+[heateq] wrote 'output/heating_block_solution_000061.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 4.100870 W
+[heateq] wrote 'output/heating_block_solution_000062.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 3.732009 W
+[heateq] wrote 'output/heating_block_solution_000063.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 3.396327 W
+[heateq] wrote 'output/heating_block_solution_000064.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 3.090837 W
+[heateq] wrote 'output/heating_block_solution_000065.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 2.812826 W
+[heateq] wrote 'output/heating_block_solution_000066.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 2.559821 W
+[heateq] wrote 'output/heating_block_solution_000067.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 2.329573 W
+[heateq] wrote 'output/heating_block_solution_000068.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 2.120035 W
+[heateq] wrote 'output/heating_block_solution_000069.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.929344 W
-[heateq] wrote 'output/heating_block_solution_70.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000070.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.755805 W
+[heateq] wrote 'output/heating_block_solution_000071.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.597876 W
+[heateq] wrote 'output/heating_block_solution_000072.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.454152 W
+[heateq] wrote 'output/heating_block_solution_000073.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.323355 W
+[heateq] wrote 'output/heating_block_solution_000074.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.204324 W
+[heateq] wrote 'output/heating_block_solution_000075.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 1.095998 W
+[heateq] wrote 'output/heating_block_solution_000076.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.997417 W
+[heateq] wrote 'output/heating_block_solution_000077.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.907702 W
+[heateq] wrote 'output/heating_block_solution_000078.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.826057 W
+[heateq] wrote 'output/heating_block_solution_000079.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.751756 W
-[heateq] wrote 'output/heating_block_solution_80.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000080.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.684138 W
+[heateq] wrote 'output/heating_block_solution_000081.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.622601 W
+[heateq] wrote 'output/heating_block_solution_000082.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.566600 W
+[heateq] wrote 'output/heating_block_solution_000083.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.515636 W
+[heateq] wrote 'output/heating_block_solution_000084.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.469256 W
+[heateq] wrote 'output/heating_block_solution_000085.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.427048 W
+[heateq] wrote 'output/heating_block_solution_000086.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.388637 W
+[heateq] wrote 'output/heating_block_solution_000087.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.353680 W
+[heateq] wrote 'output/heating_block_solution_000088.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.321867 W
+[heateq] wrote 'output/heating_block_solution_000089.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.292916 W
-[heateq] wrote 'output/heating_block_solution_90.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000090.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.266570 W
+[heateq] wrote 'output/heating_block_solution_000091.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.242592 W
+[heateq] wrote 'output/heating_block_solution_000092.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.220772 W
+[heateq] wrote 'output/heating_block_solution_000093.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.200914 W
+[heateq] wrote 'output/heating_block_solution_000094.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.182843 W
+[heateq] wrote 'output/heating_block_solution_000095.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.166396 W
+[heateq] wrote 'output/heating_block_solution_000096.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.151430 W
+[heateq] wrote 'output/heating_block_solution_000097.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.137809 W
+[heateq] wrote 'output/heating_block_solution_000098.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.125413 W
+[heateq] wrote 'output/heating_block_solution_000099.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.114133 W
-[heateq] wrote 'output/heating_block_solution_100.vtk' - 1 field(s), 625 nodes, Interleaved ordering
+[heateq] wrote 'output/heating_block_solution_000100.vtu' - 1 field(s), 625 nodes, Interleaved ordering
 [heateq] monitor 'net_influx' = 0.103867 W
 [heateq] converged

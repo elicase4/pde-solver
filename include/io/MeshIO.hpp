@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/Types.hpp"
-#include "io/VTKWriter.hpp"
+#include "io/visualization/VTKWriter.hpp"
 #include "io/utils/Binary.hpp"
 #include "mesh/Mesh.hpp"
 
@@ -44,7 +44,7 @@ namespace pdesolver {
 		public:
 
 			// write mesh geometry to VTK legacy
-			static void writeVTK(mesh::Mesh& mesh, const std::string& filename, VTKWriter::Format fmt = VTKWriter::Format::ASCII);
+			static void writeVTK(mesh::Mesh& mesh, const std::string& filename, visualization::VTKWriter::Format fmt = visualization::VTKWriter::Format::ASCII);
 
 			// read/write binary PMSH
 			static void writeBinary(const mesh::Mesh& mesh, const std::string& filename);

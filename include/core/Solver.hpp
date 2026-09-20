@@ -3,7 +3,7 @@
 
 #include "solver/linear/LinearSolverFactory.hpp"
 
-#include "solver/nonlinear/NonlinearSolver.hpp"
+#include "solver/nonlinear/NonlinearSolverFactory.hpp"
 
 #include "solver/timestepper/TimeStepper.hpp"
 

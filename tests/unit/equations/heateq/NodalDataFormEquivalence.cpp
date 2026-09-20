@@ -85,8 +85,8 @@ TEST_F(NodalDataFormEquivalence, NodalSourceFormMatchesExpressionSourceFormForLi
 	Fexpr.zero();
 	Ffile.zero();
 
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(exprForms), HeatEqBundle::QuadratureVolumeType>(mesh, *topoDOF, 0.0, defaultModel, exprForms, evalEle, quadVol, U, Fexpr);
-	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(nodalForms), HeatEqBundle::QuadratureVolumeType>(mesh, *topoDOF, 0.0, defaultModel, nodalForms, evalEle, quadVol, U, Ffile);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(exprForms), HeatEqBundle::QuadratureVolumeType, fem::assembly::GatherMode::Free>(mesh, *topoDOF, 0.0, defaultModel, exprForms, evalEle, quadVol, U, nullptr, {nullptr}, Fexpr, nullptr);
+	assembler.assembleVector<HeatEqBundle::NumDOFs, HeatEqBundle::EvalEle, HeatEqBundle::EvalQPVol, HeatEqBundle::DefaultModel, decltype(nodalForms), HeatEqBundle::QuadratureVolumeType, fem::assembly::GatherMode::Free>(mesh, *topoDOF, 0.0, defaultModel, nodalForms, evalEle, quadVol, U, nullptr, {nullptr}, Ffile, nullptr);
 
 	ASSERT_EQ(Fexpr.size(), Ffile.size());
 	for (Index i = 0; i < Fexpr.size(); ++i) {

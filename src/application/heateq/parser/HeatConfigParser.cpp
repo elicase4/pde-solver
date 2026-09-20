@@ -5,6 +5,7 @@
 #include "application/heateq/parser/MonitorConfigParser.hpp"
 #include "application/heateq/parser/ScalarMaterialPropertyConfigParser.hpp"
 #include "application/heateq/parser/SourceConfigParser.hpp"
+#include "application/heateq/parser/SpecificHeatConfigParser.hpp"
 
 #include "solver/parser/BackendConfigParser.hpp"
 #include "solver/parser/DiscretizationConfigParser.hpp"
@@ -41,11 +42,11 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	}
 	cfg.solver = pdesolver::solver::parser::SolverConfigParser::parse(solver);
 	
+	// optional -- absent means no field-snapshot output at all
 	const YAML::Node& output = root["output"];
-	if (!output) {
-		throw std::runtime_error("HeatConfigParser: missing required 'output' section in " + filename);
+	if (output) {
+		cfg.output = pdesolver::solver::parser::OutputConfigParser::parse(output);
 	}
-	cfg.output = pdesolver::solver::parser::OutputConfigParser::parse(output);
 
 	cfg.logging = pdesolver::solver::parser::LoggingConfigParser::parse(root["logging"]);
 
@@ -74,8 +75,7 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	}
 	cfg.conductivity = pdesolver::application::heateq::parser::ConductivityConfigParser::parse(cond);
 
-	// density/specific_heat are optional here -- only meaningful for a transient driver;
-	// HeatProblem enforces they're present once it knows the solver mode
+	// density/specific_heat are used for a transient driver;
 	const YAML::Node& density = materials["density"];
 	if (density) {
 		cfg.density = pdesolver::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(density);
@@ -83,7 +83,7 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 
 	const YAML::Node& specificHeat = materials["specific_heat"];
 	if (specificHeat) {
-		cfg.specificHeat = pdesolver::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(specificHeat);
+		cfg.specificHeat = pdesolver::application::heateq::parser::SpecificHeatConfigParser::parse(specificHeat);
 	}
 
 	const YAML::Node& physics = root["physics"];

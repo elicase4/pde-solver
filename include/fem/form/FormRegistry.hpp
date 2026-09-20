@@ -43,9 +43,9 @@ namespace pdesolver {
 				}
 
 				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ue, Real* Ke) const {
+				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ke) const {
 					std::apply([&](const auto&... form) {
-						(form.computeElementLevelMatrix(qp, Ue, Ke), ...);
+						(form.computeElementLevelMatrix(qp, Ke), ...);
 					}, forms_);
 				}
 

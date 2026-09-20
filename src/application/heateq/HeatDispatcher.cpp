@@ -4,7 +4,6 @@
 
 #include "application/heateq/HeatDispatcher.hpp"
 #include "application/heateq/problem/HeatProblem.hpp"
-#include "application/heateq/stage/HeatStage.hpp"
 
 #include "equations/heateq/HeatEquation.hpp"
 
@@ -19,6 +18,8 @@
 #include "solver/driver/Steady.hpp"
 #include "solver/driver/Transient.hpp"
 #include "solver/logging/LoggerFactory.hpp"
+#include "solver/stage/BackwardEulerStage.hpp"
+#include "solver/stage/SteadyStage.hpp"
 #include "solver/timestepper/TimeStepperFactory.hpp"
 
 bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::application::heateq::config::HeatConfig& config) {
@@ -68,28 +69,32 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 
 		using HeatEqBundle = pdesolver::equations::HeatEquation<NSD, NPD, Family>;
 		using ProblemT = pdesolver::application::heateq::problem::HeatProblem<pdesolver::linalg::types::backend::CPU, HeatEqBundle>;
-		using StageT = pdesolver::application::heateq::stage::HeatStage<ProblemT>;
 
 		ProblemT heatProblem(config, std::move(mesh), std::move(basis), std::move(quadVol), std::move(quadBdy));
-		StageT stage(heatProblem);
 
 		if (steady) {
+
+			using StageT = pdesolver::solver::stage::SteadyStage<ProblemT>;
+			StageT stage(heatProblem);
 
 			pdesolver::solver::driver::Steady<StageT> driver;
 			converged = driver.solve(stage);
 
-			heatProblem.writeOutput(0);
+			heatProblem.writeOutput(0, 0.0);
 			heatProblem.evaluateMonitors(0, 0.0);
 
 		} else {
 
+			using StageT = pdesolver::solver::stage::BackwardEulerStage<ProblemT>;
+			StageT stage(heatProblem);
+
 			const auto& tsCfg = *heatProblem.solverInstance().timestepper;
 
 			// step 0 == the initial condition
-			heatProblem.writeOutput(0);
+			heatProblem.writeOutput(0, tsCfg.t0);
 			heatProblem.evaluateMonitors(0, tsCfg.t0);
 
-			auto stepper = pdesolver::solver::timestepper::makeTimeStepperRunner<StageT>(stage, tsCfg, "heateq");
+			auto stepper = pdesolver::solver::timestepper::makeTimeStepperRunner<StageT>(stage, tsCfg, config.logging.timestepper, heatProblem.equationLabel());
 
 			pdesolver::solver::driver::Transient<StageT> driver;
 			converged = driver.solve(stage, *stepper);

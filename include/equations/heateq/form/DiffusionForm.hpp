@@ -8,7 +8,7 @@ namespace pdesolver::equations::heateq {
 	template<typename QuadraturePointVolume>
 	struct DiffusionForm {
 
-		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, const Real*, Real* Ke){
+		PDE_HOST PDE_DEVICE static void computeElementLevelMatrix(const QuadraturePointVolume& qp, Real* Ke){
 			
 			Real integrand, matvecprod;
 			
@@ -27,6 +27,7 @@ namespace pdesolver::equations::heateq {
 					Ke[a * qp.nodesPerElement() + b] += integrand * qp.measure * qp.w;
 				}
 			}
+		
 		}
 		
 		PDE_HOST PDE_DEVICE static void computeElementLevelVector(const QuadraturePointVolume& qp, const Real* Ue, Real* Oe){

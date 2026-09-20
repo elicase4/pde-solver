@@ -13,14 +13,16 @@
 #include "equations/heateq/eval/SourceFunction.hpp"
 #include "equations/heateq/eval/DefaultModel.hpp"
 #include "equations/heateq/eval/ConductivityModel.hpp"
-#include "equations/heateq/eval/HeatCapacityModel.hpp"
+#include "equations/heateq/eval/DensityModel.hpp"
+#include "equations/heateq/eval/SpecificHeatModel.hpp"
 #include "equations/heateq/eval/EvalElement.hpp"
-#include "equations/heateq/eval/EvalField.hpp"
 #include "equations/heateq/eval/EvalQuadraturePointVolume.hpp"
 #include "equations/heateq/eval/EvalQuadraturePointBoundary.hpp"
 
 #include "equations/heateq/form/DiffusionForm.hpp"
 #include "equations/heateq/form/MassForm.hpp"
+#include "equations/heateq/form/TangentDiffusionForm.hpp"
+#include "equations/heateq/form/TangentMassForm.hpp"
 #include "equations/heateq/form/SourceForm.hpp"
 #include "equations/heateq/form/NodalSourceForm.hpp"
 #include "equations/heateq/form/FluxBoundaryForm.hpp"
@@ -31,11 +33,6 @@
 
 #include "fem/eval/ModelRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
-#include "fem/form/ScaledForm.hpp"
-#include "fem/quantity/BoundaryQuantityCombination.hpp"
-#include "fem/quantity/BoundaryQuantityRegistry.hpp"
-#include "fem/quantity/QuantityEvaluator.hpp"
-#include "fem/quantity/QuantityForms.hpp"
 #include "io/fieldio/NodalFileValueSource.hpp"
 #include "io/fieldio/NodalValueSourceAdapter.hpp"
 
@@ -72,23 +69,17 @@ namespace pdesolver {
 			using ConductivityModelBdy = heateq::ConductivityModel<EvalQPBdy>;
 			using DensityModel = heateq::DensityModel<EvalQPVol>;
 			using SpecificHeatModel = heateq::SpecificHeatModel<EvalQPVol>;
-
-			// Material model bundles
-			using MaterialModel = fem::eval::ModelRegistry<ConductivityModel, DensityModel, SpecificHeatModel>;
-			using MassMaterialModel = fem::eval::ModelRegistry<DensityModel, SpecificHeatModel>;
-
-			// Field interpolation for primary dofs
-			using EvalField = heateq::EvalField;
+			using MassModel = fem::eval::ModelRegistry<DensityModel, SpecificHeatModel>;
 
 			// Operator forms
 			using DiffusionForm = heateq::DiffusionForm<EvalQPVol>;
 			using StiffnessForms = fem::form::FormRegistry<DiffusionForm>;
-
 			using MassForm = heateq::MassForm<EvalQPVol>;
 			using MassForms = fem::form::FormRegistry<MassForm>;
-
-			using MassFormOverDt = fem::form::ScaledForm<MassForm>;
-			using TransientOperatorForms = fem::form::FormRegistry<DiffusionForm, MassFormOverDt>;
+			using TangentDiffusionForm = heateq::TangentDiffusionForm<EvalQPVol>;
+			using TangentDiffusionForms = fem::form::FormRegistry<TangentDiffusionForm>;
+			using TangentMassForm = heateq::TangentMassForm<EvalQPVol>;
+			using TangentMassForms = fem::form::FormRegistry<TangentMassForm>;
 
 			// Nodal-data sources
 			using NodalScalarSource = io::fieldio::NodalFileValueSource<NumDOFs>;
@@ -132,14 +123,6 @@ namespace pdesolver {
 
 			// Derived quantities
 			using HeatFluxIntegrand = heateq::quantity::HeatFluxIntegrand<EvalQPBdy>;
-			template<typename Form, fem::quantity::Reduction Mode>
-			using ReducedQuantity = fem::quantity::ReducedQuantity<Form, Mode>;
-			template<typename... ReducedQuantities>
-			using QuantityForms = fem::quantity::QuantityForms<ReducedQuantities...>;
-			template<typename QuantityFormsT>
-			using BoundaryQuantityRegistry = fem::quantity::BoundaryQuantityRegistry<QuantityFormsT>;
-			template<typename QuantityFormsT>
-			using BoundaryQuantityCombination = fem::quantity::BoundaryQuantityCombination<QuantityFormsT>;
 
 		}; // struct HeatEquation
 

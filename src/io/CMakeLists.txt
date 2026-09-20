@@ -3,7 +3,10 @@ find_package(yaml-cpp REQUIRED)
 add_library(pde_io
 	MeshIO.cpp
 	GmshReader.cpp
-	VTKWriter.cpp
+	visualization/VTKWriter.cpp
+	visualization/VTUWriter.cpp
+	visualization/VTUSeriesWriter.cpp
+	visualization/VisualizationWriter.cpp
 	YAMLReader.cpp
 )
 

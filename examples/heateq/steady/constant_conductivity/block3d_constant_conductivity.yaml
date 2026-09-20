@@ -112,7 +112,6 @@ solver:
 
 output:
   directory: output
-  vtk: true
   write_frequency: 1
   prefix: block3d_constant_conductivity_solution
 

@@ -60,8 +60,14 @@ namespace pdesolver::equations::heateq {
 		// physical gradient
 		Real dNdx[SpatialDim*fem::dispatch::kMaxNodesPerElement<ParametricDim>];
 
-		// conductivity coefficient
+		// conductivity model
 		Real K[SpatialDim*SpatialDim];
+		Real dKdT[SpatialDim*SpatialDim];
+
+		// heat capacity model
+		Real rho;
+		Real cp;
+		Real dcpdT;
 
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_face_q, const Real weight){
 

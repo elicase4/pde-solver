@@ -11,9 +11,11 @@ namespace pdesolver {
 
 			struct OutputConfig {
 
+				enum class Format { VTK, VTU };
+
 				std::string directory = "output";
 
-				bool vtk = true;
+				Format format = Format::VTK;
 
 				Index writeFrequency = 1;
 

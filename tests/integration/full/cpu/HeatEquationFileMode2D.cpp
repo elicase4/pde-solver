@@ -10,6 +10,7 @@
 #include "equations/heateq/HeatEquation.hpp"
 #include "mesh/ElementFamily.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
+#include "solver/stage/SteadyStage.hpp"
 
 using namespace pdesolver;
 
@@ -88,10 +89,11 @@ TEST_F(CPUHeatEquationFileMode, AllDirichletFileModeMatchesKnownSolution) {
 
 	application::heateq::problem::HeatProblem<BackendType, HeatEqBundle> problem(cfg, std::move(mesh), basis, quadVol, quadBdy);
 
-	EXPECT_EQ(problem.numDOFs(), 529);
+	EXPECT_EQ(problem.numFreeDOFs(), 529);
 
-	problem.assembleSystem(0.0);
-	EXPECT_TRUE(problem.solveLinear());
+	solver::stage::SteadyStage<application::heateq::problem::HeatProblem<BackendType, HeatEqBundle>> stage(problem);
+	stage.assemble();
+	EXPECT_TRUE(stage.solve());
 
 	const Real tol = 1e-9;
 	Index solIndex = 0;

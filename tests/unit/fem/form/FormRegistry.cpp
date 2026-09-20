@@ -44,7 +44,7 @@ namespace {
 		}
 
 		template<typename QuadraturePoint>
-		void computeElementLevelMatrix(const QuadraturePoint&, const Real*, Real*) const {}
+		void computeElementLevelMatrix(const QuadraturePoint&, Real*) const {}
 
 	}; // struct NonMovableForm
 
@@ -54,7 +54,7 @@ namespace {
 		void computeElementLevelVector(const QuadraturePoint&, const Real*, Real*) const {}
 
 		template<typename QuadraturePoint>
-		void computeElementLevelMatrix(const QuadraturePoint&, const Real*, Real*) const {}
+		void computeElementLevelMatrix(const QuadraturePoint&, Real*) const {}
 
 	}; // struct StatelessForm
 
@@ -64,7 +64,7 @@ namespace {
 		void computeElementLevelVector(const QuadraturePoint&, const Real*, Real*) const {}
 
 		template<typename QuadraturePoint>
-		void computeElementLevelMatrix(const QuadraturePoint&, const Real*, Real*) const {}
+		void computeElementLevelMatrix(const QuadraturePoint&, Real*) const {}
 
 	}; // struct AnotherStatelessForm
 

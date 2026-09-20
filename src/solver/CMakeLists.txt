@@ -1,3 +1,5 @@
+find_package(yaml-cpp REQUIRED)
+
 add_library(pde_solver
 	SolverInstance.cpp
 	parser/BackendConfigParser.cpp
@@ -22,4 +24,5 @@ target_include_directories(pde_solver
 target_link_libraries(pde_solver
 	PUBLIC
 		pde_expression
+		yaml-cpp
 )

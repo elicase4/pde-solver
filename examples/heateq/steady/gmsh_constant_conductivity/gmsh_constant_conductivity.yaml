@@ -138,7 +138,6 @@ solver:
 
 output:
   directory: output
-  vtk: true
   write_frequency: 1
   prefix: gmsh_constant_conductivity_solution
 

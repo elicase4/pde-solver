@@ -63,6 +63,15 @@ add_pde_test(UnitTest_Fem_DiscretizationDispatch
 	unit/fem/DiscretizationDispatch.cpp
 )
 
+add_pde_test(UnitTest_Fem_Quantity_QuantityUnits
+	unit/fem/quantity/QuantityUnits.cpp
+)
+
+add_pde_test(UnitTest_Fem_Quantity_MonitorGroup
+	unit/fem/quantity/MonitorGroup.cpp
+	pde_mesh pde_io
+)
+
 add_pde_test(UnitTest_Linalg_Cpu_VectorOperations
 	unit/linalg/cpu/VectorOperations.cpp
 )
@@ -85,6 +94,11 @@ add_pde_test(UnitTest_Solver_Linear_LinearSolverFactory
 
 add_pde_test(UnitTest_IO_FieldIO
 	unit/io/FieldIO.cpp
+	pde_mesh pde_io
+)
+
+add_pde_test(UnitTest_IO_VisualizationWriter
+	unit/io/VisualizationWriter.cpp
 	pde_mesh pde_io
 )
 
@@ -123,6 +137,21 @@ add_pde_test(UnitTest_Equations_Heateq_QuantityEvaluator
 	pde_mesh pde_io
 )
 
+add_pde_test(UnitTest_Application_Heateq_Problem_HeatProblem
+	unit/application/heateq/problem/HeatProblem.cpp
+	pde_mesh pde_io pde_solver pde_expression
+)
+
+add_pde_test(UnitTest_Solver_Stage_SteadyStage
+	unit/solver/stage/SteadyStage.cpp
+	pde_mesh pde_io pde_solver pde_expression
+)
+
+add_pde_test(UnitTest_Solver_Stage_BackwardEulerStage
+	unit/solver/stage/BackwardEulerStage.cpp
+	pde_mesh pde_io pde_solver pde_expression
+)
+
 add_pde_test(IntegrationTest_Fem_Cpu_HeatEquationMinimal
 	integration/fem/cpu/HeatEquationMinimal3D.cpp
 	pde_mesh
@@ -146,4 +175,14 @@ add_pde_test(IntegrationTest_Full_Cpu_HeatEquationMinimal3D
 add_pde_test(IntegrationTest_Full_Cpu_HeatEquationFileMode
 	integration/full/cpu/HeatEquationFileMode2D.cpp
 	pde_mesh pde_io pde_solver pde_heateq_app
+)
+
+add_pde_test(IntegrationTest_Full_Cpu_HeatEquationTransientBackwardEuler2D
+	integration/full/cpu/HeatEquationTransientBackwardEuler2D.cpp
+	pde_mesh pde_io pde_solver pde_expression
+)
+
+add_pde_test(IntegrationTest_Full_Cpu_HeatEquationSteadyNonlinearConductivity2D
+	integration/full/cpu/HeatEquationSteadyNonlinearConductivity2D.cpp
+	pde_mesh pde_io pde_solver pde_expression
 )

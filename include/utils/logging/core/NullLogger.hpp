@@ -14,6 +14,12 @@ namespace pdesolver {
 				template<typename DataType>
 				inline void log(Index, const std::vector<DataType>&, DataType = DataType(0)) const {}
 
+				// timestepper::ConsoleLogger's log() shape -- step, time, dt, attempts, residualNorm
+				inline void log(Index, Real, Real, Index, Real) const {}
+
+				// nonlinear::ConsoleLogger's log() shape -- iter, residualNorm, residualRel
+				inline void log(Index, Real, Real) const {}
+
 				// TODO: move to solver logger
 				template<typename DataType>
 				inline std::vector<DataType> computePerDOFNorms(const DataType*, Index) const { return {}; }

@@ -2,6 +2,7 @@
 #define PDESOLVER_FEM_ASSEMBLER_HPP
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 
 #include "config/Platform.hpp"
@@ -47,11 +48,11 @@ namespace pdesolver {
 				template<Index numDOFs>
 				static linalg::types::Vector<Real, Backend> createVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF);
 
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode = GatherMode::Free>
-				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::CSRMatrix<Real, Backend>& K, const fem::boundary::EssentialBoundaryRegistry* bcRegistry = nullptr);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode>
+				static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, const std::array<const linalg::types::Vector<Real, Backend>*, EvalQP::NumAuxStates>& auxStates, linalg::types::CSRMatrix<Real, Backend>& K, const fem::boundary::EssentialBoundaryRegistry* bcRegistry);
 
-				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode = GatherMode::Free>
-				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, linalg::types::Vector<Real, Backend>& F, const fem::boundary::EssentialBoundaryRegistry* bcRegistry = nullptr);
+				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode>
+				static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, const linalg::types::Vector<Real, Backend>* fieldSource, const std::array<const linalg::types::Vector<Real, Backend>*, EvalQP::NumAuxStates>& auxStates, linalg::types::Vector<Real, Backend>& F, const fem::boundary::EssentialBoundaryRegistry* bcRegistry);
 
 			}; // class Assembler
 

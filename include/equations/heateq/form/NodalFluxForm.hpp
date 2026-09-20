@@ -10,10 +10,6 @@
 
 namespace pdesolver::equations::heateq {
 
-	// data-driven counterpart to FluxBoundaryForm -- instead of evaluating a continuous
-	// expression at qp.x, interpolates a per-face-node array (gathered once per face via
-	// gatherElementData) at the QP using the same face basis as the test space (matching
-	// Galerkin: same basis for data interpolation and test-function weighting).
 	template<typename QuadraturePointBoundary, fem::eval::EvalNodalData Source, Index NumComponents_, Index SpatialDim_>
 	class NodalFluxForm {
 	public:

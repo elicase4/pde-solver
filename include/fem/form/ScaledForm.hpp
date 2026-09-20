@@ -11,7 +11,7 @@ namespace pdesolver {
 	namespace fem {
 		namespace form {
 
-			template<typename Form>
+			template<Index numDOFs, typename Form>
 			class ScaledForm {
 			public:
 
@@ -19,14 +19,15 @@ namespace pdesolver {
 				constexpr explicit ScaledForm(Real coefficient) : coefficient_(coefficient) {}
 
 				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ue, Real* Ke) const {
+				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ke) const {
 
-					Real buffer[fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim> * fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim>];
+					constexpr Index maxElementDOFs = fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim> * numDOFs;
+					Real buffer[maxElementDOFs * maxElementDOFs];
 					std::memset(buffer, 0.0, sizeof(buffer));
 
-					inner_.computeElementLevelMatrix(qp, Ue, buffer);
+					inner_.computeElementLevelMatrix(qp, buffer);
 
-					const Index n = qp.nodesPerElement();
+					const Index n = qp.nodesPerElement() * numDOFs;
 					for (Index i = 0; i < n * n; ++i) {
 						Ke[i] += coefficient_ * buffer[i];
 					}
@@ -36,12 +37,12 @@ namespace pdesolver {
 				template<typename QuadraturePoint>
 				PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePoint& qp, Real* Ue, Real* Oe) const {
 
-					Real buffer[fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim>];
+					Real buffer[fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim> * numDOFs];
 					std::memset(buffer, 0.0, sizeof(buffer));
 
 					inner_.computeElementLevelVector(qp, Ue, buffer);
 
-					const Index n = qp.nodesPerElement();
+					const Index n = qp.nodesPerElement() * numDOFs;
 					for (Index i = 0; i < n; ++i) {
 						Oe[i] += coefficient_ * buffer[i];
 					}

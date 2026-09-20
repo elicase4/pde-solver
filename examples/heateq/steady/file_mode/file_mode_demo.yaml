@@ -86,7 +86,6 @@ solver:
 
 output:
   directory: output
-  vtk: true
   write_frequency: 1
   prefix: file_mode_demo_solution
 

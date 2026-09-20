@@ -13,6 +13,7 @@ add_library(pde_heateq_app
 	parser/MonitorConfigParser.cpp
 	parser/ScalarMaterialPropertyConfigParser.cpp
 	parser/SourceConfigParser.cpp
+	parser/SpecificHeatConfigParser.cpp
 )
 
 target_include_directories(pde_heateq_app

@@ -115,7 +115,6 @@ solver:
 
 output:
   directory: output
-  vtk: true
   write_frequency: 1
   prefix: block3d_anisotropic_conductivity_solution
 

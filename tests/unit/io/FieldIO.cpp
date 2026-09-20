@@ -34,8 +34,6 @@ protected:
 
 	using HeatEqBundle = equations::HeatEquation<nsd, 2, mesh::ElementFamily::Quad>;
 
-	// basis order is a runtime field on Basis now (see the runtime-dispatch
-	// refactor) -- buildConstraints() below takes an instance, not a type.
 	HeatEqBundle::Basis basis{Px, Py};
 
 	mesh::generator::BlockMesh2D gen{nx, ny, x0, x1, y0, y1, Px, Py};
@@ -186,7 +184,7 @@ TEST_F(FieldIOTest, writeVTKDOFNameMismatchThrows) {
 	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Block;
 
 	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
-	
+
 	// build constraints
 	topoDOF->buildConstraints(basis, EssentialBCRegistry);
 
@@ -195,6 +193,61 @@ TEST_F(FieldIOTest, writeVTKDOFNameMismatchThrows) {
 	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "bad.vtk";
 
 	EXPECT_THROW(io::fieldio::FieldIO::writeVTK<dofsPerNode>(mesh, *topoDOF, EssentialBCRegistry, 0.0, algField.data(), {"u"}, path.string()), std::runtime_error);
+
+}
+
+TEST_F(FieldIOTest, WriteVTUContainsSeparateUnitsAttribute){
+
+	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Block;
+
+	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
+
+	std::vector<Real> algField(topoDOF->numFreeDOFs(), 1.0);
+
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "field_test.vtu";
+
+	io::fieldio::FieldIO::writeVTU<dofsPerNode>(mesh, *topoDOF, EssentialBCRegistry, 0.0, algField.data(), {"u", "v"}, {"m/s", ""}, path.string());
+
+	std::ifstream file(path);
+	const std::string content(std::istreambuf_iterator<char>(file), {});
+
+	EXPECT_NE(content.find("<VTKFile type=\"UnstructuredGrid\""), std::string::npos);
+	EXPECT_NE(content.find("Name=\"u\" units=\"m/s\""), std::string::npos);
+	// empty unit ("v") must not emit a units attribute at all
+	EXPECT_NE(content.find("Name=\"v\" NumberOfComponents"), std::string::npos);
+	EXPECT_EQ(content.find("Name=\"v\" units"), std::string::npos);
+
+}
+
+TEST_F(FieldIOTest, writeVTUDOFNameMismatchThrows) {
+
+	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Block;
+
+	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
+
+	std::vector<Real> algField(topoDOF->numFreeDOFs(), 0.0);
+
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "bad.vtu";
+
+	EXPECT_THROW(io::fieldio::FieldIO::writeVTU<dofsPerNode>(mesh, *topoDOF, EssentialBCRegistry, 0.0, algField.data(), {"u"}, {"", ""}, path.string()), std::runtime_error);
+
+}
+
+TEST_F(FieldIOTest, writeVTUDOFUnitsSizeMismatchThrows) {
+
+	const fem::dof::DOFOrdering DOFOrdering = fem::dof::DOFOrdering::Block;
+
+	topoDOF = std::make_unique<topology::TopologicalDOF<dofsPerNode>>(mesh, DOFOrdering);
+	topoDOF->buildConstraints(basis, EssentialBCRegistry);
+
+	std::vector<Real> algField(topoDOF->numFreeDOFs(), 0.0);
+
+	const auto path = std::filesystem::path(TEST_OUTPUT_PATH) / "bad_units.vtu";
+
+	// dofUnits has 1 entry, dofNames has 2 -- must be rejected
+	EXPECT_THROW(io::fieldio::FieldIO::writeVTU<dofsPerNode>(mesh, *topoDOF, EssentialBCRegistry, 0.0, algField.data(), {"u", "v"}, {"m"}, path.string()), std::runtime_error);
 
 }
 
@@ -277,8 +330,7 @@ TEST_F(FieldIOTest, BinaryReadNumNodesMismatchThrows){
 
 	io::fieldio::FieldIO::writeBinary<dofsPerNode>(mesh, *topoDOF, EssentialBCRegistry, 0.0, algField.data(), path.string());
 
-	// a differently-refined mesh has a different numNodes -- must be rejected before ever
-	// touching meshTag
+	// a differently-refined mesh has a different numNodes -- must be rejected before ever touching meshTag
 	mesh::generator::BlockMesh2D genFiner{nx + 1, ny + 1, x0, x1, y0, y1, Px, Py};
 	mesh::Mesh finerMesh = genFiner.generate();
 
@@ -299,8 +351,7 @@ TEST_F(FieldIOTest, BinaryReadMeshTagMismatchThrows){
 
 	io::fieldio::FieldIO::writeBinary<dofsPerNode>(mesh, *topoDOF, EssentialBCRegistry, 0.0, algField.data(), path.string());
 
-	// same numNodes/numElements as `mesh` (identical nx/ny/Px/Py), different geometry -- the
-	// numNodes check alone can't catch this, only computeMeshTag can
+	// same numNodes/numElements as `mesh` (identical nx/ny/Px/Py), different geometry -- the numNodes check alone can't catch this, only computeMeshTag can
 	mesh::generator::BlockMesh2D genOther{nx, ny, x0, x1 + 1.0, y0, y1, Px, Py};
 	mesh::Mesh otherMesh = genOther.generate();
 
