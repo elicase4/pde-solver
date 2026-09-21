@@ -3,12 +3,15 @@
 #include "application/heateq/parser/HeatConfigParser.hpp"
 
 #include "solver/logging/LoggerFactory.hpp"
+#include "utils/logging/Banner.hpp"
 
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 
 int main(int argc, char** argv) {
+
+	pdesolver::utils::logging::printStartupBanner("heateq", "heat equation solver");
 
 	if (argc < 2) {
 		std::cerr << "Usage: heateq <config.yaml>\n";

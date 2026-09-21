@@ -10,7 +10,7 @@ class QuantityEvaluator<linalg::types::backend::CPU> {
 public:
 
 	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename QuantityFormsT, typename Quadrature>
-	static void evaluateDomain(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const QuantityFormsT& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, Real* out){
+	static void evaluateDomain(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const QuantityFormsT& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, const std::array<const linalg::types::Vector<Real, linalg::types::backend::CPU>*, EvalQP::NumAuxStates>& auxStates, Real* out){
 
 		// zero-out output buffer & measure summation
 		for (Index c = 0; c < QuantityFormsT::TotalComponents; ++c) out[c] = 0.0;
@@ -18,6 +18,10 @@ public:
 
 		// allocate Ue on the stack
 		Real Ue[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+
+		// allocate the per-element auxiliary-state buffers on the stack
+		Real Ue_aux[EvalQP::NumAuxStates][fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+		const Real* Ue_auxPtrs[EvalQP::NumAuxStates];
 
 		EvalEle localEle = evalEle;
 
@@ -47,6 +51,17 @@ public:
 			// gather the complete nodal solution
 			fem::assembly::gatherElementVector<numDOFs, EvalEle::SpatialDim, fem::assembly::GatherMode::Full>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ue, &U);
 
+			// gather each auxiliary vector into its own row -- always Free: a rate/derivative field
+			// has nothing meaningful to look up via the essential BC's VALUE eval() function at a
+			// constrained node (matches Assembler::assembleMatrix/assembleVector's aux gather)
+			for (Index s = 0; s < EvalQP::NumAuxStates; ++s) {
+				std::memset(Ue_aux[s], 0.0, sizeof(Ue_aux[s]));
+				if (auxStates[s] != nullptr) {
+					fem::assembly::gatherElementVector<numDOFs, EvalEle::SpatialDim, fem::assembly::GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ue_aux[s], auxStates[s]);
+				}
+				Ue_auxPtrs[s] = Ue_aux[s];
+			}
+
 			// bind element data
 			localEle.bindElement(nodeCoords, time);
 
@@ -57,6 +72,7 @@ public:
 			for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
 
 				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
+				qp.interpolateFields(Ue, Ue_auxPtrs);
 				model.eval(qp);
 				model.evalGradient(qp);
 
@@ -138,6 +154,7 @@ public:
 				for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
 
 					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
+					qp.interpolateFields(Ue);
 					model.eval(qp);
 					model.evalGradient(qp);
 

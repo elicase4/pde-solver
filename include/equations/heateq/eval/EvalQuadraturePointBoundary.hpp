@@ -1,6 +1,7 @@
 #ifndef HEATEQUATION_EVALQUADRATUREPOINTBOUNDARY_HPP
 #define HEATEQUATION_EVALQUADRATUREPOINTBOUNDARY_HPP
 
+#include "equations/heateq/eval/EvalField.hpp"
 #include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/eval/EvalQuadraturePointBoundary.hpp"
 
@@ -69,6 +70,15 @@ namespace pdesolver::equations::heateq {
 		Real cp;
 		Real dcpdT;
 
+		// field state definition
+		struct DOFFieldState {
+			Real value;
+			Real gradient[SpatialDim];
+		};
+
+		// temperature field state
+		DOFFieldState T;
+
 		PDE_HOST PDE_DEVICE void evaluate(const Real* xi_face_q, const Real weight){
 
 			// set quad info
@@ -97,6 +107,11 @@ namespace pdesolver::equations::heateq {
 			// transforms
 			Geometry::transformGradient(J, g, dNdxi, dNdx, nodesPerElement());
 
+		}
+
+		PDE_HOST PDE_DEVICE void interpolateFields(const Real* Ue) {
+			EvalField().eval(*this, Ue, &T.value);
+			EvalField().evalGradient(*this, Ue, T.gradient);
 		}
 
 	}; // class EvalQuadraturePointBoundary

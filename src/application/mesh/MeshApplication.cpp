@@ -3,12 +3,15 @@
 #include "application/mesh/MeshDispatcher.hpp"
 
 #include "solver/logging/LoggerFactory.hpp"
+#include "utils/logging/Banner.hpp"
 
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 
 int main(int argc, char** argv) {
+
+	pdesolver::utils::logging::printStartupBanner("mesh", "mesh generation / import");
 
 	if (argc < 2) {
 		std::cerr << "Usage: mesh <config.yaml>\n";

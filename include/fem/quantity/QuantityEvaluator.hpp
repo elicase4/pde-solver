@@ -1,6 +1,8 @@
 #ifndef PDESOLVER_FEM_QUANTITY_QUANTITYEVALUATOR_HPP
 #define PDESOLVER_FEM_QUANTITY_QUANTITYEVALUATOR_HPP
 
+#include <array>
+
 #include "config/Platform.hpp"
 
 #include "core/Types.hpp"
@@ -27,7 +29,7 @@ namespace pdesolver {
 
 				// reduces forms over the whole mesh domain
 				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename QuantityFormsT, typename Quadrature>
-				static void evaluateDomain(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const QuantityFormsT& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, Real* out);
+				static void evaluateDomain(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const QuantityFormsT& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, Backend>& U, const std::array<const linalg::types::Vector<Real, Backend>*, EvalQP::NumAuxStates>& auxStates, Real* out);
 
 				// reduces forms over combo boundary faces
 				template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename QuantityFormsT, typename Quadrature>

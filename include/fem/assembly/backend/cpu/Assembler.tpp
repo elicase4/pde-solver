@@ -132,10 +132,13 @@ public:
 			// gather U into Ue
 			gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
 
+			// aux states (e.g. Udot_) are always rate/derivative fields, never a real value field --
+			// a constrained node has no meaningful rate to look up via the essential BC's VALUE
+			// eval() function, so this is always Free (0 at constrained nodes), independent of Mode
 			for (Index s = 0; s < EvalQP::NumAuxStates; ++s) {
 				std::memset(Ue_aux[s], 0.0, sizeof(Ue_aux[s]));
 				if (auxStates[s] != nullptr) {
-					gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
+					gatherElementVector<numDOFs, EvalEle::SpatialDim, GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
 				}
 				Ue_auxPtrs[s] = Ue_aux[s];
 			}
@@ -227,11 +230,13 @@ public:
 				fieldPtr = Ue_lin;
 			}
 
-			// gather each auxiliary vector into its own row
+			// gather each auxiliary vector into its own row -- always Free, same reasoning as
+			// assembleMatrix's aux gather: a rate/derivative field has nothing meaningful to look
+			// up via the essential BC's VALUE eval() function at a constrained node
 			for (Index s = 0; s < EvalQP::NumAuxStates; ++s) {
 				std::memset(Ue_aux[s], 0.0, sizeof(Ue_aux[s]));
 				if (auxStates[s] != nullptr) {
-					gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
+					gatherElementVector<numDOFs, EvalEle::SpatialDim, GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
 				}
 				Ue_auxPtrs[s] = Ue_aux[s];
 			}

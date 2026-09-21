@@ -8,6 +8,7 @@
 
 #include "solver/config/TimeStepperConfig.hpp"
 #include "solver/stage/TransientCapableStage.hpp"
+#include "solver/timestepper/TimeStepper.hpp"
 #include "solver/timestepper/TimeStepSizePolicy.hpp"
 #include "solver/timestepper/TimeStepperRunner.hpp"
 
@@ -21,12 +22,11 @@ namespace pdesolver {
 			class BackwardEulerRunner : public TimeStepperRunner {
 			public:
 
+				static constexpr TemporalOrder Order = TemporalOrder::First;
+
 				BackwardEulerRunner(StageType& stage, const config::TimeStepperConfig& cfg, std::unique_ptr<TimeStepSizePolicy> policy, utils::logging::timestepper::Logger logger)
 					: stage_(stage), policy_(std::move(policy)), logger_(std::move(logger)), time_(cfg.t0), tf_(cfg.tf) {}
 
-				// summary is printed here, once this runner's work is over, rather than by the
-				// outer Transient driver -- mirrors CGRunner calling logger.summary(...) itself
-				// at the point its own work concludes.
 				~BackwardEulerRunner() override { logger_.summary(finished()); }
 
 				bool step() override {

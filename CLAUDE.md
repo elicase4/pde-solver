@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-PHASE is a modular finite element (FEM) PDE solver written in C++20. It is organized as a
+Residuum is a modular finite element (FEM) PDE solver written in C++20. It is organized as a
 layered set of static libraries (mesh, io, linalg, fem, solver, equations) consumed by small
 CLI applications (`mesh`, `heateq`) that are driven entirely by YAML configuration files.
 
 ## Goals and scope
 
-PHASE is intended to grow into a general-purpose FEM/IGA (isogeometric analysis) framework for
+Residuum is intended to grow into a general-purpose FEM/IGA (isogeometric analysis) framework for
 solving PDEs, with a **high-performance, backend-agnostic (CPU/CUDA) codebase as the primary
 design driver** — that takes priority over breadth when the two are in tension.
 

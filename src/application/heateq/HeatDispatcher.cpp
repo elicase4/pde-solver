@@ -30,8 +30,8 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 		throw std::runtime_error("HeatDispatcher: only the CPU backend is supported so far");
 	}
 
-	if (!config.solver.linear.has_value()) {
-		throw std::runtime_error("HeatDispatcher: solver.linear config is required");
+	if (!config.solver.linear.has_value() && !config.solver.nonlinear.has_value()) {
+		throw std::runtime_error("HeatDispatcher: solver.linear or solver.nonlinear config is required");
 	}
 
 	if (config.solver.driver.type == sconfig::DriverConfig::Type::PseudoTransient) {

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(PHASESOLVER
+project(RESIDUUM
 	VERSION 0.1.0
-	DESCRIPTION "PHASE - A Modular Finite Element Solver"
+	DESCRIPTION "Residuum - A Modular Finite Element Solver"
 	LANGUAGES CXX
 )
 
@@ -34,6 +34,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# AddressSanitizer + UndefinedBehaviorSanitizer
+option(ENABLE_SANITIZERS "Build with AddressSanitizer + UndefinedBehaviorSanitizer" OFF)
+
+if(ENABLE_SANITIZERS)
+	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+		add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+		add_link_options(-fsanitize=address,undefined)
+	else()
+		message(WARNING "ENABLE_SANITIZERS requested but not supported for compiler ${CMAKE_CXX_COMPILER_ID}")
+	endif()
+endif()
+
 # Global includes
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
@@ -60,7 +72,7 @@ endif()
 # Summary
 message(STATUS "")
 message(STATUS "========================================")
-message(STATUS "  PHASE Solver Configuration Summary")
+message(STATUS "  Residuum Solver Configuration Summary")
 message(STATUS "========================================")
 message(STATUS "  Version:      ${PROJECT_VERSION}")
 message(STATUS "  Build type:   ${CMAKE_BUILD_TYPE}")

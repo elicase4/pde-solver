@@ -3,6 +3,6 @@ ref/
 build/
 
 # Example outputs
-/examples/heateq/steady/output
+examples/**/output/
 /examples/mesh/square.pmsh
 /examples/mesh/quarter_ubend.pmsh

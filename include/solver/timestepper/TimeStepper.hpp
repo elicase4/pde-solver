@@ -8,6 +8,8 @@
 namespace pdesolver {
 	namespace solver {
 
+		enum class TemporalOrder { First, Second };
+
 		template<typename T>
 		concept TimeStepper = requires(T& ts) {
 
@@ -18,6 +20,8 @@ namespace pdesolver {
 			{ ts.currentStep() } -> std::same_as<Index>;
 
 			{ ts.currentTime() } -> std::same_as<Real>;
+
+			{ T::Order } -> std::convertible_to<TemporalOrder>;
 
 		}; // concept TimeStepper
 
