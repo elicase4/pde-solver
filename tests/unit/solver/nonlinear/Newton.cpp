@@ -16,7 +16,7 @@
 #include "utils/logging/core/NullLogger.hpp"
 #include "utils/logging/nonlinear/Logger.hpp"
 
-using namespace pdesolver;
+using namespace residuum;
 
 namespace {
 

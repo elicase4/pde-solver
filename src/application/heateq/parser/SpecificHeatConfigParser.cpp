@@ -1,28 +1,28 @@
 #include "application/heateq/parser/SpecificHeatConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 
-pdesolver::application::heateq::config::SpecificHeatConfig::Type pdesolver::application::heateq::parser::SpecificHeatConfigParser::parseSpecificHeatType(const std::string& str) {
+residuum::application::heateq::config::SpecificHeatConfig::Type residuum::application::heateq::parser::SpecificHeatConfigParser::parseSpecificHeatType(const std::string& str) {
 
 	if (str == "constant") {
-		return pdesolver::application::heateq::config::SpecificHeatConfig::Type::Constant;
+		return residuum::application::heateq::config::SpecificHeatConfig::Type::Constant;
 	}
 
 	if (str == "temperature_dependent") {
-		return pdesolver::application::heateq::config::SpecificHeatConfig::Type::TemperatureDependent;
+		return residuum::application::heateq::config::SpecificHeatConfig::Type::TemperatureDependent;
 	}
 
 	throw std::runtime_error("Unknown specific heat type: " + str);
 
 }
 
-pdesolver::application::heateq::config::SpecificHeatConfig pdesolver::application::heateq::parser::SpecificHeatConfigParser::parse(const YAML::Node& node) {
+residuum::application::heateq::config::SpecificHeatConfig residuum::application::heateq::parser::SpecificHeatConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
-	using Type = pdesolver::application::heateq::config::SpecificHeatConfig::Type;
+	using Type = residuum::application::heateq::config::SpecificHeatConfig::Type;
 
-	pdesolver::application::heateq::config::SpecificHeatConfig cfg;
+	residuum::application::heateq::config::SpecificHeatConfig cfg;
 
-	cfg.type = node["type"] ? pdesolver::application::heateq::parser::SpecificHeatConfigParser::parseSpecificHeatType(YAMLReader::required<std::string>(node, "type")) : Type::Constant;
+	cfg.type = residuum::application::heateq::parser::SpecificHeatConfigParser::parseSpecificHeatType(YAMLReader::optional<std::string>(node, "type", "constant"));
 
 	if (cfg.type == Type::Constant) {
 		cfg.value = YAMLReader::required<Real>(node, "value");

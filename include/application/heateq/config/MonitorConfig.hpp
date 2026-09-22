@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_MONITORCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_CONFIG_MONITORCONFIG_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_CONFIG_MONITORCONFIG_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_CONFIG_MONITORCONFIG_HPP
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 
 #include "fem/quantity/Reduction.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace config {
@@ -43,6 +43,6 @@ namespace pdesolver {
 			} // namespace config
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

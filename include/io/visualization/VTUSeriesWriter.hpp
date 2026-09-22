@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_VISUALIZATION_VTUSERIESWRITER_HPP
-#define PDESOLVER_IO_VISUALIZATION_VTUSERIESWRITER_HPP
+#ifndef RESIDUUM_IO_VISUALIZATION_VTUSERIESWRITER_HPP
+#define RESIDUUM_IO_VISUALIZATION_VTUSERIESWRITER_HPP
 
 #include <string>
 #include <utility>
@@ -7,7 +7,7 @@
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace visualization {
 
@@ -32,6 +32,6 @@ namespace pdesolver {
 
 		} // namespace visualization
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

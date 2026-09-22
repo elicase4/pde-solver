@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_LINALG_SOLVER_ITERATIVE_CG_CGRUNNER_HPP
-#define PDESOLVER_LINALG_SOLVER_ITERATIVE_CG_CGRUNNER_HPP
+#ifndef RESIDUUM_LINALG_SOLVER_ITERATIVE_CG_CGRUNNER_HPP
+#define RESIDUUM_LINALG_SOLVER_ITERATIVE_CG_CGRUNNER_HPP
 
 #include "core/Types.hpp"
 
@@ -11,30 +11,30 @@
 #include "linalg/solver/iterative/cg/Workspace.hpp"
 #include "linalg/solver/iterative/cg/Solver.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace linalg {
 		namespace solver {
 			namespace iterative {
 				namespace cg {
 
-					template<typename OperatorType, typename VectorType, typename PreconditionerType, typename LoggerType>
-					class CGRunner : public linalg::solver::LinearSolverRunner<VectorType> {
+					template<typename OperatorT, typename VectorT, typename PreconditionerT, typename LoggerT>
+					class CGRunner : public linalg::solver::LinearSolverRunner<VectorT> {
 					public:
 
-						using AlgorithmT = Solver<OperatorType, VectorType, PreconditionerType, LoggerType>;
+						using AlgorithmT = Solver<OperatorT, VectorT, PreconditionerT, LoggerT>;
 
-						static_assert( linalg::solver::LinearSolverAlgorithm<AlgorithmT, OperatorType, VectorType, PreconditionerType, LoggerType>, "CGRunner: cg::Solver no longer satisfies linalg::solver::LinearSolverAlgorithm. Check its Config/Workspace aliases and solve() signature");
+						static_assert( linalg::solver::LinearSolverAlgorithm<AlgorithmT, OperatorT, VectorT, PreconditionerT, LoggerT>, "CGRunner: cg::Solver no longer satisfies linalg::solver::LinearSolverAlgorithm. Check its Config/Workspace aliases and solve() signature");
 
-						CGRunner(const OperatorType& op, Index n, const typename AlgorithmT::Config& cfg, LoggerType logger);
+						CGRunner(const OperatorT& op, Index n, const typename AlgorithmT::Config& cfg, LoggerT logger);
 
-						bool solve(const VectorType& b, VectorType& x, linalg::solver::SolverReport<VectorType>& report) override;
+						bool solve(const VectorT& b, VectorT& x, linalg::solver::SolverReport<VectorT>& report) override;
 
 					private:
 
-						OperatorType op_;
+						OperatorT op_;
 						typename AlgorithmT::Workspace workspace_;
-						PreconditionerType preconditioner_;
-						LoggerType logger_;
+						PreconditionerT preconditioner_;
+						LoggerT logger_;
 						AlgorithmT solver_;
 
 					}; // class CGRunner
@@ -43,7 +43,7 @@ namespace pdesolver {
 			} // namespace iterative
 		} // namespace solver
 	} // namespace linalg
-} // namespace pdesolver
+} // namespace residuum
 
 #include "linalg/solver/iterative/cg/CGRunner.tpp"
 

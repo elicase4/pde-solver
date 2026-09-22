@@ -4,29 +4,29 @@
 
 #include "io/YAMLReader.hpp"
 
-pdesolver::solver::config::NodalFieldReadConfig::Mode pdesolver::solver::parser::NodalFieldReadConfigParser::parseMode(const std::string& str) {
+residuum::solver::config::NodalFieldReadConfig::Mode residuum::solver::parser::NodalFieldReadConfigParser::parseMode(const std::string& str) {
 
 	if (str == "expression") {
-		return pdesolver::solver::config::NodalFieldReadConfig::Mode::Expression;
+		return residuum::solver::config::NodalFieldReadConfig::Mode::Expression;
 	}
 
 	if (str == "file") {
-		return pdesolver::solver::config::NodalFieldReadConfig::Mode::File;
+		return residuum::solver::config::NodalFieldReadConfig::Mode::File;
 	}
 
 	throw std::runtime_error("Unknown read mode: " + str);
 
 }
 
-pdesolver::solver::config::NodalFieldReadConfig pdesolver::solver::parser::NodalFieldReadConfigParser::parse(const YAML::Node& node) {
+residuum::solver::config::NodalFieldReadConfig residuum::solver::parser::NodalFieldReadConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	pdesolver::solver::config::NodalFieldReadConfig cfg;
+	residuum::solver::config::NodalFieldReadConfig cfg;
 
 	cfg.mode = NodalFieldReadConfigParser::parseMode(YAMLReader::optional<std::string>(node, "mode", "expression"));
 
-	if (cfg.mode == pdesolver::solver::config::NodalFieldReadConfig::Mode::File) {
+	if (cfg.mode == residuum::solver::config::NodalFieldReadConfig::Mode::File) {
 		cfg.file = YAMLReader::required<std::string>(node, "file");
 	} else {
 		cfg.expression = YAMLReader::required<std::string>(node, "expression");

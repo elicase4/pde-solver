@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_FIELDIO_NODALVALUESOURCEADAPTER_HPP
-#define PDESOLVER_IO_FIELDIO_NODALVALUESOURCEADAPTER_HPP
+#ifndef RESIDUUM_IO_FIELDIO_NODALVALUESOURCEADAPTER_HPP
+#define RESIDUUM_IO_FIELDIO_NODALVALUESOURCEADAPTER_HPP
 
 #include <map>
 #include <stdexcept>
@@ -7,18 +7,18 @@
 #include <vector>
 
 #include "core/Types.hpp"
-#include "fem/eval/EvalNodalData.hpp"
+#include "fem/evaluator/EvalNodalData.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace fieldio {
 
-			template<fem::eval::EvalNodalData Source>
+			template<fem::evaluator::EvalNodalData SourceT>
 			class NodalValueSourceAdapter {
 			public:
 
-				static constexpr Index NumComponents = Source::NumComponents;
+				static constexpr Index NumComponents = SourceT::NumComponents;
 
 				template<typename... Args>
 				NodalValueSourceAdapter(const mesh::Mesh& mesh, Args&&... args) : source_(mesh, std::forward<Args>(args)...), spatialDim_(mesh.data.spatialDim) {
@@ -46,7 +46,7 @@ namespace pdesolver {
 
 			private:
 
-				Source source_;
+				SourceT source_;
 				Index spatialDim_;
 				std::map<std::vector<Real>, Index> coordToNode_;
 
@@ -54,6 +54,6 @@ namespace pdesolver {
 
 		} // namespace fieldio
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

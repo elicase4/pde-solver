@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_FIELDIO_FIELDIO_HPP
-#define PDESOLVER_IO_FIELDIO_FIELDIO_HPP
+#ifndef RESIDUUM_IO_FIELDIO_FIELDIO_HPP
+#define RESIDUUM_IO_FIELDIO_FIELDIO_HPP
 
 #include <fstream>
 #include <iostream>
@@ -29,7 +29,7 @@
   values: Real[numNodes * numDOFs]
 */
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace fieldio {
 
@@ -72,7 +72,7 @@ namespace pdesolver {
 
 		} // namespace fieldio
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #include "FieldIO.tpp"
 

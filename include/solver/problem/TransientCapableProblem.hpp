@@ -1,28 +1,28 @@
-#ifndef PDESOLVER_SOLVER_PROBLEM_TRANSIENTCAPABLEPROBLEM_HPP
-#define PDESOLVER_SOLVER_PROBLEM_TRANSIENTCAPABLEPROBLEM_HPP
+#ifndef RESIDUUM_SOLVER_PROBLEM_TRANSIENTCAPABLEPROBLEM_HPP
+#define RESIDUUM_SOLVER_PROBLEM_TRANSIENTCAPABLEPROBLEM_HPP
 
 #include <concepts>
 
 #include "core/Types.hpp"
 #include "solver/problem/Problem.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace problem {
 
-			template<typename P>
-			concept TransientCapableProblem = Problem<P> && requires(P& p) {
+			template<typename PT>
+			concept TransientCapableProblem = Problem<PT> && requires(PT& p) {
 
 				p.massForms();
 				p.massModel();
 				p.tangentMassForms();
 
-				{ p.U_prev() } -> std::convertible_to<typename P::VectorT&>;
+				{ p.U_prev() } -> std::convertible_to<typename PT::VectorT&>;
 
 			}; // concept TransientCapableProblem
 
 		} // namespace problem
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

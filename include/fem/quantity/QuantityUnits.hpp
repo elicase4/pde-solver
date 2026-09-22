@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_QUANTITY_QUANTITYUNITS_HPP
-#define PDESOLVER_FEM_QUANTITY_QUANTITYUNITS_HPP
+#ifndef RESIDUUM_FEM_QUANTITY_QUANTITYUNITS_HPP
+#define RESIDUUM_FEM_QUANTITY_QUANTITYUNITS_HPP
 
 #include <string>
 
@@ -7,12 +7,12 @@
 
 #include "fem/quantity/Reduction.hpp"
 
-namespace pdesolver::fem::quantity {
+namespace residuum::fem::quantity {
 
-	template<typename Form>
+	template<typename FormT>
 	std::string unitFor(Reduction mode, Index boundaryDim) {
 
-		std::string unit = Form::BaseUnit;
+		std::string unit = FormT::BaseUnit;
 		if (mode == Reduction::Average) {
 			unit += "/m^" + std::to_string(boundaryDim);
 		}
@@ -21,6 +21,6 @@ namespace pdesolver::fem::quantity {
 
 	}
 
-} // namespace pdesolver::fem::quantity
+} // namespace residuum::fem::quantity
 
 #endif

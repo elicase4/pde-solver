@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_QUANTITY_QUANTITYFORMS_HPP
-#define PDESOLVER_FEM_QUANTITY_QUANTITYFORMS_HPP
+#ifndef RESIDUUM_FEM_QUANTITY_QUANTITYFORMS_HPP
+#define RESIDUUM_FEM_QUANTITY_QUANTITYFORMS_HPP
 
 #include <tuple>
 #include <type_traits>
@@ -8,16 +8,17 @@
 #include "config/Platform.hpp"
 #include "core/Types.hpp"
 
+#include "fem/quantity/QuantityForm.hpp"
 #include "fem/quantity/Reduction.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quantity {
 
 			// pairs one QuantityForm with its Reduction mode at compile time
-			template<typename Form, Reduction ReductionMode>
+			template<typename FormT, Reduction ReductionMode>
 			struct ReducedQuantity {
-				using FormType = Form;
+				using FormType = FormT;
 				static constexpr Reduction Mode = ReductionMode;
 			}; // struct ReducedQuantity
 
@@ -32,8 +33,9 @@ namespace pdesolver {
 				requires (!(sizeof...(Args) == 1 && (std::is_same_v<std::remove_cvref_t<Args>, QuantityForms> && ...)))
 				constexpr explicit QuantityForms(Args&&... args) : forms_(std::forward<Args>(args)...) {}
 
-				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelValue(const QuadraturePoint& qp, const Real* Ue, Real* out) const {
+				template<typename QuadraturePointT>
+				requires (QuantityForm<typename ReducedQuantities::FormType, QuadraturePointT> && ...)
+				PDE_HOST PDE_DEVICE void computeElementLevelValue(const QuadraturePointT& qp, const Real* Ue, Real* out) const {
 					computeElementLevelValueImpl(qp, Ue, out, std::index_sequence_for<ReducedQuantities...>{});
 				}
 
@@ -53,13 +55,13 @@ namespace pdesolver {
 
 			private:
 
-				template<typename QuadraturePoint, std::size_t... Is>
-				PDE_HOST PDE_DEVICE void computeElementLevelValueImpl(const QuadraturePoint& qp, const Real* Ue, Real* out, std::index_sequence<Is...>) const {
+				template<typename QuadraturePointT, std::size_t... Is>
+				PDE_HOST PDE_DEVICE void computeElementLevelValueImpl(const QuadraturePointT& qp, const Real* Ue, Real* out, std::index_sequence<Is...>) const {
 					(computeOne<Is>(qp, Ue, out), ...);
 				}
 
-				template<std::size_t I, typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeOne(const QuadraturePoint& qp, const Real* Ue, Real* out) const {
+				template<std::size_t I, typename QuadraturePointT>
+				PDE_HOST PDE_DEVICE void computeOne(const QuadraturePointT& qp, const Real* Ue, Real* out) const {
 					using Q = std::tuple_element_t<I, std::tuple<ReducedQuantities...>>;
 					Real contribution[Q::FormType::NumComponents] = {0};
 					std::get<I>(forms_).computeElementLevelValue(qp, Ue, contribution);
@@ -94,6 +96,6 @@ namespace pdesolver {
 
 		} // namespace quantity
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

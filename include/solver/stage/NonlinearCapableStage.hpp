@@ -1,17 +1,17 @@
-#ifndef PDESOLVER_SOLVER_STAGE_NONLINEARCAPABLESTAGE_HPP
-#define PDESOLVER_SOLVER_STAGE_NONLINEARCAPABLESTAGE_HPP
+#ifndef RESIDUUM_SOLVER_STAGE_NONLINEARCAPABLESTAGE_HPP
+#define RESIDUUM_SOLVER_STAGE_NONLINEARCAPABLESTAGE_HPP
 
 #include <concepts>
 
 #include "core/Types.hpp"
 #include "solver/stage/Stage.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace stage {
 
-			template<typename S>
-			concept NonlinearCapableStage = Stage<S> && requires(S& stage) {
+			template<typename ST>
+			concept NonlinearCapableStage = Stage<ST> && requires(ST& stage) {
 
 				{ stage.residualNorm() } -> std::convertible_to<Real>;
 
@@ -21,6 +21,6 @@ namespace pdesolver {
 
 		} // namespace stage
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

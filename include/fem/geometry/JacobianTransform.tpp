@@ -1,4 +1,4 @@
-namespace pdesolver::fem::geometry {
+namespace residuum::fem::geometry {
 
 template<Int SpatialDimension, Int ParametricDimension>
 PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDimension, ParametricDimension>::mapToPhysical(const Real* nodeCoords, const Real* N, Real* x, const Index nodesPerElement){
@@ -233,4 +233,4 @@ PDE_HOST PDE_DEVICE void JacobianTransform<SpatialDimension, ParametricDimension
 
 }
 
-} // namespace pdesolver::fem::geometry
+} // namespace residuum::fem::geometry

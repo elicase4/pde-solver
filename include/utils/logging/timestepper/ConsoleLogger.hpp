@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_TIMESTEPPER_CONSOLELOGGER_HPP
-#define PDESOLVER_UTILS_LOGGING_TIMESTEPPER_CONSOLELOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_TIMESTEPPER_CONSOLELOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_TIMESTEPPER_CONSOLELOGGER_HPP
 
 #include <chrono>
 #include <fstream>
@@ -17,7 +17,7 @@
 #include "utils/logging/core/CsvWriter.hpp"
 #include "utils/logging/core/TeeStreamBuf.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 			namespace timestepper {
@@ -30,9 +30,7 @@ namespace pdesolver {
 					Real t0;
 					Real tf;
 
-					// consoleEnabled=false with textFilePath empty too means this logger prints
-					// nothing at all (equivalent to NullLogger) -- callers should use NullLogger
-					// directly in that case; this constructor doesn't special-case it.
+					// consoleEnabled=false with an empty textFilePath prints nothing; use NullLogger directly for that case instead
 					explicit ConsoleLogger(std::string equationNameIn, std::string timestepperNameIn, Real t0In, Real tfIn, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
 						equationName(std::move(equationNameIn)), timestepperName(std::move(timestepperNameIn)), t0(t0In), tf(tfIn) {
 
@@ -63,7 +61,7 @@ namespace pdesolver {
 
 						const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 
-						// CSV row -- every accepted step, independent of any future console throttle
+						// CSV row: every accepted step, independent of any future console throttle
 						if (csv_->enabled()) {
 							csv_->writeRow({static_cast<Real>(step), time, dt, static_cast<Real>(attempts), residualNorm, static_cast<Real>(elapsed)});
 						}
@@ -134,6 +132,6 @@ namespace pdesolver {
 			} // namespace timestepper
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

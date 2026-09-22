@@ -1,12 +1,12 @@
-#ifndef APPLICATION_HEATEQ_PARSER_MONITORCONFIGPARSER_HPP
-#define APPLICATION_HEATEQ_PARSER_MONITORCONFIGPARSER_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_PARSER_MONITORCONFIGPARSER_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_PARSER_MONITORCONFIGPARSER_HPP
 
 #include <string>
 #include <yaml-cpp/yaml.h>
 
 #include "application/heateq/config/MonitorConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace parser {
@@ -23,6 +23,6 @@ namespace pdesolver {
 			} // namespace parser
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

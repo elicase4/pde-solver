@@ -7,9 +7,9 @@
 #include "io/MeshIO.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
 
-using namespace pdesolver;
-using namespace pdesolver::io;
-using namespace pdesolver::mesh;
+using namespace residuum;
+using namespace residuum::io;
+using namespace residuum::mesh;
 
 TEST(MeshIO, BinaryWriteRead_BlockMesh2D){
 

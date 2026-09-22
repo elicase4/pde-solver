@@ -5,9 +5,9 @@
 #include <sstream>
 #include <stdexcept>
 
-pdesolver::io::visualization::VTUSeriesWriter::VTUSeriesWriter(std::string directory, std::string prefix, Index digitWidth) : directory_(std::move(directory)), prefix_(std::move(prefix)), digitWidth_(digitWidth) {}
+residuum::io::visualization::VTUSeriesWriter::VTUSeriesWriter(std::string directory, std::string prefix, Index digitWidth) : directory_(std::move(directory)), prefix_(std::move(prefix)), digitWidth_(digitWidth) {}
 
-std::string pdesolver::io::visualization::VTUSeriesWriter::addStep(Index step, Real time) {
+std::string residuum::io::visualization::VTUSeriesWriter::addStep(Index step, Real time) {
 
 	std::ostringstream stepStr;
 	stepStr << std::setw(static_cast<int>(digitWidth_)) << std::setfill('0') << step;
@@ -21,7 +21,7 @@ std::string pdesolver::io::visualization::VTUSeriesWriter::addStep(Index step, R
 
 }
 
-void pdesolver::io::visualization::VTUSeriesWriter::writePVD() const {
+void residuum::io::visualization::VTUSeriesWriter::writePVD() const {
 
 	const std::string pvdPath = directory_ + "/" + prefix_ + ".pvd";
 

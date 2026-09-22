@@ -1,7 +1,7 @@
-namespace pdesolver::fem::assembly {
+namespace residuum::fem::assembly {
 
-	template<Index numDOFs, Index SpatialDim, GatherMode Mode, typename VectorType>
-	PDE_HOST PDE_DEVICE void gatherElementVector(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry* bcRegistry, const Real time, Real* Ue, const VectorType* U){
+	template<Index numDOFs, Index SpatialDim, GatherMode Mode, typename VectorT>
+	PDE_HOST PDE_DEVICE void gatherElementVector(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry* bcRegistry, const Real time, Real* Ue, const VectorT* U){
 
 		if constexpr (Mode == GatherMode::Free) {
 
@@ -59,8 +59,8 @@ namespace pdesolver::fem::assembly {
 
 	}
 
-	template<Index numDOFs, ScatterMode Mode, typename VectorType>
-	PDE_HOST PDE_DEVICE void scatterElementVector(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Xe, VectorType& X, Real coefficient){
+	template<Index numDOFs, ScatterMode Mode, typename VectorT>
+	PDE_HOST PDE_DEVICE void scatterElementVector(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Xe, VectorT& X, Real coefficient){
 
 		for (Index i = 0; i < nodesPerElement; ++i){
 			for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
@@ -76,8 +76,8 @@ namespace pdesolver::fem::assembly {
 
 	}
 
-	template<Index numDOFs, ScatterMode Mode, typename MatrixType>
-	PDE_HOST PDE_DEVICE void scatterElementMatrix(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Ke, MatrixType& K, Real coefficient){
+	template<Index numDOFs, ScatterMode Mode, typename MatrixT>
+	PDE_HOST PDE_DEVICE void scatterElementMatrix(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Ke, MatrixT& K, Real coefficient){
 
 		for (Index i = 0; i < nodesPerElement; ++i){
 			for (Index j = 0; j < topology::TopologicalDOF<numDOFs>::dofsPerNode; ++j){
@@ -104,4 +104,4 @@ namespace pdesolver::fem::assembly {
 
 	}
 
-} // namespace pdesolver::fem::assembly
+} // namespace residuum::fem::assembly

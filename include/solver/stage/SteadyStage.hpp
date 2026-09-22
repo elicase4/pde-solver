@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_STAGE_STEADYSTAGE_HPP
-#define PDESOLVER_SOLVER_STAGE_STEADYSTAGE_HPP
+#ifndef RESIDUUM_SOLVER_STAGE_STEADYSTAGE_HPP
+#define RESIDUUM_SOLVER_STAGE_STEADYSTAGE_HPP
 
 #include <memory>
 #include <type_traits>
@@ -13,11 +13,12 @@
 #include "linalg/solver/base/SolverReport.hpp"
 
 #include "solver/SolverInstance.hpp"
+#include "solver/config/LinearSolverConfig.hpp"
 #include "solver/nonlinear/NonlinearSolverFactory.hpp"
 #include "solver/nonlinear/NonlinearSolverRunner.hpp"
 #include "solver/problem/Problem.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace stage {
 
@@ -35,13 +36,13 @@ namespace pdesolver {
 				// J = K + K_T
 				using JacobianFormsT = fem::form::FormRegistry<StiffnessFormsT, TangentStiffnessFormsT>;
 
-				explicit SteadyStage(ProblemT& problem) : problem_(problem), K_(problem_.createMatrix()), R_(problem_.createVector()) {
+				explicit SteadyStage(ProblemT& problem) : problem_(problem), K_(needsK() ? problem_.createMatrix() : MatrixT(0, 0)), R_(problem_.createVector()) {
 
 					linearSolverRunner_ = problem_.template makeLinearRunner<fem::assembly::GatherMode::Free>(&currentTime_, problem_.stiffnessForms(), problem_.stiffnessModel(), nullptr, {}, K_);
 
 					if (solver::isNonlinear(problem_.solverInstance().mode)) {
 
-						J_ = std::make_unique<MatrixT>(problem_.createMatrix());
+						J_ = std::make_unique<MatrixT>(isSparse() ? problem_.createMatrix() : MatrixT(0, 0));
 						dU_ = std::make_unique<VectorT>(problem_.createVector());
 						jacobianSolverRunner_ = problem_.template makeLinearRunner<fem::assembly::GatherMode::Free>(&currentTime_, jacobianForms_, problem_.stiffnessModel(), &problem_.U(), {}, *J_);
 
@@ -55,7 +56,9 @@ namespace pdesolver {
 
 				void assemble() {
 
-					problem_.template assembleMatrix<fem::assembly::GatherMode::Free>(currentTime_, problem_.stiffnessForms(), problem_.stiffnessModel(), {}, K_);
+					if (needsK()) {
+						problem_.template assembleMatrix<fem::assembly::GatherMode::Free>(currentTime_, problem_.stiffnessForms(), problem_.stiffnessModel(), {}, K_);
+					}
 					problem_.assembleLoad(currentTime_);
 					problem_.applyNatural(currentTime_);
 
@@ -79,7 +82,7 @@ namespace pdesolver {
 
 				void finalize() {}
 
-				// --- NonlinearCapableStage ---
+				// NonlinearCapableStage
 				Real residualNorm() {
 
 					problem_.template assembleResidual<fem::assembly::GatherMode::Full>(currentTime_, problem_.stiffnessForms(), problem_.stiffnessModel(), {}, R_);
@@ -91,7 +94,9 @@ namespace pdesolver {
 
 				bool solveLinearStep() {
 
-					problem_.template assembleMatrix<fem::assembly::GatherMode::Full>(currentTime_, jacobianForms_, problem_.stiffnessModel(), {}, *J_);
+					if (needsJ()) {
+						problem_.template assembleMatrix<fem::assembly::GatherMode::Full>(currentTime_, jacobianForms_, problem_.stiffnessModel(), {}, *J_);
+					}
 
 					dU_->zero();
 					linalg::solver::SolverReport<VectorT> report;
@@ -107,6 +112,10 @@ namespace pdesolver {
 				decltype(auto) solution() const { return problem_.U(); }
 
 			private:
+
+				bool isSparse() const { return problem_.solverInstance().linear->operatorType == config::LinearSolverConfig::OperatorType::CSR; }
+				bool needsK() const { return !solver::isNonlinear(problem_.solverInstance().mode) && isSparse(); }
+				bool needsJ() const { return solver::isNonlinear(problem_.solverInstance().mode) && isSparse(); }
 
 				ProblemT& problem_;
 
@@ -127,6 +136,6 @@ namespace pdesolver {
 
 		} // namespace stage
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

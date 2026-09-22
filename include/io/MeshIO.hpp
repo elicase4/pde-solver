@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_MESHIO_HPP
-#define PDESOLVER_IO_MESHIO_HPP
+#ifndef RESIDUUM_IO_MESHIO_HPP
+#define RESIDUUM_IO_MESHIO_HPP
 
 #include <cstring>
 #include <fstream>
@@ -37,7 +37,7 @@
   C:    Real[extractionOpSize]            (optional, IGA only)
 */
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		
 		class MeshIO {
@@ -56,6 +56,6 @@ namespace pdesolver {
 		}; // class MeshIO
 	
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

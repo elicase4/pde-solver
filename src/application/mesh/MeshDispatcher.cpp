@@ -11,7 +11,7 @@
 
 #include <stdexcept>
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace mesh {
 
@@ -19,7 +19,7 @@ namespace pdesolver {
 
 				const auto logger = solver::logging::makeDriverLogger(config.logging.driver, "mesh");
 
-				pdesolver::mesh::Mesh mesh;
+				residuum::mesh::Mesh mesh;
 
 				switch (config.type) {
 
@@ -27,7 +27,7 @@ namespace pdesolver {
 
 						const auto& b = config.block2D;
 
-						pdesolver::mesh::generator::BlockMesh2D gen{b.nx, b.ny, b.xmin, b.xmax, b.ymin, b.ymax, b.Px, b.Py};
+						residuum::mesh::generator::BlockMesh2D gen{b.nx, b.ny, b.xmin, b.xmax, b.ymin, b.ymax, b.Px, b.Py};
 						mesh = gen.generate();
 
 						logger.event("Block2D: " + std::to_string(b.nx) + "x" + std::to_string(b.ny) + " elements generated");
@@ -38,7 +38,7 @@ namespace pdesolver {
 
 						const auto& b = config.block3D;
 
-						pdesolver::mesh::generator::BlockMesh3D gen{b.nx, b.ny, b.nz, b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax, b.Px, b.Py, b.Pz};
+						residuum::mesh::generator::BlockMesh3D gen{b.nx, b.ny, b.nz, b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax, b.Px, b.Py, b.Pz};
 						mesh = gen.generate();
 
 						logger.event("Block3D: " + std::to_string(b.nx) + "x" + std::to_string(b.ny) + "x" + std::to_string(b.nz) + " elements generated");
@@ -52,7 +52,7 @@ namespace pdesolver {
 						}
 
 						// TODO: add physical group mapping argument
-						pdesolver::application::mesh::GmshMeshGenerator gen{config.inputFile};
+						residuum::application::mesh::GmshMeshGenerator gen{config.inputFile};
 						mesh = gen.generate();
 
 						logger.event("Gmsh import: " + config.inputFile + " -> " + std::to_string(mesh.data.numElements) + " elements");
@@ -77,4 +77,4 @@ namespace pdesolver {
 
 		} // namespace mesh
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum

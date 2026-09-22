@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_DRIVER_LOGGER_HPP
-#define PDESOLVER_UTILS_LOGGING_DRIVER_LOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_DRIVER_LOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_DRIVER_LOGGER_HPP
 
 #include <utility>
 #include <variant>
@@ -7,7 +7,7 @@
 #include "utils/logging/core/NullLogger.hpp"
 #include "utils/logging/driver/ConsoleLogger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 			namespace driver {
@@ -42,6 +42,6 @@ namespace pdesolver {
 			} // namespace driver
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,6 +1,6 @@
 #include "io/MeshIO.hpp"
 
-void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filename, visualization::VTKWriter::Format fmt){
+void residuum::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filename, visualization::VTKWriter::Format fmt){
 
 	if (!mesh.isValid()) {
 		throw std::runtime_error("MeshIO::writeVTK: mesh is invalid");
@@ -28,7 +28,7 @@ void pdesolver::io::MeshIO::writeVTK(mesh::Mesh& mesh, const std::string& filena
 
 }
 
-void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::string& filename){
+void residuum::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::string& filename){
 
 	if (!mesh.isValid()) {
 		throw std::runtime_error("MeshIO::writeVTK: mesh is invalid");
@@ -78,7 +78,7 @@ void pdesolver::io::MeshIO::writeBinary(const mesh::Mesh& mesh, const std::strin
 
 }
 
-void pdesolver::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& filename){
+void residuum::io::MeshIO::readBinary(mesh::Mesh& mesh, const std::string& filename){
 
 	std::ifstream ifs(filename, std::ios::binary);
 	if (!ifs.is_open()){

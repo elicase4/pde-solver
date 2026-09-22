@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_LINEAR_LINEARSOLVERFACTORY_HPP
-#define PDESOLVER_SOLVER_LINEAR_LINEARSOLVERFACTORY_HPP
+#ifndef RESIDUUM_SOLVER_LINEAR_LINEARSOLVERFACTORY_HPP
+#define RESIDUUM_SOLVER_LINEAR_LINEARSOLVERFACTORY_HPP
 
 #include <iomanip>
 #include <memory>
@@ -24,12 +24,12 @@
 #include "utils/logging/solver/ConsoleLogger.hpp"
 #include "utils/logging/solver/Logger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace linear {
 
-			template<typename OperatorType, typename VectorType>
-			std::unique_ptr<linalg::solver::LinearSolverRunner<VectorType>> makeLinearSolverRunner(const OperatorType& op, Index n, const config::LinearSolverConfig& cfg, const config::SolverLoggerConfig& loggerCfg, const std::string& equationName, const std::vector<std::string>& dofNames) {
+			template<typename OperatorT, typename VectorT>
+			std::unique_ptr<linalg::solver::LinearSolverRunner<VectorT>> makeLinearSolverRunner(const OperatorT& op, Index n, const config::LinearSolverConfig& cfg, const config::SolverLoggerConfig& loggerCfg, const std::string& equationName, const std::vector<std::string>& dofNames) {
 
 				if (cfg.preconditioner.type != config::PreconditionerConfig::Type::Identity) {
 					throw std::runtime_error("LinearSolverFactory: only the identity preconditioner is implemented so far");
@@ -37,14 +37,14 @@ namespace pdesolver {
 
 				const std::string preconditionerName = "Identity";
 
-				using PreconditionerT = linalg::solver::preconditioner::Identity<VectorType>;
+				using PreconditionerT = linalg::solver::preconditioner::Identity<VectorT>;
 				using LoggerT = utils::logging::SolverLogger;
 
 				switch (cfg.type) {
 
 					case config::LinearSolverConfig::Type::CG: {
 
-						using CGConfigT = linalg::solver::iterative::cg::Config<VectorType>;
+						using CGConfigT = linalg::solver::iterative::cg::Config<VectorT>;
 						CGConfigT cgCfg;
 						cgCfg.tol = static_cast<typename CGConfigT::DataType>(cfg.tolerance);
 						cgCfg.maxIters = cfg.maxIterations;
@@ -64,7 +64,7 @@ namespace pdesolver {
 							? LoggerT(utils::logging::ConsoleLogger(equationName, "PCG", preconditionerName, dofNames, extraParams, n, fem::dof::DOFOrdering::Interleaved, 1, consoleEnabled, loggerCfg.textFile, loggerCfg.csvFile))
 							: LoggerT(utils::logging::NullLogger{});
 
-						return std::make_unique<linalg::solver::iterative::cg::CGRunner<OperatorType, VectorType, PreconditionerT, LoggerT>>(op, n, cgCfg, std::move(logger));
+						return std::make_unique<linalg::solver::iterative::cg::CGRunner<OperatorT, VectorT, PreconditionerT, LoggerT>>(op, n, cgCfg, std::move(logger));
 
 					}
 
@@ -85,6 +85,6 @@ namespace pdesolver {
 
 		} // namespace linear
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

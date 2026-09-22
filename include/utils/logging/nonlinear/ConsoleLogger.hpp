@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_NONLINEAR_CONSOLELOGGER_HPP
-#define PDESOLVER_UTILS_LOGGING_NONLINEAR_CONSOLELOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_NONLINEAR_CONSOLELOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_NONLINEAR_CONSOLELOGGER_HPP
 
 #include <chrono>
 #include <fstream>
@@ -17,7 +17,7 @@
 #include "utils/logging/core/CsvWriter.hpp"
 #include "utils/logging/core/TeeStreamBuf.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 			namespace nonlinear {
@@ -28,9 +28,7 @@ namespace pdesolver {
 					std::string equationName;
 					std::string solverName;
 
-					// consoleEnabled=false with textFilePath empty too means this logger prints
-					// nothing at all (equivalent to NullLogger) -- callers should use NullLogger
-					// directly in that case; this constructor doesn't special-case it.
+					// consoleEnabled=false with an empty textFilePath prints nothing; use NullLogger directly for that case instead
 					explicit ConsoleLogger(std::string equationNameIn, std::string solverNameIn, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
 						equationName(std::move(equationNameIn)), solverName(std::move(solverNameIn)) {
 
@@ -61,7 +59,7 @@ namespace pdesolver {
 
 						const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 
-						// CSV row -- every outer iteration
+						// CSV row: every outer iteration
 						if (csv_->enabled()) {
 							csv_->writeRow({static_cast<Real>(iter), residualNorm, residualRel, static_cast<Real>(elapsed)});
 						}
@@ -127,6 +125,6 @@ namespace pdesolver {
 			} // namespace nonlinear
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

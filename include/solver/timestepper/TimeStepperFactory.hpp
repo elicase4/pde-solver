@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_TIMESTEPPER_TIMESTEPPERFACTORY_HPP
-#define PDESOLVER_SOLVER_TIMESTEPPER_TIMESTEPPERFACTORY_HPP
+#ifndef RESIDUUM_SOLVER_TIMESTEPPER_TIMESTEPPERFACTORY_HPP
+#define RESIDUUM_SOLVER_TIMESTEPPER_TIMESTEPPERFACTORY_HPP
 
 #include <memory>
 #include <stdexcept>
@@ -15,7 +15,7 @@
 #include "utils/logging/core/NullLogger.hpp"
 #include "utils/logging/timestepper/Logger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace timestepper {
 
@@ -32,14 +32,14 @@ namespace pdesolver {
 
 			}
 
-			template<typename StageType>
-			std::unique_ptr<TimeStepperRunner> makeTimeStepperRunner(StageType& stage, const config::TimeStepperConfig& cfg, const config::TimeStepperLoggerConfig& loggerCfg, const std::string& equationLabel) {
+			template<typename StageT>
+			std::unique_ptr<TimeStepperRunner> makeTimeStepperRunner(StageT& stage, const config::TimeStepperConfig& cfg, const config::TimeStepperLoggerConfig& loggerCfg, const std::string& equationLabel) {
 
 				switch (cfg.type) {
 
 					case config::TimeStepperConfig::Type::BackwardEuler:
-						static_assert(TimeStepper<BackwardEulerRunner<StageType>>, "BackwardEulerRunner<StageType> must satisfy the TimeStepper concept, including declaring TemporalOrder Order");
-						return std::make_unique<BackwardEulerRunner<StageType>>(stage, cfg, makeStepSizePolicy(cfg.stepSize, equationLabel), makeTimestepperLogger(cfg, loggerCfg, equationLabel, "Backward Euler"));
+						static_assert(TimeStepper<BackwardEulerRunner<StageT>>, "BackwardEulerRunner<StageT> must satisfy the TimeStepper concept, including declaring TemporalOrder Order");
+						return std::make_unique<BackwardEulerRunner<StageT>>(stage, cfg, makeStepSizePolicy(cfg.stepSize, equationLabel), makeTimestepperLogger(cfg, loggerCfg, equationLabel, "Backward Euler"));
 
 					case config::TimeStepperConfig::Type::ForwardEuler:
 						throw std::runtime_error("TimeStepperFactory[" + equationLabel + "]: ForwardEuler not yet implemented");
@@ -58,6 +58,6 @@ namespace pdesolver {
 
 		} // namespace timestepper
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

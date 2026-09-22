@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_LOGGING_LOGGERFACTORY_HPP
-#define PDESOLVER_SOLVER_LOGGING_LOGGERFACTORY_HPP
+#ifndef RESIDUUM_SOLVER_LOGGING_LOGGERFACTORY_HPP
+#define RESIDUUM_SOLVER_LOGGING_LOGGERFACTORY_HPP
 
 #include <string>
 #include <utility>
@@ -9,7 +9,7 @@
 #include "utils/logging/driver/Logger.hpp"
 #include "utils/logging/solver/Logger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace logging {
 
@@ -27,6 +27,6 @@ namespace pdesolver {
 
 		} // namespace logging
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,4 +1,4 @@
-namespace pdesolver::io::fieldio {
+namespace residuum::io::fieldio {
 
 	template<Index numDOFs>
 	void FieldIO::writeVTK(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::string& filename, visualization::VTKWriter::Format fmt) {
@@ -262,4 +262,4 @@ namespace pdesolver::io::fieldio {
 
 	}
 
-} // namespace pdesolver::io::fieldio
+} // namespace residuum::io::fieldio

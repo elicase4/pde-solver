@@ -4,7 +4,7 @@
 
 #include "io/YAMLReader.hpp"
 
-pdesolver::solver::config::TimeStepSizeConfig::Mode pdesolver::solver::parser::TimeStepSizeConfigParser::parseMode(const std::string& str) {
+residuum::solver::config::TimeStepSizeConfig::Mode residuum::solver::parser::TimeStepSizeConfigParser::parseMode(const std::string& str) {
 
 	if (str == "constant")
 		return config::TimeStepSizeConfig::Mode::Constant;
@@ -17,7 +17,7 @@ pdesolver::solver::config::TimeStepSizeConfig::Mode pdesolver::solver::parser::T
 
 }
 
-pdesolver::solver::config::TimeStepSizeConfig pdesolver::solver::parser::TimeStepSizeConfigParser::parse(const YAML::Node& node) {
+residuum::solver::config::TimeStepSizeConfig residuum::solver::parser::TimeStepSizeConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
@@ -26,7 +26,7 @@ pdesolver::solver::config::TimeStepSizeConfig pdesolver::solver::parser::TimeSte
 	cfg.mode = parseMode(YAMLReader::required<std::string>(node, "mode"));
 	cfg.dt = YAMLReader::required<Real>(node, "dt");
 
-	// mode-specific knobs: optional -- nothing reads them yet regardless of mode
+	// mode-specific knobs are optional; nothing reads them yet regardless of mode
 	if (node["dt_min"]) cfg.dtMin = YAMLReader::required<Real>(node, "dt_min");
 	if (node["dt_max"]) cfg.dtMax = YAMLReader::required<Real>(node, "dt_max");
 	if (node["growth_factor"]) cfg.growthFactor = YAMLReader::required<Real>(node, "growth_factor");

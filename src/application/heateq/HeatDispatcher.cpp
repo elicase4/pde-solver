@@ -5,7 +5,7 @@
 #include "application/heateq/HeatDispatcher.hpp"
 #include "application/heateq/problem/HeatProblem.hpp"
 
-#include "equations/heateq/HeatEquation.hpp"
+#include "equation/heateq/HeatEquation.hpp"
 
 #include "fem/dispatch/DiscretizationDispatch.hpp"
 
@@ -22,9 +22,9 @@
 #include "solver/stage/SteadyStage.hpp"
 #include "solver/timestepper/TimeStepperFactory.hpp"
 
-bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::application::heateq::config::HeatConfig& config) {
+bool residuum::application::heateq::HeatDispatcher::run(const residuum::application::heateq::config::HeatConfig& config) {
 
-	namespace sconfig = pdesolver::solver::config;
+	namespace sconfig = residuum::solver::config;
 
 	if (config.backend.type != sconfig::BackendConfig::Type::CPU) {
 		throw std::runtime_error("HeatDispatcher: only the CPU backend is supported so far");
@@ -44,10 +44,10 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 		if (!path.empty()) std::ofstream(path, std::ios::trunc);
 	}
 
-	pdesolver::mesh::Mesh mesh;
-	pdesolver::io::MeshIO::readBinary(mesh, config.mesh.file);
+	residuum::mesh::Mesh mesh;
+	residuum::io::MeshIO::readBinary(mesh, config.mesh.file);
 
-	if (mesh.data.basisType != pdesolver::mesh::BasisType::Lagrange) {
+	if (mesh.data.basisType != residuum::mesh::BasisType::Lagrange) {
 		throw std::runtime_error("HeatDispatcher: only the Lagrange basis is supported so far");
 	}
 
@@ -59,25 +59,25 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 	const Index basisOrderY = mesh.data.basisOrder.size() > 1 ? mesh.data.basisOrder[1] : 1;
 	const Index basisOrderZ = mesh.data.basisOrder.size() > 2 ? mesh.data.basisOrder[2] : 1;
 
-	const auto logger = pdesolver::solver::logging::makeDriverLogger(config.logging.driver, "heateq");
+	const auto logger = residuum::solver::logging::makeDriverLogger(config.logging.driver, "heateq");
 
 	logger.event("mesh: " + config.mesh.file + " -> " + std::to_string(mesh.data.numElements) + " elements, nsd=" + std::to_string(nsd) + " npd=" + std::to_string(npd));
 
 	bool converged = false;
 
-	auto visitor = [&]<Index NSD, Index NPD, pdesolver::mesh::ElementFamily Family>(auto basis, auto quadVol, auto quadBdy) -> bool {
+	auto visitor = [&]<Index NSD, Index NPD, residuum::mesh::ElementFamily Family>(auto basis, auto quadVol, auto quadBdy) -> bool {
 
-		using HeatEqBundle = pdesolver::equations::HeatEquation<NSD, NPD, Family>;
-		using ProblemT = pdesolver::application::heateq::problem::HeatProblem<pdesolver::linalg::types::backend::CPU, HeatEqBundle>;
+		using HeatEqBundle = residuum::equation::HeatEquation<NSD, NPD, Family>;
+		using ProblemT = residuum::application::heateq::problem::HeatProblem<residuum::linalg::types::backend::CPU, HeatEqBundle>;
 
 		ProblemT heatProblem(config, std::move(mesh), std::move(basis), std::move(quadVol), std::move(quadBdy));
 
 		if (steady) {
 
-			using StageT = pdesolver::solver::stage::SteadyStage<ProblemT>;
+			using StageT = residuum::solver::stage::SteadyStage<ProblemT>;
 			StageT stage(heatProblem);
 
-			pdesolver::solver::driver::Steady<StageT> driver;
+			residuum::solver::driver::Steady<StageT> driver;
 			converged = driver.solve(stage);
 
 			heatProblem.writeOutput(0, 0.0);
@@ -85,7 +85,7 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 
 		} else {
 
-			using StageT = pdesolver::solver::stage::BackwardEulerStage<ProblemT>;
+			using StageT = residuum::solver::stage::BackwardEulerStage<ProblemT>;
 			StageT stage(heatProblem);
 
 			const auto& tsCfg = *heatProblem.solverInstance().timestepper;
@@ -94,9 +94,9 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 			heatProblem.writeOutput(0, tsCfg.t0);
 			heatProblem.evaluateMonitors(0, tsCfg.t0);
 
-			auto stepper = pdesolver::solver::timestepper::makeTimeStepperRunner<StageT>(stage, tsCfg, config.logging.timestepper, heatProblem.equationLabel());
+			auto stepper = residuum::solver::timestepper::makeTimeStepperRunner<StageT>(stage, tsCfg, config.logging.timestepper, heatProblem.equationLabel());
 
-			pdesolver::solver::driver::Transient<StageT> driver;
+			residuum::solver::driver::Transient<StageT> driver;
 			converged = driver.solve(stage, *stepper);
 
 		}
@@ -114,7 +114,7 @@ bool pdesolver::application::heateq::HeatDispatcher::run(const pdesolver::applic
 	};
 
 	const auto& d = config.discretization;
-	const bool matched = pdesolver::fem::dispatch::dispatch(nsd, npd, family, basisOrderX, basisOrderY, basisOrderZ, d.quadrature.xi, d.quadrature.eta, d.quadrature.zeta, visitor);
+	const bool matched = residuum::fem::dispatch::dispatch(nsd, npd, family, basisOrderX, basisOrderY, basisOrderZ, d.quadrature.xi, d.quadrature.eta, d.quadrature.zeta, visitor);
 
 	if (!matched) {
 		throw std::runtime_error("HeatDispatcher: unsupported (nsd, npd, basis order, quadrature order) combination for this mesh/config");

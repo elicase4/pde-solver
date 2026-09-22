@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-pdesolver::solver::config::BackendConfig::Type pdesolver::solver::parser::BackendConfigParser::parseBackendType(const std::string& str) {
+residuum::solver::config::BackendConfig::Type residuum::solver::parser::BackendConfigParser::parseBackendType(const std::string& str) {
 
 	if (str == "cpu")
 		return config::BackendConfig::Type::CPU;
@@ -14,7 +14,7 @@ pdesolver::solver::config::BackendConfig::Type pdesolver::solver::parser::Backen
 
 }
 
-pdesolver::solver::config::BackendConfig pdesolver::solver::parser::BackendConfigParser::parse(const YAML::Node& root) {
+residuum::solver::config::BackendConfig residuum::solver::parser::BackendConfigParser::parse(const YAML::Node& root) {
 
 	using io::YAMLReader;
 

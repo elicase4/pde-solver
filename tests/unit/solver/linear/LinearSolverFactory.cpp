@@ -6,7 +6,7 @@
 #include "linalg/types/CSRMatrix.hpp"
 #include "linalg/operator/CSROperator.hpp"
 
-using namespace pdesolver;
+using namespace residuum;
 
 namespace {
 

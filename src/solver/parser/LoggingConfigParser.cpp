@@ -4,25 +4,25 @@
 
 #include "io/YAMLReader.hpp"
 
-pdesolver::solver::config::LoggerConfig::Type pdesolver::solver::parser::LoggingConfigParser::parseLoggerType(const std::string& str) {
+residuum::solver::config::LoggerConfig::Type residuum::solver::parser::LoggingConfigParser::parseLoggerType(const std::string& str) {
 
 	if (str == "console") {
-		return pdesolver::solver::config::LoggerConfig::Type::Console;
+		return residuum::solver::config::LoggerConfig::Type::Console;
 	}
 
 	if (str == "none") {
-		return pdesolver::solver::config::LoggerConfig::Type::None;
+		return residuum::solver::config::LoggerConfig::Type::None;
 	}
 
 	throw std::runtime_error("Unknown logger type: " + str);
 
 }
 
-pdesolver::solver::config::LoggingConfig pdesolver::solver::parser::LoggingConfigParser::parse(const YAML::Node& node) {
+residuum::solver::config::LoggingConfig residuum::solver::parser::LoggingConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	pdesolver::solver::config::LoggingConfig cfg;
+	residuum::solver::config::LoggingConfig cfg;
 
 	if (!node) {
 		return cfg;

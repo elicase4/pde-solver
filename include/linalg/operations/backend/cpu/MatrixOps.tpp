@@ -1,16 +1,16 @@
 #include <cassert>
 
-namespace pdesolver::linalg::operations {
+namespace residuum::linalg::operations {
 
-	template<typename MatrixType, typename VectorType>
-	void matvec(const MatrixType& A, const VectorType& x, VectorType& y){
+	template<typename MatrixT, typename VectorT>
+	void matvec(const MatrixT& A, const VectorT& x, VectorT& y){
 
 		assert(A.nCols() == x.size());
 		assert(A.nRows() == y.size());
 
 		for (Index i = 0; i < A.nRows(); ++i){
 
-			typename VectorType::value_type sum = 0;
+			typename VectorT::value_type sum = 0;
 
 			for (Index p = A.rowPtr()[i]; p < A.rowPtr()[i+1]; ++p){
 				sum += A.data()[p] * x.data()[A.colIdx()[p]];
@@ -22,15 +22,15 @@ namespace pdesolver::linalg::operations {
 
 	}
 
-	template<typename MatrixType, typename VectorType>
-	void lump(const MatrixType& A, VectorType& diag){
+	template<typename MatrixT, typename VectorT>
+	void lump(const MatrixT& A, VectorT& diag){
 
 		assert(A.nCols() == A.nCols());
 		assert(A.nRows() == diag.size());
 
 		for (Index i = 0; i < A.nRows(); ++i){
 
-			typename VectorType::value_type sum = 0;
+			typename VectorT::value_type sum = 0;
 
 			for (Index p = A.rowPtr()[i]; p < A.rowPtr()[i+1]; ++p){
 				sum += A.data()[p];
@@ -42,4 +42,4 @@ namespace pdesolver::linalg::operations {
 
 	}
 
-} // namespace pdesolver::linalg::operations
+} // namespace residuum::linalg::operations

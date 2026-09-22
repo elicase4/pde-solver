@@ -1,6 +1,6 @@
 find_package(yaml-cpp REQUIRED)
 
-add_library(pde_solver
+add_library(residuum_solver
 	SolverInstance.cpp
 	parser/BackendConfigParser.cpp
 	parser/DriverConfigParser.cpp
@@ -16,13 +16,9 @@ add_library(pde_solver
 	parser/NodalFieldReadConfigParser.cpp
 )
 
-target_include_directories(pde_solver
+target_link_libraries(residuum_solver
 	PUBLIC
-		${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(pde_solver
-	PUBLIC
-		pde_expression
+		residuum_headers
+		residuum_expression
 		yaml-cpp
 )

@@ -1,9 +1,9 @@
-#ifndef PDESOLVER_FEM_DISPATCH_DISCRETIZATIONLIMITS_HPP
-#define PDESOLVER_FEM_DISPATCH_DISCRETIZATIONLIMITS_HPP
+#ifndef RESIDUUM_FEM_DISPATCH_DISCRETIZATIONLIMITS_HPP
+#define RESIDUUM_FEM_DISPATCH_DISCRETIZATIONLIMITS_HPP
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace dispatch {
 
@@ -36,6 +36,6 @@ namespace pdesolver {
 
 		} // namespace dispatch
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,9 +1,9 @@
 #include "io/visualization/VTKWriter.hpp"
 
-pdesolver::io::visualization::VTKWriter::VTKWriter(const std::string& filename, Format fmt) : fmt_(fmt) {
+residuum::io::visualization::VTKWriter::VTKWriter(const std::string& filename, Format fmt) : fmt_(fmt) {
 
 	auto mode = std::ios::out;
-	if (fmt_ == pdesolver::io::visualization::VTKWriter::Format::Binary){
+	if (fmt_ == residuum::io::visualization::VTKWriter::Format::Binary){
 		mode |= std::ios::binary;
 	}
 	ofs_.open(filename, mode);
@@ -13,11 +13,11 @@ pdesolver::io::visualization::VTKWriter::VTKWriter(const std::string& filename, 
 
 }
 
-pdesolver::io::visualization::VTKWriter::~VTKWriter() {
+residuum::io::visualization::VTKWriter::~VTKWriter() {
 	if (ofs_.is_open()) ofs_.close();
 }
 
-void pdesolver::io::visualization::VTKWriter::writeHeader(const std::string& title) {
+void residuum::io::visualization::VTKWriter::writeHeader(const std::string& title) {
 
 	assert(state_ == State::Open);
 
@@ -30,7 +30,7 @@ void pdesolver::io::visualization::VTKWriter::writeHeader(const std::string& tit
 
 }
 
-void pdesolver::io::visualization::VTKWriter::writePoints(const Real* xyz, Index numNodes, Index spatialDim) {
+void residuum::io::visualization::VTKWriter::writePoints(const Real* xyz, Index numNodes, Index spatialDim) {
 
 	assert(state_ == State::HeaderWritten);
 
@@ -61,7 +61,7 @@ void pdesolver::io::visualization::VTKWriter::writePoints(const Real* xyz, Index
 
 }
 
-void pdesolver::io::visualization::VTKWriter::writeCells(const Index* ien, Index numElems, Index nodesPerElem) {
+void residuum::io::visualization::VTKWriter::writeCells(const Index* ien, Index numElems, Index nodesPerElem) {
 
 	assert(state_ == State::PointsWritten);
 
@@ -93,7 +93,7 @@ void pdesolver::io::visualization::VTKWriter::writeCells(const Index* ien, Index
 
 }
 
-void pdesolver::io::visualization::VTKWriter::writeCellTypes(int vtkType, Index numElems) {
+void residuum::io::visualization::VTKWriter::writeCellTypes(int vtkType, Index numElems) {
 
 	assert(state_ == State::CellsWritten);
 
@@ -115,7 +115,7 @@ void pdesolver::io::visualization::VTKWriter::writeCellTypes(int vtkType, Index 
 
 }
 
-void pdesolver::io::visualization::VTKWriter::beginPointData(Index numNodes) {
+void residuum::io::visualization::VTKWriter::beginPointData(Index numNodes) {
 
 	assert(state_ == State::CellTypesWritten);
 	ofs_ << "POINT_DATA " << numNodes << '\n';
@@ -124,7 +124,7 @@ void pdesolver::io::visualization::VTKWriter::beginPointData(Index numNodes) {
 
 }
 
-void pdesolver::io::visualization::VTKWriter::writeScalar(const std::string& name, const Real* data, Index numNodes) {
+void residuum::io::visualization::VTKWriter::writeScalar(const std::string& name, const Real* data, Index numNodes) {
 
 	assert(state_ == State::InPointData && pointDataOpen_);
 
@@ -145,7 +145,7 @@ void pdesolver::io::visualization::VTKWriter::writeScalar(const std::string& nam
 
 }
 
-void pdesolver::io::visualization::VTKWriter::writeVector(const std::string& name, const Real* data, Index numNodes, Index numComponents) {
+void residuum::io::visualization::VTKWriter::writeVector(const std::string& name, const Real* data, Index numNodes, Index numComponents) {
 
 	assert(state_ == State::InPointData && pointDataOpen_);
 
@@ -177,7 +177,7 @@ void pdesolver::io::visualization::VTKWriter::writeVector(const std::string& nam
 
 }
 
-void pdesolver::io::visualization::VTKWriter::endPointData() {
+void residuum::io::visualization::VTKWriter::endPointData() {
 
 	assert(pointDataOpen_);
 	pointDataOpen_ = false;
@@ -185,7 +185,7 @@ void pdesolver::io::visualization::VTKWriter::endPointData() {
 
 }
 
-void pdesolver::io::visualization::VTKWriter::beginCellData(Index numElems) {
+void residuum::io::visualization::VTKWriter::beginCellData(Index numElems) {
 
 	assert(state_ == State::CellTypesWritten && !cellDataOpen_);
 	ofs_ << "CELL_DATA " << numElems << '\n';
@@ -194,7 +194,7 @@ void pdesolver::io::visualization::VTKWriter::beginCellData(Index numElems) {
 
 }
 
-void pdesolver::io::visualization::VTKWriter::writeScalarCell(const std::string& name, const Real* data, Index numElems) {
+void residuum::io::visualization::VTKWriter::writeScalarCell(const std::string& name, const Real* data, Index numElems) {
 
 	assert(state_ == State::InCellData && cellDataOpen_);
 	ofs_ << "SCALARS " << name << " double 1\n";
@@ -214,7 +214,7 @@ void pdesolver::io::visualization::VTKWriter::writeScalarCell(const std::string&
 
 }
 
-void pdesolver::io::visualization::VTKWriter::endCellData() {
+void residuum::io::visualization::VTKWriter::endCellData() {
 
 	assert(cellDataOpen_);
 	cellDataOpen_ = false;
@@ -222,32 +222,32 @@ void pdesolver::io::visualization::VTKWriter::endCellData() {
 
 }
 
-int pdesolver::io::visualization::VTKWriter::inferVTKCellType(Index spatialDim, Index nodesPerElement) {
+int residuum::io::visualization::VTKWriter::inferVTKCellType(Index spatialDim, Index nodesPerElement) {
 
 	if (spatialDim == 2) {
-        switch (nodesPerElement) {
-            case 3: return 5;  // VTK_TRIANGLE
-            case 4: return 9;  // VTK_QUAD
-            case 6: return 22; // VTK_QUADRATIC_TRIANGLE
-            case 8: return 23; // VTK_QUADRATIC_QUAD
-            default: return 0;
-        }
-    }
+		switch (nodesPerElement) {
+			case 3: return 5;  // VTK_TRIANGLE
+			case 4: return 9;  // VTK_QUAD
+			case 6: return 22; // VTK_QUADRATIC_TRIANGLE
+			case 8: return 23; // VTK_QUADRATIC_QUAD
+			default: return 0;
+		}
+	}
 
-    if (spatialDim == 3) {
-        switch (nodesPerElement) {
-            case 4:  return 10; // VTK_TETRA
-            case 8:  return 12; // VTK_HEXAHEDRON
-            case 10: return 24; // VTK_QUADRATIC_TETRA
-            case 20: return 25; // VTK_QUADRATIC_HEXAHEDRON
-            default: return 0;
-        }
-    }
+	if (spatialDim == 3) {
+		switch (nodesPerElement) {
+			case 4:  return 10; // VTK_TETRA
+			case 8:  return 12; // VTK_HEXAHEDRON
+			case 10: return 24; // VTK_QUADRATIC_TETRA
+			case 20: return 25; // VTK_QUADRATIC_HEXAHEDRON
+			default: return 0;
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
-std::vector<Index> pdesolver::io::visualization::VTKWriter::rowMajorToCCW(const Index* rm, const Index numNodes) {
+std::vector<Index> residuum::io::visualization::VTKWriter::rowMajorToCCW(const Index* rm, const Index numNodes) {
 
 	switch (numNodes) {
 		case 4:

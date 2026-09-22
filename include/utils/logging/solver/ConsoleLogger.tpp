@@ -1,7 +1,7 @@
-namespace pdesolver::utils::logging {
+namespace residuum::utils::logging {
 
-	template<typename DataType>
-	void ConsoleLogger::log(Index iter, const std::vector<DataType>& perDOFAbs, DataType flopsThisIter) const {
+	template<typename DataT>
+	void ConsoleLogger::log(Index iter, const std::vector<DataT>& perDOFAbs, DataT flopsThisIter) const {
 
 		// capture the relative-residual baseline and start the clock on the first call
 		if (!baselineCaptured_) {
@@ -23,10 +23,7 @@ namespace pdesolver::utils::logging {
 
 		const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 
-		// CSV row -- every iteration, independent of the console interval throttle below
-		// (a thinned-out plot loses fidelity for no benefit; the throttle exists only to
-		// reduce terminal clutter). outer_tick is reserved for nonlinear iteration / timestep
-		// index, once one of those exists to prefix a single linear solve's own history.
+		// CSV row: every iteration, independent of the console interval throttle below
 		if (csv_->enabled()) {
 			std::vector<Real> row = {Real(0), static_cast<Real>(iter)};
 			for (const auto& v : perDOFAbs) row.push_back(static_cast<Real>(v));
@@ -61,15 +58,15 @@ namespace pdesolver::utils::logging {
 	}
 
 	// computePerDOFNorms() helper
-	template<typename DataType>
-	std::vector<DataType> ConsoleLogger::computePerDOFNorms(const DataType* r, Index totalSize) const {
+	template<typename DataT>
+	std::vector<DataT> ConsoleLogger::computePerDOFNorms(const DataT* r, Index totalSize) const {
 
 		const Index D = dofNames.size();
-		std::vector<DataType> norms(D > 0 ? D : 1, DataType(0));
+		std::vector<DataT> norms(D > 0 ? D : 1, DataT(0));
 
 		// single field: the whole residual belongs to the one DOF
 		if (D <= 1 || freeDOFsPerField == 0) {
-			DataType sum = DataType(0);
+			DataT sum = DataT(0);
 			for (Index i = 0; i < totalSize; ++i) sum += r[i] * r[i];
 			norms[0] = std::sqrt(sum);
 			return norms;
@@ -160,4 +157,4 @@ namespace pdesolver::utils::logging {
 
 	}
 
-} // namespace pdesolver::utils::logging
+} // namespace residuum::utils::logging

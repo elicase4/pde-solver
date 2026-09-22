@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_UTILS_LOGGING_CORE_TEESTREAMBUF_HPP
-#define PDESOLVER_UTILS_LOGGING_CORE_TEESTREAMBUF_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_CORE_TEESTREAMBUF_HPP
+#define RESIDUUM_UTILS_LOGGING_CORE_TEESTREAMBUF_HPP
 
 #include <ostream>
 #include <streambuf>
 #include <vector>
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 
@@ -35,6 +35,6 @@ namespace pdesolver {
 
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

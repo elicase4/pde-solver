@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_LINALG_FEMOPERATOR_HPP
-#define PDESOLVER_LINALG_FEMOPERATOR_HPP
+#ifndef RESIDUUM_LINALG_OPERATOR_FEMOPERATOR_HPP
+#define RESIDUUM_LINALG_OPERATOR_FEMOPERATOR_HPP
 
 #include <array>
 
@@ -7,33 +7,35 @@
 #include "fem/assembly/ElementMap.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 
-#include "fem/eval/EvalElement.hpp"
-#include "fem/eval/EvalQuadraturePointVolume.hpp"
-#include "fem/eval/EvalModel.hpp"
+#include "fem/evaluator/EvalElement.hpp"
+#include "fem/evaluator/EvalQuadraturePointVolume.hpp"
+#include "fem/evaluator/EvalModel.hpp"
 
 #include "fem/form/BilinearForm.hpp"
 #include "fem/form/NonlinearTangentForm.hpp"
 
 #include "mesh/Mesh.hpp"
 
+#include "linalg/operator/Operator.hpp"
 #include "linalg/types/Vector.hpp"
 
 #include "topology/TopologicalDOF.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace linalg {
 		namespace op {
 
-			template<typename Assembler, typename TopologicalDOF, fem::eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, fem::assembly::GatherMode Mode, typename VectorType>
+			template<typename AssemblerT, typename TopologicalDOFT, fem::evaluator::EvalElement EvalEleT, fem::evaluator::EvalQuadraturePointVolume EvalQPT, typename ModelT, typename FormsT, typename QuadratureT, fem::assembly::GatherMode Mode, typename VectorT>
+			requires fem::evaluator::EvalModel<ModelT, EvalQPT>
 			class FEMOperator {
 			public:
 
-				static constexpr Index NumAuxStates = EvalQP::NumAuxStates;
+				static constexpr Index NumAuxStates = EvalQPT::NumAuxStates;
 
-				FEMOperator(const Assembler& assembler_, const mesh::Mesh& mesh_, const TopologicalDOF& topoDOF_, const Real* time_, const Model& model_, const FormRegistry& forms_, const EvalEle& evalEle_, const Quadrature& quadrature_, const fem::boundary::EssentialBoundaryRegistry* bcRegistry_, const VectorType* fieldSource_ = nullptr, const std::array<const VectorType*, NumAuxStates>& auxStates_ = {}) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), forms(forms_), quadrature(quadrature_), evalEle(evalEle_), bcRegistry(bcRegistry_), fieldSource(fieldSource_), auxStates(auxStates_) {}
+				FEMOperator(const AssemblerT& assembler_, const mesh::Mesh& mesh_, const TopologicalDOFT& topoDOF_, const Real* time_, const ModelT& model_, const FormsT& forms_, const EvalEleT& evalEle_, const QuadratureT& quadrature_, const fem::boundary::EssentialBoundaryRegistry* bcRegistry_, const VectorT* fieldSource_ = nullptr, const std::array<const VectorT*, NumAuxStates>& auxStates_ = {}) : assembler(assembler_), mesh(mesh_), topoDOF(topoDOF_), time(time_), model(model_), forms(forms_), quadrature(quadrature_), evalEle(evalEle_), bcRegistry(bcRegistry_), fieldSource(fieldSource_), auxStates(auxStates_) {}
 
-				void apply(const VectorType& x, VectorType& y) const {
-					assembler.template assembleVector<TopologicalDOF::dofsPerNode, EvalEle, EvalQP, Model, FormRegistry, Quadrature, Mode>(mesh, topoDOF, *time, model, forms, evalEle, quadrature, x, fieldSource, auxStates, y, bcRegistry);
+				void apply(const VectorT& x, VectorT& y) const {
+					assembler.template assembleVector<TopologicalDOFT::dofsPerNode, EvalEleT, EvalQPT, ModelT, FormsT, QuadratureT, Mode>(mesh, topoDOF, *time, model, forms, evalEle, quadrature, x, fieldSource, auxStates, y, bcRegistry);
 				}
 
 				Index size() const {
@@ -46,23 +48,25 @@ namespace pdesolver {
 				}
 
 			private:
-				const Assembler& assembler;
+				const AssemblerT& assembler;
 				const mesh::Mesh& mesh;
-				const TopologicalDOF& topoDOF;
+				const TopologicalDOFT& topoDOF;
 				const Real* time;
-				const Model& model;
-				const FormRegistry& forms;
-				const Quadrature& quadrature;
-				const EvalEle& evalEle;
+				const ModelT& model;
+				const FormsT& forms;
+				const QuadratureT& quadrature;
+				const EvalEleT& evalEle;
 
 				const fem::boundary::EssentialBoundaryRegistry* bcRegistry;
-				const VectorType* fieldSource;
-				std::array<const VectorType*, NumAuxStates> auxStates;
+				const VectorT* fieldSource;
+				std::array<const VectorT*, NumAuxStates> auxStates;
+
+				static_assert(LinearOperator<FEMOperator, VectorT>);
 
 			}; // class FEMOperator
 
 		} // namespace op
 	} // namespace linalg
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

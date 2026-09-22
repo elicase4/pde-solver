@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <unordered_map>
 
-pdesolver::mesh::Mesh pdesolver::mesh::generator::BlockMesh2D::generate(const std::unordered_map<Int, Int>&) const {
+residuum::mesh::Mesh residuum::mesh::generator::BlockMesh2D::generate(const std::unordered_map<Int, Int>&) const {
 
 	if (nx <= 0 || ny <= 0 || px <= 0 || py <= 0) {
 		throw std::invalid_argument("BlockMesh2D: nx, ny, px, py must all be positive");
@@ -23,7 +23,7 @@ pdesolver::mesh::Mesh pdesolver::mesh::generator::BlockMesh2D::generate(const st
 
 }
 
-void pdesolver::mesh::generator::BlockMesh2D::initializeData(Data& data) const {
+void residuum::mesh::generator::BlockMesh2D::initializeData(Data& data) const {
 
 	// dimensions
 	data.parametricDim = 2;
@@ -47,7 +47,7 @@ void pdesolver::mesh::generator::BlockMesh2D::initializeData(Data& data) const {
 
 }
 
-void pdesolver::mesh::generator::BlockMesh2D::generateNodes(Data& data) const {
+void residuum::mesh::generator::BlockMesh2D::generateNodes(Data& data) const {
 
 	const Index NX = nx * px + 1;
 	const Index NY = ny * py + 1;
@@ -70,7 +70,7 @@ void pdesolver::mesh::generator::BlockMesh2D::generateNodes(Data& data) const {
 
 }
 
-void pdesolver::mesh::generator::BlockMesh2D::generateElements(Data& data) const {
+void residuum::mesh::generator::BlockMesh2D::generateElements(Data& data) const {
 
 	// populate ien array
 	for (Index ele_y = 0; ele_y < ny; ++ele_y){
@@ -95,7 +95,7 @@ void pdesolver::mesh::generator::BlockMesh2D::generateElements(Data& data) const
 
 }
 
-void pdesolver::mesh::generator::BlockMesh2D::generateBoundaryTags(Data& data) const {
+void residuum::mesh::generator::BlockMesh2D::generateBoundaryTags(Data& data) const {
 
 	// boundary tags
 	static constexpr Int LEFT   = 0;

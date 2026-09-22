@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_SCALARMATERIALPROPERTYCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_CONFIG_SCALARMATERIALPROPERTYCONFIG_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_CONFIG_SCALARMATERIALPROPERTYCONFIG_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_CONFIG_SCALARMATERIALPROPERTYCONFIG_HPP
 
 #include <string>
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace config {
@@ -20,6 +20,6 @@ namespace pdesolver {
 			} // namespace config
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

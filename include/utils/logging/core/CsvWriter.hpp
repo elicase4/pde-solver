@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_CORE_CSVWRITER_HPP
-#define PDESOLVER_UTILS_LOGGING_CORE_CSVWRITER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_CORE_CSVWRITER_HPP
+#define RESIDUUM_UTILS_LOGGING_CORE_CSVWRITER_HPP
 
 #include <fstream>
 #include <stdexcept>
@@ -8,7 +8,7 @@
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 
@@ -61,6 +61,6 @@ namespace pdesolver {
 
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

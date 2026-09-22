@@ -1,10 +1,10 @@
-#ifndef PDESOLVER_LAGRANGEHEX_HPP
-#define PDESOLVER_LAGRANGEHEX_HPP
+#ifndef RESIDUUM_FEM_BASIS_LAGRANGEHEX_HPP
+#define RESIDUUM_FEM_BASIS_LAGRANGEHEX_HPP
 
 #include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/basis/Lagrange1D.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace basis {
 
@@ -40,7 +40,7 @@ namespace pdesolver {
 
 		} // namespace basis
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "LagrangeHex.tpp"
 

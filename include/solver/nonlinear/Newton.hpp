@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_NONLINEAR_NEWTON_HPP
-#define PDESOLVER_SOLVER_NONLINEAR_NEWTON_HPP
+#ifndef RESIDUUM_SOLVER_NONLINEAR_NEWTON_HPP
+#define RESIDUUM_SOLVER_NONLINEAR_NEWTON_HPP
 
 #include <utility>
 
@@ -13,18 +13,18 @@
 
 #include "utils/logging/nonlinear/Logger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace nonlinear {
 
-			template<stage::NonlinearCapableStage StageT, typename VectorType>
-			class NewtonRunner : public NonlinearSolverRunner<VectorType> {
+			template<stage::NonlinearCapableStage StageT, typename VectorT>
+			class NewtonRunner : public NonlinearSolverRunner<VectorT> {
 			public:
 
 				NewtonRunner(StageT& stage, const config::NonlinearSolverConfig& cfg, utils::logging::nonlinear::Logger logger)
 					: stage_(stage), cfg_(cfg), logger_(std::move(logger)) {}
 
-				bool solve(linalg::solver::SolverReport<VectorType>& report) override {
+				bool solve(linalg::solver::SolverReport<VectorT>& report) override {
 
 					Real res0 = Real(0);
 
@@ -76,6 +76,6 @@ namespace pdesolver {
 
 		} // namespace nonlinear
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

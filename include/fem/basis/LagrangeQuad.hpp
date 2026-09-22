@@ -1,10 +1,10 @@
-#ifndef PDESOLVER_LAGRANGEQUAD_HPP
-#define PDESOLVER_LAGRANGEQUAD_HPP
+#ifndef RESIDUUM_FEM_BASIS_LAGRANGEQUAD_HPP
+#define RESIDUUM_FEM_BASIS_LAGRANGEQUAD_HPP
 
 #include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/basis/Lagrange1D.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace basis {
 
@@ -38,7 +38,7 @@ namespace pdesolver {
 
 		} // namespace basis
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "LagrangeQuad.tpp"
 

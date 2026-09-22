@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_TIMESTEPPER_STEPSIZEPOLICYFACTORY_HPP
-#define PDESOLVER_SOLVER_TIMESTEPPER_STEPSIZEPOLICYFACTORY_HPP
+#ifndef RESIDUUM_SOLVER_TIMESTEPPER_STEPSIZEPOLICYFACTORY_HPP
+#define RESIDUUM_SOLVER_TIMESTEPPER_STEPSIZEPOLICYFACTORY_HPP
 
 #include <memory>
 #include <stdexcept>
@@ -9,7 +9,7 @@
 #include "solver/timestepper/ConstantStepSizePolicy.hpp"
 #include "solver/timestepper/TimeStepSizePolicy.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace timestepper {
 
@@ -34,6 +34,6 @@ namespace pdesolver {
 
 		} // namespace timestepper
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,18 +1,18 @@
-#ifndef PDESOLVER_SOLVER_PRECONDITIONER_IDENTITY_HPP
-#define PDESOLVER_SOLVER_PRECONDITIONER_IDENTITY_HPP
+#ifndef RESIDUUM_LINALG_SOLVER_PRECONDITIONER_IDENTITY_HPP
+#define RESIDUUM_LINALG_SOLVER_PRECONDITIONER_IDENTITY_HPP
 
 #include "linalg/operations/VectorOps.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace linalg {
 		namespace solver {
 			namespace preconditioner {
 
-				template<typename VectorType>
+				template<typename VectorT>
 				class Identity {
 				public:
 					
-					void apply(const VectorType& r, VectorType& z){
+					void apply(const VectorT& r, VectorT& z){
 						operations::copy(r, z); // z = r
 					}
 
@@ -25,6 +25,6 @@ namespace pdesolver {
 			} // namespaace preconditioner
 		} // namespaace solver
 	} // namespaace linalg
-} // namespaace pdesolver
+} // namespaace residuum
 
 #endif

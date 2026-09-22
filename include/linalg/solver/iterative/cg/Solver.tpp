@@ -8,13 +8,14 @@
 #include "linalg/operations/VectorOps.hpp"
 #include "linalg/solver/base/SolverReport.hpp"
 
-namespace pdesolver::linalg::solver::iterative::cg {
+namespace residuum::linalg::solver::iterative::cg {
 
-	template<typename OperatorType, typename VectorType, typename PreconditionerType, typename LoggerType>
-	bool Solver<OperatorType, VectorType, PreconditionerType, LoggerType>::solve(solver::SolverReport<VectorType>& report, LoggerType& logger, Workspace& W, PreconditionerType& M, const OperatorType& A, const VectorType& b, VectorType& x){
+	template<typename OperatorT, typename VectorT, typename PreconditionerT, typename LoggerT>
+	requires linalg::op::LinearOperator<OperatorT, VectorT>
+	bool Solver<OperatorT, VectorT, PreconditionerT, LoggerT>::solve(solver::SolverReport<VectorT>& report, LoggerT& logger, Workspace& W, PreconditionerT& M, const OperatorT& A, const VectorT& b, VectorT& x){
 
 		// get config info
-		using DataType = typename VectorType::value_type;
+		using DataType = typename VectorT::value_type;
 		const bool relMode = (config.tolType == ToleranceType::Relative);
 
 		// per-iteration flop cost is constant for CG
@@ -110,4 +111,4 @@ namespace pdesolver::linalg::solver::iterative::cg {
 
 	}
 
-} // namespace pdesolver::linalg::solver::iterative::cg
+} // namespace residuum::linalg::solver::iterative::cg

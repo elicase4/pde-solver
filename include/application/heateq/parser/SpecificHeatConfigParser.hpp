@@ -1,5 +1,5 @@
-#ifndef APPLICATION_HEATEQ_PARSER_SPECIFICHEATCONFIGPARSER_HPP
-#define APPLICATION_HEATEQ_PARSER_SPECIFICHEATCONFIGPARSER_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_PARSER_SPECIFICHEATCONFIGPARSER_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_PARSER_SPECIFICHEATCONFIGPARSER_HPP
 
 #include <string>
 #include <stdexcept>
@@ -7,7 +7,7 @@
 
 #include "application/heateq/config/SpecificHeatConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace parser {
@@ -24,6 +24,6 @@ namespace pdesolver {
 			} // namespace parser
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

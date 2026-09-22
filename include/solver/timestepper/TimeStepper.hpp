@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_SOLVER_TIMESTEPPER_TIMESTEPPER_HPP
-#define PDESOLVER_SOLVER_TIMESTEPPER_TIMESTEPPER_HPP
+#ifndef RESIDUUM_SOLVER_TIMESTEPPER_TIMESTEPPER_HPP
+#define RESIDUUM_SOLVER_TIMESTEPPER_TIMESTEPPER_HPP
 
 #include <concepts>
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 
 		enum class TemporalOrder { First, Second };
@@ -26,6 +26,6 @@ namespace pdesolver {
 		}; // concept TimeStepper
 
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

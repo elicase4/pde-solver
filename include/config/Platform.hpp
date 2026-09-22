@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_PLATFORM_HPP
-#define PDESOLVER_PLATFORM_HPP
+#ifndef RESIDUUM_CONFIG_PLATFORM_HPP
+#define RESIDUUM_CONFIG_PLATFORM_HPP
 
 // device accessible functions
 #ifdef __CUDACC__

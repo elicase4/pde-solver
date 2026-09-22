@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_DRIVER_CONSOLELOGGER_HPP
-#define PDESOLVER_UTILS_LOGGING_DRIVER_CONSOLELOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_DRIVER_CONSOLELOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_DRIVER_CONSOLELOGGER_HPP
 
 #include <fstream>
 #include <iostream>
@@ -10,7 +10,7 @@
 
 #include "utils/logging/core/AnsiColor.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 			namespace driver {
@@ -23,10 +23,7 @@ namespace pdesolver {
 					ConsoleLogger(std::string tagIn, bool consoleEnabledIn = true, const std::string& textFilePath = "") : tag(std::move(tagIn)), consoleEnabled(consoleEnabledIn) {
 
 						if (!textFilePath.empty()) {
-							// append, not truncate -- HeatDispatcher and HeatProblem each
-							// construct their own driver logger against the SAME configured
-							// path; two independent ofstreams truncating the same file would
-							// each wipe what the other already wrote
+							// appends rather than truncates since HeatDispatcher and HeatProblem each open this same path independently
 							textFile_.open(textFilePath, std::ios::app);
 							if (!textFile_.is_open()) {
 								throw std::runtime_error("driver::ConsoleLogger: could not open '" + textFilePath + "' for writing");
@@ -68,6 +65,6 @@ namespace pdesolver {
 			} // namespace driver
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

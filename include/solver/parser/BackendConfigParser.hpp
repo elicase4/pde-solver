@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_PARSER_BACKENDCONFIGPARSER_HPP
-#define PDESOLVER_SOLVER_PARSER_BACKENDCONFIGPARSER_HPP
+#ifndef RESIDUUM_SOLVER_PARSER_BACKENDCONFIGPARSER_HPP
+#define RESIDUUM_SOLVER_PARSER_BACKENDCONFIGPARSER_HPP
 
 #include <string>
 
@@ -7,7 +7,7 @@
 
 #include "solver/config/BackendConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace parser {
 
@@ -22,6 +22,6 @@ namespace pdesolver {
 
 		} // namespace parser
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

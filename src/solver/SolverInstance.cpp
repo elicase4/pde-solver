@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-pdesolver::solver::SolverInstance pdesolver::solver::resolveSolverInstance(const pdesolver::solver::config::SolverConfig& solver) {
+residuum::solver::SolverInstance residuum::solver::resolveSolverInstance(const residuum::solver::config::SolverConfig& solver) {
 
 	SolverInstance instance;
 

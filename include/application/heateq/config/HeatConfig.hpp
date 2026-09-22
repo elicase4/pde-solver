@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_HEATCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_CONFIG_HEATCONFIG_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_CONFIG_HEATCONFIG_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_CONFIG_HEATCONFIG_HPP
 
 #include <string>
 #include <vector>
@@ -24,7 +24,7 @@
 #include "solver/config/OutputConfig.hpp"
 #include "solver/config/TimeStepperConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace config {
@@ -63,6 +63,6 @@ namespace pdesolver {
 			} // namespace config
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

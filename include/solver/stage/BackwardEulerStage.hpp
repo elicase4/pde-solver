@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_STAGE_BACKWARDEULERSTAGE_HPP
-#define PDESOLVER_SOLVER_STAGE_BACKWARDEULERSTAGE_HPP
+#ifndef RESIDUUM_SOLVER_STAGE_BACKWARDEULERSTAGE_HPP
+#define RESIDUUM_SOLVER_STAGE_BACKWARDEULERSTAGE_HPP
 
 #include <memory>
 #include <type_traits>
@@ -7,7 +7,7 @@
 #include "core/Types.hpp"
 
 #include "fem/assembly/ElementMap.hpp"
-#include "fem/eval/ModelRegistry.hpp"
+#include "fem/evaluator/ModelRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
 #include "fem/form/ScaledForm.hpp"
 
@@ -21,7 +21,7 @@
 #include "solver/nonlinear/NonlinearSolverRunner.hpp"
 #include "solver/problem/TransientCapableProblem.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace stage {
 
@@ -41,11 +41,11 @@ namespace pdesolver {
 				using TangentMassFormsT = std::decay_t<decltype(std::declval<ProblemT&>().tangentMassForms())>;
 
 				using OperatorFormsT = fem::form::FormRegistry<StiffnessFormsT, fem::form::ScaledForm<ProblemT::NumDOFs, MassFormsT>>;
-				using OperatorModelT = fem::eval::ModelRegistry<StiffnessModelT, MassModelT>;
+				using OperatorModelT = fem::evaluator::ModelRegistry<StiffnessModelT, MassModelT>;
 
 				using JacobianFormsT = fem::form::FormRegistry<StiffnessFormsT, TangentStiffnessFormsT, fem::form::ScaledForm<ProblemT::NumDOFs, MassFormsT>, fem::form::ScaledForm<ProblemT::NumDOFs, TangentMassFormsT>>;
 
-				explicit BackwardEulerStage(ProblemT& problem) : problem_(problem), operatorModel_(problem_.stiffnessModel(), problem_.massModel()), K_(problem_.createMatrix()), massScratch_(problem_.createVector()), Udot_(problem_.createVector()), R_(problem_.createVector()) {
+				explicit BackwardEulerStage(ProblemT& problem) : problem_(problem), operatorModel_(problem_.stiffnessModel(), problem_.massModel()), K_(needsK() ? problem_.createMatrix() : MatrixT(0, 0)), massScratch_(problem_.createVector()), Udot_(problem_.createVector()), R_(problem_.createVector()) {
 
 					setDt(problem_.solverInstance().timestepper->stepSize.dt);
 
@@ -53,7 +53,7 @@ namespace pdesolver {
 
 					if (solver::isNonlinear(problem_.solverInstance().mode)) {
 
-						J_ = std::make_unique<MatrixT>(problem_.createMatrix());
+						J_ = std::make_unique<MatrixT>(isSparse() ? problem_.createMatrix() : MatrixT(0, 0));
 						dU_ = std::make_unique<VectorT>(problem_.createVector());
 						jacobianSolverRunner_ = problem_.template makeLinearRunner<fem::assembly::GatherMode::Free>(&currentTime_, jacobianForms_, operatorModel_, &problem_.U(), {&Udot_}, *J_);
 
@@ -67,9 +67,11 @@ namespace pdesolver {
 
 				void assemble() {
 
-					if (isSparse()) {
-						linalg::operations::copy(problem_.U(), Udot_);
-						linalg::operations::axpby(-Real(1) / dt_, Real(1) / dt_, problem_.U_prev(), Udot_);
+					// Udot_ must stay current regardless of operator type; only the K_ fill below is gated
+					linalg::operations::copy(problem_.U(), Udot_);
+					linalg::operations::axpby(-Real(1) / dt_, Real(1) / dt_, problem_.U_prev(), Udot_);
+
+					if (needsK()) {
 						problem_.template assembleMatrix<fem::assembly::GatherMode::Free>(currentTime_, operatorForms_, operatorModel_, {&Udot_}, K_);
 					}
 
@@ -100,7 +102,7 @@ namespace pdesolver {
 
 				void finalize() {}
 
-				// --- NonlinearCapableStage ---
+				// NonlinearCapableStage
 				Real residualNorm() {
 
 					problem_.template assembleResidual<fem::assembly::GatherMode::Full>(currentTime_, problem_.stiffnessForms(), problem_.stiffnessModel(), {}, R_);
@@ -114,7 +116,9 @@ namespace pdesolver {
 
 				bool solveLinearStep() {
 
-					problem_.template assembleMatrix<fem::assembly::GatherMode::Full>(currentTime_, jacobianForms_, operatorModel_, {&Udot_}, *J_);
+					if (needsJ()) {
+						problem_.template assembleMatrix<fem::assembly::GatherMode::Full>(currentTime_, jacobianForms_, operatorModel_, {&Udot_}, *J_);
+					}
 
 					dU_->zero();
 					linalg::solver::SolverReport<VectorT> report;
@@ -127,7 +131,7 @@ namespace pdesolver {
 
 				}
 
-				// --- TransientCapableStage ---
+				// TransientCapableStage
 				void setDt(Real dt) {
 
 					if (dt == dt_) return; // common case: the active step-size policy kept dt unchanged
@@ -136,7 +140,7 @@ namespace pdesolver {
 					operatorForms_ = OperatorFormsT(problem_.stiffnessForms(), fem::form::ScaledForm<ProblemT::NumDOFs, MassFormsT>(Real(1) / dt_));
 					jacobianForms_ = JacobianFormsT(problem_.stiffnessForms(), problem_.tangentStiffnessForms(), fem::form::ScaledForm<ProblemT::NumDOFs, MassFormsT>(Real(1) / dt_), fem::form::ScaledForm<ProblemT::NumDOFs, TangentMassFormsT>(Real(1) / dt_));
 
-					if (isSparse()) {
+					if (needsK()) {
 						problem_.template assembleMatrix<fem::assembly::GatherMode::Free>(currentTime_, operatorForms_, operatorModel_, {}, K_);
 					}
 
@@ -156,6 +160,8 @@ namespace pdesolver {
 			private:
 
 				bool isSparse() const { return problem_.solverInstance().linear->operatorType == config::LinearSolverConfig::OperatorType::CSR; }
+				bool needsK() const { return !solver::isNonlinear(problem_.solverInstance().mode) && isSparse(); }
+				bool needsJ() const { return solver::isNonlinear(problem_.solverInstance().mode) && isSparse(); }
 
 				ProblemT& problem_;
 
@@ -183,6 +189,6 @@ namespace pdesolver {
 
 		} // namespace stage
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

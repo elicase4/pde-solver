@@ -16,52 +16,52 @@
 
 #include "io/YAMLReader.hpp"
 
-pdesolver::application::heateq::config::HeatConfig pdesolver::application::heateq::parser::HeatConfigParser::read(const std::string& filename) {
+residuum::application::heateq::config::HeatConfig residuum::application::heateq::parser::HeatConfigParser::read(const std::string& filename) {
 
 	using io::YAMLReader;
 
 	const YAML::Node root = YAMLReader::loadFile(filename);
 
-	pdesolver::application::heateq::config::HeatConfig cfg;
+	residuum::application::heateq::config::HeatConfig cfg;
 
 	const YAML::Node& mesh = root["mesh"];
 	if (!mesh) {
 		throw std::runtime_error("HeatConfigReader: missing required 'mesh' section in " + filename);
 	}
-	cfg.mesh = pdesolver::solver::parser::MeshConfigParser::parse(mesh);
+	cfg.mesh = residuum::solver::parser::MeshConfigParser::parse(mesh);
 
 	const YAML::Node& disc = root["discretization"];
 	if (!disc) {
 		throw std::runtime_error("HeatConfigReader: missing required 'discretization' section in " + filename);
 	}
-	cfg.discretization = pdesolver::solver::parser::DiscretizationConfigParser::parse(disc);
+	cfg.discretization = residuum::solver::parser::DiscretizationConfigParser::parse(disc);
 
 	const YAML::Node& solver = root["solver"];
 	if (!solver) {
 		throw std::runtime_error("HeatConfigParser: missing required 'solver' section in " + filename);
 	}
-	cfg.solver = pdesolver::solver::parser::SolverConfigParser::parse(solver);
+	cfg.solver = residuum::solver::parser::SolverConfigParser::parse(solver);
 	
-	// optional -- absent means no field-snapshot output at all
+	// optional; absent means no field-snapshot output at all
 	const YAML::Node& output = root["output"];
 	if (output) {
-		cfg.output = pdesolver::solver::parser::OutputConfigParser::parse(output);
+		cfg.output = residuum::solver::parser::OutputConfigParser::parse(output);
 	}
 
-	cfg.logging = pdesolver::solver::parser::LoggingConfigParser::parse(root["logging"]);
+	cfg.logging = residuum::solver::parser::LoggingConfigParser::parse(root["logging"]);
 
 	const YAML::Node& initialCondition = root["initial_condition"];
 	if (!initialCondition) {
 		throw std::runtime_error("HeatConfigReader: missing required 'initial_condition' section in " + filename);
 	}
-	cfg.initialCondition = pdesolver::application::heateq::parser::InitialConditionConfigParser::parse(initialCondition);
+	cfg.initialCondition = residuum::application::heateq::parser::InitialConditionConfigParser::parse(initialCondition);
 
 	const YAML::Node& bcs = root["boundary_conditions"];
 	if (!bcs) {
 		throw std::runtime_error("HeatConfigReader: missing required 'boundary_conditions' section in " + filename);
 	}
 	for (auto& bc : bcs) {
-		cfg.boundaryConditions.push_back(pdesolver::application::heateq::parser::BoundaryConditionConfigParser::parse(bc));
+		cfg.boundaryConditions.push_back(residuum::application::heateq::parser::BoundaryConditionConfigParser::parse(bc));
 	}
 
 	const YAML::Node& materials = root["materials"];
@@ -73,17 +73,17 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	if (!cond) {
 		throw std::runtime_error("HeatConfigReader: missing required 'materials.conductivity' section in " + filename);
 	}
-	cfg.conductivity = pdesolver::application::heateq::parser::ConductivityConfigParser::parse(cond);
+	cfg.conductivity = residuum::application::heateq::parser::ConductivityConfigParser::parse(cond);
 
 	// density/specific_heat are used for a transient driver;
 	const YAML::Node& density = materials["density"];
 	if (density) {
-		cfg.density = pdesolver::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(density);
+		cfg.density = residuum::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(density);
 	}
 
 	const YAML::Node& specificHeat = materials["specific_heat"];
 	if (specificHeat) {
-		cfg.specificHeat = pdesolver::application::heateq::parser::SpecificHeatConfigParser::parse(specificHeat);
+		cfg.specificHeat = residuum::application::heateq::parser::SpecificHeatConfigParser::parse(specificHeat);
 	}
 
 	const YAML::Node& physics = root["physics"];
@@ -100,14 +100,14 @@ pdesolver::application::heateq::config::HeatConfig pdesolver::application::heate
 	if (!src) {
 		throw std::runtime_error("HeatConfigReader: missing required 'physics.models.source' section in " + filename);
 	}
-	cfg.source = pdesolver::application::heateq::parser::SourceConfigParser::parse(src);
+	cfg.source = residuum::application::heateq::parser::SourceConfigParser::parse(src);
 
-	cfg.backend = pdesolver::solver::parser::BackendConfigParser::parse(root);
+	cfg.backend = residuum::solver::parser::BackendConfigParser::parse(root);
 
 	const YAML::Node& monitors = root["monitors"];
 	if (monitors) {
 		for (auto& monitor : monitors) {
-			cfg.monitors.push_back(pdesolver::application::heateq::parser::MonitorConfigParser::parse(monitor));
+			cfg.monitors.push_back(residuum::application::heateq::parser::MonitorConfigParser::parse(monitor));
 		}
 	}
 

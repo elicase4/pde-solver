@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_PROBLEM_HEATPROBLEM_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_PROBLEM_HEATPROBLEM_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_PROBLEM_HEATPROBLEM_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_PROBLEM_HEATPROBLEM_HPP
 
 #include <array>
 #include <map>
@@ -50,22 +50,22 @@
 #include "utils/expression/VectorExpression.hpp"
 #include "utils/logging/driver/Logger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace problem {
 
-				template<typename Backend, typename HeatEqBundle>
+				template<typename BackendT, typename HeatEqBundleT>
 				class HeatProblem {
 				public:
 
-					using VectorT = linalg::types::Vector<Real, Backend>;
-					using MatrixT = linalg::types::CSRMatrix<Real, Backend>;
+					using VectorT = linalg::types::Vector<Real, BackendT>;
+					using MatrixT = linalg::types::CSRMatrix<Real, BackendT>;
 
-					static constexpr Index NumDOFs = HeatEqBundle::NumDOFs;
-					static constexpr Index NumAuxStates = HeatEqBundle::EvalQPVol::NumAuxStates;
+					static constexpr Index NumDOFs = HeatEqBundleT::NumDOFs;
+					static constexpr Index NumAuxStates = HeatEqBundleT::EvalQPVol::NumAuxStates;
 
-					HeatProblem(const config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundle::Basis basis, typename HeatEqBundle::QuadratureVolumeType quadratureVolume, typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary);
+					HeatProblem(const config::HeatConfig& config, mesh::Mesh mesh, typename HeatEqBundleT::Basis basis, typename HeatEqBundleT::QuadratureVolumeType quadratureVolume, typename HeatEqBundleT::QuadratureBoundaryType quadratureBoundary);
 
 					HeatProblem(const HeatProblem&) = delete;
 					HeatProblem& operator=(const HeatProblem&) = delete;
@@ -73,16 +73,16 @@ namespace pdesolver {
 					HeatProblem& operator=(HeatProblem&&) = delete;
 
 					// stateless
-					typename HeatEqBundle::StiffnessForms stiffnessForms() const { return {}; }
-					typename HeatEqBundle::MassForms massForms() const { return {}; }
-					typename HeatEqBundle::TangentDiffusionForms tangentStiffnessForms() const { return {}; }
-					typename HeatEqBundle::TangentMassForms tangentMassForms() const { return {}; }
+					typename HeatEqBundleT::StiffnessForms stiffnessForms() const { return {}; }
+					typename HeatEqBundleT::MassForms massForms() const { return {}; }
+					typename HeatEqBundleT::TangentDiffusionForms tangentStiffnessForms() const { return {}; }
+					typename HeatEqBundleT::TangentMassForms tangentMassForms() const { return {}; }
 
-					const typename HeatEqBundle::ConductivityModel& stiffnessModel() const { return conductivityModel_; }
-					const typename HeatEqBundle::MassModel& massModel() const { return massModel_; }
+					const typename HeatEqBundleT::ConductivityModel& stiffnessModel() const { return conductivityModel_; }
+					const typename HeatEqBundleT::MassModel& massModel() const { return massModel_; }
 
-					MatrixT createMatrix() const { return fem::assembly::Assembler<Backend>::template createMatrix<HeatEqBundle::NumDOFs>(mesh_, topoDOF_); }
-					VectorT createVector() const { return fem::assembly::Assembler<Backend>::template createVector<HeatEqBundle::NumDOFs>(mesh_, topoDOF_); }
+					MatrixT createMatrix() const { return fem::assembly::Assembler<BackendT>::template createMatrix<HeatEqBundleT::NumDOFs>(mesh_, topoDOF_); }
+					VectorT createVector() const { return fem::assembly::Assembler<BackendT>::template createVector<HeatEqBundleT::NumDOFs>(mesh_, topoDOF_); }
 
 					void assembleLoad(Real time);
 					void applyNatural(Real time);
@@ -125,15 +125,15 @@ namespace pdesolver {
 
 					void loadNodalField(const solver::config::NodalFieldReadConfig& cfg, VectorT& target) const;
 
-					using ExpressionSourceFormsT = typename HeatEqBundle::template ExpressionSourceForms<utils::expression::ScalarExpression>;
-					using NodalSourceFormsT = typename HeatEqBundle::template NodalSourceForms<typename HeatEqBundle::NodalScalarSource>;
-					using ExpressionFluxFormsT = typename HeatEqBundle::template ExpressionFluxForms<utils::expression::VectorExpression>;
-					using NodalFluxFormsT = typename HeatEqBundle::template NodalFluxForms<typename HeatEqBundle::NodalFluxSource>;
+					using ExpressionSourceFormsT = typename HeatEqBundleT::template ExpressionSourceForms<utils::expression::ScalarExpression>;
+					using NodalSourceFormsT = typename HeatEqBundleT::template NodalSourceForms<typename HeatEqBundleT::NodalScalarSource>;
+					using ExpressionFluxFormsT = typename HeatEqBundleT::template ExpressionFluxForms<utils::expression::VectorExpression>;
+					using NodalFluxFormsT = typename HeatEqBundleT::template NodalFluxForms<typename HeatEqBundleT::NodalFluxSource>;
 
-					using DirichletExpressionT = typename HeatEqBundle::template DirichletExpression<utils::expression::ScalarExpression>;
-					using DirichletNodalT = typename HeatEqBundle::template DirichletNodal<typename HeatEqBundle::NodalScalarSource>;
-					using FluxFunctionExpressionT = typename HeatEqBundle::template FluxBCExpression<utils::expression::VectorExpression>;
-					using FluxFunctionNodalT = typename HeatEqBundle::template FluxBCNodal<typename HeatEqBundle::NodalFluxSource>;
+					using DirichletExpressionT = typename HeatEqBundleT::template DirichletExpression<utils::expression::ScalarExpression>;
+					using DirichletNodalT = typename HeatEqBundleT::template DirichletNodal<typename HeatEqBundleT::NodalScalarSource>;
+					using FluxFunctionExpressionT = typename HeatEqBundleT::template FluxBCExpression<utils::expression::VectorExpression>;
+					using FluxFunctionNodalT = typename HeatEqBundleT::template FluxBCNodal<typename HeatEqBundleT::NodalFluxSource>;
 
 					struct MonitorOutput {
 						std::string name;
@@ -144,10 +144,10 @@ namespace pdesolver {
 
 					std::pair<std::unique_ptr<fem::quantity::MonitorGroup>, std::string> makeMonitorGroup(config::MonitorConfig::Quantity quantity, fem::quantity::Reduction mode) const;
 
-					template<typename Form>
+					template<typename FormT>
 					std::pair<std::unique_ptr<fem::quantity::MonitorGroup>, std::string> makeMonitorGroupForForm(fem::quantity::Reduction mode) const;
 
-					template<typename Form, fem::quantity::Reduction Mode>
+					template<typename FormT, fem::quantity::Reduction Mode>
 					std::pair<std::unique_ptr<fem::quantity::MonitorGroup>, std::string> makeMonitorGroupFor() const;
 
 					config::HeatConfig config_;
@@ -155,26 +155,26 @@ namespace pdesolver {
 					solver::SolverInstance solverInstance_;
 
 					mesh::Mesh mesh_;
-					topology::TopologicalDOF<HeatEqBundle::NumDOFs> topoDOF_;
+					topology::TopologicalDOF<HeatEqBundleT::NumDOFs> topoDOF_;
 
 					utils::logging::driver::Logger driverLogger_;
 
-					typename HeatEqBundle::EvalEle evalEleTemplate_;
-					typename HeatEqBundle::QuadratureVolumeType quadratureVolume_;
-					typename HeatEqBundle::QuadratureBoundaryType quadratureBoundary_;
+					typename HeatEqBundleT::EvalEle evalEleTemplate_;
+					typename HeatEqBundleT::QuadratureVolumeType quadratureVolume_;
+					typename HeatEqBundleT::QuadratureBoundaryType quadratureBoundary_;
 
-					fem::assembly::Assembler<Backend> assembler_;
+					fem::assembly::Assembler<BackendT> assembler_;
 
-					fem::boundary::BoundaryApplicator<Backend> bcApplicator_;
+					fem::boundary::BoundaryApplicator<BackendT> bcApplicator_;
 
 					fem::boundary::EssentialBoundaryRegistry essentialBCs_;
-					fem::boundary::NaturalBoundaryRegistry<typename HeatEqBundle::EvalQPBdy> naturalBCs_;
+					fem::boundary::NaturalBoundaryRegistry<typename HeatEqBundleT::EvalQPBdy> naturalBCs_;
 
-					typename HeatEqBundle::ConductivityModel conductivityModel_;
-					typename HeatEqBundle::ConductivityModelBdy conductivityModelBdy_;
+					typename HeatEqBundleT::ConductivityModel conductivityModel_;
+					typename HeatEqBundleT::ConductivityModelBdy conductivityModelBdy_;
 
-					typename HeatEqBundle::DefaultModel defaultModel_;
-					typename HeatEqBundle::DefaultModelBdy defaultModelBdy_;
+					typename HeatEqBundleT::DefaultModel defaultModel_;
+					typename HeatEqBundleT::DefaultModelBdy defaultModelBdy_;
 
 					mutable std::vector<std::unique_ptr<fem::quantity::MonitorGroup>> monitorGroups_;
 					std::vector<std::vector<MonitorOutput>> monitorOutputsByGroup_;
@@ -186,9 +186,9 @@ namespace pdesolver {
 					std::vector<std::unique_ptr<ExpressionFluxFormsT>> expressionFluxForms_;
 					std::vector<std::unique_ptr<NodalFluxFormsT>> nodalFluxForms_;
 
-					typename HeatEqBundle::DensityModel densityModel_;
-					typename HeatEqBundle::SpecificHeatModel specificHeatModel_;
-					typename HeatEqBundle::MassModel massModel_;
+					typename HeatEqBundleT::DensityModel densityModel_;
+					typename HeatEqBundleT::SpecificHeatModel specificHeatModel_;
+					typename HeatEqBundleT::MassModel massModel_;
 
 					std::unique_ptr<VectorT> F_;
 					std::unique_ptr<VectorT> U_;
@@ -201,7 +201,7 @@ namespace pdesolver {
 			} // namespace problem
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #include "application/heateq/problem/HeatProblem.tpp"
 

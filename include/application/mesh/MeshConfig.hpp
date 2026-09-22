@@ -1,12 +1,12 @@
-#ifndef PDESOLVER_APPLICATION_MESH_MESHCONFIG_HPP
-#define PDESOLVER_APPLICATION_MESH_MESHCONFIG_HPP
+#ifndef RESIDUUM_APPLICATION_MESH_MESHCONFIG_HPP
+#define RESIDUUM_APPLICATION_MESH_MESHCONFIG_HPP
 
 #include <string>
 
 #include "core/Types.hpp"
 #include "solver/config/LoggingConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace mesh {
 
@@ -71,6 +71,6 @@ namespace pdesolver {
 
 		} // namespace mesh
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

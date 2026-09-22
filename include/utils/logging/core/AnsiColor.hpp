@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_UTILS_LOGGING_ANSICOLOR_HPP
-#define PDESOLVER_UTILS_LOGGING_ANSICOLOR_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_CORE_ANSICOLOR_HPP
+#define RESIDUUM_UTILS_LOGGING_CORE_ANSICOLOR_HPP
 
 #include <cstdio>
 #include <string>
 #include <unistd.h>
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 
@@ -45,6 +45,6 @@ namespace pdesolver {
 
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

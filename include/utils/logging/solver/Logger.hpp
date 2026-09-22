@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_SOLVER_LOGGER_HPP
-#define PDESOLVER_UTILS_LOGGING_SOLVER_LOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_SOLVER_LOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_SOLVER_LOGGER_HPP
 
 #include <utility>
 #include <variant>
@@ -9,7 +9,7 @@
 #include "utils/logging/core/NullLogger.hpp"
 #include "utils/logging/solver/ConsoleLogger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 
@@ -20,14 +20,14 @@ namespace pdesolver {
 
 				explicit SolverLogger(Variant impl) : impl_(std::move(impl)) {}
 
-				template<typename DataType>
-				void log(Index iter, const std::vector<DataType>& perDOFAbs, DataType flopsThisIter = DataType(0)) const {
+				template<typename DataT>
+				void log(Index iter, const std::vector<DataT>& perDOFAbs, DataT flopsThisIter = DataT(0)) const {
 					std::visit([&](const auto& l){ l.log(iter, perDOFAbs, flopsThisIter); }, impl_);
 				}
 
-				template<typename DataType>
-				std::vector<DataType> computePerDOFNorms(const DataType* r, Index totalSize) const {
-					return std::visit([&](const auto& l){ return l.template computePerDOFNorms<DataType>(r, totalSize); }, impl_);
+				template<typename DataT>
+				std::vector<DataT> computePerDOFNorms(const DataT* r, Index totalSize) const {
+					return std::visit([&](const auto& l){ return l.template computePerDOFNorms<DataT>(r, totalSize); }, impl_);
 				}
 
 				void summary(bool converged) const {
@@ -46,6 +46,6 @@ namespace pdesolver {
 
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

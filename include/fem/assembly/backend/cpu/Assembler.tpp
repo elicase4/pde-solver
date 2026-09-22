@@ -1,4 +1,4 @@
-namespace pdesolver::fem::assembly {
+namespace residuum::fem::assembly {
 
 template<>
 class Assembler<linalg::types::backend::CPU> {
@@ -82,27 +82,28 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode>
-	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, const std::array<const linalg::types::Vector<Real, linalg::types::backend::CPU>*, EvalQP::NumAuxStates>& auxStates, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K, const fem::boundary::EssentialBoundaryRegistry* bcRegistry){
+	template<Index numDOFs, evaluator::EvalElement EvalEleT, evaluator::EvalQuadraturePointVolume EvalQPT, typename ModelT, typename FormsT, typename QuadratureT, GatherMode Mode>
+	requires evaluator::EvalModel<ModelT, EvalQPT>
+	static void assembleMatrix(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const ModelT& model, const FormsT& forms, const EvalEleT& evalEle, const QuadratureT& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, const std::array<const linalg::types::Vector<Real, linalg::types::backend::CPU>*, EvalQPT::NumAuxStates>& auxStates, linalg::types::CSRMatrix<Real, linalg::types::backend::CPU>& K, const fem::boundary::EssentialBoundaryRegistry* bcRegistry){
 
 		// allocate Ke on the stack
-		Real Ke[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs) * (fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
+		Real Ke[(fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim> * numDOFs) * (fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim> * numDOFs)];
 
 		// allocate Ue on the stack
-		Real Ue[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
+		Real Ue[(fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim> * numDOFs)];
 
 		// allocate the per-element auxiliary-state buffers on the stack
-		Real Ue_aux[EvalQP::NumAuxStates][(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim> * numDOFs)];
-		const Real* Ue_auxPtrs[EvalQP::NumAuxStates];
+		Real Ue_aux[EvalQPT::NumAuxStates][(fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim> * numDOFs)];
+		const Real* Ue_auxPtrs[EvalQPT::NumAuxStates];
 
 		// zero-out data in K
 		K.zero();
 
-		EvalEle localEle = evalEle;
+		EvalEleT localEle = evalEle;
 
 		// setup quadrature points and weights
-		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
-		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
+		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEleT::ParametricDim>*EvalEleT::ParametricDim];
+		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEleT::ParametricDim>];
 		quadrature.getPoints(xi);
 		quadrature.getWeights(w);
 
@@ -117,28 +118,26 @@ public:
 
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
+			Real nodeCoords[EvalEleT::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>];
 
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
-				for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
-					nodeCoords[EvalEle::SpatialDim*i + sD] = nodeCoordsPtr[sD];
+				for (Index sD = 0; sD < EvalEleT::SpatialDim; ++sD){
+					nodeCoords[EvalEleT::SpatialDim*i + sD] = nodeCoordsPtr[sD];
 				}
 
 			}
 
 			// gather U into Ue
-			gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
+			gatherElementVector<numDOFs, EvalEleT::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
 
-			// aux states (e.g. Udot_) are always rate/derivative fields, never a real value field --
-			// a constrained node has no meaningful rate to look up via the essential BC's VALUE
-			// eval() function, so this is always Free (0 at constrained nodes), independent of Mode
-			for (Index s = 0; s < EvalQP::NumAuxStates; ++s) {
+			// aux states are rate fields, so a constrained node contributes 0 rather than a looked-up value
+			for (Index s = 0; s < EvalQPT::NumAuxStates; ++s) {
 				std::memset(Ue_aux[s], 0.0, sizeof(Ue_aux[s]));
 				if (auxStates[s] != nullptr) {
-					gatherElementVector<numDOFs, EvalEle::SpatialDim, GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
+					gatherElementVector<numDOFs, EvalEleT::SpatialDim, GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
 				}
 				Ue_auxPtrs[s] = Ue_aux[s];
 			}
@@ -150,11 +149,11 @@ public:
 			localEle.bindElement(nodeCoords, time);
 
 			// qp data
-			EvalQP qp(localEle);
+			EvalQPT qp(localEle);
 
 			// quadrature loop
 			for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
-				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
+				qp.evaluate(&xi[EvalEleT::ParametricDim*q], w[q]);
 				qp.interpolateFields(Ue, Ue_auxPtrs);
 				model.eval(qp);
 				model.evalGradient(qp);
@@ -168,31 +167,32 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature, GatherMode Mode>
-	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, const linalg::types::Vector<Real, linalg::types::backend::CPU>* fieldSource, const std::array<const linalg::types::Vector<Real, linalg::types::backend::CPU>*, EvalQP::NumAuxStates>& auxStates, linalg::types::Vector<Real, linalg::types::backend::CPU>& F, const fem::boundary::EssentialBoundaryRegistry* bcRegistry){
+	template<Index numDOFs, evaluator::EvalElement EvalEleT, evaluator::EvalQuadraturePointVolume EvalQPT, typename ModelT, typename FormsT, typename QuadratureT, GatherMode Mode>
+	requires evaluator::EvalModel<ModelT, EvalQPT>
+	static void assembleVector(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real time, const ModelT& model, const FormsT& forms, const EvalEleT& evalEle, const QuadratureT& quadrature, const linalg::types::Vector<Real, linalg::types::backend::CPU>& U, const linalg::types::Vector<Real, linalg::types::backend::CPU>* fieldSource, const std::array<const linalg::types::Vector<Real, linalg::types::backend::CPU>*, EvalQPT::NumAuxStates>& auxStates, linalg::types::Vector<Real, linalg::types::backend::CPU>& F, const fem::boundary::EssentialBoundaryRegistry* bcRegistry){
 
 		// allocate Fe on the stack
-		Real Fe[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+		Real Fe[fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*numDOFs];
 
 		// allocate Ue on the stack
-		Real Ue[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+		Real Ue[fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*numDOFs];
 
 		// allocate a buffer for fieldSource, used only when fieldSource != nullptr
-		Real Ue_lin[fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
+		Real Ue_lin[fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*numDOFs];
 
 		// allocate the per-element auxiliary-state buffers on the stack
-		Real Ue_aux[EvalQP::NumAuxStates][fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*numDOFs];
-		const Real* Ue_auxPtrs[EvalQP::NumAuxStates];
+		Real Ue_aux[EvalQPT::NumAuxStates][fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*numDOFs];
+		const Real* Ue_auxPtrs[EvalQPT::NumAuxStates];
 
 		// zero-out data in F
 		F.zero();
 
 		// local mutable copy
-		EvalEle localEle = evalEle;
+		EvalEleT localEle = evalEle;
 
 		// quadrature points/weights
-		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
-		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
+		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEleT::ParametricDim>*EvalEleT::ParametricDim];
+		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEleT::ParametricDim>];
 		quadrature.getPoints(xi);
 		quadrature.getWeights(w);
 
@@ -207,36 +207,34 @@ public:
 
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
+			Real nodeCoords[EvalEleT::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>];
 
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
-				for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
-					nodeCoords[EvalEle::SpatialDim*i + sD] = nodeCoordsPtr[sD];
+				for (Index sD = 0; sD < EvalEleT::SpatialDim; ++sD){
+					nodeCoords[EvalEleT::SpatialDim*i + sD] = nodeCoordsPtr[sD];
 				}
 
 			}
 
 			// gather U into Ue
-			gatherElementVector<numDOFs, EvalEle::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
+			gatherElementVector<numDOFs, EvalEleT::SpatialDim, Mode>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue, &U);
 
 			// gather fieldSource when it differs from the operand
 			const Real* fieldPtr = Ue;
 			if (fieldSource != nullptr) {
 				std::memset(Ue_lin, 0.0, sizeof(Ue_lin));
-				gatherElementVector<numDOFs, EvalEle::SpatialDim, GatherMode::Full>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_lin, fieldSource);
+				gatherElementVector<numDOFs, EvalEleT::SpatialDim, GatherMode::Full>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_lin, fieldSource);
 				fieldPtr = Ue_lin;
 			}
 
-			// gather each auxiliary vector into its own row -- always Free, same reasoning as
-			// assembleMatrix's aux gather: a rate/derivative field has nothing meaningful to look
-			// up via the essential BC's VALUE eval() function at a constrained node
-			for (Index s = 0; s < EvalQP::NumAuxStates; ++s) {
+			// aux states are rate fields, so a constrained node contributes 0 rather than a looked-up value
+			for (Index s = 0; s < EvalQPT::NumAuxStates; ++s) {
 				std::memset(Ue_aux[s], 0.0, sizeof(Ue_aux[s]));
 				if (auxStates[s] != nullptr) {
-					gatherElementVector<numDOFs, EvalEle::SpatialDim, GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
+					gatherElementVector<numDOFs, EvalEleT::SpatialDim, GatherMode::Free>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, bcRegistry, time, Ue_aux[s], auxStates[s]);
 				}
 				Ue_auxPtrs[s] = Ue_aux[s];
 			}
@@ -248,11 +246,11 @@ public:
 			localEle.bindElement(nodeCoords, time);
 
 			// qp data
-			EvalQP qp(localEle);
+			EvalQPT qp(localEle);
 
 			// quadrature loop
 			for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
-				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
+				qp.evaluate(&xi[EvalEleT::ParametricDim*q], w[q]);
 				qp.interpolateFields(fieldPtr, Ue_auxPtrs);
 				model.eval(qp);
 				model.evalGradient(qp);
@@ -268,4 +266,4 @@ public:
 
 }; // class Assembler <linalg::types::backend::CPU>
 
-} // namespace pdesolver::fem::assembly
+} // namespace residuum::fem::assembly

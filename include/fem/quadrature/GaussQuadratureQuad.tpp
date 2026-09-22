@@ -1,4 +1,4 @@
-namespace pdesolver::fem::quadrature {
+namespace residuum::fem::quadrature {
 
 // implementation Points
 PDE_HOST PDE_DEVICE PDE_INLINE void GaussQuadratureQuad::getPoints(Real* xi) const {
@@ -39,4 +39,4 @@ PDE_HOST PDE_DEVICE PDE_INLINE void GaussQuadratureQuad::getWeights(Real* w) con
 	}
 }
 
-} // namespace pdesolver::fem::quadrature
+} // namespace residuum::fem::quadrature

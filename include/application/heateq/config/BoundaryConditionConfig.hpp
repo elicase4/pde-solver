@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_CONFIG_BOUNDARYCONDITIONCONFIG_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_CONFIG_BOUNDARYCONDITIONCONFIG_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_CONFIG_BOUNDARYCONDITIONCONFIG_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_CONFIG_BOUNDARYCONDITIONCONFIG_HPP
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "application/heateq/config/ConductivityConfig.hpp"
 #include "solver/config/NodalFieldReadConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace config {
@@ -30,9 +30,7 @@ namespace pdesolver {
 
 					Type type;
 
-					// reuses solver::config::NodalFieldReadConfig::Mode for consistency with
-					// IC/source, but not the struct itself -- Flux needs a per-component vector
-					// expression, which doesn't fit NodalFieldReadConfig's scalar shape.
+					// reuses NodalFieldReadConfig::Mode only; Flux needs a per-component vector expression, not its scalar shape
 					solver::config::NodalFieldReadConfig::Mode mode = solver::config::NodalFieldReadConfig::Mode::Expression;
 
 					// mode == Expression: Value takes a single scalar expression, Flux takes
@@ -40,7 +38,7 @@ namespace pdesolver {
 					std::string expression;
 					std::vector<std::string> fluxExpression;
 					std::string file;
-					std::string unit; // required, SI unit label -- e.g. "K", "W/m^2"
+					std::string unit; // required, SI unit label, e.g. "K", "W/m^2"
 
 					std::vector<Form> forms;
 
@@ -51,6 +49,6 @@ namespace pdesolver {
 			} // namespace config
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

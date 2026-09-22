@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_FIELDIO_NODALFILEVALUESOURCE_HPP
-#define PDESOLVER_IO_FIELDIO_NODALFILEVALUESOURCE_HPP
+#ifndef RESIDUUM_IO_FIELDIO_NODALFILEVALUESOURCE_HPP
+#define RESIDUUM_IO_FIELDIO_NODALFILEVALUESOURCE_HPP
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "io/fieldio/FieldIO.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace fieldio {
 
@@ -41,6 +41,6 @@ namespace pdesolver {
 
 		} // namespace fieldio
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

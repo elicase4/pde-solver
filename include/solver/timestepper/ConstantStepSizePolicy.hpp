@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_SOLVER_TIMESTEPPER_CONSTANTSTEPSIZEPOLICY_HPP
-#define PDESOLVER_SOLVER_TIMESTEPPER_CONSTANTSTEPSIZEPOLICY_HPP
+#ifndef RESIDUUM_SOLVER_TIMESTEPPER_CONSTANTSTEPSIZEPOLICY_HPP
+#define RESIDUUM_SOLVER_TIMESTEPPER_CONSTANTSTEPSIZEPOLICY_HPP
 
 #include "core/Types.hpp"
 
 #include "solver/timestepper/TimeStepSizePolicy.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace timestepper {
 
@@ -28,6 +28,6 @@ namespace pdesolver {
 
 		} // namespace timestepper
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

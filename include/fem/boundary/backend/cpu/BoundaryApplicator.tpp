@@ -1,23 +1,24 @@
-namespace pdesolver::fem::boundary {
+namespace residuum::fem::boundary {
 
 template<>
 class BoundaryApplicator<linalg::types::backend::CPU> {
 public:
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Model, typename FormRegistry, typename Quadrature>
-	static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const Model& model, const FormRegistry& forms, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, evaluator::EvalElement EvalEleT, evaluator::EvalQuadraturePointVolume EvalQPT, typename ModelT, typename FormsT, typename QuadratureT>
+	requires evaluator::EvalModel<ModelT, EvalQPT>
+	static void applyEssentialBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const EssentialBoundaryRegistry& bcRegistry, const Real time, const ModelT& model, const FormsT& forms, const EvalEleT& evalEle, const QuadratureT& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate Fe on the stack
-		Real Fe[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
+		Real Fe[(fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
 		// allocate Ge on the stack
-		Real Ge[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
+		Real Ge[(fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
-		EvalEle localEle = evalEle;
+		EvalEleT localEle = evalEle;
 
 		// quadrature points/weights
-		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>*EvalEle::ParametricDim];
-		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEle::ParametricDim>];
+		Real xi[fem::dispatch::kMaxQuadraturePointsTotal<EvalEleT::ParametricDim>*EvalEleT::ParametricDim];
+		Real w[fem::dispatch::kMaxQuadraturePointsTotal<EvalEleT::ParametricDim>];
 		quadrature.getPoints(xi);
 		quadrature.getWeights(w);
 
@@ -32,14 +33,14 @@ public:
 
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
+			Real nodeCoords[EvalEleT::SpatialDim * fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>];
 
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
-				for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
-					nodeCoords[EvalEle::SpatialDim*i + sD] = nodeCoordsPtr[sD];
+				for (Index sD = 0; sD < EvalEleT::SpatialDim; ++sD){
+					nodeCoords[EvalEleT::SpatialDim*i + sD] = nodeCoordsPtr[sD];
 				}
 
 			}
@@ -48,17 +49,17 @@ public:
 			localEle.bindElement(nodeCoords, time);
 
 			// qp data
-			EvalQP qp(localEle);
+			EvalQPT qp(localEle);
 
 			// fill Ge
-			fem::assembly::gatherElementVector<numDOFs, EvalEle::SpatialDim, fem::assembly::GatherMode::Constrained>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ge);
+			fem::assembly::gatherElementVector<numDOFs, EvalEleT::SpatialDim, fem::assembly::GatherMode::Constrained>(nodeIDs, localEle.nodesPerElement(), nodeCoords, topoDOF, &bcRegistry, time, Ge);
 
 			// gather any form-specific element data
 			forms.gatherElementData(nodeIDs, localEle.nodesPerElement());
 
 			// quadrature loop
 			for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
-				qp.evaluate(&xi[EvalEle::ParametricDim*q], w[q]);
+				qp.evaluate(&xi[EvalEleT::ParametricDim*q], w[q]);
 				model.eval(qp);
 				model.evalGradient(qp);
 				forms.computeElementLevelVector(qp, Ge, Fe);
@@ -71,17 +72,17 @@ public:
 
 	}
 
-	template<Index numDOFs, eval::EvalElement EvalEle, typename EvalQP, typename Quadrature>
-	static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const NaturalBoundaryRegistry<EvalQP>& bcRegistry, const Real time, const EvalEle& evalEle, const Quadrature& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
+	template<Index numDOFs, evaluator::EvalElement EvalEleT, typename EvalQPT, typename QuadratureT>
+	static void applyNaturalBCs(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const NaturalBoundaryRegistry<EvalQPT>& bcRegistry, const Real time, const EvalEleT& evalEle, const QuadratureT& quadrature, linalg::types::Vector<Real, linalg::types::backend::CPU>& F){
 
 		// allocate local space for Fe
-		Real Fe[(fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
+		Real Fe[(fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>*topology::TopologicalDOF<numDOFs>::dofsPerNode)];
 
-		EvalEle localEle = evalEle;
+		EvalEleT localEle = evalEle;
 
 		// boundary quadrature
-		Real xi[fem::dispatch::kMaxQuadraturePointsTotalBoundary<EvalEle::ParametricDim>*(EvalEle::ParametricDim-1)];
-		Real w[fem::dispatch::kMaxQuadraturePointsTotalBoundary<EvalEle::ParametricDim>];
+		Real xi[fem::dispatch::kMaxQuadraturePointsTotalBoundary<EvalEleT::ParametricDim>*(EvalEleT::ParametricDim-1)];
+		Real w[fem::dispatch::kMaxQuadraturePointsTotalBoundary<EvalEleT::ParametricDim>];
 		quadrature.getPoints(xi);
 		quadrature.getWeights(w);
 
@@ -90,14 +91,14 @@ public:
 
 			// extract node coordinates
 			const Index* nodeIDs = mesh.getElementNodes(e);
-			Real nodeCoords[EvalEle::SpatialDim*fem::dispatch::kMaxNodesPerElement<EvalEle::ParametricDim>];
+			Real nodeCoords[EvalEleT::SpatialDim*fem::dispatch::kMaxNodesPerElement<EvalEleT::ParametricDim>];
 
 			for (Index i = 0; i < localEle.nodesPerElement(); ++i){
 
 				const Real* nodeCoordsPtr = mesh.getNodeCoord(nodeIDs[i]);
 
-				for (Index sD = 0; sD < EvalEle::SpatialDim; ++sD){
-					nodeCoords[EvalEle::SpatialDim*i + sD] = nodeCoordsPtr[sD];
+				for (Index sD = 0; sD < EvalEleT::SpatialDim; ++sD){
+					nodeCoords[EvalEleT::SpatialDim*i + sD] = nodeCoordsPtr[sD];
 				}
 
 			}
@@ -122,8 +123,8 @@ public:
 				// get face nodes information
 				const Index nodesPerFace = localEle.basis().nodesPerFace(f);
 				
-				Index faceNodeLocalIDs[fem::dispatch::kMaxNodesPerElementBoundary<EvalEle::ParametricDim>];
-				Index faceNodeGlobalIDs[fem::dispatch::kMaxNodesPerElementBoundary<EvalEle::ParametricDim>];
+				Index faceNodeLocalIDs[fem::dispatch::kMaxNodesPerElementBoundary<EvalEleT::ParametricDim>];
+				Index faceNodeGlobalIDs[fem::dispatch::kMaxNodesPerElementBoundary<EvalEleT::ParametricDim>];
 
 				localEle.basis().getFaceNodes(f, faceNodeLocalIDs);
 				const Index* elemNodeGlobalIDs = mesh.getElementNodes(e);
@@ -136,12 +137,12 @@ public:
 				bcRegistry.gatherFaceElementData(rngTag, faceNodeGlobalIDs, nodesPerFace);
 
 				// qp data
-				EvalQP qp(localEle, f);
+				EvalQPT qp(localEle, f);
 
 				// quadrature loop
 				for (Index q = 0; q < quadrature.numPointsTotal(); ++q){
 
-					qp.evaluate(&xi[(EvalEle::ParametricDim-1)*q], w[q]);
+					qp.evaluate(&xi[(EvalEleT::ParametricDim-1)*q], w[q]);
 					bcRegistry.apply(rngTag, qp, Fe);
 
 				}
@@ -158,4 +159,4 @@ public:
 
 }; // class BoundaryApplicator
 
-} // namespace pdesolver::fem::boundary
+} // namespace residuum::fem::boundary

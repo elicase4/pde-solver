@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_FIELDIO_TIMESERIESVALUESOURCE_HPP
-#define PDESOLVER_IO_FIELDIO_TIMESERIESVALUESOURCE_HPP
+#ifndef RESIDUUM_IO_FIELDIO_TIMESERIESVALUESOURCE_HPP
+#define RESIDUUM_IO_FIELDIO_TIMESERIESVALUESOURCE_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -14,7 +14,7 @@
 #include "io/fieldio/FieldIO.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace fieldio {
 
@@ -91,6 +91,6 @@ namespace pdesolver {
 
 		} // namespace fieldio
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_HPP
-#define PDESOLVER_UTILS_HPP
+#ifndef RESIDUUM_CORE_UTILS_HPP
+#define RESIDUUM_CORE_UTILS_HPP
 
 #include "utils/logging/core/NullLogger.hpp"
 

@@ -1,7 +1,7 @@
-#ifndef PDESOLVER_MESH_BASISTYPE_HPP
-#define PDESOLVER_MESH_BASISTYPE_HPP
+#ifndef RESIDUUM_MESH_BASISTYPE_HPP
+#define RESIDUUM_MESH_BASISTYPE_HPP
 
-namespace pdesolver {
+namespace residuum {
 	namespace mesh {
 
 		enum class BasisType {
@@ -10,6 +10,6 @@ namespace pdesolver {
 		}; // enum class BasisType
 
 	} // namespace mesh
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,9 +1,9 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_HEATDISPATCHER_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_HEATDISPATCHER_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_HEATDISPATCHER_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_HEATDISPATCHER_HPP
 
 #include "application/heateq/config/HeatConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 
@@ -16,6 +16,6 @@ namespace pdesolver {
 
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

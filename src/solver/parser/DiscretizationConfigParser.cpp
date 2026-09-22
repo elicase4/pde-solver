@@ -3,14 +3,14 @@
 
 namespace {
 
-	pdesolver::fem::dof::DOFOrdering parseDOFOrdering(const std::string& str) {
+	residuum::fem::dof::DOFOrdering parseDOFOrdering(const std::string& str) {
 
 		if (str == "interleaved") {
-			return pdesolver::fem::dof::DOFOrdering::Interleaved;
+			return residuum::fem::dof::DOFOrdering::Interleaved;
 		}
 
 		if (str == "block") {
-			return pdesolver::fem::dof::DOFOrdering::Block;
+			return residuum::fem::dof::DOFOrdering::Block;
 		}
 
 		throw std::runtime_error("Unknown dof_ordering type: " + str);
@@ -19,7 +19,7 @@ namespace {
 
 } // namespace
 
-pdesolver::solver::config::DiscretizationConfig pdesolver::solver::parser::DiscretizationConfigParser::parse(const YAML::Node& node) {
+residuum::solver::config::DiscretizationConfig residuum::solver::parser::DiscretizationConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 

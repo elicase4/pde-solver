@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_TOPOLOGICALDOF_HPP
-#define PDESOLVER_TOPOLOGICALDOF_HPP
+#ifndef RESIDUUM_TOPOLOGY_TOPOLOGICALDOF_HPP
+#define RESIDUUM_TOPOLOGY_TOPOLOGICALDOF_HPP
 
 #include <numeric>
 #include <vector>
@@ -12,7 +12,7 @@
 #include "fem/dof/DOFOrdering.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace topology {
 
 		template<Index numDOFs>
@@ -40,11 +40,9 @@ namespace pdesolver {
 			inline void getElementDOFs(Index elemId, Index* dofs) const;
 			
 			// constraints
-			// basis is a runtime instance (order is a runtime field now, see the
-			// runtime-dispatch refactor), not a pure-static-method type -- only its
-			// nodesPerFace()/getFaceNodes() instance methods are used here.
-			template<typename Basis>
-			void buildConstraints(const Basis& basis, const fem::boundary::EssentialBoundaryRegistry& bcRegistry);
+			// basis is a runtime instance; only its nodesPerFace()/getFaceNodes() methods are used here
+			template<typename BasisT>
+			void buildConstraints(const BasisT& basis, const fem::boundary::EssentialBoundaryRegistry& bcRegistry);
 			bool isConstrained(Index topoDOF) const { return topoToAlg_[topoDOF] == -1; }
 			inline Int getConstraintTag(Index topoDOF) const;
 
@@ -76,7 +74,7 @@ namespace pdesolver {
 		}; // class TopologicalDOF
 
 	} // namespace topology
-} // namespace pdesolver
+} // namespace residuum
 
 #include "TopologicalDOF.tpp"
 

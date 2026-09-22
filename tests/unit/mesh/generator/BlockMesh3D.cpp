@@ -6,9 +6,9 @@
 #include "io/MeshIO.hpp"
 #include "io/visualization/VTKWriter.hpp"
 
-using namespace pdesolver::mesh::generator;
-using namespace pdesolver::mesh;
-using namespace pdesolver;
+using namespace residuum::mesh::generator;
+using namespace residuum::mesh;
+using namespace residuum;
 
 // ===================================================
 // Basic Construction Tests

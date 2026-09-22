@@ -1,7 +1,7 @@
-#ifndef PDESOLVER_MESH_ELEMENTFAMILY_HPP
-#define PDESOLVER_MESH_ELEMENTFAMILY_HPP
+#ifndef RESIDUUM_MESH_ELEMENTFAMILY_HPP
+#define RESIDUUM_MESH_ELEMENTFAMILY_HPP
 
-namespace pdesolver {
+namespace residuum {
 	namespace mesh {
 
 		enum class ElementFamily {
@@ -13,6 +13,6 @@ namespace pdesolver {
 		}; // enum class ElementFamily
 
 	} // namespace mesh
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

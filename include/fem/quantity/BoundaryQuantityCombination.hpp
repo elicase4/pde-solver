@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_QUANTITY_BOUNDARYQUANTITYCOMBINATION_HPP
-#define PDESOLVER_FEM_QUANTITY_BOUNDARYQUANTITYCOMBINATION_HPP
+#ifndef RESIDUUM_FEM_QUANTITY_BOUNDARYQUANTITYCOMBINATION_HPP
+#define RESIDUUM_FEM_QUANTITY_BOUNDARYQUANTITYCOMBINATION_HPP
 
 #include <utility>
 #include <vector>
@@ -8,7 +8,7 @@
 
 #include "fem/quantity/BoundaryQuantityRegistry.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quantity {
 
@@ -45,6 +45,6 @@ namespace pdesolver {
 
 		} // namespace quantity
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

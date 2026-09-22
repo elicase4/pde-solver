@@ -1,4 +1,4 @@
-namespace pdesolver::fem::basis {
+namespace residuum::fem::basis {
 
 // Implementation: eval
 PDE_HOST PDE_DEVICE PDE_INLINE void Lagrange1D::eval(Real xi, Real* N) const {
@@ -63,4 +63,4 @@ PDE_HOST PDE_DEVICE PDE_INLINE void Lagrange1D::evalSecondDerivative(Real xi, Re
 
 }
 
-} // namespace pdesolver::fem::basis
+} // namespace residuum::fem::basis

@@ -1,12 +1,12 @@
-#ifndef PDESOLVER_MESH_GENERATOR_MESHGENERATOR_HPP
-#define PDESOLVER_MESH_GENERATOR_MESHGENERATOR_HPP
+#ifndef RESIDUUM_MESH_GENERATOR_MESHGENERATOR_HPP
+#define RESIDUUM_MESH_GENERATOR_MESHGENERATOR_HPP
 
 #include <unordered_map>
 
 #include "core/Types.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace mesh {
 		namespace generator {
 
@@ -21,6 +21,6 @@ namespace pdesolver {
 
 		} // namespace generator
 	} // namespace mesh
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

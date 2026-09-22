@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_CONSOLELOGGER_HPP
-#define PDESOLVER_CONSOLELOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_SOLVER_CONSOLELOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_SOLVER_CONSOLELOGGER_HPP
 
 #include <chrono>
 #include <cmath>
@@ -18,7 +18,7 @@
 #include "utils/logging/core/CsvWriter.hpp"
 #include "utils/logging/core/TeeStreamBuf.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 
@@ -37,26 +37,17 @@ namespace pdesolver {
 				Index freeDOFsPerField;
 				fem::dof::DOFOrdering dofOrdering;
 
-				// consoleEnabled=false with textFilePath empty too means this logger prints
-				// nothing at all (equivalent to NullLogger) -- callers should use NullLogger
-				// directly in that case; this constructor doesn't special-case it.
+				// consoleEnabled=false with an empty textFilePath prints nothing; use NullLogger directly for that case instead
 				explicit ConsoleLogger(std::string equationNameIn, std::string solverNameIn, std::string preconditionerNameIn, std::vector<std::string> dofNamesIn, std::vector<std::pair<std::string, std::string>> extraParamsIn = {}, Index freeDOFsPerFieldIn = 0, fem::dof::DOFOrdering ordering = fem::dof::DOFOrdering::Interleaved, Index reportInterval = 1, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
 					equationName(std::move(equationNameIn)), solverName(std::move(solverNameIn)), preconditionerName(std::move(preconditionerNameIn)), dofNames(std::move(dofNamesIn)), extraParams(std::move(extraParamsIn)), interval(reportInterval), printHeader(true), freeDOFsPerField(freeDOFsPerFieldIn), dofOrdering(ordering) {
 
-					// teeBuf_/textFile_/out_ are all heap-allocated (not direct value members) --
-					// ConsoleLogger gets MOVED (temporary -> variant -> CGRunner), and out_ holds
-					// a raw pointer into teeBuf_ (and teeBuf_'s target list holds one into
-					// textFile_'s streambuf); a direct value member's ADDRESS changes on move,
-					// which would silently leave that pointer dangling post-move. A unique_ptr's
-					// pointee address is stable across moving the unique_ptr itself.
+					// heap-allocated so out_'s raw pointer into teeBuf_ stays valid when ConsoleLogger is moved
 					teeBuf_ = std::make_unique<TeeStreamBuf>();
 
 					if (consoleEnabled) teeBuf_->addTarget(std::cout.rdbuf());
 
 					if (!textFilePath.empty()) {
-						// append, not truncate -- see driver::ConsoleLogger's identical note;
-						// a future multiphysics run could construct more than one solver logger
-						// against the same configured path within one process.
+						// appends rather than truncates so multiple loggers can share one configured path
 						textFile_ = std::make_unique<std::ofstream>(textFilePath, std::ios::app);
 						if (!textFile_->is_open()) {
 							throw std::runtime_error("ConsoleLogger: could not open '" + textFilePath + "' for writing");
@@ -75,11 +66,11 @@ namespace pdesolver {
 
 				}
 
-				template<typename DataType>
-				void log(Index iter, const std::vector<DataType>& perDOFAbs, DataType flopsThisIter = DataType(0)) const;
+				template<typename DataT>
+				void log(Index iter, const std::vector<DataT>& perDOFAbs, DataT flopsThisIter = DataT(0)) const;
 
-				template<typename DataType>
-				std::vector<DataType> computePerDOFNorms(const DataType* r, Index totalSize) const;
+				template<typename DataT>
+				std::vector<DataT> computePerDOFNorms(const DataT* r, Index totalSize) const;
 
 				void summary(bool converged) const;
 
@@ -109,7 +100,7 @@ namespace pdesolver {
 
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #include "ConsoleLogger.tpp"
 

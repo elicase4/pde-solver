@@ -4,5 +4,3 @@ build/
 
 # Example outputs
 examples/**/output/
-/examples/mesh/square.pmsh
-/examples/mesh/quarter_ubend.pmsh

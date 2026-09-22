@@ -3,7 +3,7 @@
 #include <cassert>
 #include <stdexcept>
 
-pdesolver::io::visualization::VTUWriter::VTUWriter(const std::string& filename, Index numNodes, Index numElems) : numNodes_(numNodes), numElems_(numElems) {
+residuum::io::visualization::VTUWriter::VTUWriter(const std::string& filename, Index numNodes, Index numElems) : numNodes_(numNodes), numElems_(numElems) {
 
 	ofs_.open(filename, std::ios::out);
 	if (!ofs_.is_open()) {
@@ -17,11 +17,11 @@ pdesolver::io::visualization::VTUWriter::VTUWriter(const std::string& filename, 
 
 }
 
-pdesolver::io::visualization::VTUWriter::~VTUWriter() {
+residuum::io::visualization::VTUWriter::~VTUWriter() {
 	if (ofs_.is_open()) close();
 }
 
-void pdesolver::io::visualization::VTUWriter::writePoints(const Real* xyz, Index spatialDim) {
+void residuum::io::visualization::VTUWriter::writePoints(const Real* xyz, Index spatialDim) {
 
 	assert(state_ == State::Open);
 
@@ -44,7 +44,7 @@ void pdesolver::io::visualization::VTUWriter::writePoints(const Real* xyz, Index
 
 }
 
-void pdesolver::io::visualization::VTUWriter::writeCells(const Index* ien, Index nodesPerElem, int vtkCellType) {
+void residuum::io::visualization::VTUWriter::writeCells(const Index* ien, Index nodesPerElem, int vtkCellType) {
 
 	assert(state_ == State::PointsWritten);
 
@@ -85,7 +85,7 @@ void pdesolver::io::visualization::VTUWriter::writeCells(const Index* ien, Index
 
 }
 
-void pdesolver::io::visualization::VTUWriter::beginPointData() {
+void residuum::io::visualization::VTUWriter::beginPointData() {
 
 	assert(state_ == State::CellsWritten);
 	ofs_ << "      <PointData>\n";
@@ -93,7 +93,7 @@ void pdesolver::io::visualization::VTUWriter::beginPointData() {
 
 }
 
-void pdesolver::io::visualization::VTUWriter::writeScalar(const std::string& name, const Real* data, const std::string& unit) {
+void residuum::io::visualization::VTUWriter::writeScalar(const std::string& name, const Real* data, const std::string& unit) {
 
 	assert(state_ == State::InPointData);
 
@@ -110,7 +110,7 @@ void pdesolver::io::visualization::VTUWriter::writeScalar(const std::string& nam
 
 }
 
-void pdesolver::io::visualization::VTUWriter::writeVector(const std::string& name, const Real* data, Index numComponents, const std::string& unit) {
+void residuum::io::visualization::VTUWriter::writeVector(const std::string& name, const Real* data, Index numComponents, const std::string& unit) {
 
 	assert(state_ == State::InPointData);
 
@@ -136,7 +136,7 @@ void pdesolver::io::visualization::VTUWriter::writeVector(const std::string& nam
 
 }
 
-void pdesolver::io::visualization::VTUWriter::endPointData() {
+void residuum::io::visualization::VTUWriter::endPointData() {
 
 	assert(state_ == State::InPointData);
 	ofs_ << "      </PointData>\n";
@@ -144,7 +144,7 @@ void pdesolver::io::visualization::VTUWriter::endPointData() {
 
 }
 
-void pdesolver::io::visualization::VTUWriter::close() {
+void residuum::io::visualization::VTUWriter::close() {
 
 	ofs_ << "    </Piece>\n";
 	ofs_ << "  </UnstructuredGrid>\n";

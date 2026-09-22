@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_QUANTITY_BOUNDARYQUANTITYREGISTRY_HPP
-#define PDESOLVER_FEM_QUANTITY_BOUNDARYQUANTITYREGISTRY_HPP
+#ifndef RESIDUUM_FEM_QUANTITY_BOUNDARYQUANTITYREGISTRY_HPP
+#define RESIDUUM_FEM_QUANTITY_BOUNDARYQUANTITYREGISTRY_HPP
 
 #include <array>
 #include <stdexcept>
@@ -8,7 +8,7 @@
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quantity {
 
@@ -50,6 +50,6 @@ namespace pdesolver {
 
 		} // namespace quantity
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

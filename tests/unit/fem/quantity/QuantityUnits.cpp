@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
 #include "core/Types.hpp"
-#include "equations/heateq/quantity/HeatFluxIntegrand.hpp"
+#include "equation/heateq/quantity/HeatFluxIntegrand.hpp"
 #include "fem/quantity/QuantityUnits.hpp"
 #include "fem/quantity/Reduction.hpp"
 
-using namespace pdesolver;
+using namespace residuum;
 
 namespace {
 
@@ -47,7 +47,7 @@ TEST(QuantityUnitsTest, AverageReductionAppendsPerBoundaryDim){
 // is what actually reaches the monitor CSV/console for a heat-flux monitor
 TEST(QuantityUnitsTest, HeatFluxIntegrandUnitsMatchExpectedSIForm){
 
-	using Form = equations::heateq::quantity::HeatFluxIntegrand<int>; // QuadraturePointBoundary unused by BaseUnit/unitFor
+	using Form = equation::heateq::quantity::HeatFluxIntegrand<int>; // QuadraturePointBoundary unused by BaseUnit/unitFor
 
 	EXPECT_EQ(fem::quantity::unitFor<Form>(fem::quantity::Reduction::Integral, 2), "W");
 	EXPECT_EQ(fem::quantity::unitFor<Form>(fem::quantity::Reduction::Average, 2), "W/m^2");

@@ -46,8 +46,19 @@ if(ENABLE_SANITIZERS)
 	endif()
 endif()
 
-# Global includes
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include(GNUInstallDirs)
+
+# Header-only fem/linalg/equation layer, and the umbrella include/ path every
+# compiled library also exposes publicly instead of setting it individually.
+add_library(residuum_headers INTERFACE)
+add_library(Residuum::residuum_headers ALIAS residuum_headers)
+
+target_include_directories(residuum_headers INTERFACE
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_compile_features(residuum_headers INTERFACE cxx_std_20)
 
 # subdirectories
 add_subdirectory(src/mesh)
@@ -68,6 +79,46 @@ if(BUILD_TESTS)
 	include(GoogleTest)
 	add_subdirectory(tests)
 endif()
+
+# ---- Installation ----
+
+set(RESIDUUM_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/Residuum")
+
+install(TARGETS residuum_headers residuum_mesh residuum_io residuum_solver residuum_expression
+	EXPORT ResiduumTargets
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT ResiduumTargets
+	FILE ResiduumTargets.cmake
+	NAMESPACE Residuum::
+	DESTINATION ${RESIDUUM_INSTALL_CMAKEDIR}
+)
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+	${CMAKE_CURRENT_BINARY_DIR}/ResiduumConfigVersion.cmake
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake/ResiduumConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/ResiduumConfig.cmake
+	INSTALL_DESTINATION ${RESIDUUM_INSTALL_CMAKEDIR}
+)
+
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/ResiduumConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/ResiduumConfigVersion.cmake
+	DESTINATION ${RESIDUUM_INSTALL_CMAKEDIR}
+)
 
 # Summary
 message(STATUS "")

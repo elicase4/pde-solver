@@ -1,12 +1,12 @@
-#ifndef PDESOLVER_MESH_DATA_HPP
-#define PDESOLVER_MESH_DATA_HPP
+#ifndef RESIDUUM_MESH_DATA_HPP
+#define RESIDUUM_MESH_DATA_HPP
 
 #include "core/Types.hpp"
 #include "mesh/BasisType.hpp"
 #include "mesh/ElementFamily.hpp"
 #include <vector>
 
-namespace pdesolver {
+namespace residuum {
 
 	namespace mesh {
 
@@ -39,6 +39,6 @@ namespace pdesolver {
 	
 	} // namespace mesh
 
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

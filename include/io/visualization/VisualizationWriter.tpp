@@ -1,6 +1,6 @@
 #include "io/fieldio/FieldIO.hpp"
 
-namespace pdesolver::io::visualization {
+namespace residuum::io::visualization {
 
 	template<Index numDOFs>
 	std::string VisualizationWriter::writeField(const mesh::Mesh& mesh, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry& bcRegistry, Index step, Real time, const Real* algField, const std::vector<std::string>& dofNames, const std::vector<std::string>& dofUnits) {
@@ -25,4 +25,4 @@ namespace pdesolver::io::visualization {
 
 	}
 
-} // namespace pdesolver::io::visualization
+} // namespace residuum::io::visualization

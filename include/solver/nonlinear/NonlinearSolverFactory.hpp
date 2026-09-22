@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_NONLINEAR_NONLINEARSOLVERFACTORY_HPP
-#define PDESOLVER_SOLVER_NONLINEAR_NONLINEARSOLVERFACTORY_HPP
+#ifndef RESIDUUM_SOLVER_NONLINEAR_NONLINEARSOLVERFACTORY_HPP
+#define RESIDUUM_SOLVER_NONLINEAR_NONLINEARSOLVERFACTORY_HPP
 
 #include <memory>
 #include <stdexcept>
@@ -14,7 +14,7 @@
 #include "utils/logging/core/NullLogger.hpp"
 #include "utils/logging/nonlinear/Logger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace nonlinear {
 
@@ -31,13 +31,13 @@ namespace pdesolver {
 
 			}
 
-			template<stage::NonlinearCapableStage StageT, typename VectorType>
-			std::unique_ptr<NonlinearSolverRunner<VectorType>> makeNonlinearSolverRunner(StageT& stage, const config::NonlinearSolverConfig& cfg, const config::NonlinearLoggerConfig& loggerCfg, const std::string& equationLabel) {
+			template<stage::NonlinearCapableStage StageT, typename VectorT>
+			std::unique_ptr<NonlinearSolverRunner<VectorT>> makeNonlinearSolverRunner(StageT& stage, const config::NonlinearSolverConfig& cfg, const config::NonlinearLoggerConfig& loggerCfg, const std::string& equationLabel) {
 
 				switch (cfg.type) {
 
 					case config::NonlinearSolverConfig::Type::Newton:
-						return std::make_unique<NewtonRunner<StageT, VectorType>>(stage, cfg, makeNonlinearLogger(loggerCfg, equationLabel, "Newton"));
+						return std::make_unique<NewtonRunner<StageT, VectorT>>(stage, cfg, makeNonlinearLogger(loggerCfg, equationLabel, "Newton"));
 
 					case config::NonlinearSolverConfig::Type::Picard:
 						throw std::runtime_error("NonlinearSolverFactory[" + equationLabel + "]: Picard solver not yet implemented");
@@ -50,6 +50,6 @@ namespace pdesolver {
 
 		} // namespace nonlinear
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

@@ -1,7 +1,7 @@
-#ifndef PDESOLVER_FEM_QUANTITY_REDUCTION_HPP
-#define PDESOLVER_FEM_QUANTITY_REDUCTION_HPP
+#ifndef RESIDUUM_FEM_QUANTITY_REDUCTION_HPP
+#define RESIDUUM_FEM_QUANTITY_REDUCTION_HPP
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quantity {
 
@@ -12,6 +12,6 @@ namespace pdesolver {
 
 		} // namespace quantity
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

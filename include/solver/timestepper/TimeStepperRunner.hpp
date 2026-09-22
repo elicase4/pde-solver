@@ -1,9 +1,9 @@
-#ifndef PDESOLVER_SOLVER_TIMESTEPPER_TIMESTEPPERRUNNER_HPP
-#define PDESOLVER_SOLVER_TIMESTEPPER_TIMESTEPPERRUNNER_HPP
+#ifndef RESIDUUM_SOLVER_TIMESTEPPER_TIMESTEPPERRUNNER_HPP
+#define RESIDUUM_SOLVER_TIMESTEPPER_TIMESTEPPERRUNNER_HPP
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace timestepper {
 
@@ -25,6 +25,6 @@ namespace pdesolver {
 
 		} // namespace timestepper
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

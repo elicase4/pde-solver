@@ -3,40 +3,40 @@
 #include "io/YAMLReader.hpp"
 #include "solver/parser/LoggingConfigParser.hpp"
 
-pdesolver::application::mesh::MeshConfig::Type pdesolver::application::mesh::MeshConfigParser::parseMeshType(const std::string& str) {
+residuum::application::mesh::MeshConfig::Type residuum::application::mesh::MeshConfigParser::parseMeshType(const std::string& str) {
 
 	if (str == "block2d") {
-		return pdesolver::application::mesh::MeshConfig::Type::Block2D;
+		return residuum::application::mesh::MeshConfig::Type::Block2D;
 	}
 
 	if (str == "block3d") {
-		return pdesolver::application::mesh::MeshConfig::Type::Block3D;
+		return residuum::application::mesh::MeshConfig::Type::Block3D;
 	}
 
 	if (str == "gmsh") {
-		return pdesolver::application::mesh::MeshConfig::Type::Gmsh;
+		return residuum::application::mesh::MeshConfig::Type::Gmsh;
 	}
 
 	throw std::runtime_error("Unknown mesh type: " + str);
 
 }
 
-pdesolver::application::mesh::MeshConfig pdesolver::application::mesh::MeshConfigParser::read(const std::string& filename) {
+residuum::application::mesh::MeshConfig residuum::application::mesh::MeshConfigParser::read(const std::string& filename) {
 
 	using io::YAMLReader;
 
 	const YAML::Node root = YAMLReader::loadFile(filename);
 
-	pdesolver::application::mesh::MeshConfig cfg;
+	residuum::application::mesh::MeshConfig cfg;
 
 	const YAML::Node& meshNode = root["mesh"];
 	if (!meshNode) {
 		throw std::runtime_error("MeshConfigReader: missing required 'mesh' section in " + filename);
 	}
 
-	cfg.type = pdesolver::application::mesh::MeshConfigParser::parseMeshType(YAMLReader::required<std::string>(meshNode, "type"));
+	cfg.type = residuum::application::mesh::MeshConfigParser::parseMeshType(YAMLReader::required<std::string>(meshNode, "type"));
 
-	if (cfg.type == pdesolver::application::mesh::MeshConfig::Type::Block2D) {
+	if (cfg.type == residuum::application::mesh::MeshConfig::Type::Block2D) {
 
 		cfg.block2D.nx   = YAMLReader::required<Index>(meshNode, "nx");
 		cfg.block2D.ny   = YAMLReader::required<Index>(meshNode, "ny");
@@ -62,7 +62,7 @@ pdesolver::application::mesh::MeshConfig pdesolver::application::mesh::MeshConfi
 		cfg.block3D.zmin = YAMLReader::required<Real>(meshNode, "zmin");
 		cfg.block3D.zmax = YAMLReader::required<Real>(meshNode, "zmax");
 
-	} else if (cfg.type == pdesolver::application::mesh::MeshConfig::Type::Gmsh) {
+	} else if (cfg.type == residuum::application::mesh::MeshConfig::Type::Gmsh) {
 
 		cfg.inputFile = YAMLReader::required<std::string>(meshNode, "file");
 	
@@ -75,8 +75,8 @@ pdesolver::application::mesh::MeshConfig pdesolver::application::mesh::MeshConfi
 	
 	cfg.outputFile = YAMLReader::required<std::string>(outNode, "output_file");
 
-	// 'logging:' is optional -- absent means console logging with no file mirror
-	cfg.logging = pdesolver::solver::parser::LoggingConfigParser::parse(root["logging"]);
+	// 'logging:' is optional; absent means console logging with no file mirror
+	cfg.logging = residuum::solver::parser::LoggingConfigParser::parse(root["logging"]);
 
 	return cfg;
 

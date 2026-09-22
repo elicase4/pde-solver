@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_FORM_FORMREGISTRY_HPP
-#define PDESOLVER_FEM_FORM_FORMREGISTRY_HPP
+#ifndef RESIDUUM_FEM_FORM_FORMREGISTRY_HPP
+#define RESIDUUM_FEM_FORM_FORMREGISTRY_HPP
 
 #include <tuple>
 #include <type_traits>
@@ -7,9 +7,13 @@
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
+#include "fem/form/BilinearForm.hpp"
 #include "fem/form/GathersElementData.hpp"
+#include "fem/form/LinearForm.hpp"
+#include "fem/form/NonlinearForm.hpp"
+#include "fem/form/NonlinearTangentForm.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace form {
 
@@ -35,15 +39,17 @@ namespace pdesolver {
 					}, forms_);
 				}
 
-				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePoint& qp, Real* Ue, Real* Fe) const {
+				template<typename QuadraturePointT>
+				requires ((LinearForm<Forms, QuadraturePointT> || NonlinearForm<Forms, QuadraturePointT>) && ...)
+				PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointT& qp, Real* Ue, Real* Fe) const {
 					std::apply([&](const auto&... form) {
 						(form.computeElementLevelVector(qp, Ue, Fe), ...);
 					}, forms_);
 				}
 
-				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ke) const {
+				template<typename QuadraturePointT>
+				requires ((BilinearForm<Forms, QuadraturePointT> || NonlinearTangentForm<Forms, QuadraturePointT>) && ...)
+				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePointT& qp, Real* Ke) const {
 					std::apply([&](const auto&... form) {
 						(form.computeElementLevelMatrix(qp, Ke), ...);
 					}, forms_);
@@ -64,6 +70,6 @@ namespace pdesolver {
 
 		} // namespace form
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

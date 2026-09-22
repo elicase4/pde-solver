@@ -2,11 +2,11 @@
 
 #include "io/YAMLReader.hpp"
 
-pdesolver::application::heateq::config::ScalarMaterialPropertyConfig pdesolver::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(const YAML::Node& node) {
+residuum::application::heateq::config::ScalarMaterialPropertyConfig residuum::application::heateq::parser::ScalarMaterialPropertyConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	pdesolver::application::heateq::config::ScalarMaterialPropertyConfig cfg;
+	residuum::application::heateq::config::ScalarMaterialPropertyConfig cfg;
 
 	cfg.value = YAMLReader::required<Real>(node, "value");
 	cfg.unit = YAMLReader::required<std::string>(node, "unit");

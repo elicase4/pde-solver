@@ -3,21 +3,21 @@
 
 namespace {
 
-	pdesolver::solver::config::LinearSolverConfig::OperatorType parseOperatorType(const std::string& str) {
+	residuum::solver::config::LinearSolverConfig::OperatorType parseOperatorType(const std::string& str) {
 
 		if (str == "csr")
-			return pdesolver::solver::config::LinearSolverConfig::OperatorType::CSR;
+			return residuum::solver::config::LinearSolverConfig::OperatorType::CSR;
 		if (str == "fem")
-			return pdesolver::solver::config::LinearSolverConfig::OperatorType::FEM;
+			return residuum::solver::config::LinearSolverConfig::OperatorType::FEM;
 
 		throw std::runtime_error("Unknown linear solver operator type: " + str + ". Valid options: csr, fem");
 
 	}
 
-	pdesolver::solver::config::PreconditionerConfig::Type parsePreconditionerType(const std::string& str) {
+	residuum::solver::config::PreconditionerConfig::Type parsePreconditionerType(const std::string& str) {
 
 		if (str == "identity")
-			return pdesolver::solver::config::PreconditionerConfig::Type::Identity;
+			return residuum::solver::config::PreconditionerConfig::Type::Identity;
 
 		throw std::runtime_error("Unknown preconditioner type: " + str + ". Valid options: identity");
 
@@ -25,26 +25,26 @@ namespace {
 
 } // namespace
 
-pdesolver::solver::config::LinearSolverConfig::Type pdesolver::solver::parser::LinearSolverConfigParser::parseLinearSolverType(const std::string& str) {
+residuum::solver::config::LinearSolverConfig::Type residuum::solver::parser::LinearSolverConfigParser::parseLinearSolverType(const std::string& str) {
 
 	if (str == "cg")
-        return pdesolver::solver::config::LinearSolverConfig::Type::CG;
-    if (str == "gmres")
-        return pdesolver::solver::config::LinearSolverConfig::Type::GMRES;
-    if (str == "bicgstab")
-        return pdesolver::solver::config::LinearSolverConfig::Type::BiCGSTAB;
-    if (str == "lu")
-        return pdesolver::solver::config::LinearSolverConfig::Type::LU;
+		return residuum::solver::config::LinearSolverConfig::Type::CG;
+	if (str == "gmres")
+		return residuum::solver::config::LinearSolverConfig::Type::GMRES;
+	if (str == "bicgstab")
+		return residuum::solver::config::LinearSolverConfig::Type::BiCGSTAB;
+	if (str == "lu")
+		return residuum::solver::config::LinearSolverConfig::Type::LU;
 
-    throw std::runtime_error("Unknown linear solver type: " + str + ". Valid options: cg, gmres, bicgstab, lu");
+	throw std::runtime_error("Unknown linear solver type: " + str + ". Valid options: cg, gmres, bicgstab, lu");
 
 }
 
-pdesolver::solver::config::LinearSolverConfig pdesolver::solver::parser::LinearSolverConfigParser::parse(const YAML::Node& node) {
+residuum::solver::config::LinearSolverConfig residuum::solver::parser::LinearSolverConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	pdesolver::solver::config::LinearSolverConfig cfg;
+	residuum::solver::config::LinearSolverConfig cfg;
 
 	cfg.type = parseLinearSolverType(YAMLReader::required<std::string>(node, "type"));
 	cfg.tolerance = YAMLReader::optional<Real>(node, "tolerance", 1e-10);

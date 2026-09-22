@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_UTILS_LOGGING_NONLINEAR_LOGGER_HPP
-#define PDESOLVER_UTILS_LOGGING_NONLINEAR_LOGGER_HPP
+#ifndef RESIDUUM_UTILS_LOGGING_NONLINEAR_LOGGER_HPP
+#define RESIDUUM_UTILS_LOGGING_NONLINEAR_LOGGER_HPP
 
 #include <utility>
 #include <variant>
@@ -8,7 +8,7 @@
 #include "utils/logging/core/NullLogger.hpp"
 #include "utils/logging/nonlinear/ConsoleLogger.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace utils {
 		namespace logging {
 			namespace nonlinear {
@@ -36,6 +36,6 @@ namespace pdesolver {
 			} // namespace nonlinear
 		} // namespace logging
 	} // namespace utils
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

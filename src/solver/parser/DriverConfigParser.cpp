@@ -1,7 +1,7 @@
 #include "solver/parser/DriverConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 
-pdesolver::solver::config::DriverConfig::Type pdesolver::solver::parser::DriverConfigParser::parseDriverType(const std::string& str) {
+residuum::solver::config::DriverConfig::Type residuum::solver::parser::DriverConfigParser::parseDriverType(const std::string& str) {
 
 	if (str == "steady")
 		return config::DriverConfig::Type::Steady;
@@ -14,13 +14,13 @@ pdesolver::solver::config::DriverConfig::Type pdesolver::solver::parser::DriverC
 
 }
 
-pdesolver::solver::config::DriverConfig pdesolver::solver::parser::DriverConfigParser::parse(const YAML::Node& node) {
+residuum::solver::config::DriverConfig residuum::solver::parser::DriverConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
 	config::DriverConfig cfg;
 
-	cfg.type = pdesolver::solver::parser::DriverConfigParser::parseDriverType(YAMLReader::required<std::string>(node, "type"));
+	cfg.type = residuum::solver::parser::DriverConfigParser::parseDriverType(YAMLReader::required<std::string>(node, "type"));
 
 	return cfg;
 

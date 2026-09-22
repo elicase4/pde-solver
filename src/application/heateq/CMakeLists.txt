@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.18)
 
 find_package(yaml-cpp REQUIRED)
 
-add_library(pde_heateq_app
+add_library(residuum_heateq_app
 	HeatDispatcher.cpp
 	parser/BoundaryConditionConfigParser.cpp
 	parser/ConductivityConfigParser.cpp
@@ -16,16 +16,13 @@ add_library(pde_heateq_app
 	parser/SpecificHeatConfigParser.cpp
 )
 
-target_include_directories(pde_heateq_app
-	PUBLIC 
-		${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(pde_heateq_app
+target_link_libraries(residuum_heateq_app
+	PUBLIC
+		residuum_headers
 	PRIVATE
-		pde_expression
-		pde_io
-		pde_solver
+		residuum_expression
+		residuum_io
+		residuum_solver
 		yaml-cpp
 )
 
@@ -33,17 +30,12 @@ add_executable(heateq
 	HeatApplication.cpp
 )
 
-target_include_directories(heateq
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-)
-
 target_link_libraries(heateq
     PRIVATE
-        pde_heateq_app
+        residuum_heateq_app
 )
 
 # install targets
 install(TARGETS heateq
-	RUNTIME DESTINATION bin
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

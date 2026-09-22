@@ -1,10 +1,10 @@
-#ifndef PDESOLVER_GAUSSQUADRATURE1D_HPP
-#define PDESOLVER_GAUSSQUADRATURE1D_HPP
+#ifndef RESIDUUM_FEM_QUADRATURE_GAUSSQUADRATURE1D_HPP
+#define RESIDUUM_FEM_QUADRATURE_GAUSSQUADRATURE1D_HPP
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quadrature {
 
@@ -26,7 +26,7 @@ namespace pdesolver {
 
 		} // namespace quadrature
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "GaussQuadrature1D.tpp"
 

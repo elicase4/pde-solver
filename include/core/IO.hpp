@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_HPP
-#define PDESOLVER_IO_HPP
+#ifndef RESIDUUM_CORE_IO_HPP
+#define RESIDUUM_CORE_IO_HPP
 
 #include "io/fieldio/FieldIO.hpp"
 #include "io/fieldio/NodalFileValueSource.hpp"

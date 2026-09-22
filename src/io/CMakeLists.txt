@@ -1,6 +1,6 @@
 find_package(yaml-cpp REQUIRED)
 
-add_library(pde_io
+add_library(residuum_io
 	MeshIO.cpp
 	GmshReader.cpp
 	visualization/VTKWriter.cpp
@@ -10,13 +10,9 @@ add_library(pde_io
 	YAMLReader.cpp
 )
 
-target_include_directories(pde_io
+target_link_libraries(residuum_io
 	PUBLIC
-		${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(pde_io 
-	PUBLIC 
-		pde_mesh
+		residuum_headers
+		residuum_mesh
 		yaml-cpp
 )

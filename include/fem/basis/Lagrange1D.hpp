@@ -1,10 +1,10 @@
-#ifndef PDESOLVER_LAGRANGE1D_HPP
-#define PDESOLVER_LAGRANGE1D_HPP
+#ifndef RESIDUUM_FEM_BASIS_LAGRANGE1D_HPP
+#define RESIDUUM_FEM_BASIS_LAGRANGE1D_HPP
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace basis {
 
@@ -29,7 +29,7 @@ namespace pdesolver {
 
 		} // namespace basis
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "Lagrange1D.tpp"
 

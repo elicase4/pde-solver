@@ -7,11 +7,11 @@
 #include "core/Types.hpp"
 #include "fem/form/FormRegistry.hpp"
 
-#include "equations/heateq/HeatEquation.hpp"
+#include "equation/heateq/HeatEquation.hpp"
 #include "mesh/ElementFamily.hpp"
 #include "utils/expression/ScalarExpression.hpp"
 
-using namespace pdesolver;
+using namespace residuum;
 
 namespace {
 
@@ -118,7 +118,7 @@ TEST(FormRegistry, MultiFormByValueConstructorStillWorks) {
 TEST(FormRegistry, SingleFormForwardingConstructorBuildsRealScalarExpressionSourceFormInPlace) {
 
 	using Callable = utils::expression::ScalarExpression;
-	using Bundle = equations::HeatEquation<2, 2, mesh::ElementFamily::Quad>;
+	using Bundle = equation::HeatEquation<2, 2, mesh::ElementFamily::Quad>;
 	using SourceFormT = Bundle::SourceForm<Callable>;
 	using SourceFormsT = fem::form::FormRegistry<SourceFormT>;
 

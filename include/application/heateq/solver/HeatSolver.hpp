@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_APPLICATION_HEATEQ_HEATSOLVER_HPP
-#define PDESOLVER_APPLICATION_HEATEQ_HEATSOLVER_HPP
+#ifndef RESIDUUM_APPLICATION_HEATEQ_SOLVER_HEATSOLVER_HPP
+#define RESIDUUM_APPLICATION_HEATEQ_SOLVER_HEATSOLVER_HPP
 
 #include "application/heateq/config/HeatConfig.hpp"
 
@@ -12,14 +12,14 @@
 #include "core/Types.hpp"
 #include "core/Utils.hpp"
 
-#include "equations/heateq/HeatEquation.hpp"
+#include "equation/heateq/HeatEquation.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace application {
 		namespace heateq {
 			namespace solver {
 			
-				template<typename Backend, typename HeatEquationBundle>
+				template<typename BackendT, typename HeatEqBundleT>
 				class HeatSolver {
 				public:
 
@@ -43,14 +43,14 @@ namespace pdesolver {
 					config::HeatConfig config_;
 					
 					// discretization
-					pdesolver::mesh::Mesh mesh_;
-					pdesolver::topology::TopologicalDOF<HeatEqBundle::NumDOFs> topoDOF_;
+					residuum::mesh::Mesh mesh_;
+					residuum::topology::TopologicalDOF<HeatEqBundle::NumDOFs> topoDOF_;
 
 					// fem infrastructure
-					pdesolver::fem::assembly::Assembler<Backend> assembler_;
-					pdesolver::fem::boundary::BoundaryApplicator<Backend> bcApplicator_;
-					pdesolver::fem::boundary::EssentialBoundaryRegistry essentialBCs_;
-					pdesolver::fem::boundary::NaturalBoundaryRegistry<HeatEqBundle::EvalQPBdy> naturalBCs_;
+					residuum::fem::assembly::Assembler<BackendT> assembler_;
+					residuum::fem::boundary::BoundaryApplicator<BackendT> bcApplicator_;
+					residuum::fem::boundary::EssentialBoundaryRegistry essentialBCs_;
+					residuum::fem::boundary::NaturalBoundaryRegistry<HeatEqBundle::EvalQPBdy> naturalBCs_;
 
 					// models
 					HeatEqBundle::DefaultModel defaultModel_;
@@ -60,6 +60,6 @@ namespace pdesolver {
 			} // namespace solver
 		} // namespace heateq
 	} // namespace application
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

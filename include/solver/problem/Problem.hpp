@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_PROBLEM_PROBLEM_HPP
-#define PDESOLVER_SOLVER_PROBLEM_PROBLEM_HPP
+#ifndef RESIDUUM_SOLVER_PROBLEM_PROBLEM_HPP
+#define RESIDUUM_SOLVER_PROBLEM_PROBLEM_HPP
 
 #include <concepts>
 #include <memory>
@@ -9,25 +9,25 @@
 #include "fem/assembly/ElementMap.hpp"
 #include "linalg/solver/base/LinearSolverRunner.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace problem {
 
-			template<typename P>
-			concept Problem = requires(P& p, Real time, typename P::MatrixT& K, typename P::VectorT& V) {
+			template<typename PT>
+			concept Problem = requires(PT& p, Real time, typename PT::MatrixT& K, typename PT::VectorT& V) {
 
-				typename P::VectorT;
-				typename P::MatrixT;
+				typename PT::VectorT;
+				typename PT::MatrixT;
 
-				{ P::NumDOFs } -> std::convertible_to<Index>;
-				{ P::NumAuxStates } -> std::convertible_to<Index>;
+				{ PT::NumDOFs } -> std::convertible_to<Index>;
+				{ PT::NumAuxStates } -> std::convertible_to<Index>;
 
 				p.stiffnessForms();
 				p.stiffnessModel();
 				p.tangentStiffnessForms();
 
-				{ p.createMatrix() } -> std::same_as<typename P::MatrixT>;
-				{ p.createVector() } -> std::same_as<typename P::VectorT>;
+				{ p.createMatrix() } -> std::same_as<typename PT::MatrixT>;
+				{ p.createVector() } -> std::same_as<typename PT::VectorT>;
 
 				{ p.assembleLoad(time) };
 				{ p.applyNatural(time) };
@@ -37,20 +37,20 @@ namespace pdesolver {
 				{ p.template assembleResidual<fem::assembly::GatherMode::Free>(time, p.stiffnessForms(), p.stiffnessModel(), {}, V) };
 				{ p.applyEssential(time, p.stiffnessForms(), p.stiffnessModel(), V) };
 
-				{ p.template makeLinearRunner<fem::assembly::GatherMode::Free>(&time, p.stiffnessForms(), p.stiffnessModel(), nullptr, {}, K) } -> std::same_as<std::unique_ptr<linalg::solver::LinearSolverRunner<typename P::VectorT>>>;
+				{ p.template makeLinearRunner<fem::assembly::GatherMode::Free>(&time, p.stiffnessForms(), p.stiffnessModel(), nullptr, {}, K) } -> std::same_as<std::unique_ptr<linalg::solver::LinearSolverRunner<typename PT::VectorT>>>;
 
 				{ p.numFreeDOFs() } -> std::convertible_to<Index>;
 				{ p.solverInstance() };
 				{ p.equationLabel() };
 				{ p.loggingConfig() };
 
-				{ p.U() } -> std::convertible_to<typename P::VectorT&>;
-				{ p.F() } -> std::convertible_to<typename P::VectorT&>;
+				{ p.U() } -> std::convertible_to<typename PT::VectorT&>;
+				{ p.F() } -> std::convertible_to<typename PT::VectorT&>;
 
 			}; // concept Problem
 
 		} // namespace problem
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

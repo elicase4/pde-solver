@@ -1,9 +1,9 @@
-#ifndef PDESOLVER_SOLVER_SOLVERINSTANCE_HPP
-#define PDESOLVER_SOLVER_SOLVERINSTANCE_HPP
+#ifndef RESIDUUM_SOLVER_SOLVERINSTANCE_HPP
+#define RESIDUUM_SOLVER_SOLVERINSTANCE_HPP
 
 #include "solver/config/SolverConfig.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 
 		enum class SolverMode {
@@ -36,6 +36,6 @@ namespace pdesolver {
 		}
 
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

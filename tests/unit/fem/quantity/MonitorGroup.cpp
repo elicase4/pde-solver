@@ -10,7 +10,7 @@
 #include "core/Topology.hpp"
 #include "core/Types.hpp"
 
-#include "equations/heateq/HeatEquation.hpp"
+#include "equation/heateq/HeatEquation.hpp"
 #include "fem/quantity/BoundaryQuantityCombination.hpp"
 #include "fem/quantity/MonitorGroup.hpp"
 #include "fem/quantity/MonitorGroupImpl.hpp"
@@ -18,7 +18,7 @@
 #include "mesh/ElementFamily.hpp"
 #include "mesh/generator/BlockMesh2D.hpp"
 
-using namespace pdesolver;
+using namespace residuum;
 
 // Exercises MonitorGroupImpl purely through the type-erased fem::quantity::MonitorGroup
 // interface -- the whole point of the design (see transient-solver-design-pin memory) is that
@@ -47,7 +47,7 @@ protected:
 	static constexpr Real b = 2.0; // dT/dy
 
 	using BackendType = linalg::types::backend::CPU;
-	using HeatEqBundle = equations::HeatEquation<nsd, 2, mesh::ElementFamily::Quad>;
+	using HeatEqBundle = equation::HeatEquation<nsd, 2, mesh::ElementFamily::Quad>;
 
 	// LEFT=0 (x=x0), RIGHT=1 (x=x1), BOTTOM=2 (y=y0), TOP=3 (y=y1) -- BlockMesh2D's own convention.
 	using Quantities = fem::quantity::QuantityForms<fem::quantity::ReducedQuantity<HeatEqBundle::HeatFluxIntegrand, fem::quantity::Reduction::Integral>>;

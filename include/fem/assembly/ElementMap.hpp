@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_ASSEMBLY_ELEMENTMAP_HPP
-#define PDESOLVER_FEM_ASSEMBLY_ELEMENTMAP_HPP
+#ifndef RESIDUUM_FEM_ASSEMBLY_ELEMENTMAP_HPP
+#define RESIDUUM_FEM_ASSEMBLY_ELEMENTMAP_HPP
 
 #include "config/Platform.hpp"
 #include "core/Types.hpp"
@@ -8,7 +8,7 @@
 
 #include "topology/TopologicalDOF.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace assembly {
 
@@ -17,18 +17,18 @@ namespace pdesolver {
 
 			struct NoSolution {};
 
-			template<Index numDOFs, Index SpatialDim, GatherMode Mode, typename VectorType = NoSolution>
-			PDE_HOST PDE_DEVICE void gatherElementVector(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry* bcRegistry, const Real time, Real* Ue, const VectorType* U = nullptr);
+			template<Index numDOFs, Index SpatialDim, GatherMode Mode, typename VectorT = NoSolution>
+			PDE_HOST PDE_DEVICE void gatherElementVector(const Index* nodeIDs, Index nodesPerElement, const Real* nodeCoords, const topology::TopologicalDOF<numDOFs>& topoDOF, const fem::boundary::EssentialBoundaryRegistry* bcRegistry, const Real time, Real* Ue, const VectorT* U = nullptr);
 
-			template<Index numDOFs, ScatterMode Mode, typename VectorType>
-			PDE_HOST PDE_DEVICE void scatterElementVector(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Xe, VectorType& X, Real coefficient = Real(1));
+			template<Index numDOFs, ScatterMode Mode, typename VectorT>
+			PDE_HOST PDE_DEVICE void scatterElementVector(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Xe, VectorT& X, Real coefficient = Real(1));
 
-			template<Index numDOFs, ScatterMode Mode, typename MatrixType>
-			PDE_HOST PDE_DEVICE void scatterElementMatrix(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Ke, MatrixType& K, Real coefficient = Real(1));
+			template<Index numDOFs, ScatterMode Mode, typename MatrixT>
+			PDE_HOST PDE_DEVICE void scatterElementMatrix(const Index* nodeIDs, Index nodesPerElement, const topology::TopologicalDOF<numDOFs>& topoDOF, const Real* Ke, MatrixT& K, Real coefficient = Real(1));
 
 		} // namespace assembly
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "fem/assembly/backend/cpu/ElementMap.tpp"
 

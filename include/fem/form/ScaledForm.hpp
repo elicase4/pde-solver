@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_FORM_SCALEDFORM_HPP
-#define PDESOLVER_FEM_FORM_SCALEDFORM_HPP
+#ifndef RESIDUUM_FEM_FORM_SCALEDFORM_HPP
+#define RESIDUUM_FEM_FORM_SCALEDFORM_HPP
 
 #include <cstring>
 
@@ -7,21 +7,21 @@
 #include "config/Platform.hpp"
 #include "fem/dispatch/DiscretizationLimits.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace form {
 
-			template<Index numDOFs, typename Form>
+			template<Index numDOFs, typename FormT>
 			class ScaledForm {
 			public:
 
 				constexpr ScaledForm() = default;
 				constexpr explicit ScaledForm(Real coefficient) : coefficient_(coefficient) {}
 
-				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePoint& qp, Real* Ke) const {
+				template<typename QuadraturePointT>
+				PDE_HOST PDE_DEVICE void computeElementLevelMatrix(const QuadraturePointT& qp, Real* Ke) const {
 
-					constexpr Index maxElementDOFs = fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim> * numDOFs;
+					constexpr Index maxElementDOFs = fem::dispatch::kMaxNodesPerElement<QuadraturePointT::ParametricDim> * numDOFs;
 					Real buffer[maxElementDOFs * maxElementDOFs];
 					std::memset(buffer, 0.0, sizeof(buffer));
 
@@ -34,10 +34,10 @@ namespace pdesolver {
 
 				}
 
-				template<typename QuadraturePoint>
-				PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePoint& qp, Real* Ue, Real* Oe) const {
+				template<typename QuadraturePointT>
+				PDE_HOST PDE_DEVICE void computeElementLevelVector(const QuadraturePointT& qp, Real* Ue, Real* Oe) const {
 
-					Real buffer[fem::dispatch::kMaxNodesPerElement<QuadraturePoint::ParametricDim> * numDOFs];
+					Real buffer[fem::dispatch::kMaxNodesPerElement<QuadraturePointT::ParametricDim> * numDOFs];
 					std::memset(buffer, 0.0, sizeof(buffer));
 
 					inner_.computeElementLevelVector(qp, Ue, buffer);
@@ -51,13 +51,13 @@ namespace pdesolver {
 
 			private:
 
-				Form inner_;
+				FormT inner_;
 				Real coefficient_ = Real(1);
 
 			}; // class ScaledForm
 
 		} // namespace form
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

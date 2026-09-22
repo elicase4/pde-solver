@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_MESH_EXCHANGE_GMSH_UTILS_HPP
-#define PDESOLVER_MESH_EXCHANGE_GMSH_UTILS_HPP
+#ifndef RESIDUUM_MESH_EXCHANGE_GMSH_UTILS_HPP
+#define RESIDUUM_MESH_EXCHANGE_GMSH_UTILS_HPP
 
 #include <vector>
 
@@ -8,7 +8,7 @@
 #include "mesh/ElementFamily.hpp"
 #include "mesh/exchange/gmsh/ElementType.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace mesh {
 		namespace exchange {
 			namespace gmsh {
@@ -65,6 +65,6 @@ namespace pdesolver {
 			} // namespace gmsh
 		} // namespace exchange
 	} // namespace mesh
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

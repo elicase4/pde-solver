@@ -1,7 +1,7 @@
-#ifndef PDESOLVER_SOLVER_CONFIG_BACKENDCONFIG_HPP
-#define PDESOLVER_SOLVER_CONFIG_BACKENDCONFIG_HPP
+#ifndef RESIDUUM_SOLVER_CONFIG_BACKENDCONFIG_HPP
+#define RESIDUUM_SOLVER_CONFIG_BACKENDCONFIG_HPP
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace config {
 
@@ -18,6 +18,6 @@ namespace pdesolver {
 
 		} // namespace config
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

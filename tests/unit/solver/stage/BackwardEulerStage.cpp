@@ -8,7 +8,7 @@
 #include "application/heateq/config/HeatConfig.hpp"
 #include "application/heateq/problem/HeatProblem.hpp"
 
-#include "equations/heateq/HeatEquation.hpp"
+#include "equation/heateq/HeatEquation.hpp"
 
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/dof/DOFOrdering.hpp"
@@ -24,12 +24,12 @@
 
 #include "topology/TopologicalDOF.hpp"
 
-using namespace pdesolver;
+using namespace residuum;
 
 namespace {
 
 	using BackendType = linalg::types::backend::CPU;
-	using HeatEqBundle = equations::HeatEquation<2, 2, mesh::ElementFamily::Quad>;
+	using HeatEqBundle = equation::HeatEquation<2, 2, mesh::ElementFamily::Quad>;
 	using HeatProblemT = application::heateq::problem::HeatProblem<BackendType, HeatEqBundle>;
 	using BEStageT = solver::stage::BackwardEulerStage<HeatProblemT>;
 

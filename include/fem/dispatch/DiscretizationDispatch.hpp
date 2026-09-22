@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
-#define PDESOLVER_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
+#ifndef RESIDUUM_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
+#define RESIDUUM_FEM_DISPATCH_DISCRETIZATIONDISPATCH_HPP
 
 #include <stdexcept>
 #include <string>
@@ -17,7 +17,7 @@
 
 #include "mesh/ElementFamily.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace dispatch {
 
@@ -50,8 +50,8 @@ namespace pdesolver {
 
 			}
 
-			template<Index NSD, typename Visitor>
-			bool dispatchQuad(Index px, Index py, Index xi, Index eta, Visitor&& visitor) {
+			template<Index NSD, typename VisitorT>
+			bool dispatchQuad(Index px, Index py, Index xi, Index eta, VisitorT&& visitor) {
 
 				validateDiscretizationLimits(px, xi);
 				validateDiscretizationLimits(py, eta);
@@ -68,8 +68,8 @@ namespace pdesolver {
 
 			}
 
-			template<Index NSD, typename Visitor>
-			bool dispatchHex(Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
+			template<Index NSD, typename VisitorT>
+			bool dispatchHex(Index px, Index py, Index pz, Index xi, Index eta, Index zeta, VisitorT&& visitor) {
 
 				validateDiscretizationLimits(px, xi);
 				validateDiscretizationLimits(py, eta);
@@ -83,43 +83,43 @@ namespace pdesolver {
 				const Index nBdy = (xi > eta) ? ((xi > zeta) ? xi : zeta) : ((eta > zeta) ? eta : zeta);
 				typename Traits::QuadratureBoundaryType quadBdyInst(nBdy, nBdy);
 
-				// propagate the visitor's own return value -- see dispatchQuad() above
+				// propagates the visitor's return value, matching dispatchQuad() above
 				return visitor.template operator()<NSD, 3, mesh::ElementFamily::Hex>(basisInst, quadVolInst, quadBdyInst);
 
 			}
 
-			template<Index NSD, typename Visitor>
-			bool dispatchNPD2(mesh::ElementFamily family, Index px, Index py, Index xi, Index eta, Visitor&& visitor) {
+			template<Index NSD, typename VisitorT>
+			bool dispatchNPD2(mesh::ElementFamily family, Index px, Index py, Index xi, Index eta, VisitorT&& visitor) {
 
 				if (family == mesh::ElementFamily::Quad) {
-					return dispatchQuad<NSD>(px, py, xi, eta, std::forward<Visitor>(visitor));
+					return dispatchQuad<NSD>(px, py, xi, eta, std::forward<VisitorT>(visitor));
 				}
 
 				return false;
 
 			}
 
-			template<Index NSD, typename Visitor>
-			bool dispatchNPD3(mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
+			template<Index NSD, typename VisitorT>
+			bool dispatchNPD3(mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, VisitorT&& visitor) {
 
 				if (family == mesh::ElementFamily::Hex) {
-					return dispatchHex<NSD>(px, py, pz, xi, eta, zeta, std::forward<Visitor>(visitor));
+					return dispatchHex<NSD>(px, py, pz, xi, eta, zeta, std::forward<VisitorT>(visitor));
 				}
 
 				return false;
 
 			}
 
-			template<typename Visitor>
-			bool dispatch(Index nsd, Index npd, mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, Visitor&& visitor) {
+			template<typename VisitorT>
+			bool dispatch(Index nsd, Index npd, mesh::ElementFamily family, Index px, Index py, Index pz, Index xi, Index eta, Index zeta, VisitorT&& visitor) {
 
 				if (npd == 2) {
 
 					if (nsd == 2) {
-						return dispatchNPD2<2>(family, px, py, xi, eta, std::forward<Visitor>(visitor));
+						return dispatchNPD2<2>(family, px, py, xi, eta, std::forward<VisitorT>(visitor));
 					}
 					if (nsd == 3) {
-						return dispatchNPD2<3>(family, px, py, xi, eta, std::forward<Visitor>(visitor));
+						return dispatchNPD2<3>(family, px, py, xi, eta, std::forward<VisitorT>(visitor));
 					}
 					return false;
 
@@ -128,7 +128,7 @@ namespace pdesolver {
 				if (npd == 3) {
 
 					if (nsd == 3) {
-						return dispatchNPD3<3>(family, px, py, pz, xi, eta, zeta, std::forward<Visitor>(visitor));
+						return dispatchNPD3<3>(family, px, py, pz, xi, eta, zeta, std::forward<VisitorT>(visitor));
 					}
 					return false;
 
@@ -140,6 +140,6 @@ namespace pdesolver {
 
 		} // namespace dispatch
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

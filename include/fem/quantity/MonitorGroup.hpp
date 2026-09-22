@@ -1,11 +1,11 @@
-#ifndef PDESOLVER_FEM_QUANTITY_MONITORGROUP_HPP
-#define PDESOLVER_FEM_QUANTITY_MONITORGROUP_HPP
+#ifndef RESIDUUM_FEM_QUANTITY_MONITORGROUP_HPP
+#define RESIDUUM_FEM_QUANTITY_MONITORGROUP_HPP
 
 #include <functional>
 
 #include "core/Types.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quantity {
 
@@ -25,6 +25,6 @@ namespace pdesolver {
 
 		} // namespace quantity
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

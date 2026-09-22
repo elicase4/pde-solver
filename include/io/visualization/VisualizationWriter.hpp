@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_VISUALIZATION_VISUALIZATIONWRITER_HPP
-#define PDESOLVER_IO_VISUALIZATION_VISUALIZATIONWRITER_HPP
+#ifndef RESIDUUM_IO_VISUALIZATION_VISUALIZATIONWRITER_HPP
+#define RESIDUUM_IO_VISUALIZATION_VISUALIZATIONWRITER_HPP
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@
 
 #include "utils/logging/core/CsvWriter.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace visualization {
 
@@ -44,7 +44,7 @@ namespace pdesolver {
 
 		} // namespace visualization
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #include "io/visualization/VisualizationWriter.tpp"
 

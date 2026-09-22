@@ -1,12 +1,12 @@
-#ifndef PDESOLVER_JACOBIANTRANSFORM_HPP
-#define PDESOLVER_JACOBIANTRANSFORM_HPP
+#ifndef RESIDUUM_FEM_GEOMETRY_JACOBIANTRANSFORM_HPP
+#define RESIDUUM_FEM_GEOMETRY_JACOBIANTRANSFORM_HPP
 
 #include <math.h>
 
 #include "core/Types.hpp"
 #include "config/Platform.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace geometry {
 			
@@ -39,7 +39,7 @@ namespace pdesolver {
 			
 		} // namespace geometry
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "JacobianTransform.tpp"
 

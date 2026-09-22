@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_IO_VISUALIZATION_VTKWRITER_HPP
-#define PDESOLVER_IO_VISUALIZATION_VTKWRITER_HPP
+#ifndef RESIDUUM_IO_VISUALIZATION_VTKWRITER_HPP
+#define RESIDUUM_IO_VISUALIZATION_VTKWRITER_HPP
 
 #include <cassert>
 #include <cstdint>
@@ -12,7 +12,7 @@
 #include "core/Types.hpp"
 #include "io/utils/Binary.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace io {
 		namespace visualization {
 
@@ -98,6 +98,6 @@ namespace pdesolver {
 
 		} // namespace visualization
 	} // namespace io
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

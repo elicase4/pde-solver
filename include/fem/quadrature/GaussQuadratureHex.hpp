@@ -1,10 +1,10 @@
-#ifndef PDESOLVER_GAUSSQUADRATUREHEX_HPP
-#define PDESOLVER_GAUSSQUADRATUREHEX_HPP
+#ifndef RESIDUUM_FEM_QUADRATURE_GAUSSQUADRATUREHEX_HPP
+#define RESIDUUM_FEM_QUADRATURE_GAUSSQUADRATUREHEX_HPP
 
 #include "fem/dispatch/DiscretizationLimits.hpp"
 #include "fem/quadrature/GaussQuadrature1D.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace fem {
 		namespace quadrature {
 
@@ -31,7 +31,7 @@ namespace pdesolver {
 			
 		} // namespace quadrature
 	} // namespace fem
-} // namespace pdesolver
+} // namespace residuum
 
 #include "GaussQuadratureHex.tpp"
 

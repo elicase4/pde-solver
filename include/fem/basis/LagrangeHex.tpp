@@ -1,4 +1,4 @@
-namespace pdesolver::fem::basis {
+namespace residuum::fem::basis {
 
 // Implementation: eval
 PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::eval(const Real* xi, Real* N) const {
@@ -266,4 +266,4 @@ PDE_HOST PDE_DEVICE PDE_INLINE void LagrangeHex::mapFaceToElement(const Int rngI
 
 }
 
-} // namespace pdesolver::fem::basis
+} // namespace residuum::fem::basis

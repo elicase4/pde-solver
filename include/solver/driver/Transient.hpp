@@ -1,21 +1,20 @@
-#ifndef PDESOLVER_SOLVER_DRIVER_TRANSIENT_HPP
-#define PDESOLVER_SOLVER_DRIVER_TRANSIENT_HPP
+#ifndef RESIDUUM_SOLVER_DRIVER_TRANSIENT_HPP
+#define RESIDUUM_SOLVER_DRIVER_TRANSIENT_HPP
 
+#include "solver/driver/TransientDriver.hpp"
 #include "solver/stage/Stage.hpp"
 #include "solver/timestepper/TimeStepperRunner.hpp"
 
-namespace pdesolver {
+namespace residuum {
 	namespace solver {
 		namespace driver {
 
-			// Owns only the outer loop -- one-time initialize()/finalize() plus stepping until
-			// the timestepper says it's done. Each step's assemble/solve/advance/output lives in
-			// the timestepper (see TimeStepperRunner). Mirrors Driver::Steady.
-			template<stage::Stage StageType>
+			// owns only the outer loop; each step's assemble/solve/advance/output lives in the timestepper
+			template<stage::Stage StageT>
 			class Transient {
 			public:
 
-				bool solve(StageType& stage, timestepper::TimeStepperRunner& stepper) {
+				bool solve(StageT& stage, timestepper::TimeStepperRunner& stepper) {
 
 					stage.initialize();
 
@@ -31,10 +30,12 @@ namespace pdesolver {
 
 				}
 
+				static_assert(TransientDriver<Transient, StageT>);
+
 			}; // class Transient
 
 		} // namespace driver
 	} // namespace solver
-} // namespace pdesolver
+} // namespace residuum
 
 #endif

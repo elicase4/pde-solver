@@ -1,5 +1,5 @@
-#ifndef PDESOLVER_SOLVER_HPP
-#define PDESOLVER_SOLVER_HPP
+#ifndef RESIDUUM_CORE_SOLVER_HPP
+#define RESIDUUM_CORE_SOLVER_HPP
 
 #include "solver/linear/LinearSolverFactory.hpp"
 

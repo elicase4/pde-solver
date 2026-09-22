@@ -1,37 +1,37 @@
 #include "application/heateq/parser/ConductivityConfigParser.hpp"
 #include "io/YAMLReader.hpp"
 
-pdesolver::application::heateq::config::ConductivityConfig::Type pdesolver::application::heateq::parser::ConductivityConfigParser::parseConductivityType(const std::string& str) {
+residuum::application::heateq::config::ConductivityConfig::Type residuum::application::heateq::parser::ConductivityConfigParser::parseConductivityType(const std::string& str) {
 
 	if (str == "constant") {
-		return pdesolver::application::heateq::config::ConductivityConfig::Type::Constant;
+		return residuum::application::heateq::config::ConductivityConfig::Type::Constant;
 	}
 
 	if (str == "anisotropic") {
-		return pdesolver::application::heateq::config::ConductivityConfig::Type::Anisotropic;
+		return residuum::application::heateq::config::ConductivityConfig::Type::Anisotropic;
 	}
 
 	if (str == "temperature_dependent_isotropic") {
-		return pdesolver::application::heateq::config::ConductivityConfig::Type::TemperatureDependentIsotropic;
+		return residuum::application::heateq::config::ConductivityConfig::Type::TemperatureDependentIsotropic;
 	}
 
 	if (str == "temperature_dependent_anisotropic") {
-		return pdesolver::application::heateq::config::ConductivityConfig::Type::TemperatureDependentAnisotropic;
+		return residuum::application::heateq::config::ConductivityConfig::Type::TemperatureDependentAnisotropic;
 	}
 
 	throw std::runtime_error("Unknown conductivity type: " + str);
 
 }
 
-pdesolver::application::heateq::config::ConductivityConfig pdesolver::application::heateq::parser::ConductivityConfigParser::parse(const YAML::Node& node) {
+residuum::application::heateq::config::ConductivityConfig residuum::application::heateq::parser::ConductivityConfigParser::parse(const YAML::Node& node) {
 
 	using io::YAMLReader;
 
-	pdesolver::application::heateq::config::ConductivityConfig cfg;
+	residuum::application::heateq::config::ConductivityConfig cfg;
 
-	cfg.type = pdesolver::application::heateq::parser::ConductivityConfigParser::parseConductivityType(YAMLReader::required<std::string>(node, "type"));
+	cfg.type = residuum::application::heateq::parser::ConductivityConfigParser::parseConductivityType(YAMLReader::required<std::string>(node, "type"));
 
-	using Type = pdesolver::application::heateq::config::ConductivityConfig::Type;
+	using Type = residuum::application::heateq::config::ConductivityConfig::Type;
 
 	if (cfg.type == Type::Constant) {
 		cfg.value = YAMLReader::required<Real>(node, "value");
