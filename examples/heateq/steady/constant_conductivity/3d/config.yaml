@@ -1,12 +1,13 @@
 mesh:
-  
-  file: ../../../mesh/square/square.pmsh
+
+  file: ../../../../mesh/cube/cube.pmsh
 
 discretization:
-  
-  quadrature: 
+
+  quadrature:
     xi: 2
     eta: 2
+    zeta: 2
 
   dof_ordering:
     type: interleaved
@@ -35,7 +36,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)"
+      expression: "(1-x)*(1-y)*(1-z)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -44,7 +45,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)"
+      expression: "(1-x)*(1-y)*(1-z)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -53,7 +54,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)"
+      expression: "(1-x)*(1-y)*(1-z)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -62,7 +63,25 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)"
+      expression: "(1-x)*(1-y)*(1-z)"
+      unit: K
+    forms: [value_bc]
+    model: constant
+
+  - boundary: 4
+    type: value
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
+      unit: K
+    forms: [value_bc]
+    model: constant
+
+  - boundary: 5
+    type: value
+    read:
+      mode: expression
+      expression: "(1-x)*(1-y)*(1-z)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -81,38 +100,23 @@ solver:
   linear:
 
     type: cg
-    
+
     operator:
       type: fem
 
     preconditioner:
       type: identity
-    
+
     tolerance: 1.0e-12
     max_iterations: 10000
-    # krylov_dim: 50
-
-  # nonlinear:
-    # type: newton
-    # tolerance: 1e-8
-    # max_iterations: 30
-
-  # driver:
-    # type: transient
-    #
-  # timestepper:
-    # type: backward_euler
-    # t0: 0.0
-    # tf: 1.0
-    # dt: 0.01
 
 output:
   directory: output
   write_frequency: 1
-  prefix: constant_conductivity_solution
+  prefix: block3d_constant_conductivity_solution
 
 logging:
-  
+
   solver:
     type: console
 

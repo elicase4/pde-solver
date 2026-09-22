@@ -42,10 +42,15 @@ git clone <repo-url> residuum && cd residuum
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
+export PATH="$PWD/bin:$PATH"
+cd ..
 
-./bin/mesh   ../examples/mesh/square/square_mesh.yaml
-./bin/heateq ../examples/heateq/steady/constant_conductivity/steady_constant_conductivity.yaml
+cd examples/mesh/square && mesh config.yaml && cd -
+cd examples/heateq/steady/constant_conductivity/2d && heateq config.yaml && cd -
 ```
+
+Configs reference other files (meshes, field data) by path relative to the *current directory*,
+not the config file's own location — run each example from inside its own directory, as above.
 
 Dependencies: a C++20 compiler, CMake ≥ 3.18, [`yaml-cpp`](https://github.com/jbeder/yaml-cpp),
 [`GoogleTest`](https://github.com/google/googletest) (for the test suite), and

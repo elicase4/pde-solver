@@ -49,11 +49,13 @@ Every module publicly links `residuum_headers`, an `INTERFACE` library that owns
 it (transitively, via any `residuum_*` library, or directly) rather than adding `include/` as an
 include directory by hand.
 
-Run an application against one of the example configs:
+Run an application against one of the example configs. Relative paths inside a config (mesh
+files, field data) resolve against the current directory, not the config's own location, so run
+from inside the example's directory:
 
 ```bash
-./build/bin/mesh   examples/mesh/square/square_mesh.yaml
-./build/bin/heateq examples/heateq/steady/constant_conductivity/steady_constant_conductivity.yaml
+cd examples/mesh/square && /path/to/build/bin/mesh config.yaml
+cd examples/heateq/steady/constant_conductivity/2d && /path/to/build/bin/heateq config.yaml
 ```
 
 ## Testing
@@ -137,7 +139,7 @@ together. Adding a new PDE means adding a sibling directory here plus a new `app
 
 ### `solver` — config, drivers, time integration
 
-`solver/config` holds one struct per YAML section (mirrors `steady_constant_conductivity.yaml`'s top-level keys:
+`solver/config` holds one struct per YAML section (mirrors `examples/heateq/steady/constant_conductivity/2d/config.yaml`'s top-level keys:
 mesh/discretization/physics/boundary_conditions/solver/output/logging); `solver/parser` (in
 `src/solver`) turns YAML nodes into those structs. `solver/driver` provides the top-level solve
 strategies (`Steady`, `Transient`, base concepts `Driver`/`TransientDriver`), `solver/linear` /

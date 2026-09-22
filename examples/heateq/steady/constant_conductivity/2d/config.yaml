@@ -1,13 +1,12 @@
 mesh:
-
-  file: ../../../mesh/cube/cube.pmsh
+  
+  file: ../../../../mesh/square/square.pmsh
 
 discretization:
-
-  quadrature:
+  
+  quadrature: 
     xi: 2
     eta: 2
-    zeta: 2
 
   dof_ordering:
     type: interleaved
@@ -36,7 +35,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
+      expression: "(1-x)*(1-y)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -45,7 +44,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
+      expression: "(1-x)*(1-y)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -54,7 +53,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
+      expression: "(1-x)*(1-y)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -63,25 +62,7 @@ boundary_conditions:
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
-      unit: K
-    forms: [value_bc]
-    model: constant
-
-  - boundary: 4
-    type: value
-    read:
-      mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
-      unit: K
-    forms: [value_bc]
-    model: constant
-
-  - boundary: 5
-    type: value
-    read:
-      mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
+      expression: "(1-x)*(1-y)"
       unit: K
     forms: [value_bc]
     model: constant
@@ -100,23 +81,23 @@ solver:
   linear:
 
     type: cg
-
+    
     operator:
       type: fem
 
     preconditioner:
       type: identity
-
+    
     tolerance: 1.0e-12
     max_iterations: 10000
 
 output:
   directory: output
   write_frequency: 1
-  prefix: block3d_constant_conductivity_solution
+  prefix: constant_conductivity_solution
 
 logging:
-
+  
   solver:
     type: console
 

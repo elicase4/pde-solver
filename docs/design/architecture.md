@@ -9,7 +9,7 @@ looking something up. See `CLAUDE.md` for the terse structural reference this ex
 
 1. **The layering, and why it's bottom-up.** `mesh`/`io` → `linalg`/`fem` → `equation` →
    `solver` → `application`. What each layer is allowed to know about the ones above it (nothing).
-2. **A traced example run.** Follow `steady_constant_conductivity.yaml` from
+2. **A traced example run.** Follow `examples/heateq/steady/constant_conductivity/2d/config.yaml` from
    `HeatApplication::main()` through `HeatConfigParser` → `HeatDispatcher` (runtime config
    resolved into a concrete template instantiation) → `solver::stage::SteadyStage<HeatProblemT>` →
    `fem::assembly::Assembler` → `linalg::solver::iterative::cg::Solver` → VTK output. This is the

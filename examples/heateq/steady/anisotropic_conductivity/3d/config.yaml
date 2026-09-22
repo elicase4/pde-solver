@@ -1,6 +1,6 @@
 mesh:
 
-  file: ../../../mesh/cube/cube.pmsh
+  file: ../../../../mesh/cube/cube.pmsh
 
 discretization:
 
