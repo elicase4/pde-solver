@@ -33,6 +33,9 @@ namespace residuum {
 
 					Real dt;
 					Index attempts = 0;
+					Real lastResidual = Real(0);
+
+					logger_.startStep(step_ + 1, time_);
 
 					do {
 
@@ -49,7 +52,10 @@ namespace residuum {
 							return false;
 						}
 
-						policy_->onStepComplete(stage_.residualNorm());
+						// captured once here (before advance() rolls state forward) and reused for the
+						// logged value below, so both reflect the residual that was actually converged
+						lastResidual = stage_.residualNorm();
+						policy_->onStepComplete(lastResidual);
 
 					} while (policy_->rejectLastStep());
 
@@ -58,7 +64,7 @@ namespace residuum {
 					++step_;
 					stage_.onStepComplete(step_, time_);
 
-					logger_.log(step_, time_, dt, attempts, stage_.residualNorm());
+					logger_.log(step_, time_, dt, attempts, lastResidual);
 
 					return true;
 

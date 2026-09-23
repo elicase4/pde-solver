@@ -7,6 +7,7 @@
 
 #include "solver/config/LoggingConfig.hpp"
 #include "solver/config/TimeStepperConfig.hpp"
+#include "solver/logging/LoggerFactory.hpp"
 #include "solver/timestepper/BackwardEuler.hpp"
 #include "solver/timestepper/StepSizePolicyFactory.hpp"
 #include "solver/timestepper/TimeStepper.hpp"
@@ -19,19 +20,6 @@ namespace residuum {
 	namespace solver {
 		namespace timestepper {
 
-			inline utils::logging::timestepper::Logger makeTimestepperLogger(const config::TimeStepperConfig& cfg, const config::TimeStepperLoggerConfig& loggerCfg, const std::string& equationLabel, const std::string& timestepperName) {
-
-				using LoggerT = utils::logging::timestepper::Logger;
-
-				const bool consoleEnabled = (loggerCfg.type == config::LoggerConfig::Type::Console);
-				const bool anyOutput = consoleEnabled || !loggerCfg.textFile.empty() || !loggerCfg.csvFile.empty();
-
-				if (!anyOutput) return LoggerT(utils::logging::NullLogger{});
-
-				return LoggerT(utils::logging::timestepper::ConsoleLogger(equationLabel, timestepperName, cfg.t0, cfg.tf, consoleEnabled, loggerCfg.textFile, loggerCfg.csvFile));
-
-			}
-
 			template<typename StageT>
 			std::unique_ptr<TimeStepperRunner> makeTimeStepperRunner(StageT& stage, const config::TimeStepperConfig& cfg, const config::TimeStepperLoggerConfig& loggerCfg, const std::string& equationLabel) {
 
@@ -39,7 +27,7 @@ namespace residuum {
 
 					case config::TimeStepperConfig::Type::BackwardEuler:
 						static_assert(TimeStepper<BackwardEulerRunner<StageT>>, "BackwardEulerRunner<StageT> must satisfy the TimeStepper concept, including declaring TemporalOrder Order");
-						return std::make_unique<BackwardEulerRunner<StageT>>(stage, cfg, makeStepSizePolicy(cfg.stepSize, equationLabel), makeTimestepperLogger(cfg, loggerCfg, equationLabel, "Backward Euler"));
+						return std::make_unique<BackwardEulerRunner<StageT>>(stage, cfg, makeStepSizePolicy(cfg.stepSize, equationLabel), logging::makeTimestepperLogger(cfg, loggerCfg, equationLabel, "Backward Euler"));
 
 					case config::TimeStepperConfig::Type::ForwardEuler:
 						throw std::runtime_error("TimeStepperFactory[" + equationLabel + "]: ForwardEuler not yet implemented");

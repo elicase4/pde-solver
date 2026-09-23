@@ -1,9 +1,14 @@
 #ifndef RESIDUUM_SOLVER_NONLINEAR_NEWTON_HPP
 #define RESIDUUM_SOLVER_NONLINEAR_NEWTON_HPP
 
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "core/Types.hpp"
+
+#include "fem/dof/DOFOrdering.hpp"
+#include "fem/dof/DOFResidualNorms.hpp"
 
 #include "linalg/solver/base/SolverReport.hpp"
 
@@ -21,22 +26,33 @@ namespace residuum {
 			class NewtonRunner : public NonlinearSolverRunner<VectorT> {
 			public:
 
-				NewtonRunner(StageT& stage, const config::NonlinearSolverConfig& cfg, utils::logging::nonlinear::Logger logger)
-					: stage_(stage), cfg_(cfg), logger_(std::move(logger)) {}
+				NewtonRunner(StageT& stage, const config::NonlinearSolverConfig& cfg, utils::logging::nonlinear::Logger logger, std::vector<std::string> dofNames, Index freeDOFsPerField, fem::dof::DOFOrdering dofOrdering)
+					: stage_(stage), cfg_(cfg), logger_(std::move(logger)), dofNames_(std::move(dofNames)), freeDOFsPerField_(freeDOFsPerField), dofOrdering_(dofOrdering) {}
 
 				bool solve(linalg::solver::SolverReport<VectorT>& report) override {
 
+					// a fresh nonlinear solve (e.g. a new timestep), so tag CSV rows with a new outer tick
+					logger_.reset();
+
 					Real res0 = Real(0);
+					std::vector<Real> res0PerDOF;
 
 					for (Index iter = 0; iter < cfg_.maxIterations; ++iter) {
 
 						stage_.assemble();
 						const Real resNorm = stage_.residualNorm();
+						const auto& R = stage_.residual();
+						const auto resPerDOF = fem::dof::computePerDOFNorms(R.data(), R.size(), static_cast<Index>(dofNames_.size()), freeDOFsPerField_, dofOrdering_);
 
-						if (iter == 0) res0 = resNorm;
+						if (iter == 0) { res0 = resNorm; res0PerDOF = resPerDOF; }
 						const Real resRel = (res0 > Real(0)) ? (resNorm / res0) : Real(0);
 
-						logger_.log(iter, resNorm, resRel);
+						std::vector<Real> resRelPerDOF(resPerDOF.size());
+						for (Index i = 0; i < static_cast<Index>(resPerDOF.size()); ++i) {
+							resRelPerDOF[i] = (res0PerDOF[i] > Real(0)) ? (resPerDOF[i] / res0PerDOF[i]) : Real(0);
+						}
+
+						logger_.log(iter, resRelPerDOF);
 
 						if (resNorm < cfg_.absoluteTolerance || resRel < cfg_.relativeTolerance) {
 
@@ -71,6 +87,9 @@ namespace residuum {
 				StageT& stage_;
 				config::NonlinearSolverConfig cfg_;
 				utils::logging::nonlinear::Logger logger_;
+				std::vector<std::string> dofNames_;
+				Index freeDOFsPerField_;
+				fem::dof::DOFOrdering dofOrdering_;
 
 			}; // class NewtonRunner
 

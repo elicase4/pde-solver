@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "core/Types.hpp"
+
 namespace residuum {
 	namespace solver {
 		namespace config {
@@ -19,15 +21,19 @@ namespace residuum {
 				// plain-text mirror of the console output; empty means no file mirroring
 				std::string textFile;
 
+				// console (and text-file) rows print every `interval`-th iteration; CSV rows are
+				// unaffected and always get every iteration. 0 suppresses per-iteration console output entirely.
+				Index interval = 1;
+
 			}; // struct LoggerConfig
 
 			// adds a structured per-iteration residual CSV, meaningless at driver level
-			struct SolverLoggerConfig : LoggerConfig {
+			struct LinearLoggerConfig : LoggerConfig {
 
 				// one row per solve iteration; empty means no CSV
 				std::string csvFile;
 
-			}; // struct SolverLoggerConfig
+			}; // struct LinearLoggerConfig
 
 			// one row per accepted step, not per solve attempt
 			struct TimeStepperLoggerConfig : LoggerConfig {
@@ -47,7 +53,7 @@ namespace residuum {
 
 			struct LoggingConfig {
 
-				SolverLoggerConfig solver;
+				LinearLoggerConfig linear;
 				TimeStepperLoggerConfig timestepper;
 				NonlinearLoggerConfig nonlinear;
 				LoggerConfig driver;

@@ -90,8 +90,9 @@ output:
   prefix: file_mode_demo_solution
 
 logging:
-  solver:
+  linear:
     type: console
+    interval: 10
   driver:
     type: console
   output:

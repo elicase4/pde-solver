@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <variant>
+#include <vector>
 
 #include "core/Types.hpp"
 #include "utils/logging/core/NullLogger.hpp"
@@ -20,8 +21,12 @@ namespace residuum {
 
 					explicit Logger(Variant impl) : impl_(std::move(impl)) {}
 
-					void log(Index iter, Real residualNorm, Real residualRel) const {
-						std::visit([&](const auto& l){ l.log(iter, residualNorm, residualRel); }, impl_);
+					void log(Index iter, const std::vector<Real>& residualRelPerDOF) const {
+						std::visit([&](const auto& l){ l.log(iter, residualRelPerDOF); }, impl_);
+					}
+
+					void reset() const {
+						std::visit([&](const auto& l){ l.reset(); }, impl_);
 					}
 
 					void summary(bool converged) const {

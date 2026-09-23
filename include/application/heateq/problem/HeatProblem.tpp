@@ -266,12 +266,11 @@ namespace residuum::application::heateq::problem {
 		using MatrixFreeOperatorT = linalg::op::FEMOperator<fem::assembly::Assembler<BackendT>, topology::TopologicalDOF<HeatEqBundleT::NumDOFs>, typename HeatEqBundleT::EvalEle, typename HeatEqBundleT::EvalQPVol, ModelT, FormsT, typename HeatEqBundleT::QuadratureVolumeType, Mode, VectorT>;
 
 		const OpType opType = solverInstance_.linear->operatorType;
-		const std::vector<std::string> dofNames{"T"};
 
 		if (opType == OpType::CSR) {
-			return solver::linear::makeLinearSolverRunner<CSROperatorT, VectorT>(CSROperatorT(K), topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, equationLabel(), dofNames);
+			return solver::linear::makeLinearSolverRunner<CSROperatorT, VectorT>(CSROperatorT(K), topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.linear, equationLabel(), dofNames(), freeDOFsPerField(), dofOrdering());
 		} else if (opType == OpType::FEM) {
-			return solver::linear::makeLinearSolverRunner<MatrixFreeOperatorT, VectorT>(MatrixFreeOperatorT(assembler_, mesh_, topoDOF_, time, model, forms, evalEleTemplate_, quadratureVolume_, &essentialBCs_, fieldSource, auxStates), topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.solver, equationLabel(), dofNames);
+			return solver::linear::makeLinearSolverRunner<MatrixFreeOperatorT, VectorT>(MatrixFreeOperatorT(assembler_, mesh_, topoDOF_, time, model, forms, evalEleTemplate_, quadratureVolume_, &essentialBCs_, fieldSource, auxStates), topoDOF_.numFreeDOFs(), *solverInstance_.linear, config_.logging.linear, equationLabel(), dofNames(), freeDOFsPerField(), dofOrdering());
 		}
 
 		throw std::runtime_error("HeatProblem: unsupported operator");

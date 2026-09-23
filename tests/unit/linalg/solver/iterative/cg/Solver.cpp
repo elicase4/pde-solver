@@ -5,7 +5,7 @@
 #include "linalg/operator/CSROperator.hpp"
 #include "linalg/solver/preconditioner/Identity.hpp"
 #include "utils/logging/core/NullLogger.hpp"
-#include "utils/logging/solver/ConsoleLogger.hpp"
+#include "utils/logging/linear/ConsoleLogger.hpp"
 
 using namespace residuum;
 
@@ -48,7 +48,7 @@ TEST(CGSolver, Solve2x2SPD) {
 
 	// setup preconditioner & logger
 	linalg::solver::preconditioner::Identity<Vec> M;
-	utils::logging::ConsoleLogger logger("Linear System", "PCG", "Identity", {"x"});
+	utils::logging::linear::ConsoleLogger logger("Linear System", "CG", "Identity", {"x"});
 
 	// setup solver config
 	const Real solverTol = 1e-12;

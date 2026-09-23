@@ -82,7 +82,7 @@ solver:
 
   linear:
 
-    type: cg
+    type: gmres
 
     operator:
       type: fem
@@ -115,7 +115,7 @@ output:
 
 logging:
 
-  solver:
+  linear:
     type: console
 
   driver:

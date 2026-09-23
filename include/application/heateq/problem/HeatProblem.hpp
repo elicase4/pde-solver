@@ -20,6 +20,7 @@
 
 #include "fem/assembly/Assembler.hpp"
 #include "fem/boundary/BoundaryApplicator.hpp"
+#include "fem/dof/DOFOrdering.hpp"
 #include "fem/boundary/EssentialBoundaryRegistry.hpp"
 #include "fem/boundary/NaturalBoundaryRegistry.hpp"
 #include "fem/form/FormRegistry.hpp"
@@ -103,6 +104,9 @@ namespace residuum {
 					std::unique_ptr<linalg::solver::LinearSolverRunner<VectorT>> makeLinearRunner(const Real* time, const FormsT& forms, const ModelT& model, const VectorT* fieldSource, const std::array<const VectorT*, NumAuxStates>& auxStates, MatrixT& K);
 
 					Index numFreeDOFs() const { return topoDOF_.numFreeDOFs(); }
+					std::vector<std::string> dofNames() const { return {"T"}; }
+					Index freeDOFsPerField() const { return topoDOF_.numFreeDOFs() / static_cast<Index>(dofNames().size()); }
+					fem::dof::DOFOrdering dofOrdering() const { return topoDOF_.ordering(); }
 					const solver::SolverInstance& solverInstance() const { return solverInstance_; }
 					std::string equationLabel() const { return "Heat Equation"; }
 					const solver::config::LoggingConfig& loggingConfig() const { return config_.logging; }

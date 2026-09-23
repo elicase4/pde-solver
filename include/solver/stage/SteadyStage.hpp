@@ -46,7 +46,7 @@ namespace residuum {
 						dU_ = std::make_unique<VectorT>(problem_.createVector());
 						jacobianSolverRunner_ = problem_.template makeLinearRunner<fem::assembly::GatherMode::Free>(&currentTime_, jacobianForms_, problem_.stiffnessModel(), &problem_.U(), {}, *J_);
 
-						nonlinearSolverRunner_ = nonlinear::makeNonlinearSolverRunner<SteadyStage, VectorT>(*this, *problem_.solverInstance().nonlinear, problem_.loggingConfig().nonlinear, problem_.equationLabel());
+						nonlinearSolverRunner_ = nonlinear::makeNonlinearSolverRunner<SteadyStage, VectorT>(*this, *problem_.solverInstance().nonlinear, problem_.loggingConfig().nonlinear, problem_.equationLabel(), problem_.dofNames(), problem_.freeDOFsPerField(), problem_.dofOrdering());
 
 					}
 
@@ -91,6 +91,9 @@ namespace residuum {
 					return linalg::operations::norm(R_);
 
 				}
+
+				// NonlinearCapableStage
+				const VectorT& residual() const { return R_; }
 
 				bool solveLinearStep() {
 

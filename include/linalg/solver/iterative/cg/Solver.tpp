@@ -14,6 +14,9 @@ namespace residuum::linalg::solver::iterative::cg {
 	requires linalg::op::LinearOperator<OperatorT, VectorT>
 	bool Solver<OperatorT, VectorT, PreconditionerT, LoggerT>::solve(solver::SolverReport<VectorT>& report, LoggerT& logger, Workspace& W, PreconditionerT& M, const OperatorT& A, const VectorT& b, VectorT& x){
 
+		// a fresh solve, so the logger's relative-residual baseline and per-call totals must not carry over
+		logger.reset();
+
 		// get config info
 		using DataType = typename VectorT::value_type;
 		const bool relMode = (config.tolType == ToleranceType::Relative);

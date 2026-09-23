@@ -2,6 +2,8 @@
 
 #include "solver/linear/LinearSolverFactory.hpp"
 
+#include "fem/dof/DOFOrdering.hpp"
+
 #include "linalg/types/Vector.hpp"
 #include "linalg/types/CSRMatrix.hpp"
 #include "linalg/operator/CSROperator.hpp"
@@ -50,10 +52,10 @@ TEST(LinearSolverFactory, CGConfigProducesConvergedSolution) {
 	cfg.tolerance = 1e-12;
 	cfg.maxIterations = 1000;
 
-	solver::config::SolverLoggerConfig loggerCfg;
+	solver::config::LinearLoggerConfig loggerCfg;
 	loggerCfg.type = solver::config::LoggerConfig::Type::None;
 
-	auto runner = solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, loggerCfg, "Test", {"x"});
+	auto runner = solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, loggerCfg, "Test", {"x"}, op.size(), fem::dof::DOFOrdering::Interleaved);
 
 	linalg::solver::SolverReport<Vec> report;
 	bool converged = runner->solve(b, x, report);
@@ -75,10 +77,10 @@ TEST(LinearSolverFactory, UnimplementedSolverTypesThrow) {
 		solver::config::LinearSolverConfig cfg;
 		cfg.type = type;
 
-		solver::config::SolverLoggerConfig loggerCfg;
+		solver::config::LinearLoggerConfig loggerCfg;
 		loggerCfg.type = solver::config::LoggerConfig::Type::None;
 
-		EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, loggerCfg, "Test", {"x"})), std::runtime_error);
+		EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, loggerCfg, "Test", {"x"}, op.size(), fem::dof::DOFOrdering::Interleaved)), std::runtime_error);
 
 	}
 
@@ -93,9 +95,9 @@ TEST(LinearSolverFactory, NonIdentityPreconditionerThrows) {
 	cfg.type = solver::config::LinearSolverConfig::Type::CG;
 	cfg.preconditioner.type = static_cast<solver::config::PreconditionerConfig::Type>(-1); // not Identity
 
-	solver::config::SolverLoggerConfig loggerCfg;
+	solver::config::LinearLoggerConfig loggerCfg;
 	loggerCfg.type = solver::config::LoggerConfig::Type::None;
 
-	EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, loggerCfg, "Test", {"x"})), std::runtime_error);
+	EXPECT_THROW((solver::linear::makeLinearSolverRunner<decltype(op), Vec>(op, op.size(), cfg, loggerCfg, "Test", {"x"}, op.size(), fem::dof::DOFOrdering::Interleaved)), std::runtime_error);
 
 }

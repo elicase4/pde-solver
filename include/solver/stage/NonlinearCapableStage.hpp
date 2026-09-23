@@ -15,6 +15,9 @@ namespace residuum {
 
 				{ stage.residualNorm() } -> std::convertible_to<Real>;
 
+				// the raw residual vector residualNorm() just assembled, for per-DOF reporting
+				{ stage.residual() };
+
 				{ stage.solveLinearStep() } -> std::same_as<bool>;
 
 			}; // concept NonlinearCapableStage

@@ -17,12 +17,16 @@ namespace residuum {
 				// timestepper::ConsoleLogger's log() shape: step, time, dt, attempts, residualNorm
 				inline void log(Index, Real, Real, Index, Real) const {}
 
-				// nonlinear::ConsoleLogger's log() shape: iter, residualNorm, residualRel
-				inline void log(Index, Real, Real) const {}
+				// timestepper::ConsoleLogger's startStep() shape: step, time
+				inline void startStep(Index, Real) const {}
 
-				// TODO: move to solver logger
+				// nonlinear::ConsoleLogger's log() shape: iter, residualRelPerDOF
+				inline void log(Index, const std::vector<Real>&) const {}
+
 				template<typename DataT>
 				inline std::vector<DataT> computePerDOFNorms(const DataT*, Index) const { return {}; }
+
+				inline void reset() const {}
 
 				inline void summary(bool) const {}
 

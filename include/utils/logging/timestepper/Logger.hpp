@@ -20,6 +20,10 @@ namespace residuum {
 
 					explicit Logger(Variant impl) : impl_(std::move(impl)) {}
 
+					void startStep(Index step, Real time) const {
+						std::visit([&](const auto& l){ l.startStep(step, time); }, impl_);
+					}
+
 					void log(Index step, Real time, Real dt, Index attempts, Real residualNorm) const {
 						std::visit([&](const auto& l){ l.log(step, time, dt, attempts, residualNorm); }, impl_);
 					}

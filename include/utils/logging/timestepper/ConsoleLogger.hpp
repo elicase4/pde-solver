@@ -29,10 +29,11 @@ namespace residuum {
 					std::string timestepperName;
 					Real t0;
 					Real tf;
+					Index interval;
 
 					// consoleEnabled=false with an empty textFilePath prints nothing; use NullLogger directly for that case instead
-					explicit ConsoleLogger(std::string equationNameIn, std::string timestepperNameIn, Real t0In, Real tfIn, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
-						equationName(std::move(equationNameIn)), timestepperName(std::move(timestepperNameIn)), t0(t0In), tf(tfIn) {
+					explicit ConsoleLogger(std::string equationNameIn, std::string timestepperNameIn, Real t0In, Real tfIn, Index reportInterval = 1, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
+						equationName(std::move(equationNameIn)), timestepperName(std::move(timestepperNameIn)), t0(t0In), tf(tfIn), interval(reportInterval) {
 
 						// see solver::ConsoleLogger's identical note: teeBuf_/textFile_/out_ are
 						// heap-allocated so a move of this struct (temporary -> variant) doesn't
@@ -57,6 +58,22 @@ namespace residuum {
 
 					}
 
+					// called before a step's nested nonlinear/linear solves begin, so their output
+					// appears under this step's context rather than ahead of it
+					void startStep(Index step, Real time) const {
+
+						if (printHeader_) {
+							printBanner();
+							printHeader_ = false;
+						}
+
+						if (interval == 0) return;
+						if ((step > 1) && ((step % interval) != 0)) return;
+
+						*out_ << tag() << "step " << step << " starting: t=" << std::scientific << std::setprecision(4) << time << "\n";
+
+					}
+
 					void log(Index step, Real time, Real dt, Index attempts, Real residualNorm) const {
 
 						const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
@@ -70,16 +87,12 @@ namespace residuum {
 						lastTime_ = time;
 						totalAttempts_ += attempts;
 
-						if (printHeader_) {
-							printBanner();
-							printColumnHeader();
-							printHeader_ = false;
-						}
+						// console/text output throttle; the CSV row above is always written regardless
+						if (interval == 0) return;
+						if ((step > 1) && ((step % interval) != 0)) return;
 
-						*out_ << "  " << std::left << std::setw(8) << step << "  ";
-						*out_ << std::scientific << std::setprecision(4);
-						*out_ << std::setw(14) << time << "  " << std::setw(14) << dt << "  ";
-						*out_ << std::right << std::setw(8) << attempts << "  ";
+						*out_ << tag() << "step " << step << " accepted: t=" << std::scientific << std::setprecision(4) << time;
+						*out_ << ", dt=" << dt << ", " << attempts << (attempts == 1 ? " attempt" : " attempts") << ", ";
 						*out_ << std::fixed << std::setprecision(3) << elapsed << "s\n";
 
 					}
@@ -88,31 +101,18 @@ namespace residuum {
 
 						const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 
-						*out_ << "  [" << timestepperName << "] " << (converged ? "finished" : "did not reach tf") << ": " << lastStep_ << " steps, t=" << std::scientific << std::setprecision(4) << lastTime_ << " (" << totalAttempts_ << " total attempts), " << std::fixed << std::setprecision(3) << elapsed << "s\n";
+						*out_ << tag() << (converged ? "finished" : "did not reach tf") << ": " << lastStep_ << " steps, t=" << std::scientific << std::setprecision(4) << lastTime_ << " (" << totalAttempts_ << " total attempts), " << std::fixed << std::setprecision(3) << elapsed << "s\n";
 
 					}
 
 				private:
 
+					std::string tag() const { return "  [TS:" + timestepperName + "] "; }
+
 					void printBanner() const {
 
-						const int width = 60;
-
 						*out_ << "\n";
-						*out_ << "  " << std::string(width, '=') << "\n";
-						*out_ << "  " << equationName << " - " << timestepperName << "\n";
-						*out_ << "  t0=" << t0 << "  tf=" << tf << "\n";
-						*out_ << "  " << std::string(width, '=') << "\n";
-
-					}
-
-					void printColumnHeader() const {
-
-						*out_ << "  " << std::left << std::setw(8) << "Step" << "  ";
-						*out_ << std::setw(14) << "Time" << "  " << std::setw(14) << "dt" << "  ";
-						*out_ << std::right << std::setw(8) << "Attempts" << "  ";
-						*out_ << "Elapsed" << "\n";
-						*out_ << "  " << std::string(60, '-') << "\n";
+						*out_ << tag() << "t0=" << t0 << "  tf=" << tf << "\n";
 
 					}
 

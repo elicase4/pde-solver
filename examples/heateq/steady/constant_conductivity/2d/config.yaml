@@ -98,8 +98,9 @@ output:
 
 logging:
   
-  solver:
+  linear:
     type: console
+    interval: 10
 
   driver:
     type: console

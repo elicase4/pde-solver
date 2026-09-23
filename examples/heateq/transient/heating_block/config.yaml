@@ -131,8 +131,9 @@ output:
 
 logging:
 
-  solver:
+  linear:
     type: console
+    interval: 10
     text_file: output/solver_log.txt
 
   driver:

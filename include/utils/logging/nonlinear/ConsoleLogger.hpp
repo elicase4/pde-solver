@@ -27,10 +27,12 @@ namespace residuum {
 					// config
 					std::string equationName;
 					std::string solverName;
+					std::vector<std::string> dofNames;
+					Index interval;
 
 					// consoleEnabled=false with an empty textFilePath prints nothing; use NullLogger directly for that case instead
-					explicit ConsoleLogger(std::string equationNameIn, std::string solverNameIn, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
-						equationName(std::move(equationNameIn)), solverName(std::move(solverNameIn)) {
+					explicit ConsoleLogger(std::string equationNameIn, std::string solverNameIn, std::vector<std::string> dofNamesIn, Index reportInterval = 1, bool consoleEnabled = true, const std::string& textFilePath = "", const std::string& csvFilePath = "") :
+						equationName(std::move(equationNameIn)), solverName(std::move(solverNameIn)), dofNames(std::move(dofNamesIn)), interval(reportInterval) {
 
 						// see solver::ConsoleLogger's identical note: teeBuf_/textFile_/out_ are
 						// heap-allocated so a move of this struct (temporary -> variant) doesn't
@@ -49,23 +51,40 @@ namespace residuum {
 
 						out_ = std::make_unique<std::ostream>(teeBuf_.get());
 
-						csv_ = std::make_unique<CsvWriter>(csvFilePath, std::vector<std::string>{"iter", "residual_norm", "residual_rel", "elapsed_s"});
+						std::vector<std::string> csvColumns = {"outer_tick", "iter"};
+						for (const auto& name : dofNames) csvColumns.push_back("rel[" + name + "]");
+						csvColumns.push_back("elapsed_s");
+						csv_ = std::make_unique<CsvWriter>(csvFilePath, std::move(csvColumns));
 
 						startTime_ = std::chrono::steady_clock::now();
 
 					}
 
-					void log(Index iter, Real residualNorm, Real residualRel) const {
+					// marks the start of a fresh nonlinear solve (e.g. a new timestep) so rows can be
+					// correlated with the outer context that produced them, and so the banner/column
+					// header reprint to mark where this solve begins in the console/text output
+					void reset() const {
+						printHeader_ = true;
+						++outerTick_;
+					}
+
+					void log(Index iter, const std::vector<Real>& residualRelPerDOF) const {
 
 						const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 
-						// CSV row: every outer iteration
 						if (csv_->enabled()) {
-							csv_->writeRow({static_cast<Real>(iter), residualNorm, residualRel, static_cast<Real>(elapsed)});
+							std::vector<Real> row = {static_cast<Real>(outerTick_), static_cast<Real>(iter)};
+							for (const auto& v : residualRelPerDOF) row.push_back(v);
+							row.push_back(static_cast<Real>(elapsed));
+							csv_->writeRow(row);
 						}
 
 						lastIter_ = iter;
-						lastResidualRel_ = residualRel;
+						lastRelPerDOF_ = residualRelPerDOF;
+
+						// console/text output throttle; the CSV row above is always written regardless
+						if (interval == 0) return;
+						if ((iter > 0) && ((iter % interval) != 0)) return;
 
 						if (printHeader_) {
 							printBanner();
@@ -73,9 +92,9 @@ namespace residuum {
 							printHeader_ = false;
 						}
 
-						*out_ << "  " << std::left << std::setw(6) << iter << "  ";
+						*out_ << tag() << std::left << std::setw(6) << iter << "  ";
 						*out_ << std::scientific << std::setprecision(4);
-						*out_ << std::setw(14) << residualNorm << "  " << std::setw(14) << residualRel << "  ";
+						for (const auto& v : residualRelPerDOF) *out_ << std::setw(14) << v << "  ";
 						*out_ << std::fixed << std::setprecision(3) << elapsed << "s\n";
 
 					}
@@ -84,29 +103,36 @@ namespace residuum {
 
 						const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime_).count();
 
-						*out_ << "  [" << solverName << "] " << (converged ? "converged" : "did not converge") << ": " << lastIter_ << " iterations, res_rel " << std::scientific << std::setprecision(4) << lastResidualRel_ << ", " << std::fixed << std::setprecision(3) << elapsed << "s\n";
+						*out_ << tag() << (converged ? "converged" : "did not converge") << ": " << lastIter_ << " iters, ";
+
+						for (Index i = 0; i < lastRelPerDOF_.size(); ++i) {
+							*out_ << "rel[" << dofNames[i] << "] " << std::scientific << std::setprecision(4) << lastRelPerDOF_[i];
+							if (i + 1 < lastRelPerDOF_.size()) *out_ << ", ";
+						}
+
+						*out_ << ", " << std::fixed << std::setprecision(3) << elapsed << "s\n";
 
 					}
 
 				private:
+
+					std::string tag() const { return "    [NL:" + solverName + "] "; }
 
 					void printBanner() const {
 
 						const int width = 60;
 
 						*out_ << "\n";
-						*out_ << "  " << std::string(width, '=') << "\n";
-						*out_ << "  " << equationName << " - " << solverName << "\n";
-						*out_ << "  " << std::string(width, '=') << "\n";
+						*out_ << tag() << std::string(width, '=') << "\n";
 
 					}
 
 					void printColumnHeader() const {
 
-						*out_ << "  " << std::left << std::setw(6) << "Iter" << "  ";
-						*out_ << std::setw(14) << "Res" << "  " << std::setw(14) << "Res[rel]" << "  ";
+						*out_ << tag() << std::left << std::setw(6) << "Iter" << "  ";
+						for (const auto& name : dofNames) *out_ << std::setw(14) << ("Rel[" + name + "]") << "  ";
 						*out_ << "Elapsed" << "\n";
-						*out_ << "  " << std::string(60, '-') << "\n";
+						*out_ << tag() << std::string(60, '-') << "\n";
 
 					}
 
@@ -117,7 +143,8 @@ namespace residuum {
 
 					mutable bool printHeader_ = true;
 					mutable Index lastIter_ = 0;
-					mutable Real lastResidualRel_ = Real(0);
+					mutable std::vector<Real> lastRelPerDOF_;
+					mutable Index outerTick_ = 0;
 					std::chrono::steady_clock::time_point startTime_;
 
 				}; // struct ConsoleLogger

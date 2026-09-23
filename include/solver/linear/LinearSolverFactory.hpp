@@ -11,8 +11,11 @@
 
 #include "core/Types.hpp"
 
+#include "fem/dof/DOFOrdering.hpp"
+
 #include "solver/config/LinearSolverConfig.hpp"
 #include "solver/config/LoggingConfig.hpp"
+#include "solver/logging/LoggerFactory.hpp"
 
 #include "linalg/solver/base/LinearSolverRunner.hpp"
 #include "linalg/solver/iterative/cg/CGRunner.hpp"
@@ -21,15 +24,15 @@
 #include "linalg/solver/preconditioner/Identity.hpp"
 
 #include "utils/logging/core/NullLogger.hpp"
-#include "utils/logging/solver/ConsoleLogger.hpp"
-#include "utils/logging/solver/Logger.hpp"
+#include "utils/logging/linear/ConsoleLogger.hpp"
+#include "utils/logging/linear/Logger.hpp"
 
 namespace residuum {
 	namespace solver {
 		namespace linear {
 
 			template<typename OperatorT, typename VectorT>
-			std::unique_ptr<linalg::solver::LinearSolverRunner<VectorT>> makeLinearSolverRunner(const OperatorT& op, Index n, const config::LinearSolverConfig& cfg, const config::SolverLoggerConfig& loggerCfg, const std::string& equationName, const std::vector<std::string>& dofNames) {
+			std::unique_ptr<linalg::solver::LinearSolverRunner<VectorT>> makeLinearSolverRunner(const OperatorT& op, Index n, const config::LinearSolverConfig& cfg, const config::LinearLoggerConfig& loggerCfg, const std::string& equationName, const std::vector<std::string>& dofNames, Index freeDOFsPerField, fem::dof::DOFOrdering ordering) {
 
 				if (cfg.preconditioner.type != config::PreconditionerConfig::Type::Identity) {
 					throw std::runtime_error("LinearSolverFactory: only the identity preconditioner is implemented so far");
@@ -38,7 +41,7 @@ namespace residuum {
 				const std::string preconditionerName = "Identity";
 
 				using PreconditionerT = linalg::solver::preconditioner::Identity<VectorT>;
-				using LoggerT = utils::logging::SolverLogger;
+				using LoggerT = utils::logging::linear::Logger;
 
 				switch (cfg.type) {
 
@@ -57,12 +60,7 @@ namespace residuum {
 							{"Tolerance", tolStream.str() + " (" + (cgCfg.tolType == linalg::solver::iterative::cg::ToleranceType::Relative ? "Relative" : "Absolute") + ")"}
 						};
 
-						const bool consoleEnabled = (loggerCfg.type == config::LoggerConfig::Type::Console);
-						const bool anyOutput = consoleEnabled || !loggerCfg.textFile.empty() || !loggerCfg.csvFile.empty();
-
-						LoggerT logger = anyOutput
-							? LoggerT(utils::logging::ConsoleLogger(equationName, "PCG", preconditionerName, dofNames, extraParams, n, fem::dof::DOFOrdering::Interleaved, 1, consoleEnabled, loggerCfg.textFile, loggerCfg.csvFile))
-							: LoggerT(utils::logging::NullLogger{});
+						LoggerT logger = logging::makeLinearLogger(loggerCfg, equationName, "CG", preconditionerName, dofNames, extraParams, freeDOFsPerField, ordering);
 
 						return std::make_unique<linalg::solver::iterative::cg::CGRunner<OperatorT, VectorT, PreconditionerT, LoggerT>>(op, n, cgCfg, std::move(logger));
 

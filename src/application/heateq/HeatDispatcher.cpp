@@ -40,7 +40,7 @@ bool residuum::application::heateq::HeatDispatcher::run(const residuum::applicat
 
 	const bool steady = (config.solver.driver.type == sconfig::DriverConfig::Type::Steady);
 
-	for (const std::string& path : {config.logging.driver.textFile, config.logging.solver.textFile}) {
+	for (const std::string& path : {config.logging.driver.textFile, config.logging.linear.textFile}) {
 		if (!path.empty()) std::ofstream(path, std::ios::trunc);
 	}
 

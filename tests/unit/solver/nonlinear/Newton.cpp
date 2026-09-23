@@ -5,6 +5,8 @@
 
 #include "core/Types.hpp"
 
+#include "fem/dof/DOFOrdering.hpp"
+
 #include "linalg/solver/base/SolverReport.hpp"
 #include "linalg/types/Vector.hpp"
 #include "linalg/types/backend/CPU.hpp"
@@ -43,6 +45,13 @@ namespace {
 			return residualPerAssemble[idx];
 		}
 
+		// single-DOF mock, so the per-DOF split is just the aggregate residual
+		linalg::types::Vector<Real, linalg::types::backend::CPU> residual() const {
+			linalg::types::Vector<Real, linalg::types::backend::CPU> r(1);
+			r.data()[0] = residualNorm();
+			return r;
+		}
+
 		bool solveLinearStep() {
 			++solveLinearStepCalls;
 			return !failSolveLinearStep;
@@ -74,7 +83,7 @@ TEST(NewtonRunnerTest, ConvergesWhenResidualDropsBelowAbsoluteTolerance) {
 	MockNonlinearStage stage;
 	stage.residualPerAssemble = {1.0, 1e-2, 1e-11}; // iter2's residual is below absoluteTolerance
 
-	NewtonRunnerT runner(stage, makeConfig(), makeQuietLogger());
+	NewtonRunnerT runner(stage, makeConfig(), makeQuietLogger(), {"x"}, 1, fem::dof::DOFOrdering::Interleaved);
 
 	linalg::solver::SolverReport<VectorType> report;
 	const bool converged = runner.solve(report);
@@ -95,7 +104,7 @@ TEST(NewtonRunnerTest, StopsImmediatelyWhenSolveLinearStepFails) {
 	stage.residualPerAssemble = {1.0, 1.0, 1.0}; // never converges on its own
 	stage.failSolveLinearStep = true;
 
-	NewtonRunnerT runner(stage, makeConfig(), makeQuietLogger());
+	NewtonRunnerT runner(stage, makeConfig(), makeQuietLogger(), {"x"}, 1, fem::dof::DOFOrdering::Interleaved);
 
 	linalg::solver::SolverReport<VectorType> report;
 	const bool converged = runner.solve(report);
@@ -114,7 +123,7 @@ TEST(NewtonRunnerTest, ReportsNotConvergedAfterMaxIterations) {
 	MockNonlinearStage stage;
 	stage.residualPerAssemble.assign(maxIterations, 0.5); // stays flat -- relative residual never drops
 
-	NewtonRunnerT runner(stage, makeConfig(maxIterations), makeQuietLogger());
+	NewtonRunnerT runner(stage, makeConfig(maxIterations), makeQuietLogger(), {"x"}, 1, fem::dof::DOFOrdering::Interleaved);
 
 	linalg::solver::SolverReport<VectorType> report;
 	const bool converged = runner.solve(report);
@@ -137,7 +146,7 @@ TEST(NewtonRunnerTest, FirstIterationRelativeResidualIsAlwaysOneRegardlessOfAbso
 	stage.residualPerAssemble = {5.0, 5.0}; // large, constant -- would only "converge" via a
 	                                         // buggy relative check that misreads iter 0
 
-	NewtonRunnerT runner(stage, makeConfig(1), makeQuietLogger());
+	NewtonRunnerT runner(stage, makeConfig(1), makeQuietLogger(), {"x"}, 1, fem::dof::DOFOrdering::Interleaved);
 
 	linalg::solver::SolverReport<VectorType> report;
 	const bool converged = runner.solve(report);
