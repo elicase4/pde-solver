@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "core/Types.hpp"
@@ -20,6 +21,8 @@
 #include "linalg/solver/base/LinearSolverRunner.hpp"
 #include "linalg/solver/iterative/cg/CGRunner.hpp"
 #include "linalg/solver/iterative/cg/Config.hpp"
+#include "linalg/solver/iterative/gmres/GMRESRunner.hpp"
+#include "linalg/solver/iterative/gmres/Config.hpp"
 
 #include "linalg/solver/preconditioner/Identity.hpp"
 
@@ -66,8 +69,30 @@ namespace residuum {
 
 					}
 
-					case config::LinearSolverConfig::Type::GMRES:
-						throw std::runtime_error("LinearSolverFactory: GMRES not yet implemented");
+					case config::LinearSolverConfig::Type::GMRES: {
+
+						const auto& p = std::get<config::GMRESParams>(cfg.params);
+
+						using GMRESConfigT = linalg::solver::iterative::gmres::Config<VectorT>;
+						GMRESConfigT gmresCfg;
+						gmresCfg.tol = static_cast<typename GMRESConfigT::DataType>(cfg.tolerance);
+						gmresCfg.maxIters = cfg.maxIterations;
+						gmresCfg.krylovDim = p.krylovDim;
+
+						std::ostringstream tolStream;
+						tolStream << std::scientific << std::setprecision(1) << cfg.tolerance;
+
+						std::vector<std::pair<std::string, std::string>> extraParams = {
+							{"Maximum Iterations", std::to_string(cfg.maxIterations)},
+							{"Krylov Dimension", std::to_string(p.krylovDim)},
+							{"Tolerance", tolStream.str() + " (" + (gmresCfg.tolType == linalg::solver::iterative::gmres::ToleranceType::Relative ? "Relative" : "Absolute") + ")"}
+						};
+
+						LoggerT logger = logging::makeLinearLogger(loggerCfg, equationName, "GMRES", preconditionerName, dofNames, extraParams, freeDOFsPerField, ordering);
+
+						return std::make_unique<linalg::solver::iterative::gmres::GMRESRunner<OperatorT, VectorT, PreconditionerT, LoggerT>>(op, n, gmresCfg, std::move(logger));
+
+					}
 
 					case config::LinearSolverConfig::Type::BiCGSTAB:
 						throw std::runtime_error("LinearSolverFactory: BiCGSTAB not yet implemented");

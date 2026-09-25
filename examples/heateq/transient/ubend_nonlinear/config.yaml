@@ -152,13 +152,14 @@ solver:
     max_iterations: 50
 
     linear_solver:
-      type: cg
+      type: gmres
       operator:
         type: fem
       preconditioner:
         type: identity
       tolerance: 1.0e-4
       max_iterations: 1000
+      krylov_dim: 25
 
 output:
   directory: output

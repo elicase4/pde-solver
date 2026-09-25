@@ -39,6 +39,7 @@ namespace residuum::equation::heateq::evaluator {
 			setTensor(t);
 			symmetry = Symmetry::Anisotropic;
 			dependence = Dependence::Constant;
+			scalar = Real(1); // eval()'s k*tensor[i,j] must pass the tensor through unscaled
 		}
 
 		void setTemperatureDependentIsotropic(const std::string& valueExpression, const std::string& gradientExpression) {

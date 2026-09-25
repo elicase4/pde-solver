@@ -49,13 +49,36 @@ residuum::solver::config::LinearSolverConfig residuum::solver::parser::LinearSol
 	cfg.type = parseLinearSolverType(YAMLReader::required<std::string>(node, "type"));
 	cfg.tolerance = YAMLReader::optional<Real>(node, "tolerance", 1e-10);
 	cfg.maxIterations = YAMLReader::optional<Index>(node, "max_iterations", 1000);
-	cfg.krylovDim = YAMLReader::optional<Index>(node, "krylov_dim", 50);
+
+	switch (cfg.type) {
+
+		case config::LinearSolverConfig::Type::CG:
+			cfg.params = config::CGParams{};
+			break;
+
+		case config::LinearSolverConfig::Type::GMRES: {
+			config::GMRESParams p;
+			p.krylovDim = YAMLReader::optional<Index>(node, "krylov_dim", 50);
+			cfg.params = p;
+			break;
+		}
+
+		case config::LinearSolverConfig::Type::BiCGSTAB:
+			cfg.params = config::BiCGSTABParams{};
+			break;
+
+		case config::LinearSolverConfig::Type::LU:
+			cfg.params = config::LUParams{};
+			break;
+
+	}
 
 	const YAML::Node& op = node["operator"];
 	cfg.operatorType = op ? parseOperatorType(YAMLReader::required<std::string>(op, "type")) : config::LinearSolverConfig::OperatorType::CSR;
 
 	const YAML::Node& precond = node["preconditioner"];
 	cfg.preconditioner.type = precond ? parsePreconditionerType(YAMLReader::required<std::string>(precond, "type")) : config::PreconditionerConfig::Type::Identity;
+	cfg.preconditioner.params = config::IdentityPreconditionerParams{};
 
 	return cfg;
 

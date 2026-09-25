@@ -16,6 +16,10 @@ namespace residuum {
 						operations::copy(r, z); // z = r
 					}
 
+					// no state to refresh against the current operator
+					template<typename OperatorT>
+					void update(const OperatorT&) {}
+
 					Index flopsPerApply() const {
 						return 0;
 					}

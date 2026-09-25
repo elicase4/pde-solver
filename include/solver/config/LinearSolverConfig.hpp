@@ -1,11 +1,15 @@
 #ifndef RESIDUUM_SOLVER_CONFIG_LINEARSOLVERCONFIG_HPP
 #define RESIDUUM_SOLVER_CONFIG_LINEARSOLVERCONFIG_HPP
 
+#include <variant>
+
 #include "core/Types.hpp"
 
 namespace residuum {
 	namespace solver {
 		namespace config {
+
+			struct IdentityPreconditionerParams {};
 
 			struct PreconditionerConfig {
 
@@ -15,7 +19,20 @@ namespace residuum {
 
 				Type type = Type::Identity;
 
+				std::variant<IdentityPreconditionerParams> params = IdentityPreconditionerParams{};
+
 			}; // struct PreconditionerConfig
+
+			// each linear solver type's own parameters
+			struct CGParams {};
+
+			struct GMRESParams {
+				Index krylovDim = 50; // restart length m
+			};
+
+			struct BiCGSTABParams {};
+
+			struct LUParams {};
 
 			struct LinearSolverConfig {
 
@@ -41,7 +58,7 @@ namespace residuum {
 
 				Index maxIterations = 1000;
 
-				Index krylovDim = 50;
+				std::variant<CGParams, GMRESParams, BiCGSTABParams, LUParams> params = CGParams{};
 
 			};
 

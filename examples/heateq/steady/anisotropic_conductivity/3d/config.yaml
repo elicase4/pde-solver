@@ -35,58 +35,61 @@ physics:
 
 boundary_conditions:
 
+  # hot left face -- off-diagonal K terms should visibly skew the isotherms away from this purely x-directed gradient
   - boundary: 0
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
+      expression: "100.0"
       unit: K
     forms: [value_bc]
     model: anisotropic
 
+  # cold right face
   - boundary: 1
     type: value
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
+      expression: "0.0"
       unit: K
     forms: [value_bc]
     model: anisotropic
 
+  # insulated front/back/bottom/top
   - boundary: 2
-    type: value
+    type: flux
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
-      unit: K
-    forms: [value_bc]
+      expression: ["0.0", "0.0", "0.0"]
+      unit: W/m^2
+    forms: [flux_bc]
     model: anisotropic
 
   - boundary: 3
-    type: value
+    type: flux
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
-      unit: K
-    forms: [value_bc]
+      expression: ["0.0", "0.0", "0.0"]
+      unit: W/m^2
+    forms: [flux_bc]
     model: anisotropic
 
   - boundary: 4
-    type: value
+    type: flux
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
-      unit: K
-    forms: [value_bc]
+      expression: ["0.0", "0.0", "0.0"]
+      unit: W/m^2
+    forms: [flux_bc]
     model: anisotropic
 
   - boundary: 5
-    type: value
+    type: flux
     read:
       mode: expression
-      expression: "(1-x)*(1-y)*(1-z)"
-      unit: K
-    forms: [value_bc]
+      expression: ["0.0", "0.0", "0.0"]
+      unit: W/m^2
+    forms: [flux_bc]
     model: anisotropic
 
 initial_condition:
@@ -112,6 +115,7 @@ solver:
 
     tolerance: 1.0e-12
     max_iterations: 10000
+    krylov_dim: 15
 
 output:
   directory: output

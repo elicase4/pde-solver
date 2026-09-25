@@ -17,6 +17,10 @@ namespace residuum::linalg::solver::iterative::cg {
 		// a fresh solve, so the logger's relative-residual baseline and per-call totals must not carry over
 		logger.reset();
 
+		// let the preconditioner refresh itself against the current operator (e.g. a Jacobi
+		// preconditioner re-extracting the diagonal after T changed between Newton iterations)
+		M.update(A);
+
 		// get config info
 		using DataType = typename VectorT::value_type;
 		const bool relMode = (config.tolType == ToleranceType::Relative);

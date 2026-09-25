@@ -89,6 +89,14 @@ add_residuum_test(UnitTest_Linalg_Solver_Iterative_Cg_CGRunner
 	unit/linalg/solver/iterative/cg/CGRunner.cpp
 )
 
+add_residuum_test(UnitTest_Linalg_Solver_Iterative_Gmres_Solver
+	unit/linalg/solver/iterative/gmres/Solver.cpp
+)
+
+add_residuum_test(UnitTest_Linalg_Solver_Iterative_Gmres_GMRESRunner
+	unit/linalg/solver/iterative/gmres/GMRESRunner.cpp
+)
+
 add_residuum_test(UnitTest_Solver_Linear_LinearSolverFactory
 	unit/solver/linear/LinearSolverFactory.cpp
 )
@@ -140,6 +148,16 @@ add_residuum_test(UnitTest_Equation_Heateq_NodalDataFormEquivalence
 add_residuum_test(UnitTest_Equation_Heateq_QuantityEvaluator
 	unit/equation/heateq/QuantityEvaluator.cpp
 	residuum_mesh residuum_io
+)
+
+add_residuum_test(UnitTest_Equation_Heateq_Evaluator_ConductivityModel
+	unit/equation/heateq/evaluator/ConductivityModel.cpp
+	residuum_expression
+)
+
+add_residuum_test(UnitTest_Equation_Heateq_Evaluator_SpecificHeatModel
+	unit/equation/heateq/evaluator/SpecificHeatModel.cpp
+	residuum_expression
 )
 
 add_residuum_test(UnitTest_Application_Heateq_Problem_HeatProblem
